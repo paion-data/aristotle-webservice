@@ -1,90 +1,128 @@
+/*
+ * Copyright 2024 Paion Data
+ *
+ * Licensed under the Apache License, Version 2.0 (the "License");
+ * you may not use this file except in compliance with the License.
+ * You may obtain a copy of the License at
+ *
+ *     http://www.apache.org/licenses/LICENSE-2.0
+ *
+ * Unless required by applicable law or agreed to in writing, software
+ * distributed under the License is distributed on an "AS IS" BASIS,
+ * WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
+ * See the License for the specific language governing permissions and
+ * limitations under the License.
+ */
 package com.paiondata.aristotle.common.base;
 
+/**
+ * Defines standard HTTP status codes.
+ */
 public interface HttpStatus {
 
     /**
-     * 操作成功
+     * Indicates the request has been fulfilled and the result is returned in the response.
+     *
+     * @param SUCCESS The status code for a successful request.
      */
     int SUCCESS = 200;
 
     /**
-     * 对象创建成功
+     * Indicates that the request has been fulfilled and resulted in the creation of a resource.
+     *
+     * @param CREATED The status code for a successfully created resource.
      */
+
     int CREATED = 201;
 
     /**
-     * 请求已经被接受
+     * Indicates that the request has been accepted for processing, but the processing has not been completed.
+     *
+     * @param ACCEPTED The status code for an accepted request.
      */
     int ACCEPTED = 202;
 
     /**
-     * 操作已经执行成功，但是没有返回数据
+     * Indicates the server has fulfilled the request and there is no additional content to send in the response body.
+     *
+     * @param NO_CONTENT The status code for a request with no content.
      */
     int NO_CONTENT = 204;
 
     /**
-     * 资源已被移除
+     * Indicates that the requested page has moved permanently to a new URL.
+     *
+     * @param MOVED_PERM The status code for a permanently moved resource.
      */
     int MOVED_PERM = 301;
 
     /**
-     * 重定向
+     * Indicates that the response to the request can be found under another URI.
+     *
+     * @param SEE_OTHER The status code for a redirect to another URI.
      */
     int SEE_OTHER = 303;
 
     /**
-     * 资源没有被修改
+     * Indicates that the requested resource has not been modified.
+     *
+     * @param NOT_MODIFIED The status code for an unmodified resource.
      */
     int NOT_MODIFIED = 304;
 
     /**
-     * 请求描述错误（参数缺少，格式不匹配，请求方式有误）
+     * Indicates the server cannot or will not process the request due to something that is perceived to be a error.
+     *
+     * @param BAD_REQUEST The status code for a bad request.
      */
     int BAD_REQUEST = 400;
 
     /**
-     * 未授权
-     */
-    int UNAUTHORIZED = 401;
-
-    /**
-     * 访问受限，授权过期
-     */
-    int FORBIDDEN = 403;
-
-    /**
-     * 资源，服务未找到
+     * Indicates that the server has not found anything matching the Request-URI.
+     *
+     * @param NOT_FOUND The status code for a not found resource.
      */
     int NOT_FOUND = 404;
 
     /**
-     * 不允许的http方法
+     * Indicates the method specified in the Request-Line is not allowed for the resource identified by Request-URI.
+     *
+     * @param BAD_METHOD The status code for an unsupported HTTP method.
      */
     int BAD_METHOD = 405;
 
     /**
-     * 资源冲突，或者资源被锁
+     * Indicates that the request could not be completed due to a conflict with the current state of the resource.
+     *
+     * @param CONFLICT The status code for a conflicting request.
      */
     int CONFLICT = 409;
 
     /**
-     * 不支持的数据，媒体类型
+     * Indicates that the server does not support the media type of the request entity.
+     *
+     * @param UNSUPPORTED_TYPE The status code for an unsupported media type.
      */
     int UNSUPPORTED_TYPE = 415;
 
     /**
-     * 系统内部错误
+     * Indicates that the server encountered an unexpected condition that prevented it from fulfilling the request.
+     *
+     * @param ERROR The status code for a server error.
      */
     int ERROR = 500;
 
     /**
-     * 接口未实现
+     * Indicates that the server does not support the functionality required to fulfill the request.
+     *
+     * @param NOT_IMPLEMENTED The status code for a not implemented request.
      */
     int NOT_IMPLEMENTED = 501;
 
     /**
-     * 系统警告消息
+     * Indicates a warning about the response.
+     *
+     * @param WARN The status code for a warning.
      */
     int WARN = 600;
-
 }
