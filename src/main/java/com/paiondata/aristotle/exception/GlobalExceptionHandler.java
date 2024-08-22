@@ -1,7 +1,22 @@
+/*
+ * Copyright 2024 Paion Data
+ *
+ * Licensed under the Apache License, Version 2.0 (the "License");
+ * you may not use this file except in compliance with the License.
+ * You may obtain a copy of the License at
+ *
+ *     http://www.apache.org/licenses/LICENSE-2.0
+ *
+ * Unless required by applicable law or agreed to in writing, software
+ * distributed under the License is distributed on an "AS IS" BASIS,
+ * WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
+ * See the License for the specific language governing permissions and
+ * limitations under the License.
+ */
 package com.paiondata.aristotle.exception;
 
 import com.paiondata.aristotle.common.base.HttpStatus;
-import com.paiondata.aristotle.common.base.R;
+import com.paiondata.aristotle.common.base.Result;
 import jakarta.servlet.ServletException;
 import jakarta.servlet.http.HttpServletRequest;
 import jakarta.validation.ConstraintViolationException;
@@ -21,178 +36,197 @@ import com.paiondata.aristotle.exception.customize.CustomizeReturnException;
 
 import java.util.Objects;
 
+/**
+ * Global exception handler for processing exceptions and returning appropriate HTTP responses.
+ */
 @RestControllerAdvice
 @Slf4j
 public class GlobalExceptionHandler {
 
     /**
-     * 请求方式不支持
+     * Handles HttpRequestMethodNotSupportedException.
      *
-     * @param e       异常
-     * @param request 请求
-     * @return 返回结果
+     * @param e         the exception
+     * @param request   the HTTP request
+     * @return a result object indicating failure with BAD_METHOD status
      */
     @ExceptionHandler(HttpRequestMethodNotSupportedException.class)
-    public R<Void> handleHttpRequestMethodNotSupported(HttpRequestMethodNotSupportedException e, HttpServletRequest request) {
-        String requestUri = request.getRequestURI();
+    public Result<Void> handleHttpRequestMethodNotSupported(final HttpRequestMethodNotSupportedException e,
+                                                            final HttpServletRequest request) {
+        final String requestUri = request.getRequestURI();
         log.error("请求地址'{}',不支持'{}'请求", requestUri, e.getMethod());
-        return R.fail(HttpStatus.BAD_METHOD, e.getMessage());
+        return Result.fail(HttpStatus.BAD_METHOD, e.getMessage());
     }
 
     /**
-     * 请求路径中缺少必需的路径变量
+     * Handles MissingPathVariableException.
      *
-     * @param e       异常
-     * @param request 请求
-     * @return 返回结果
+     * @param e         the exception
+     * @param request   the HTTP request
+     * @return a result object indicating failure with BAD_REQUEST status
      */
     @ExceptionHandler(MissingPathVariableException.class)
-    public R<Void> handleMissingPathVariableException(MissingPathVariableException e, HttpServletRequest request) {
-        String requestUri = request.getRequestURI();
+    public Result<Void> handleMissingPathVariableException(final MissingPathVariableException e,
+                                                           final HttpServletRequest request) {
+        final String requestUri = request.getRequestURI();
         log.error("请求路径中缺少必需的路径变量'{}',发生系统异常.", requestUri, e);
-        return R.fail(HttpStatus.BAD_REQUEST, String.format("请求路径中缺少必需的路径变量[%s]", e.getVariableName()));
+        return Result.fail(HttpStatus.BAD_REQUEST, String.format("请求路径中缺少必需的路径变量[%s]", e.getVariableName()));
     }
 
     /**
-     * 请求参数类型不匹配
+     * Handles MethodArgumentTypeMismatchException.
      *
-     * @param e       异常
-     * @param request 请求
-     * @return 返回结果
+     * @param e         the exception
+     * @param request   the HTTP request
+     * @return a result object indicating failure with BAD_REQUEST status
      */
     @ExceptionHandler(MethodArgumentTypeMismatchException.class)
-    public R<Void> handleMethodArgumentTypeMismatchException(MethodArgumentTypeMismatchException e, HttpServletRequest request) {
-        String requestUri = request.getRequestURI();
+    public Result<Void> handleMethodArgumentTypeMismatchException(final MethodArgumentTypeMismatchException e,
+                                                                  final HttpServletRequest request) {
+        final String requestUri = request.getRequestURI();
         log.error("请求参数类型不匹配'{}',发生系统异常.", requestUri, e);
-        return R.fail(HttpStatus.BAD_REQUEST, String.format("请求参数类型不匹配，参数[%s]要求类型为：'%s'，但输入值为：'%s'", e.getName(), Objects.isNull(e.getRequiredType()) ? "None" : e.getRequiredType().getName(), e.getValue()));
+        return Result.fail(HttpStatus.BAD_REQUEST, String.format(
+                "请求参数类型不匹配，参数[%s]要求类型为：'%s'，但输入值为：'%s'", e.getName(),
+                Objects.isNull(e.getRequiredType()) ? "None" : e.getRequiredType().getName(), e.getValue()));
     }
 
     /**
-     * 拦截未知的运行时异常
+     * Handles RuntimeException.
      *
-     * @param e       异常
-     * @param request 请求
-     * @return 返回结果
+     * @param e         the exception
+     * @param request   the HTTP request
+     * @return a result object indicating failure with ERROR status
      */
     @ExceptionHandler(RuntimeException.class)
-    public R<Void> handleRuntimeException(RuntimeException e, HttpServletRequest request) {
-        String requestUri = request.getRequestURI();
-        log.error("请求地址'{}',发生未知异常.", requestUri, e);
-        return R.fail(HttpStatus.ERROR, e.getMessage());
+    public Result<Void> handleRuntimeException(final RuntimeException e, final HttpServletRequest request) {
+        final String requestUri = request.getRequestURI();
+        log.error("请求地址'{}', 发生未知异常.", requestUri, e);
+        return Result.fail(HttpStatus.ERROR, e.getMessage());
     }
 
     /**
-     * 系统异常
+     * Handles Exception.
      *
-     * @param e       异常
-     * @param request 请求
-     * @return 返回结果
+     * @param e         the exception
+     * @param request   the HTTP request
+     * @return a result object indicating failure with ERROR status
      */
     @ExceptionHandler(Exception.class)
-    public R<Void> handleException(Exception e, HttpServletRequest request) {
-        String requestUri = request.getRequestURI();
+    public Result<Void> handleException(final Exception e, final HttpServletRequest request) {
+        final String requestUri = request.getRequestURI();
         log.error("请求地址'{}',发生系统异常.", requestUri, e);
-        return R.fail(HttpStatus.ERROR, e.getMessage());
+        return Result.fail(HttpStatus.ERROR, e.getMessage());
     }
 
     /**
-     * Validation校验注解校验异常
+     * Handles ValidationException.
      *
-     * @param e 异常
-     * @return 返回结果
+     * @param e         the exception
+     * @param request   the HTTP request
+     * @return a result object indicating failure with BAD_REQUEST status
      */
     @ExceptionHandler(ValidationException.class)
-    public R<Void> handleValidationException(ValidationException e, HttpServletRequest request) {
-        String requestUri = request.getRequestURI();
-        log.error("校验失败'{}',发生系统异常.", requestUri, e);
-        return R.fail(HttpStatus.BAD_REQUEST, e.getMessage());
+    public Result<Void> handleValidationException(final ValidationException e, final HttpServletRequest request) {
+        final String requestUri = request.getRequestURI();
+        log.error("校验失败'{}', 发生系统异常.", requestUri, e);
+        return Result.fail(HttpStatus.BAD_REQUEST, e.getMessage());
     }
 
     /**
-     * Validation校验注解校验异常
+     * Handles ConstraintViolationException.
      *
-     * @param e 异常
-     * @return 返回结果
+     * @param e         the exception
+     * @param request   the HTTP request
+     * @return a result object indicating failure with BAD_REQUEST status
      */
     @ExceptionHandler(ConstraintViolationException.class)
-    public R<Void> handleConstraintViolationException(ConstraintViolationException e, HttpServletRequest request) {
-        String requestUri = request.getRequestURI();
+    public Result<Void> handleConstraintViolationException(final ConstraintViolationException e,
+                                                           final HttpServletRequest request) {
+        final String requestUri = request.getRequestURI();
         log.error("校验失败'{}',发生系统异常.", requestUri, e);
-        return R.fail(HttpStatus.BAD_REQUEST, e.getMessage());
+        return Result.fail(HttpStatus.BAD_REQUEST, e.getMessage());
     }
 
     /**
-     * 数据重复异常
+     * Handles DuplicateKeyException.
      *
-     * @param e 异常
-     * @return 返回结果
+     * @param e         the exception
+     * @param request   the HTTP request
+     * @return a result object indicating failure with BAD_REQUEST status
      */
     @ExceptionHandler(DuplicateKeyException.class)
-    public R<Void> handleDuplicateKeyException(DuplicateKeyException e, HttpServletRequest request) {
-        String requestUri = request.getRequestURI();
+    public Result<Void> handleDuplicateKeyException(final DuplicateKeyException e, final HttpServletRequest request) {
+        final String requestUri = request.getRequestURI();
         log.error("数据重复'{}',发生系统异常.", requestUri, e);
-        return R.fail(HttpStatus.BAD_REQUEST, e.getMessage());
+        return Result.fail(HttpStatus.BAD_REQUEST, e.getMessage());
     }
 
     /**
-     * 方法参数校验异常
+     * Handles MethodArgumentNotValidException.
      *
-     * @param e 异常
-     * @return 返回结果
+     * @param e         the exception
+     * @param request   the HTTP request
+     * @return a result object indicating failure with BAD_REQUEST status
      */
     @ExceptionHandler(MethodArgumentNotValidException.class)
-    public R<Void> handleMethodArgumentNotValidException(MethodArgumentNotValidException e, HttpServletRequest request) {
-        String requestUri = request.getRequestURI();
+    public Result<Void> handleMethodArgumentNotValidException(final MethodArgumentNotValidException e,
+                                                              final HttpServletRequest request) {
+        final String requestUri = request.getRequestURI();
         log.error("方法校验失败'{}',发生系统异常.", requestUri, e);
-        String message = Objects.isNull(e.getBindingResult().getFieldError()) ? "No Message" : e.getBindingResult().getFieldError().getDefaultMessage();
-        return R.fail(HttpStatus.BAD_REQUEST, message);
+        final String message = Objects.isNull(e.getBindingResult().getFieldError())
+                ? "No Message" : e.getBindingResult().getFieldError().getDefaultMessage();
+        return Result.fail(HttpStatus.BAD_REQUEST, message);
     }
 
     /**
-     * 自定义验证异常
+     * Handles BindException.
      *
-     * @param e 异常
-     * @return 返回结果
+     * @param e         the exception
+     * @param request   the HTTP request
+     * @return a result object indicating failure with BAD_REQUEST status
      */
     @ExceptionHandler(BindException.class)
-    public R<Void> handleBindException(BindException e, HttpServletRequest request) {
-        String requestUri = request.getRequestURI();
+    public Result<Void> handleBindException(final BindException e, final HttpServletRequest request) {
+        final String requestUri = request.getRequestURI();
         log.error("自定义验证失败'{}',发生系统异常.", requestUri, e);
-        String message = e.getAllErrors().get(0).getDefaultMessage();
-        return R.fail(HttpStatus.BAD_REQUEST, message);
+        final String message = e.getAllErrors().get(0).getDefaultMessage();
+        return Result.fail(HttpStatus.BAD_REQUEST, message);
     }
 
     /**
-     * 自定义未找到资源/路径或未开启服务异常
+     * Handles ServletException.
+     *
+     * @param e         the exception
+     * @param request   the HTTP request
+     * @return a result object indicating failure with appropriate status
      */
     @ExceptionHandler(ServletException.class)
-    public R<Void> handleServletException(ServletException e, HttpServletRequest request) {
-        Throwable cause = e.getCause();
-        String requestUri = request.getRequestURI();
+    public Result<Void> handleServletException(final ServletException e, final HttpServletRequest request) {
+        final Throwable cause = e.getCause();
+        final String requestUri = request.getRequestURI();
         if (cause instanceof NoClassDefFoundError || cause instanceof ExceptionInInitializerError) {
             log.error("未启用服务'{}',发生系统异常.", requestUri, e);
-            return R.fail(HttpStatus.ERROR, "未启用服务");
+            return Result.fail(HttpStatus.ERROR, "未启用服务");
         }
         if (e instanceof NoHandlerFoundException || e instanceof NoResourceFoundException) {
             log.error("未找到路径或资源'{}',发生系统异常.", requestUri, e);
-            return R.fail(HttpStatus.NOT_FOUND, "未找到路径或资源");
+            return Result.fail(HttpStatus.NOT_FOUND, "未找到路径或资源");
         }
         log.error("请求地址'{}',发生未知异常.", requestUri, e);
-        return R.fail(HttpStatus.ERROR, e.getMessage());
+        return Result.fail(HttpStatus.ERROR, e.getMessage());
     }
 
     /**
-     * 自定义返回异常
+     * Handles CustomizeReturnException.
      *
-     * @param e 异常
-     * @return 返回结果
+     * @param e         the exception
+     * @return a result object indicating failure with the exception's return code
      */
     @ExceptionHandler(CustomizeReturnException.class)
-    public R<String> handleCustomizeReturnException(CustomizeReturnException e) {
+    public Result<String> handleCustomizeReturnException(final CustomizeReturnException e) {
         log.error(e.getMsg() == null ? e.getReturnCode().getMsg() : e.getMsg(), e);
-        int code = e.getReturnCode().getCode();
-        String msg = e.getMsg() == null ? e.getReturnCode().getMsg() : e.getMsg();
-        return R.fail(code, msg);
+        final int code = e.getReturnCode().getCode();
+        final String msg = e.getMsg() == null ? e.getReturnCode().getMsg() : e.getMsg();
+        return Result.fail(code, msg);
     }
-
 }

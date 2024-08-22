@@ -30,6 +30,11 @@
         <java.version>17</java.version>
         <lombok.version>1.18.34</lombok.version>
         <hutool.version>5.8.29</hutool.version>
+
+        <version.maven.checkstyle.plugin>3.1.2</version.maven.checkstyle.plugin>
+        <checkstyle.config.location>checkstyle.xml</checkstyle.config.location>
+        <checkstyle.version>8.30</checkstyle.version>
+        <checkstyle.suppressions.location>checkstyle-suppressions.xml</checkstyle.suppressions.location>
     </properties>
     <dependencies>
         <dependency>
@@ -74,7 +79,57 @@
                 <groupId>org.springframework.boot</groupId>
                 <artifactId>spring-boot-maven-plugin</artifactId>
             </plugin>
+
+            <!-- Java Checkstyle -->
+            <plugin>
+                <groupId>org.apache.maven.plugins</groupId>
+                <artifactId>maven-checkstyle-plugin</artifactId>
+                <version>${version.maven.checkstyle.plugin}</version>
+                <dependencies>
+                    <!-- override default checkstyle version -->
+                    <dependency>
+                        <groupId>com.puppycrawl.tools</groupId>
+                        <artifactId>checkstyle</artifactId>
+                        <version>${checkstyle.version}</version>
+                    </dependency>
+                </dependencies>
+                <configuration>
+                    <suppressionsLocation>${checkstyle.suppressions.location}</suppressionsLocation>
+                    <suppressionsFileExpression>checkstyle.suppressions.file</suppressionsFileExpression>
+                    <configLocation>${checkstyle.config.location}</configLocation>
+                    <includes>**\/*.java,**\/*.groovy</includes>
+                    <resourceIncludes>**/*.properties,**/*.sample</resourceIncludes>
+                    <includeTestSourceDirectory>true</includeTestSourceDirectory>
+                    <consoleOutput>true</consoleOutput>
+                </configuration>
+                <executions>
+                    <execution>
+                        <id>checkstyle</id>
+                        <phase>initialize</phase>
+                        <goals>
+                            <goal>check</goal>
+                        </goals>
+                    </execution>
+                </executions>
+            </plugin>
         </plugins>
     </build>
+
+    <reporting>
+        <plugins>
+            <plugin>
+                <groupId>org.apache.maven.plugins</groupId>
+                <artifactId>maven-checkstyle-plugin</artifactId>
+                <reportSets>
+                    <reportSet>
+                        <id>checkstyle</id>
+                        <reports>
+                            <report>checkstyle</report>
+                        </reports>
+                    </reportSet>
+                </reportSets>
+            </plugin>
+        </plugins>
+    </reporting>
 
 </project>
