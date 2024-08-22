@@ -21,7 +21,6 @@ import org.springframework.boot.test.context.SpringBootTest;
 /**
  * Test class for verifying the application context loads correctly.
  */
-
 @SpringBootTest
 class AristotleApplicationTests {
 

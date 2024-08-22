@@ -18,9 +18,9 @@ spring:
   application:
     name: Transcription-ws
   neo4j:
-    uri: bolt://localhost:7687
+    uri: bolt://localhost:7688
     authentication:
       username: neo4j
-      password: 123456
+      password: 12345678
 server:
   port: 8080
