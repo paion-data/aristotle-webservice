@@ -17,10 +17,7 @@ package com.paiondata.aristotle.exception;
 
 import com.paiondata.aristotle.common.base.HttpStatus;
 import com.paiondata.aristotle.common.base.Result;
-import jakarta.servlet.ServletException;
-import jakarta.servlet.http.HttpServletRequest;
-import jakarta.validation.ConstraintViolationException;
-import jakarta.validation.ValidationException;
+
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.dao.DuplicateKeyException;
 import org.springframework.validation.BindException;
@@ -31,9 +28,12 @@ import org.springframework.web.bind.annotation.ExceptionHandler;
 import org.springframework.web.bind.annotation.RestControllerAdvice;
 import org.springframework.web.method.annotation.MethodArgumentTypeMismatchException;
 import org.springframework.web.servlet.NoHandlerFoundException;
-import org.springframework.web.servlet.resource.NoResourceFoundException;
 import com.paiondata.aristotle.exception.customize.CustomizeReturnException;
 
+import javax.servlet.ServletException;
+import javax.servlet.http.HttpServletRequest;
+import javax.validation.ConstraintViolationException;
+import javax.validation.ValidationException;
 import java.util.Objects;
 
 /**
@@ -208,7 +208,7 @@ public class GlobalExceptionHandler {
             log.error("未启用服务'{}',发生系统异常.", requestUri, e);
             return Result.fail(HttpStatus.ERROR, "未启用服务");
         }
-        if (e instanceof NoHandlerFoundException || e instanceof NoResourceFoundException) {
+        if (e instanceof NoHandlerFoundException) {
             log.error("未找到路径或资源'{}',发生系统异常.", requestUri, e);
             return Result.fail(HttpStatus.NOT_FOUND, "未找到路径或资源");
         }
