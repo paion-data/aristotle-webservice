@@ -19,15 +19,17 @@ import java.util.Objects;
 @Service
 @AllArgsConstructor
 public class NodeServiceImpl implements NodeService {
-    private final NodeRepository nodeRepository;
-    private final RelationRepository relationRepository;
 
+    private final NodeRepository nodeRepository;
+
+    private final RelationRepository relationRepository;
 
     @Override
     public Node save(Node node) {
         Node save = nodeRepository.save(node);
         return save;
     }
+
     @Override
     public void bind(String name1, String name2, String relationName) {
         Node start = nodeRepository.findByName(name1);
@@ -40,6 +42,7 @@ public class NodeServiceImpl implements NodeService {
 
         relationRepository.save(relation);
     }
+
     private Node addNode(TreeGraphNode treeGraphNode){
 
         String nodeName = GraphUtil.getNodeValue(treeGraphNode);
@@ -52,6 +55,7 @@ public class NodeServiceImpl implements NodeService {
         node.setName(nodeName);
         return nodeRepository.save(node);
     }
+
     @Override
     public List<Relation> parseAndBind(String sentence) {
         MainPart mp = MainPartExtractor.getMainPart(sentence);
