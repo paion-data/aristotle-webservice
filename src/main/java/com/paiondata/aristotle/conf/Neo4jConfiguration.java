@@ -10,7 +10,7 @@ public class Neo4jConfiguration {
     @Bean
     public SessionFactory sessionFactory() {
         Configuration configuration = new Configuration.Builder()
-                .uri("bolt://localhost:7688")
+                .uri("bolt://localhost:7687")
                 .credentials("neo4j", "12345678")
                 .build();
 
