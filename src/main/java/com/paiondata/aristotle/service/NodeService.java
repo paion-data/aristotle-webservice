@@ -1,12 +1,12 @@
 package com.paiondata.aristotle.service;
 
-import com.et.neo4j.entity.Node;
-import com.et.neo4j.entity.Relation;
+import com.paiondata.aristotle.model.entity.Node;
+import com.paiondata.aristotle.model.entity.Relation;
 
 import java.util.List;
 
 public interface NodeService {
-    public Node save(Node node);
-    public void bind(String name1, String name2, String relationName);
-    public List<Relation> parseAndBind(String sentence);
+    Node save(Node node);
+    void bind(String name1, String name2, String relationName);
+    List<Relation> parseAndBind(String sentence);
 }

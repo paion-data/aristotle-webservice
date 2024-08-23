@@ -1,5 +1,13 @@
 package com.paiondata.aristotle.service.impl;
 
+import com.paiondata.aristotle.hanlp.MainPart;
+import com.paiondata.aristotle.hanlp.MainPartExtractor;
+import com.paiondata.aristotle.model.entity.Node;
+import com.paiondata.aristotle.model.entity.Relation;
+import com.paiondata.aristotle.repository.NodeRepository;
+import com.paiondata.aristotle.repository.RelationRepository;
+import com.paiondata.aristotle.service.NodeService;
+import com.paiondata.aristotle.util.GraphUtil;
 import edu.stanford.nlp.trees.TreeGraphNode;
 import lombok.AllArgsConstructor;
 import org.springframework.stereotype.Service;
@@ -72,5 +80,4 @@ public class NodeServiceImpl implements NodeService {
 
         return Arrays.asList(relation);
     }
-
 }
