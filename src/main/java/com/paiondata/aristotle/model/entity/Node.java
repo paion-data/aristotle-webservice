@@ -1,13 +1,13 @@
 package com.paiondata.aristotle.model.entity;
 
 import lombok.Data;
-import org.springframework.data.neo4j.core.schema.GeneratedValue;
-import org.springframework.data.neo4j.core.schema.Id;
-import org.springframework.data.neo4j.core.schema.Node;
-import org.springframework.data.neo4j.core.schema.Property;
+import org.neo4j.ogm.annotation.GeneratedValue;
+import org.neo4j.ogm.annotation.Id;
+import org.neo4j.ogm.annotation.NodeEntity;
+import org.neo4j.ogm.annotation.Property;
 
 @Data
-@Node("Person")
+@NodeEntity(label = "Person")
 public class Node {
     @Id
     @GeneratedValue

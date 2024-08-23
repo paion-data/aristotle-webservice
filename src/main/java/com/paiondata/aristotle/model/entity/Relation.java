@@ -1,12 +1,10 @@
 package com.paiondata.aristotle.model.entity;
 
 import lombok.Data;
-import org.springframework.data.neo4j.core.schema.GeneratedValue;
-import org.springframework.data.neo4j.core.schema.Id;
-import org.springframework.data.neo4j.core.schema.Relationship;
+import org.neo4j.ogm.annotation.*;
 
 @Data
-@Relationship(type = "Relation")
+@RelationshipEntity(type = "Relation")
 public class Relation {
     @Id
     @GeneratedValue
