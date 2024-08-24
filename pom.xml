@@ -5,7 +5,7 @@
     <parent>
         <groupId>org.springframework.boot</groupId>
         <artifactId>spring-boot-starter-parent</artifactId>
-        <version>2.2.5.RELEASE</version>
+        <version>3.3.2</version>
         <relativePath/> <!-- lookup parent from repository -->
     </parent>
     <groupId>com.paiondata</groupId>
@@ -27,7 +27,7 @@
         <url/>
     </scm>
     <properties>
-        <java.version>11</java.version>
+        <java.version>17</java.version>
         <lombok.version>1.18.34</lombok.version>
         <hutool.version>5.8.29</hutool.version>
         <spring-boot.version>3.3.2</spring-boot.version>

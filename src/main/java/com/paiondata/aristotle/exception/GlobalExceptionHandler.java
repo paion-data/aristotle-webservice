@@ -18,6 +18,10 @@ package com.paiondata.aristotle.exception;
 import com.paiondata.aristotle.common.base.HttpStatus;
 import com.paiondata.aristotle.common.base.Result;
 
+import jakarta.servlet.ServletException;
+import jakarta.servlet.http.HttpServletRequest;
+import jakarta.validation.ConstraintViolationException;
+import jakarta.validation.ValidationException;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.dao.DuplicateKeyException;
 import org.springframework.validation.BindException;
@@ -29,11 +33,6 @@ import org.springframework.web.bind.annotation.RestControllerAdvice;
 import org.springframework.web.method.annotation.MethodArgumentTypeMismatchException;
 import org.springframework.web.servlet.NoHandlerFoundException;
 import com.paiondata.aristotle.exception.customize.CustomizeReturnException;
-
-import javax.servlet.ServletException;
-import javax.servlet.http.HttpServletRequest;
-import javax.validation.ConstraintViolationException;
-import javax.validation.ValidationException;
 import java.util.Objects;
 
 /**
