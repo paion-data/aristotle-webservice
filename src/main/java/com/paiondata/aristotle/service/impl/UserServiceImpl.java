@@ -16,6 +16,6 @@ public class UserServiceImpl implements UserService {
 
     @Override
     public void createUser(UserOnlyDTO user) {
-//        userRepository.createUser(user.getUidcid(), user.getNickName());
+        userRepository.createUser(user.getUidcid(), user.getNickName());
     }
 }

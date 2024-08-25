@@ -21,6 +21,6 @@ public class Relation {
     @EndNode
     private GraphNode endNode;
 
-    @Property
+    @Property("relation")
     private String relation;
 }
