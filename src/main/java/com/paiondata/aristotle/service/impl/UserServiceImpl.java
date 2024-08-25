@@ -16,6 +16,11 @@ public class UserServiceImpl implements UserService {
 
     @Override
     public void createUser(UserOnlyDTO user) {
-        userRepository.createUser(user.getUidcid(), user.getNickName());
+
+        if (userRepository.checkUidcidExists(user.getUidcid()) == 0) {
+            userRepository.createUser(user.getUidcid(), user.getNickName());
+        } else {
+            throw new IllegalArgumentException("UIDCID already exists: " + user.getUidcid());
+        }
     }
 }
