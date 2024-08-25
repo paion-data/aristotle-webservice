@@ -17,5 +17,10 @@
 spring:
   application:
     name: Aristotle
+  neo4j:
+    uri: bolt://localhost:7687
+    authentication:
+      username: neo4j
+      password: 12345678
 server:
   port: 8088
