@@ -9,6 +9,12 @@ import org.springframework.stereotype.Repository;
 @Repository
 public interface UserRepository extends Neo4jRepository<User, Long> {
 
+    @Query("MATCH (u:User { id: $id }) RETURN u")
+    User getUserById(Long id);
+
+    @Query("MATCH (u:User { uidcid: $uidcid }) RETURN u")
+    User getUserByUidcid(String uidcid);
+
     @Query("MATCH (u:User { uidcid: $uidcid }) RETURN count(u)")
     long checkUidcidExists(String uidcid);
 
