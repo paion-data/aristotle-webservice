@@ -2,11 +2,12 @@ package com.paiondata.aristotle.model.entity;
 
 import lombok.Builder;
 import lombok.Data;
-import org.springframework.data.neo4j.core.schema.*;
+import org.neo4j.ogm.annotation.NodeEntity;
+import org.springframework.data.neo4j.core.schema.GeneratedValue;
+import org.springframework.data.neo4j.core.schema.Id;
+import org.springframework.data.neo4j.core.schema.Property;
 
-import java.util.List;
-
-@Node("User")
+@NodeEntity(label = "User")
 @Data
 @Builder
 public class User {
@@ -20,7 +21,4 @@ public class User {
 
     @Property("nick_name")
     private String nickName;
-
-    @Relationship(type = "CREATED", direction = Relationship.Direction.OUTGOING)
-    private List<Graph> createdGraphs;
 }

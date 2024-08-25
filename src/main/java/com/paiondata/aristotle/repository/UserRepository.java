@@ -8,6 +8,6 @@ import org.springframework.stereotype.Repository;
 @Repository
 public interface UserRepository extends Neo4jRepository<User, Long> {
 
-    @Query("CREATE (u:User { uidcid: $uidcid, nick_name: $nickName })")
-    void createUser(String uidcid, String nickName);
+//    @Query("CREATE (u:User { uidcid: $uidcid, nick_name: $nickName })")
+//    void createUser(String uidcid, String nickName);
 }

@@ -6,9 +6,9 @@ import org.springframework.data.neo4j.core.schema.GeneratedValue;
 import org.springframework.data.neo4j.core.schema.Id;
 import org.springframework.data.neo4j.core.schema.Property;
 
-@NodeEntity(label = "Graph")
+@NodeEntity(label = "GraphNode")
 @Data
-public class Graph {
+public class GraphNode {
 
     @Id
     @GeneratedValue
@@ -19,7 +19,4 @@ public class Graph {
 
     @Property("description")
     private String description;
-
-    @Property("last_modified")
-    private String lastModified;
 }
