@@ -3,9 +3,9 @@ package com.paiondata.aristotle.model.entity;
 import lombok.Data;
 import org.springframework.data.neo4j.core.schema.*;
 
-@Node("KnowledgeGraph")
+@Node("Graph")
 @Data
-public class KnowledgeGraph {
+public class Graph {
 
     @Id
     @GeneratedValue
@@ -14,9 +14,9 @@ public class KnowledgeGraph {
     @Property("title")
     private String title;
 
+    @Property("description")
+    private String description;
+
     @Property("last_modified")
     private String lastModified;
-
-    @Relationship(type = "OWNED_BY", direction = Relationship.Direction.INCOMING)
-    private User owner;
 }
