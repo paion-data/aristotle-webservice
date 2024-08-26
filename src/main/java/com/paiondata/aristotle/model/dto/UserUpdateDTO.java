@@ -5,7 +5,7 @@ import lombok.Data;
 @Data
 public class UserUpdateDTO {
 
-    private Long id;
+    private String elementId;
 
     private String nickName;
 }

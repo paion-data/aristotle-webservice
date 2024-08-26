@@ -30,7 +30,6 @@ public class UserController {
         return Result.ok(Message.CREATE_SUCCESS);
     }
 
-    //TODO 需要改回elementId
     @PutMapping
     public Result<String> updateUser(@RequestBody UserUpdateDTO userUpdateDTO) {
         userService.updateUser(userUpdateDTO);

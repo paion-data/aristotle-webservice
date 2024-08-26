@@ -23,8 +23,8 @@ public class UserServiceImpl implements UserService {
 
     @Override
     @Transactional(readOnly = true)
-    public Optional<User> getUserById(Long id) {
-        User user = userRepository.getUserById(id);
+    public Optional<User> getUserById(String elementId) {
+        User user = userRepository.getUserById(elementId);
         return Optional.ofNullable(user);
     }
 
@@ -45,12 +45,11 @@ public class UserServiceImpl implements UserService {
         }
     }
 
-    //TODO 需要改回elementId
     @Transactional
     @Override
     public void updateUser(UserUpdateDTO user) {
-        if (userRepository.checkIdExists(user.getId()) != 0) {
-            userRepository.updateUser(user.getId(), user.getNickName());
+        if (userRepository.checkIdExists(user.getElementId()) != 0) {
+            userRepository.updateUser(user.getElementId(), user.getNickName());
         } else {
             throw new UserNullException(Message.USER_NULL);
         }
