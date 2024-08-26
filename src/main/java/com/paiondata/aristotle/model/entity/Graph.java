@@ -1,5 +1,6 @@
 package com.paiondata.aristotle.model.entity;
 
+import com.paiondata.aristotle.model.BaseEntity;
 import lombok.Data;
 import org.neo4j.ogm.annotation.NodeEntity;
 import org.springframework.data.neo4j.core.schema.GeneratedValue;
@@ -9,7 +10,7 @@ import java.util.Date;
 
 @NodeEntity(label = "Graph")
 @Data
-public class Graph {
+public class Graph extends BaseEntity {
 
     @Id
     @GeneratedValue

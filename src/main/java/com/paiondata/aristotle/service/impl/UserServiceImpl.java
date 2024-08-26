@@ -24,7 +24,7 @@ public class UserServiceImpl implements UserService {
 
     @Override
     @Transactional(readOnly = true)
-    public Optional<User> getUserById(String elementId) {
+    public Optional<User> getUserByElementId(String elementId) {
         User user = userRepository.getUserByElementId(elementId);
         return Optional.ofNullable(user);
     }

@@ -8,7 +8,7 @@ import java.util.Optional;
 
 public interface UserService {
 
-    Optional<User> getUserById(String elementId);
+    Optional<User> getUserByElementId(String elementId);
 
     Optional<User> getUserByUidcid(String uidcid);
 

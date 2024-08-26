@@ -1,5 +1,6 @@
 package com.paiondata.aristotle.model.entity;
 
+import com.paiondata.aristotle.model.BaseEntity;
 import lombok.Builder;
 import lombok.Data;
 import org.neo4j.ogm.annotation.NodeEntity;
@@ -10,7 +11,7 @@ import org.springframework.data.neo4j.core.schema.Property;
 @NodeEntity(label = "User")
 @Data
 @Builder
-public class User {
+public class User extends BaseEntity {
 
     @Id
     @GeneratedValue

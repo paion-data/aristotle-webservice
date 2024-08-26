@@ -11,6 +11,9 @@ import java.util.Date;
 @Repository
 public interface GraphRepository extends Neo4jRepository<Graph, Long> {
 
+    @Query("MATCH (g:Graph) WHERE elementId(g) = $elementId RETURN g")
+    Graph getGraphByElementId(String elementId);
+
     @Query("MATCH (g:Graph { title: $title, description: $description }) RETURN count(g)")
     long checkGraphExists(@Param("title") String title,
                           @Param("description") String description);
