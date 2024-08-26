@@ -8,4 +8,6 @@ public class Message {
     public static final String UPDATE_FAIL = "Failed to update.";
     public static final String UIDCID_EXISTS = "UIDCID already exists: ";
     public static final String GRAPH_EXISTS = "Graph with the same title and description already exists.";
+    public static final String PARAM_VERIFY_FAIL = "Request parameter verification error: ";
+    public static final String UNKNOWN_EXCEPTION = "Unknown exception.";
 }

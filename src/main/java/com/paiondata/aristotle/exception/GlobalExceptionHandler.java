@@ -16,6 +16,7 @@
 package com.paiondata.aristotle.exception;
 
 import com.paiondata.aristotle.common.base.HttpStatus;
+import com.paiondata.aristotle.common.base.Message;
 import com.paiondata.aristotle.common.base.Result;
 
 import javax.servlet.ServletException;
@@ -25,6 +26,8 @@ import javax.validation.ValidationException;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.dao.DuplicateKeyException;
 import org.springframework.validation.BindException;
+import org.springframework.validation.BindingResult;
+import org.springframework.validation.ObjectError;
 import org.springframework.web.HttpRequestMethodNotSupportedException;
 import org.springframework.web.bind.MethodArgumentNotValidException;
 import org.springframework.web.bind.MissingPathVariableException;
@@ -33,6 +36,9 @@ import org.springframework.web.bind.annotation.RestControllerAdvice;
 import org.springframework.web.method.annotation.MethodArgumentTypeMismatchException;
 import org.springframework.web.servlet.NoHandlerFoundException;
 import com.paiondata.aristotle.exception.customize.CustomizeReturnException;
+
+import java.util.ArrayList;
+import java.util.List;
 import java.util.Objects;
 
 /**
@@ -227,5 +233,29 @@ public class GlobalExceptionHandler {
         final int code = e.getReturnCode().getCode();
         final String msg = e.getMsg() == null ? e.getReturnCode().getMsg() : e.getMsg();
         return Result.fail(code, msg);
+    }
+
+    /**
+     * Handles RuntimeException.
+     *
+     * @param e         the exception
+     * @return a result object indicating failure with INTERNAL_SERVER_ERROR status
+     */
+    @ExceptionHandler(MethodArgumentNotValidException.class)
+    public Result<List<String>> parameterExceptionHandler(MethodArgumentNotValidException e) {
+        // get exception information
+        BindingResult exceptions = e.getBindingResult();
+        // all error arguments are listed here, returned using list
+        List<String> fieldErrorMsg = new ArrayList<>();
+        // check whether error information exists in the exception. If yes, use the information in the exception
+        if (exceptions.hasErrors()) {
+            List<ObjectError> errors = exceptions.getAllErrors();
+            if (!errors.isEmpty()) {
+                errors.forEach(msg -> fieldErrorMsg.add(msg.getDefaultMessage()));
+                return Result.fail(Message.PARAM_VERIFY_FAIL, fieldErrorMsg);
+            }
+        }
+        fieldErrorMsg.add(Message.UNKNOWN_EXCEPTION);
+        return Result.fail(Message.PARAM_VERIFY_FAIL, fieldErrorMsg);
     }
 }
