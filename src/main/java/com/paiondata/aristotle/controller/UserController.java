@@ -21,13 +21,20 @@ public class UserController {
     private UserService userService;
 
     @GetMapping("/{uidcid}")
-    public Result<User> getUser(@PathVariable @NotBlank(message = "uidcid must not be blank!") String uidcid) {
+    public Result<User> getUser(@PathVariable @NotBlank(message = Message.UIDCID_MUST_NOT_BE_BLANK) String uidcid) {
         Optional<User> optionalUser = userService.getUserByUidcid(uidcid);
         return optionalUser.map(Result::ok).orElseGet(() -> Result.fail(Message.USER_NULL));
     }
 
+    @GetMapping("/element/{elementId}")
+    public Result<User> getUserByElementId(
+            @PathVariable @NotBlank(message = Message.ELEMENT_ID_MUST_NOT_BE_BLANK) String elementId) {
+        Optional<User> optionalUser = userService.getUserByElementId(elementId);
+        return optionalUser.map(Result::ok).orElseGet(() -> Result.fail(Message.USER_NULL));
+    }
+
     @PostMapping
-    public Result<String> createComment(@RequestBody @Valid UserCreateDTO userCreateDTO) {
+    public Result<String> createUser(@RequestBody @Valid UserCreateDTO userCreateDTO) {
         userService.createUser(userCreateDTO);
         return Result.ok(Message.CREATE_SUCCESS);
     }

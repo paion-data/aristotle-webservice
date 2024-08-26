@@ -11,6 +11,9 @@ import java.util.Date;
 @Repository
 public interface GraphRepository extends Neo4jRepository<Graph, Long> {
 
+    @Query("MATCH (g:Graph { title: $title }) RETURN g")
+    Graph getGraphByTitle(String title);
+
     @Query("MATCH (g:Graph) WHERE elementId(g) = $elementId RETURN g")
     Graph getGraphByElementId(String elementId);
 
@@ -22,4 +25,9 @@ public interface GraphRepository extends Neo4jRepository<Graph, Long> {
     Graph createGraph(@Param("title") String title,
                       @Param("description") String description,
                       @Param("updateTime") Date updateTime);
+
+    @Query("MATCH (u:User) WHERE elementId(u) = $elementId1 MATCH (g:Graph) WHERE elementId(g) = $elementId2 with u,g"
+            + " CREATE (u)-[r:RELATION{name:Have}]->(g)")
+    void createUsertoGraph(@Param("elementId1") String elementId1,
+                           @Param("elementId2") String elementId2);
 }

@@ -6,7 +6,11 @@ import java.util.Optional;
 
 public interface GraphService {
 
+    Optional<Graph> getGraphByTitle(String title);
+
     Optional<Graph> getGraphByElementId(String elementId);
 
     void createGraph(GraphCreateDTO graphCreateDTO);
+
+    void bindUserGraph(String elementId1, String elementId2);
 }
