@@ -10,7 +10,7 @@ import org.springframework.stereotype.Repository;
 public interface UserRepository extends Neo4jRepository<User, Long> {
 
     @Query("MATCH (u:User) WHERE elementId(u) = $elementId RETURN u")
-    User getUserById(String elementId);
+    User getUserByElementId(String elementId);
 
     @Query("MATCH (u:User { uidcid: $uidcid }) RETURN u")
     User getUserByUidcid(String uidcid);
@@ -19,7 +19,7 @@ public interface UserRepository extends Neo4jRepository<User, Long> {
     long checkUidcidExists(String uidcid);
 
     @Query("MATCH (u:User) WHERE elementId(u) = $elementId RETURN count(u)")
-    long checkIdExists(String elementId);
+    long checkElementIdExists(String elementId);
 
     @Query("CREATE (u:User { uidcid: $uidcid, nick_name: $nickName }) RETURN u")
     User createUser(@Param("uidcid") String uidcid,

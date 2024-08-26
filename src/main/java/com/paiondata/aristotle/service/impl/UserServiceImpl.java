@@ -2,6 +2,7 @@ package com.paiondata.aristotle.service.impl;
 
 import com.paiondata.aristotle.common.base.Message;
 import com.paiondata.aristotle.common.exception.UserNullException;
+import com.paiondata.aristotle.common.exception.UserUidcidExistsException;
 import com.paiondata.aristotle.model.dto.UserCreateDTO;
 import com.paiondata.aristotle.model.dto.UserUpdateDTO;
 import com.paiondata.aristotle.model.entity.User;
@@ -24,7 +25,7 @@ public class UserServiceImpl implements UserService {
     @Override
     @Transactional(readOnly = true)
     public Optional<User> getUserById(String elementId) {
-        User user = userRepository.getUserById(elementId);
+        User user = userRepository.getUserByElementId(elementId);
         return Optional.ofNullable(user);
     }
 
@@ -38,18 +39,22 @@ public class UserServiceImpl implements UserService {
     @Transactional
     @Override
     public void createUser(UserCreateDTO user) {
-        if (userRepository.checkUidcidExists(user.getUidcid()) == 0) {
-            userRepository.createUser(user.getUidcid(), user.getNickName());
+        String uidcid = user.getUidcid();
+
+        if (userRepository.checkUidcidExists(uidcid) == 0) {
+            userRepository.createUser(uidcid, user.getNickName());
         } else {
-            throw new IllegalArgumentException("UIDCID already exists: " + user.getUidcid());
+            throw new UserUidcidExistsException(Message.UIDCID_EXISTS + uidcid);
         }
     }
 
     @Transactional
     @Override
     public void updateUser(UserUpdateDTO user) {
-        if (userRepository.checkIdExists(user.getElementId()) != 0) {
-            userRepository.updateUser(user.getElementId(), user.getNickName());
+        String elementId = user.getElementId();
+
+        if (userRepository.checkElementIdExists(elementId) != 0) {
+            userRepository.updateUser(elementId, user.getNickName());
         } else {
             throw new UserNullException(Message.USER_NULL);
         }

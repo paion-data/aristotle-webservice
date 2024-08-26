@@ -5,6 +5,7 @@ import org.neo4j.ogm.annotation.NodeEntity;
 import org.springframework.data.neo4j.core.schema.GeneratedValue;
 import org.springframework.data.neo4j.core.schema.Id;
 import org.springframework.data.neo4j.core.schema.Property;
+import java.util.Date;
 
 @NodeEntity(label = "Graph")
 @Data
@@ -20,6 +21,6 @@ public class Graph {
     @Property("description")
     private String description;
 
-    @Property("last_modified")
-    private String lastModified;
+    @Property("update_time")
+    private Date updateTime;
 }
