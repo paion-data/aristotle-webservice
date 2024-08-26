@@ -167,23 +167,6 @@ public class GlobalExceptionHandler {
     }
 
     /**
-     * Handles MethodArgumentNotValidException.
-     *
-     * @param e         the exception
-     * @param request   the HTTP request
-     * @return a result object indicating failure with BAD_REQUEST status
-     */
-    @ExceptionHandler(MethodArgumentNotValidException.class)
-    public Result<Void> handleMethodArgumentNotValidException(final MethodArgumentNotValidException e,
-                                                              final HttpServletRequest request) {
-        final String requestUri = request.getRequestURI();
-        log.error("方法校验失败'{}',发生系统异常.", requestUri, e);
-        final String message = Objects.isNull(e.getBindingResult().getFieldError())
-                ? "No Message" : e.getBindingResult().getFieldError().getDefaultMessage();
-        return Result.fail(HttpStatus.BAD_REQUEST, message);
-    }
-
-    /**
      * Handles BindException.
      *
      * @param e         the exception
