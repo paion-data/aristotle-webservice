@@ -18,6 +18,7 @@ import org.springframework.transaction.annotation.Transactional;
 import java.time.LocalDateTime;
 import java.time.ZoneId;
 import java.util.Date;
+import java.util.List;
 import java.util.Optional;
 
 @Service
@@ -29,6 +30,9 @@ public class GraphServiceImpl implements GraphService {
 
     @Autowired
     private UserService userService;
+
+    @Autowired
+    private GraphRepository graphNodeRepository;
 
     @Override
     public Optional<Graph> getGraphByTitle(String title) {
@@ -71,5 +75,18 @@ public class GraphServiceImpl implements GraphService {
         }
 
         graphRepository.bindUsertoGraph(elementId1, elementId2);
+    }
+
+    @Transactional
+    @Override
+    public void deleteByElementIds(List<String> graphElementIds) {
+        List<String> relatedGraphNodeElementIds = getRelatedGraphNodeElementIds(graphElementIds);
+
+        graphNodeRepository.deleteByElementIds(relatedGraphNodeElementIds);
+        graphRepository.deleteByElementIds(graphElementIds);
+    }
+
+    private List<String> getRelatedGraphNodeElementIds(List<String> userElementIds) {
+        return graphRepository.getGraphNodeElementIdsByGraphElementIds(userElementIds);
     }
 }

@@ -20,4 +20,5 @@ public class Message {
     public static final String NICK_NAME_MUST_NOT_BE_BLANK = "nickName must not be blank!";
     public static final String TITLE_MUST_NOT_BE_BLANK = "title must not be blank!";
     public static final String DESCRIPTION_MUST_NOT_BE_BLANK = "description must not be blank!";
+    public static final String DELETE_SUCCESS = "Deleted successfully.";
 }

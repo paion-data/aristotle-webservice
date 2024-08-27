@@ -13,10 +13,12 @@ import com.paiondata.aristotle.service.GraphService;
 import lombok.AllArgsConstructor;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
+import org.springframework.transaction.annotation.Transactional;
 
 import java.time.LocalDateTime;
 import java.time.ZoneId;
 import java.util.Date;
+import java.util.List;
 import java.util.Optional;
 
 @Service
@@ -41,6 +43,7 @@ public class GraphNodeServiceImpl implements GraphNodeService {
         return Optional.ofNullable(graphNode);
     }
 
+    @Transactional
     @Override
     public void createGraphNode(GraphCreateDTO graphCreateDTO) {
         String title = graphCreateDTO.getTitle();
@@ -54,6 +57,7 @@ public class GraphNodeServiceImpl implements GraphNodeService {
         }
     }
 
+    @Transactional
     @Override
     public void bindGraph(String elementId1, String elementId2) {
         Optional<Graph> optionalGraph = graphService.getGraphByElementId(elementId1);
@@ -70,6 +74,7 @@ public class GraphNodeServiceImpl implements GraphNodeService {
         graphNodeRepository.bindGraphToGraphNode(elementId1, elementId2);
     }
 
+    @Transactional
     @Override
     public void bindGraphNode(String elementId1, String elementId2, String relation) {
         Optional<GraphNode> graphNodeOptional1 = getGraphNodeByElementId(elementId1);
@@ -84,5 +89,11 @@ public class GraphNodeServiceImpl implements GraphNodeService {
         }
 
         graphNodeRepository.bindGraphNodeToGraphNode(elementId1, elementId2, relation);
+    }
+
+    @Transactional
+    @Override
+    public void deleteByElementIds(List<String> graphElementIds) {
+        graphNodeRepository.deleteByElementIds(graphElementIds);
     }
 }

@@ -7,6 +7,7 @@ import org.springframework.data.repository.query.Param;
 import org.springframework.stereotype.Repository;
 
 import java.util.Date;
+import java.util.List;
 
 @Repository
 public interface GraphRepository extends Neo4jRepository<Graph, Long> {
@@ -27,7 +28,19 @@ public interface GraphRepository extends Neo4jRepository<Graph, Long> {
                       @Param("updateTime") Date updateTime);
 
     @Query("MATCH (u:User) WHERE elementId(u) = $elementId1 MATCH (g:Graph) WHERE elementId(g) = $elementId2 with u,g"
-            + " CREATE (g)-[r:RELATION{name:'Have'}]->(u)")
+            + " CREATE (u)-[r:RELATION{name:'Have'}]->(g)")
     void bindUsertoGraph(@Param("elementId1") String elementId1,
                          @Param("elementId2") String elementId2);
+
+    @Query("MATCH (g:Graph) WHERE elementId(g) IN $elementIds RETURN count(g)")
+    long countByElementIds(List<String> elementIds);
+
+    @Query("MATCH (g:Graph) WHERE elementId(g) IN $elementIds DETACH DELETE g")
+    void deleteByElementIds(List<String> elementIds);
+
+    @Query("MATCH (g:Graph) WHERE elementId(g) IN $elementIds "
+            + "WITH g "
+            + "MATCH (g)-[r:RELATION]->(gn:GraphNode) "
+            + "RETURN elementId(gn)")
+    List<String> getGraphNodeElementIdsByGraphElementIds(List<String> elementIds);
 }

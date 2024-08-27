@@ -2,6 +2,8 @@ package com.paiondata.aristotle.service;
 
 import com.paiondata.aristotle.model.dto.GraphCreateDTO;
 import com.paiondata.aristotle.model.entity.GraphNode;
+
+import java.util.List;
 import java.util.Optional;
 
 public interface GraphNodeService {
@@ -15,4 +17,6 @@ public interface GraphNodeService {
     void bindGraph(String elementId1, String elementId2);
 
     void bindGraphNode(String elementId1, String elementId2, String relation);
+
+    void deleteByElementIds(List<String> graphElementIds);
 }

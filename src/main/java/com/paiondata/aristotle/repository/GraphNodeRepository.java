@@ -7,6 +7,7 @@ import org.springframework.data.repository.query.Param;
 import org.springframework.stereotype.Repository;
 
 import java.util.Date;
+import java.util.List;
 
 @Repository
 public interface GraphNodeRepository extends Neo4jRepository<GraphNode, Long> {
@@ -28,15 +29,17 @@ public interface GraphNodeRepository extends Neo4jRepository<GraphNode, Long> {
 
     @Query("MATCH (g:Graph) WHERE elementId(g) = $elementId1 MATCH (gn:GraphNode) "
             + "WHERE elementId(gn) = $elementId2 with g,gn"
-            + " CREATE (gn)-[r:RELATION{name:'Have'}]->(g)")
+            + " CREATE (g)-[r:RELATION{name:'Have'}]->(gn)")
     void bindGraphToGraphNode(@Param("elementId1") String elementId1,
                               @Param("elementId2") String elementId2);
 
-
     @Query("MATCH (gn1:GraphNode) WHERE elementId(gn1) = $elementId1 MATCH (gn2:GraphNode) "
             + "WHERE elementId(gn2) = $elementId2 with gn1,gn2"
-            + " CREATE (gn2)-[r:RELATION{name:$relation}]->(gn1)")
+            + " CREATE (gn1)-[r:RELATION{name:$relation}]->(gn2)")
     void bindGraphNodeToGraphNode(@Param("elementId1") String elementId1,
                                   @Param("elementId2") String elementId2,
                                   @Param("relation") String relation);
+
+    @Query("MATCH (gn:GraphNode) WHERE elementId(gn) IN $elementIds DETACH DELETE gn")
+    void deleteByElementIds(List<String> elementIds);
 }
