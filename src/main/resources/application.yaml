@@ -15,6 +15,9 @@
 ################################################
 
 spring:
+  mvc:
+    pathmatch:
+      matching-strategy: ant_path_matcher
   application:
     name: Aristotle
   data:
@@ -24,10 +27,3 @@ spring:
       password: 12345678
 server:
   port: 8088
-
-springdoc:
-  api-docs:
-    enabled: true
-    path: /api-docs
-  swagger-ui:
-    path: /test
