@@ -67,7 +67,7 @@ public class GraphNodeServiceImpl implements GraphNodeService {
             }
         }
 
-        graphNodeRepository.createGraphToGraphNode(elementId1, elementId2);
+        graphNodeRepository.bindGraphToGraphNode(elementId1, elementId2);
     }
 
     @Override
@@ -83,6 +83,6 @@ public class GraphNodeServiceImpl implements GraphNodeService {
             }
         }
 
-        graphNodeRepository.createGraphNodeToGraphNode(elementId1, elementId2, relation);
+        graphNodeRepository.bindGraphNodeToGraphNode(elementId1, elementId2, relation);
     }
 }

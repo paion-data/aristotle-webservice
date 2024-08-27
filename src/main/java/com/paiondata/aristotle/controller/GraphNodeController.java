@@ -34,10 +34,10 @@ public class GraphNodeController {
 
     @PostMapping("/bindGraph")
     public Result<String> bindGraph(@RequestParam @NotBlank(message = Message.ELEMENT_ID_MUST_NOT_BE_BLANK)
-                                        String elementId1,
+                                        String graphElementId,
                                     @RequestParam @NotBlank(message = Message.ELEMENT_ID_MUST_NOT_BE_BLANK)
-                                    String elementId2) {
-        graphNodeService.bindGraph(elementId1, elementId2);
+                                    String graphNodeElementId) {
+        graphNodeService.bindGraph(graphElementId, graphNodeElementId);
         return Result.ok(Message.BOUND_SUCCESS);
     }
 

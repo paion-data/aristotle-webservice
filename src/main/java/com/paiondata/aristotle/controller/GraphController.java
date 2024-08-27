@@ -33,8 +33,8 @@ public class GraphController {
     }
 
     @PostMapping("/bindUser")
-    public Result<String> bindUserGraph(String elementId1, String elementId2) {
-        graphService.bindUserGraph(elementId1, elementId2);
+    public Result<String> bindUser(String userElementId, String graphElementId) {
+        graphService.bindUserGraph(userElementId, graphElementId);
         return Result.ok(Message.BOUND_SUCCESS);
     }
 }

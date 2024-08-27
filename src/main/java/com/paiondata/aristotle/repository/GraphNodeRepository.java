@@ -26,15 +26,17 @@ public interface GraphNodeRepository extends Neo4jRepository<GraphNode, Long> {
                       @Param("description") String description,
                       @Param("updateTime") Date updateTime);
 
-    @Query("MATCH (g:Graph) WHERE elementId(u) = $elementId1 MATCH (gn:GraphNode) WHERE elementId(g) = $elementId2 with g,gn"
-            + " CREATE (g)-[r:RELATION{name:Have}]->(gn)")
-    void createGraphToGraphNode(@Param("elementId1") String elementId1,
-                           @Param("elementId2") String elementId2);
+    @Query("MATCH (g:Graph) WHERE elementId(g) = $elementId1 MATCH (gn:GraphNode) "
+            + "WHERE elementId(gn) = $elementId2 with g,gn"
+            + " CREATE (gn)-[r:RELATION{name:'Have'}]->(g)")
+    void bindGraphToGraphNode(@Param("elementId1") String elementId1,
+                              @Param("elementId2") String elementId2);
 
 
-    @Query("MATCH (gn1:GraphNode) WHERE elementId(u) = $elementId1 MATCH (gn2:GraphNode) WHERE elementId(g) = $elementId2 with gn1,gn2"
-            + " CREATE (gn1)-[r:RELATION{name:$relation}]->(gn2)")
-    void createGraphNodeToGraphNode(@Param("elementId1") String elementId1,
-                                @Param("elementId2") String elementId2,
-                                    @Param("relation") String relation);
+    @Query("MATCH (gn1:GraphNode) WHERE elementId(gn1) = $elementId1 MATCH (gn2:GraphNode) "
+            + "WHERE elementId(gn2) = $elementId2 with gn1,gn2"
+            + " CREATE (gn2)-[r:RELATION{name:$relation}]->(gn1)")
+    void bindGraphNodeToGraphNode(@Param("elementId1") String elementId1,
+                                  @Param("elementId2") String elementId2,
+                                  @Param("relation") String relation);
 }

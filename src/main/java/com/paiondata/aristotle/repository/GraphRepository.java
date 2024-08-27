@@ -27,7 +27,7 @@ public interface GraphRepository extends Neo4jRepository<Graph, Long> {
                       @Param("updateTime") Date updateTime);
 
     @Query("MATCH (u:User) WHERE elementId(u) = $elementId1 MATCH (g:Graph) WHERE elementId(g) = $elementId2 with u,g"
-            + " CREATE (u)-[r:RELATION{name:Have}]->(g)")
-    void createUsertoGraph(@Param("elementId1") String elementId1,
-                           @Param("elementId2") String elementId2);
+            + " CREATE (g)-[r:RELATION{name:'Have'}]->(u)")
+    void bindUsertoGraph(@Param("elementId1") String elementId1,
+                         @Param("elementId2") String elementId2);
 }

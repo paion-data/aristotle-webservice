@@ -70,6 +70,6 @@ public class GraphServiceImpl implements GraphService {
             }
         }
 
-        graphRepository.createUsertoGraph(elementId1, elementId2);
+        graphRepository.bindUsertoGraph(elementId1, elementId2);
     }
 }
