@@ -19,11 +19,11 @@ public class GraphNodeController {
     @Autowired
     private GraphNodeService graphNodeService;
 
-    @GetMapping("/element/{elementId}")
-    public Result<GraphNode> getGraphNodeByElementId(
-            @PathVariable @NotBlank(message = Message.ELEMENT_ID_MUST_NOT_BE_BLANK) String elementId) {
-        Optional<GraphNode> optionalGraphNode = graphNodeService.getGraphNodeByElementId(elementId);
-        return optionalGraphNode.map(Result::ok).orElseGet(() -> Result.fail(Message.USER_NULL));
+    @GetMapping("/{uuid}")
+    public Result<GraphNode> getGraphNodeByUuid(
+            @PathVariable @NotBlank(message = Message.UUID_MUST_NOT_BE_BLANK) String uuid) {
+        Optional<GraphNode> optionalGraphNode = graphNodeService.getGraphNodeByUuid(uuid);
+        return optionalGraphNode.map(Result::ok).orElseGet(() -> Result.fail(Message.GRAPH_NODE_NULL));
     }
 
     @PostMapping
@@ -33,22 +33,22 @@ public class GraphNodeController {
     }
 
     @PostMapping("/bindGraph")
-    public Result<String> bindGraph(@RequestParam @NotBlank(message = Message.ELEMENT_ID_MUST_NOT_BE_BLANK)
-                                        String graphElementId,
-                                    @RequestParam @NotBlank(message = Message.ELEMENT_ID_MUST_NOT_BE_BLANK)
-                                    String graphNodeElementId) {
-        graphNodeService.bindGraph(graphElementId, graphNodeElementId);
+    public Result<String> bindGraph(@RequestParam @NotBlank(message = Message.UUID_MUST_NOT_BE_BLANK)
+                                        String graphUuid,
+                                    @RequestParam @NotBlank(message = Message.UUID_MUST_NOT_BE_BLANK)
+                                    String graphNodeUuid) {
+        graphNodeService.bindGraph(graphUuid, graphNodeUuid);
         return Result.ok(Message.BOUND_SUCCESS);
     }
 
     @PostMapping("/bindGraphNode")
-    public Result<String> bindGraphNode(@RequestParam @NotBlank(message = Message.ELEMENT_ID_MUST_NOT_BE_BLANK)
-                                            String elementId1,
-                                        @RequestParam @NotBlank(message = Message.ELEMENT_ID_MUST_NOT_BE_BLANK)
-                                        String elementId2,
+    public Result<String> bindGraphNode(@RequestParam @NotBlank(message = Message.UUID_MUST_NOT_BE_BLANK)
+                                            String uuid1,
+                                        @RequestParam @NotBlank(message = Message.UUID_MUST_NOT_BE_BLANK)
+                                        String uuid2,
                                         @RequestParam @NotBlank(message = Message.RELATION_MUST_NOT_BE_BLANK)
                                             String relation) {
-        graphNodeService.bindGraphNode(elementId1, elementId2, relation);
+        graphNodeService.bindGraphNode(uuid1, uuid2, relation);
         return Result.ok(Message.BOUND_SUCCESS);
     }
 }

@@ -1,6 +1,5 @@
 package com.paiondata.aristotle.service.impl;
 
-import cn.hutool.core.lang.UUID;
 import com.paiondata.aristotle.common.base.Message;
 import com.paiondata.aristotle.common.exception.UserNullException;
 import com.paiondata.aristotle.common.exception.UserUidcidExistsException;
@@ -36,13 +35,6 @@ public class UserServiceImpl implements UserService {
 
     @Override
     @Transactional(readOnly = true)
-    public Optional<User> getUserByElementId(String elementId) {
-        User user = userRepository.getUserByElementId(elementId);
-        return Optional.ofNullable(user);
-    }
-
-    @Override
-    @Transactional(readOnly = true)
     public Optional<User> getUserByUidcid(String uidcid) {
         User user = userRepository.getUserByUidcid(uidcid);
         return Optional.ofNullable(user);
@@ -63,10 +55,10 @@ public class UserServiceImpl implements UserService {
     @Transactional
     @Override
     public void updateUser(UserUpdateDTO user) {
-        String elementId = user.getElementId();
+        String uidcid = user.getUidcid();
 
-        if (userRepository.checkElementIdExists(elementId) != 0) {
-            userRepository.updateUser(elementId, user.getNickName());
+        if (userRepository.checkUidcidExists(uidcid) != 0) {
+            userRepository.updateUser(uidcid, user.getNickName());
         } else {
             throw new UserNullException(Message.USER_NULL);
         }
@@ -74,35 +66,35 @@ public class UserServiceImpl implements UserService {
 
     @Transactional
     @Override
-    public void deleteUser(List<String> elementIds) {
-        long l = userRepository.countByElementIds(elementIds);
-        if (l != elementIds.size()) {
+    public void deleteUser(List<String> uidcids) {
+        long l = userRepository.countByUidcids(uidcids);
+        if (l != uidcids.size()) {
             throw new UserNullException(Message.USER_NULL);
         }
 
-        List<String> graphElementIds = getRelatedGraphElementIds(elementIds);
-        List<String> graphNodeElementIds = getRelatedGraphNodeElementIds(graphElementIds);
+        List<String> graphUUIDs = getRelatedGraphUUIDs(uidcids);
+        List<String> graphNodeUUIDs = getRelatedGraphNodeUUIDs(graphUUIDs);
 
-        userRepository.deleteByElementIds(elementIds);
-        graphRepository.deleteByElementIds(graphElementIds);
-        graphNodeRepository.deleteByElementIds(graphNodeElementIds);
+        userRepository.deleteByUidcids((uidcids));
+        graphRepository.deleteByUuids(graphUUIDs);
+        graphNodeRepository.deleteByUUIDs(graphNodeUUIDs);
     }
 
     @Override
-    public Optional<List<Graph>> getGraphByUserElementId(String elementId) {
-        Optional<User> optionalUser = getUserByElementId(elementId);
+    public Optional<List<Graph>> getGraphByUserUidcid(String uidcid) {
+        Optional<User> optionalUser = getUserByUidcid(uidcid);
         if (!optionalUser.isPresent()) {
             throw new UserNullException(Message.USER_NULL);
         }
 
-        return Optional.ofNullable(userRepository.getGraphByUserId(elementId));
+        return Optional.ofNullable(userRepository.getGraphByUserUidcid(uidcid));
     }
 
-    private List<String> getRelatedGraphElementIds(List<String> userElementIds) {
-        return userRepository.getGraphElementIdsByUserId(userElementIds);
+    private List<String> getRelatedGraphUUIDs(List<String> userUidcids) {
+        return userRepository.getGraphUUIDsByUserUidcid(userUidcids);
     }
 
-    private List<String> getRelatedGraphNodeElementIds(List<String> userElementIds) {
-        return graphRepository.getGraphNodeElementIdsByGraphElementIds(userElementIds);
+    private List<String> getRelatedGraphNodeUUIDs(List<String> graphUUIDs) {
+        return graphRepository.getGraphNodeUUIDsByGraphUuids(graphUUIDs);
     }
 }

@@ -12,6 +12,7 @@ import org.springframework.web.bind.annotation.*;
 
 import javax.validation.Valid;
 import javax.validation.constraints.NotBlank;
+import javax.validation.constraints.NotEmpty;
 import java.util.List;
 import java.util.Optional;
 
@@ -28,17 +29,10 @@ public class UserController {
         return optionalUser.map(Result::ok).orElseGet(() -> Result.fail(Message.USER_NULL));
     }
 
-    @GetMapping("/element/{elementId}")
-    public Result<User> getUserByElementId(
-            @PathVariable @NotBlank(message = Message.ELEMENT_ID_MUST_NOT_BE_BLANK) String elementId) {
-        Optional<User> optionalUser = userService.getUserByElementId(elementId);
-        return optionalUser.map(Result::ok).orElseGet(() -> Result.fail(Message.USER_NULL));
-    }
-
-    @GetMapping("/graph/{elementId}")
-    public Result<List<Graph>> getGraphByUserElementId(
-            @PathVariable @NotBlank(message = Message.ELEMENT_ID_MUST_NOT_BE_BLANK) String elementId) {
-        Optional<List<Graph>> optionalGraphs = userService.getGraphByUserElementId(elementId);
+    @GetMapping("/graph/{uidcid}")
+    public Result<List<Graph>> getGraphByUserUidcid(
+            @PathVariable @NotBlank(message = Message.UIDCID_MUST_NOT_BE_BLANK) String uidcid) {
+        Optional<List<Graph>> optionalGraphs = userService.getGraphByUserUidcid(uidcid);
         return optionalGraphs.map(Result::ok).orElseGet(() -> Result.fail(Message.GRAPH_NULL));
     }
 
@@ -55,9 +49,9 @@ public class UserController {
     }
 
     @DeleteMapping
-    public Result<String> deleteUser(@RequestBody @NotBlank(message = Message.ELEMENT_ID_MUST_NOT_BE_BLANK)
-                                         List<String> elementIds) {
-        userService.deleteUser(elementIds);
+    public Result<String> deleteUser(@RequestBody @NotEmpty(message = Message.UIDCID_MUST_NOT_BE_BLANK)
+                                         List<String> uidcids) {
+        userService.deleteUser(uidcids);
         return Result.ok(Message.DELETE_SUCCESS);
     }
 }

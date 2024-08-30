@@ -10,7 +10,7 @@ import javax.validation.constraints.NotBlank;
 public class UserUpdateDTO extends BaseEntity {
 
     @NotBlank(message = Message.UIDCID_MUST_NOT_BE_BLANK)
-    private String elementId;
+    private String uidcid;
 
     @NotBlank(message = Message.NICK_NAME_MUST_NOT_BE_BLANK)
     private String nickName;

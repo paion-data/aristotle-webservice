@@ -19,10 +19,10 @@ public class GraphController {
     @Autowired
     private GraphService graphService;
 
-    @GetMapping("/element/{elementId}")
-    public Result<Graph> getGraphByElementId(
-            @PathVariable @NotBlank(message = Message.ELEMENT_ID_MUST_NOT_BE_BLANK) String elementId) {
-        Optional<Graph> optionalGraph = graphService.getGraphByElementId(elementId);
+    @GetMapping("/{uuid}")
+    public Result<Graph> getGraphByUuid(
+            @PathVariable @NotBlank(message = Message.UUID_MUST_NOT_BE_BLANK) String uuid) {
+        Optional<Graph> optionalGraph = graphService.getGraphByUuid(uuid);
         return optionalGraph.map(Result::ok).orElseGet(() -> Result.fail(Message.USER_NULL));
     }
 
@@ -32,9 +32,10 @@ public class GraphController {
         return Result.ok(Message.CREATE_SUCCESS);
     }
 
-    @PostMapping("/bindUser")
-    public Result<String> bindUser(String userElementId, String graphElementId) {
-        graphService.bindUserGraph(userElementId, graphElementId);
+    @PostMapping("/bind")
+    public Result<String> bindUser(@NotBlank(message = Message.UIDCID_MUST_NOT_BE_BLANK) String userUidcid,
+                                   @NotBlank(message = Message.UUID_MUST_NOT_BE_BLANK) String graphUuid) {
+        graphService.bindUserGraph(userUidcid, graphUuid);
         return Result.ok(Message.BOUND_SUCCESS);
     }
 }

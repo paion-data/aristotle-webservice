@@ -1,5 +1,6 @@
 package com.paiondata.aristotle.service.impl;
 
+import cn.hutool.core.lang.UUID;
 import com.paiondata.aristotle.common.base.Message;
 import com.paiondata.aristotle.common.exception.GraphNodeExistsException;
 import com.paiondata.aristotle.common.exception.GraphNodeNullException;
@@ -38,8 +39,8 @@ public class GraphNodeServiceImpl implements GraphNodeService {
     }
 
     @Override
-    public Optional<GraphNode> getGraphNodeByElementId(String elementId) {
-        GraphNode graphNode = graphNodeRepository.getGraphNodeByElementId(elementId);
+    public Optional<GraphNode> getGraphNodeByUuid(String uuid) {
+        GraphNode graphNode = graphNodeRepository.getGraphNodeByUUID(uuid);
         return Optional.ofNullable(graphNode);
     }
 
@@ -48,10 +49,11 @@ public class GraphNodeServiceImpl implements GraphNodeService {
     public void createGraphNode(GraphCreateDTO graphCreateDTO) {
         String title = graphCreateDTO.getTitle();
         String description = graphCreateDTO.getDescription();
+        String uuid = UUID.fastUUID().toString();
         Date now = Date.from(LocalDateTime.now().atZone(ZoneId.systemDefault()).toInstant());
 
         if (graphNodeRepository.checkGraphNodeExists(title, description) == 0) {
-            graphNodeRepository.createGraphNode(title, description, now);
+            graphNodeRepository.createGraphNode(title, description, uuid, now);
         } else {
             throw new GraphNodeExistsException(Message.GRAPH_NODE_EXISTS);
         }
@@ -59,9 +61,9 @@ public class GraphNodeServiceImpl implements GraphNodeService {
 
     @Transactional
     @Override
-    public void bindGraph(String elementId1, String elementId2) {
-        Optional<Graph> optionalGraph = graphService.getGraphByElementId(elementId1);
-        Optional<GraphNode> graphNodeOptional = getGraphNodeByElementId(elementId2);
+    public void bindGraph(String graphUuid, String graphNodeUuid) {
+        Optional<Graph> optionalGraph = graphService.getGraphByUuid(graphUuid);
+        Optional<GraphNode> graphNodeOptional = getGraphNodeByUuid(graphNodeUuid);
 
         if (!optionalGraph.isPresent() || !graphNodeOptional.isPresent()) {
             if (!optionalGraph.isPresent()) {
@@ -71,14 +73,14 @@ public class GraphNodeServiceImpl implements GraphNodeService {
             }
         }
 
-        graphNodeRepository.bindGraphToGraphNode(elementId1, elementId2);
+        graphNodeRepository.bindGraphToGraphNode(graphUuid, graphNodeUuid);
     }
 
     @Transactional
     @Override
-    public void bindGraphNode(String elementId1, String elementId2, String relation) {
-        Optional<GraphNode> graphNodeOptional1 = getGraphNodeByElementId(elementId1);
-        Optional<GraphNode> graphNodeOptional2 = getGraphNodeByElementId(elementId2);
+    public void bindGraphNode(String uuid1, String uuid2, String relation) {
+        Optional<GraphNode> graphNodeOptional1 = getGraphNodeByUuid(uuid1);
+        Optional<GraphNode> graphNodeOptional2 = getGraphNodeByUuid(uuid2);
 
         if (!graphNodeOptional1.isPresent() || !graphNodeOptional2.isPresent()) {
             if (!graphNodeOptional1.isPresent()) {
@@ -88,12 +90,12 @@ public class GraphNodeServiceImpl implements GraphNodeService {
             }
         }
 
-        graphNodeRepository.bindGraphNodeToGraphNode(elementId1, elementId2, relation);
+        graphNodeRepository.bindGraphNodeToGraphNode(uuid1, uuid2, relation);
     }
 
     @Transactional
     @Override
-    public void deleteByElementIds(List<String> graphElementIds) {
-        graphNodeRepository.deleteByElementIds(graphElementIds);
+    public void deleteByUuids(List<String> uuids) {
+        graphNodeRepository.deleteByUUIDs(uuids);
     }
 }

@@ -6,7 +6,7 @@ import lombok.Data;
 @Data
 public class GraphUpdateDTO extends BaseEntity {
 
-    private String elementId;
+    private String uuid;
 
     private String title;
 

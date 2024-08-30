@@ -10,11 +10,11 @@ public interface GraphService {
 
     Optional<Graph> getGraphByTitle(String title);
 
-    Optional<Graph> getGraphByElementId(String elementId);
+    Optional<Graph> getGraphByUuid(String uuid);
 
     void createGraph(GraphCreateDTO graphCreateDTO);
 
-    void bindUserGraph(String elementId1, String elementId2);
+    void bindUserGraph(String userUidcid, String graphUuid);
 
-    void deleteByElementIds(List<String> graphElementIds);
+    void deleteByUuids(List<String> Uuids);
 }

@@ -1,5 +1,6 @@
 package com.paiondata.aristotle.service.impl;
 
+import cn.hutool.core.lang.UUID;
 import com.paiondata.aristotle.common.base.Message;
 import com.paiondata.aristotle.common.exception.GraphExistsException;
 import com.paiondata.aristotle.common.exception.GraphNullException;
@@ -41,8 +42,8 @@ public class GraphServiceImpl implements GraphService {
     }
 
     @Override
-    public Optional<Graph> getGraphByElementId(String elementId) {
-        Graph graph = graphRepository.getGraphByElementId(elementId);
+    public Optional<Graph> getGraphByUuid(String Uuid) {
+        Graph graph = graphRepository.getGraphByUuid(Uuid);
         return Optional.ofNullable(graph);
     }
 
@@ -51,10 +52,11 @@ public class GraphServiceImpl implements GraphService {
     public void createGraph(GraphCreateDTO graphCreateDTO) {
         String title = graphCreateDTO.getTitle();
         String description = graphCreateDTO.getDescription();
+        String uuid = UUID.fastUUID().toString();
         Date now = Date.from(LocalDateTime.now().atZone(ZoneId.systemDefault()).toInstant());
 
         if (graphRepository.checkGraphExists(title, description) == 0) {
-            graphRepository.createGraph(title, description, now);
+            graphRepository.createGraph(title, description, uuid, now);
         } else {
             throw new GraphExistsException(Message.GRAPH_EXISTS);
         }
@@ -62,9 +64,9 @@ public class GraphServiceImpl implements GraphService {
 
     @Transactional
     @Override
-    public void bindUserGraph(String elementId1, String elementId2) {
-        Optional<User> optionalUser = userService.getUserByElementId(elementId1);
-        Optional<Graph> optionalGraph = getGraphByElementId(elementId2);
+    public void bindUserGraph(String uidcid, String uuid) {
+        Optional<User> optionalUser = userService.getUserByUidcid(uidcid);
+        Optional<Graph> optionalGraph = getGraphByUuid(uuid);
 
         if (!optionalUser.isPresent() || !optionalGraph.isPresent()) {
             if (!optionalUser.isPresent()) {
@@ -74,19 +76,19 @@ public class GraphServiceImpl implements GraphService {
             }
         }
 
-        graphRepository.bindUsertoGraph(elementId1, elementId2);
+        graphRepository.bindUsertoGraph(uidcid, uuid);
     }
 
     @Transactional
     @Override
-    public void deleteByElementIds(List<String> graphElementIds) {
-        List<String> relatedGraphNodeElementIds = getRelatedGraphNodeElementIds(graphElementIds);
+    public void deleteByUuids(List<String> uuids) {
+        List<String> relatedGraphNodeUuids = getRelatedGraphNodeUuids(uuids);
 
-        graphNodeRepository.deleteByElementIds(relatedGraphNodeElementIds);
-        graphRepository.deleteByElementIds(graphElementIds);
+        graphNodeRepository.deleteByUuids(relatedGraphNodeUuids);
+        graphRepository.deleteByUuids(uuids);
     }
 
-    private List<String> getRelatedGraphNodeElementIds(List<String> userElementIds) {
-        return graphRepository.getGraphNodeElementIdsByGraphElementIds(userElementIds);
+    private List<String> getRelatedGraphNodeUuids(List<String> uuids) {
+        return graphRepository.getGraphNodeUUIDsByGraphUuids(uuids);
     }
 }

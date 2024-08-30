@@ -10,15 +10,13 @@ import java.util.Optional;
 
 public interface UserService {
 
-    Optional<User> getUserByElementId(String elementId);
-
     Optional<User> getUserByUidcid(String uidcid);
 
     void createUser(UserCreateDTO user);
 
     void updateUser(UserUpdateDTO user);
 
-    void deleteUser(List<String> elementIds);
+    void deleteUser(List<String> uidcids);
 
-    Optional<List<Graph>> getGraphByUserElementId(String elementId);
+    Optional<List<Graph>> getGraphByUserUidcid(String uidcid);
 }

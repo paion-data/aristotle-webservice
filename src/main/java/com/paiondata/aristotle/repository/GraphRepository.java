@@ -15,32 +15,34 @@ public interface GraphRepository extends Neo4jRepository<Graph, Long> {
     @Query("MATCH (g:Graph { title: $title }) RETURN g")
     Graph getGraphByTitle(String title);
 
-    @Query("MATCH (g:Graph) WHERE elementId(g) = $elementId RETURN g")
-    Graph getGraphByElementId(String elementId);
+    @Query("MATCH (g:Graph) WHERE g.uuid = $uuid RETURN g")
+    Graph getGraphByUuid(String uuid);
 
     @Query("MATCH (g:Graph { title: $title, description: $description }) RETURN count(g)")
     long checkGraphExists(@Param("title") String title,
                           @Param("description") String description);
 
-    @Query("CREATE (g:Graph { title: $title, description: $description, update_time: $updateTime }) RETURN g")
+    @Query("CREATE (g:Graph { title: $title, description: $description, uuid: $uuid, update_time: $updateTime }) "
+            + "RETURN g")
     Graph createGraph(@Param("title") String title,
                       @Param("description") String description,
+                      @Param("uuid") String uuid,
                       @Param("updateTime") Date updateTime);
 
-    @Query("MATCH (u:User) WHERE elementId(u) = $elementId1 MATCH (g:Graph) WHERE elementId(g) = $elementId2 with u,g"
+    @Query("MATCH (u:User) WHERE u.uidcid = $userUidcid MATCH (g:Graph) WHERE g.uuid = $graphUuid with u,g"
             + " CREATE (u)-[r:HAVE]->(g)")
-    void bindUsertoGraph(@Param("elementId1") String elementId1,
-                         @Param("elementId2") String elementId2);
+    void bindUsertoGraph(@Param("userUidcid") String userUidcid,
+                         @Param("graphUuid") String graphUuid);
 
-    @Query("MATCH (g:Graph) WHERE elementId(g) IN $elementIds RETURN count(g)")
-    long countByElementIds(List<String> elementIds);
+    @Query("MATCH (g:Graph) WHERE g.uuid IN $uuids RETURN count(g)")
+    long countByUuids(List<String> uuids);
 
-    @Query("MATCH (g:Graph) WHERE elementId(g) IN $elementIds DETACH DELETE g")
-    void deleteByElementIds(List<String> elementIds);
+    @Query("MATCH (g:Graph) WHERE g.uuid IN $uuids DETACH DELETE g")
+    void deleteByUuids(List<String> uuids);
 
-    @Query("MATCH (g:Graph) WHERE elementId(g) IN $elementIds "
+    @Query("MATCH (g:Graph) WHERE g.uuid IN $uuids "
             + "WITH g "
             + "MATCH (g)-[r:RELATION]->(gn:GraphNode) "
-            + "RETURN elementId(gn)")
-    List<String> getGraphNodeElementIdsByGraphElementIds(List<String> elementIds);
+            + "RETURN g.uuid")
+    List<String> getGraphNodeUUIDsByGraphUuids(List<String> uuids);
 }

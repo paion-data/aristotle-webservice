@@ -10,13 +10,13 @@ public interface GraphNodeService {
 
     Optional<GraphNode> getGraphNodeByTitle(String title);
 
-    Optional<GraphNode> getGraphNodeByElementId(String elementId);
+    Optional<GraphNode> getGraphNodeByUuid(String uuid);
 
     void createGraphNode(GraphCreateDTO graphCreateDTO);
 
-    void bindGraph(String elementId1, String elementId2);
+    void bindGraph(String graphUuid, String graphNodeUuid);
 
-    void bindGraphNode(String elementId1, String elementId2, String relation);
+    void bindGraphNode(String uuid1, String uuid2, String relation);
 
-    void deleteByElementIds(List<String> graphElementIds);
+    void deleteByUuids(List<String> uuids);
 }
