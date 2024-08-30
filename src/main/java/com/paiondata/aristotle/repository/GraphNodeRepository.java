@@ -36,7 +36,7 @@ public interface GraphNodeRepository extends Neo4jRepository<GraphNode, Long> {
     @Query("MATCH (gn1:GraphNode) WHERE elementId(gn1) = $elementId1 "
             + "MATCH (gn2:GraphNode) WHERE elementId(gn2) = $elementId2 "
             + "WITH gn1,gn2 "
-            + "CREATE (gn1)-[r:$relation]->(gn2)")
+            + "CREATE (gn1)-[r:RELATION{name: $relation}]->(gn2)")
     void bindGraphNodeToGraphNode(@Param("elementId1") String elementId1,
                                   @Param("elementId2") String elementId2,
                                   @Param("relation") String relation);
