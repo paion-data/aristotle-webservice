@@ -5,7 +5,9 @@ import com.paiondata.aristotle.common.base.Message;
 import com.paiondata.aristotle.common.exception.GraphNodeExistsException;
 import com.paiondata.aristotle.common.exception.GraphNodeNullException;
 import com.paiondata.aristotle.common.exception.GraphNullException;
+import com.paiondata.aristotle.common.exception.UserNullException;
 import com.paiondata.aristotle.model.dto.GraphCreateDTO;
+import com.paiondata.aristotle.model.dto.GraphUpdateDTO;
 import com.paiondata.aristotle.model.entity.Graph;
 import com.paiondata.aristotle.model.entity.GraphNode;
 import com.paiondata.aristotle.repository.GraphNodeRepository;
@@ -40,7 +42,7 @@ public class GraphNodeServiceImpl implements GraphNodeService {
 
     @Override
     public Optional<GraphNode> getGraphNodeByUuid(String uuid) {
-        GraphNode graphNode = graphNodeRepository.getGraphNodeByUUID(uuid);
+        GraphNode graphNode = graphNodeRepository.getGraphNodeByUuid(uuid);
         return Optional.ofNullable(graphNode);
     }
 
@@ -49,7 +51,7 @@ public class GraphNodeServiceImpl implements GraphNodeService {
     public void createGraphNode(GraphCreateDTO graphCreateDTO) {
         String title = graphCreateDTO.getTitle();
         String description = graphCreateDTO.getDescription();
-        String uuid = UUID.fastUUID().toString();
+        String uuid = UUID.fastUUID().toString(true);
         Date now = Date.from(LocalDateTime.now().atZone(ZoneId.systemDefault()).toInstant());
 
         if (graphNodeRepository.checkGraphNodeExists(title, description) == 0) {
@@ -96,6 +98,24 @@ public class GraphNodeServiceImpl implements GraphNodeService {
     @Transactional
     @Override
     public void deleteByUuids(List<String> uuids) {
-        graphNodeRepository.deleteByUUIDs(uuids);
+        long l = graphNodeRepository.countByUuids(uuids);
+        if (l != uuids.size()) {
+            throw new GraphNullException(Message.GRAPH_NULL);
+        }
+
+        graphNodeRepository.deleteByUuids(uuids);
+    }
+
+    @Transactional
+    @Override
+    public void updateGraphNode(GraphUpdateDTO graphUpdateDTO) {
+        Optional<GraphNode> graphNodeByUuid = getGraphNodeByUuid(graphUpdateDTO.getUuid());
+
+        if (graphNodeByUuid.isPresent()) {
+            graphNodeRepository.updateGraphNodeByUuid(graphUpdateDTO.getUuid(),
+                    graphUpdateDTO.getTitle(), graphUpdateDTO.getDescription());
+        } else {
+            throw new GraphNodeNullException(Message.GRAPH_NODE_NULL);
+        }
     }
 }

@@ -72,12 +72,12 @@ public class UserServiceImpl implements UserService {
             throw new UserNullException(Message.USER_NULL);
         }
 
-        List<String> graphUUIDs = getRelatedGraphUUIDs(uidcids);
-        List<String> graphNodeUUIDs = getRelatedGraphNodeUUIDs(graphUUIDs);
+        List<String> graphUuids = getRelatedGraphUuids(uidcids);
+        List<String> graphNodeUuids = getRelatedGraphNodeUuids(graphUuids);
 
         userRepository.deleteByUidcids((uidcids));
-        graphRepository.deleteByUuids(graphUUIDs);
-        graphNodeRepository.deleteByUUIDs(graphNodeUUIDs);
+        graphRepository.deleteByUuids(graphUuids);
+        graphNodeRepository.deleteByUuids(graphNodeUuids);
     }
 
     @Override
@@ -90,11 +90,11 @@ public class UserServiceImpl implements UserService {
         return Optional.ofNullable(userRepository.getGraphByUserUidcid(uidcid));
     }
 
-    private List<String> getRelatedGraphUUIDs(List<String> userUidcids) {
-        return userRepository.getGraphUUIDsByUserUidcid(userUidcids);
+    private List<String> getRelatedGraphUuids(List<String> userUidcids) {
+        return userRepository.getGraphUuidsByUserUidcid(userUidcids);
     }
 
-    private List<String> getRelatedGraphNodeUUIDs(List<String> graphUUIDs) {
-        return graphRepository.getGraphNodeUUIDsByGraphUuids(graphUUIDs);
+    private List<String> getRelatedGraphNodeUuids(List<String> graphUuids) {
+        return graphRepository.getGraphNodeUuidsByGraphUuids(graphUuids);
     }
 }

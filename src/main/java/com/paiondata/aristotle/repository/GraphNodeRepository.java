@@ -16,7 +16,7 @@ public interface GraphNodeRepository extends Neo4jRepository<GraphNode, Long> {
     GraphNode getGraphNodeByTitle(String title);
 
     @Query("MATCH (gn:GraphNode { uuid: $uuid }) RETURN gn")
-    GraphNode getGraphNodeByUUID(String UUID);
+    GraphNode getGraphNodeByUuid(String uuid);
 
     @Query("MATCH (gn:GraphNode { title: $title, description: $description }) RETURN count(gn)")
     long checkGraphNodeExists(@Param("title") String title,
@@ -44,6 +44,14 @@ public interface GraphNodeRepository extends Neo4jRepository<GraphNode, Long> {
                                   @Param("uuid2") String uuid2,
                                   @Param("relation") String relation);
 
-    @Query("MATCH (gn:GraphNode) WHERE gn.UUID IN $UUIDs DETACH DELETE gn")
-    void deleteByUUIDs(List<String> UUIDs);
+    @Query("MATCH (gn:GraphNode) WHERE gn.uuid IN $uuids RETURN count(gn)")
+    long countByUuids(List<String> uuids);
+
+    @Query("MATCH (gn:GraphNode) WHERE gn.uuid IN $uuids DETACH DELETE gn")
+    void deleteByUuids(List<String> uuids);
+
+    @Query("MATCH (gn:GraphNode { uuid: $uuid }) SET gn.title = $title ,gn.description = $description RETURN gn")
+    void updateGraphNodeByUuid(@Param("uuid") String uuid,
+                               @Param("title") String title,
+                               @Param("description") String description);
 }

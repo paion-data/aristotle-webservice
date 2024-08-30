@@ -34,13 +34,13 @@ public interface UserRepository extends Neo4jRepository<User, Long> {
 
     @Query("MATCH (u:User) WHERE u.uidcid IN $uidcids "
             + "WITH u "
-            + "MATCH (u)-[r:RELATION]->(g:Graph) "
-            + "RETURN g.UUID")
-    List<String> getGraphUUIDsByUserUidcid(List<String> uidcids);
+            + "MATCH (u)-[r:HAVE]->(g:Graph) "
+            + "RETURN g.uuid")
+    List<String> getGraphUuidsByUserUidcid(List<String> uidcids);
 
     @Query("MATCH (u:User { uidcid: $uidcid }) "
             + "WITH u "
-            + "MATCH (u)-[r:RELATION]->(g:Graph) "
+            + "MATCH (u)-[r:HAVE]->(g:Graph) "
             + "RETURN g")
     List<Graph> getGraphByUserUidcid(String uidcid);
 }

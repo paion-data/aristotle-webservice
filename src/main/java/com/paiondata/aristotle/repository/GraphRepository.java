@@ -42,7 +42,12 @@ public interface GraphRepository extends Neo4jRepository<Graph, Long> {
 
     @Query("MATCH (g:Graph) WHERE g.uuid IN $uuids "
             + "WITH g "
-            + "MATCH (g)-[r:RELATION]->(gn:GraphNode) "
+            + "MATCH (g)-[r:HAVE]->(gn:GraphNode) "
             + "RETURN g.uuid")
-    List<String> getGraphNodeUUIDsByGraphUuids(List<String> uuids);
+    List<String> getGraphNodeUuidsByGraphUuids(List<String> uuids);
+
+    @Query("MATCH (g:Graph { uuid: $uuid }) SET g.title = $title ,g.description = $description RETURN g")
+    void updateGraphByUuid(@Param("uuid") String uuid,
+                               @Param("title") String title,
+                               @Param("description") String description);
 }

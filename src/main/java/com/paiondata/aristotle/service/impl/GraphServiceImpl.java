@@ -6,6 +6,7 @@ import com.paiondata.aristotle.common.exception.GraphExistsException;
 import com.paiondata.aristotle.common.exception.GraphNullException;
 import com.paiondata.aristotle.common.exception.UserNullException;
 import com.paiondata.aristotle.model.dto.GraphCreateDTO;
+import com.paiondata.aristotle.model.dto.GraphUpdateDTO;
 import com.paiondata.aristotle.model.entity.Graph;
 import com.paiondata.aristotle.model.entity.User;
 import com.paiondata.aristotle.repository.GraphRepository;
@@ -52,7 +53,7 @@ public class GraphServiceImpl implements GraphService {
     public void createGraph(GraphCreateDTO graphCreateDTO) {
         String title = graphCreateDTO.getTitle();
         String description = graphCreateDTO.getDescription();
-        String uuid = UUID.fastUUID().toString();
+        String uuid = UUID.fastUUID().toString(true);
         Date now = Date.from(LocalDateTime.now().atZone(ZoneId.systemDefault()).toInstant());
 
         if (graphRepository.checkGraphExists(title, description) == 0) {
@@ -82,13 +83,31 @@ public class GraphServiceImpl implements GraphService {
     @Transactional
     @Override
     public void deleteByUuids(List<String> uuids) {
+        long l = graphRepository.countByUuids(uuids);
+        if (l != uuids.size()) {
+            throw new GraphNullException(Message.GRAPH_NULL);
+        }
+
         List<String> relatedGraphNodeUuids = getRelatedGraphNodeUuids(uuids);
 
         graphNodeRepository.deleteByUuids(relatedGraphNodeUuids);
         graphRepository.deleteByUuids(uuids);
     }
 
+    @Transactional
+    @Override
+    public void updateGraph(GraphUpdateDTO graphUpdateDTO) {
+        Optional<Graph> graphByUuid = getGraphByUuid(graphUpdateDTO.getUuid());
+
+        if (graphByUuid.isPresent()) {
+            graphRepository.updateGraphByUuid(graphUpdateDTO.getUuid(),
+                    graphUpdateDTO.getTitle(), graphUpdateDTO.getDescription());
+        } else {
+            throw new GraphNullException(Message.GRAPH_NULL);
+        }
+    }
+
     private List<String> getRelatedGraphNodeUuids(List<String> uuids) {
-        return graphRepository.getGraphNodeUUIDsByGraphUuids(uuids);
+        return graphRepository.getGraphNodeUuidsByGraphUuids(uuids);
     }
 }

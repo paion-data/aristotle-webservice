@@ -1,6 +1,7 @@
 package com.paiondata.aristotle.service;
 
 import com.paiondata.aristotle.model.dto.GraphCreateDTO;
+import com.paiondata.aristotle.model.dto.GraphUpdateDTO;
 import com.paiondata.aristotle.model.entity.Graph;
 
 import java.util.List;
@@ -17,4 +18,6 @@ public interface GraphService {
     void bindUserGraph(String userUidcid, String graphUuid);
 
     void deleteByUuids(List<String> Uuids);
+
+    void updateGraph(GraphUpdateDTO graphUpdateDTO);
 }

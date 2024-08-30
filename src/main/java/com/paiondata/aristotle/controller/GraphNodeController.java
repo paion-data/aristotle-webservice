@@ -2,7 +2,10 @@ package com.paiondata.aristotle.controller;
 
 import com.paiondata.aristotle.common.base.Message;
 import com.paiondata.aristotle.common.base.Result;
+import com.paiondata.aristotle.model.dto.BindGraphGraphNodeDTO;
+import com.paiondata.aristotle.model.dto.BindGraphNodeDTO;
 import com.paiondata.aristotle.model.dto.GraphCreateDTO;
+import com.paiondata.aristotle.model.dto.GraphUpdateDTO;
 import com.paiondata.aristotle.model.entity.GraphNode;
 import com.paiondata.aristotle.service.GraphNodeService;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -10,6 +13,8 @@ import org.springframework.web.bind.annotation.*;
 
 import javax.validation.Valid;
 import javax.validation.constraints.NotBlank;
+import javax.validation.constraints.NotEmpty;
+import java.util.List;
 import java.util.Optional;
 
 @RestController
@@ -33,22 +38,28 @@ public class GraphNodeController {
     }
 
     @PostMapping("/bindGraph")
-    public Result<String> bindGraph(@RequestParam @NotBlank(message = Message.UUID_MUST_NOT_BE_BLANK)
-                                        String graphUuid,
-                                    @RequestParam @NotBlank(message = Message.UUID_MUST_NOT_BE_BLANK)
-                                    String graphNodeUuid) {
-        graphNodeService.bindGraph(graphUuid, graphNodeUuid);
+    public Result<String> bindGraph(@RequestBody @Valid BindGraphGraphNodeDTO bindGraphGraphNodeDTO) {
+        graphNodeService.bindGraph(bindGraphGraphNodeDTO.getGraphUuid(), bindGraphGraphNodeDTO.getGraphNodeUuid());
         return Result.ok(Message.BOUND_SUCCESS);
     }
 
     @PostMapping("/bindGraphNode")
-    public Result<String> bindGraphNode(@RequestParam @NotBlank(message = Message.UUID_MUST_NOT_BE_BLANK)
-                                            String uuid1,
-                                        @RequestParam @NotBlank(message = Message.UUID_MUST_NOT_BE_BLANK)
-                                        String uuid2,
-                                        @RequestParam @NotBlank(message = Message.RELATION_MUST_NOT_BE_BLANK)
-                                            String relation) {
-        graphNodeService.bindGraphNode(uuid1, uuid2, relation);
+    public Result<String> bindGraphNode(@RequestBody @Valid BindGraphNodeDTO bindGraphNodeDTO) {
+        graphNodeService.bindGraphNode(bindGraphNodeDTO.getUuid1(),
+                bindGraphNodeDTO.getUuid2(), bindGraphNodeDTO.getRelation());
         return Result.ok(Message.BOUND_SUCCESS);
+    }
+
+    @PutMapping
+    public Result<String> updateGraphNode(@RequestBody GraphUpdateDTO graphUpdateDTO) {
+        graphNodeService.updateGraphNode(graphUpdateDTO);
+        return Result.ok(Message.UPDATE_SUCCESS);
+    }
+
+    @DeleteMapping
+    public Result<String> deleteGraphNode(@RequestBody @NotEmpty(message = Message.UUID_MUST_NOT_BE_BLANK)
+                                      List<String> uuids) {
+        graphNodeService.deleteByUuids(uuids);
+        return Result.ok(Message.DELETE_SUCCESS);
     }
 }
