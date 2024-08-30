@@ -1,5 +1,6 @@
 package com.paiondata.aristotle.service.impl;
 
+import cn.hutool.core.lang.UUID;
 import com.paiondata.aristotle.common.base.Message;
 import com.paiondata.aristotle.common.exception.UserNullException;
 import com.paiondata.aristotle.common.exception.UserUidcidExistsException;
@@ -13,6 +14,7 @@ import com.paiondata.aristotle.repository.UserRepository;
 import com.paiondata.aristotle.service.UserService;
 import lombok.AllArgsConstructor;
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.dao.DataIntegrityViolationException;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
@@ -51,9 +53,9 @@ public class UserServiceImpl implements UserService {
     public void createUser(UserCreateDTO user) {
         String uidcid = user.getUidcid();
 
-        if (userRepository.checkUidcidExists(uidcid) == 0) {
+        try {
             userRepository.createUser(uidcid, user.getNickName());
-        } else {
+        } catch (DataIntegrityViolationException e) {
             throw new UserUidcidExistsException(Message.UIDCID_EXISTS + uidcid);
         }
     }

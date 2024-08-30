@@ -17,6 +17,9 @@ public class GraphNode extends BaseEntity {
     @GeneratedValue
     private Long id;
 
+    @Property("uuid")
+    private String uuid;
+
     @Property("title")
     private String title;
 

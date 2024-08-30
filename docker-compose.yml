@@ -1,0 +1,21 @@
+services:
+  neo4j:
+    image: neo4j:latest
+    environment:
+      NEO4J_AUTH: none
+      NEO4JLABS_PLUGINS: apoc
+    volumes:
+      - neo4j-data:/data
+    ports:
+      - "7474:7474"
+      - "7687:7687"
+  web:
+    build: .
+    ports:
+      - "8080:8080"
+    depends_on:
+      neo4j:
+        condition: service_healthy
+
+volumes:
+  neo4j-data:
