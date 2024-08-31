@@ -30,9 +30,10 @@ public interface GraphRepository extends Neo4jRepository<Graph, Long> {
                       @Param("updateTime") Date updateTime);
 
     @Query("MATCH (u:User) WHERE u.uidcid = $userUidcid MATCH (g:Graph) WHERE g.uuid = $graphUuid with u,g"
-            + " CREATE (u)-[r:HAVE]->(g)")
+            + " CREATE (u)-[r:HAVE{ uuid:$relationUuid }]->(g)")
     void bindUsertoGraph(@Param("userUidcid") String userUidcid,
-                         @Param("graphUuid") String graphUuid);
+                         @Param("graphUuid") String graphUuid,
+                         @Param("relationUuid") String relationUuid);
 
     @Query("MATCH (g:Graph) WHERE g.uuid IN $uuids RETURN count(g)")
     long countByUuids(List<String> uuids);

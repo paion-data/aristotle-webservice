@@ -68,6 +68,7 @@ public class GraphServiceImpl implements GraphService {
     public void bindUserGraph(String uidcid, String uuid) {
         Optional<User> optionalUser = userService.getUserByUidcid(uidcid);
         Optional<Graph> optionalGraph = getGraphByUuid(uuid);
+        String relationUuid = UUID.fastUUID().toString(true);
 
         if (!optionalUser.isPresent() || !optionalGraph.isPresent()) {
             if (!optionalUser.isPresent()) {
@@ -77,7 +78,7 @@ public class GraphServiceImpl implements GraphService {
             }
         }
 
-        graphRepository.bindUsertoGraph(uidcid, uuid);
+        graphRepository.bindUsertoGraph(uidcid, uuid, relationUuid);
     }
 
     @Transactional

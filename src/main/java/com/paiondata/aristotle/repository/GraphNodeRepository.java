@@ -32,17 +32,19 @@ public interface GraphNodeRepository extends Neo4jRepository<GraphNode, Long> {
     @Query("MATCH (g:Graph) WHERE g.uuid = $graphUuid "
             + "MATCH (gn:GraphNode) "
             + "WHERE gn.uuid = $graphNodeUuid with g,gn"
-            + " CREATE (g)-[r:HAVE]->(gn)")
+            + " CREATE (g)-[r:HAVE{uuid: $relationUuid}]->(gn)")
     void bindGraphToGraphNode(@Param("graphUuid") String graphUuid,
-                              @Param("graphNodeUuid") String graphNodeUuid);
+                              @Param("graphNodeUuid") String graphNodeUuid,
+                              @Param("relationUuid") String relationUuid);
 
     @Query("MATCH (gn1:GraphNode) WHERE gn1.uuid = $uuid1 "
             + "MATCH (gn2:GraphNode) WHERE gn2.uuid = $uuid2 "
             + "WITH gn1,gn2 "
-            + "CREATE (gn1)-[r:RELATION{name: $relation}]->(gn2)")
+            + "CREATE (gn1)-[r:RELATION{name: $relation, uuid: $relationUuid}]->(gn2)")
     void bindGraphNodeToGraphNode(@Param("uuid1") String uuid1,
                                   @Param("uuid2") String uuid2,
-                                  @Param("relation") String relation);
+                                  @Param("relation") String relation,
+                                  @Param("relationUuid") String relationUuid);
 
     @Query("MATCH (gn:GraphNode) WHERE gn.uuid IN $uuids RETURN count(gn)")
     long countByUuids(List<String> uuids);

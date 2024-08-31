@@ -62,4 +62,5 @@ public class GraphNodeController {
         graphNodeService.deleteByUuids(uuids);
         return Result.ok(Message.DELETE_SUCCESS);
     }
+
 }

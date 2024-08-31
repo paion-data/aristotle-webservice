@@ -66,6 +66,7 @@ public class GraphNodeServiceImpl implements GraphNodeService {
     public void bindGraph(String graphUuid, String graphNodeUuid) {
         Optional<Graph> optionalGraph = graphService.getGraphByUuid(graphUuid);
         Optional<GraphNode> graphNodeOptional = getGraphNodeByUuid(graphNodeUuid);
+        String relationUuid = UUID.fastUUID().toString(true);
 
         if (!optionalGraph.isPresent() || !graphNodeOptional.isPresent()) {
             if (!optionalGraph.isPresent()) {
@@ -75,7 +76,7 @@ public class GraphNodeServiceImpl implements GraphNodeService {
             }
         }
 
-        graphNodeRepository.bindGraphToGraphNode(graphUuid, graphNodeUuid);
+        graphNodeRepository.bindGraphToGraphNode(graphUuid, graphNodeUuid, relationUuid);
     }
 
     @Transactional
@@ -83,6 +84,7 @@ public class GraphNodeServiceImpl implements GraphNodeService {
     public void bindGraphNode(String uuid1, String uuid2, String relation) {
         Optional<GraphNode> graphNodeOptional1 = getGraphNodeByUuid(uuid1);
         Optional<GraphNode> graphNodeOptional2 = getGraphNodeByUuid(uuid2);
+        String relationUuid = UUID.fastUUID().toString(true);
 
         if (!graphNodeOptional1.isPresent() || !graphNodeOptional2.isPresent()) {
             if (!graphNodeOptional1.isPresent()) {
@@ -92,7 +94,7 @@ public class GraphNodeServiceImpl implements GraphNodeService {
             }
         }
 
-        graphNodeRepository.bindGraphNodeToGraphNode(uuid1, uuid2, relation);
+        graphNodeRepository.bindGraphNodeToGraphNode(uuid1, uuid2, relation, relationUuid);
     }
 
     @Transactional
