@@ -11,6 +11,7 @@ import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RestController;
 
 import javax.validation.constraints.NotBlank;
+import java.util.List;
 import java.util.Optional;
 
 @RestController
@@ -21,9 +22,9 @@ public class RelationController {
     private RelationService relationService;
 
     @GetMapping("/{uuid}")
-    public Result<Relation> getRelationByUuid(
+    public Result<List<Relation>> getRelationByUuid(
             @PathVariable @NotBlank(message = Message.UUID_MUST_NOT_BE_BLANK) String uuid) {
-        Optional<Relation> optionalRelation = relationService.getRelationByUuid(uuid);
+        Optional<List<Relation>> optionalRelation = relationService.getRelationByUuid(uuid);
         return optionalRelation.map(Result::ok).orElseGet(() -> Result.fail(Message.RELATION_NULL));
     }
 }

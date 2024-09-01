@@ -6,6 +6,7 @@ import com.paiondata.aristotle.service.RelationService;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 
+import java.util.List;
 import java.util.Optional;
 
 @Service
@@ -15,8 +16,8 @@ public class RelationServiceImpl implements RelationService {
     private RelationRepository relationRepository;
 
     @Override
-    public Optional<Relation> getRelationByUuid(String uuid) {
-        Relation relation = relationRepository.getRelationByUuid(uuid);
+    public Optional<List<Relation>> getRelationByUuid(String uuid) {
+        List<Relation> relation = relationRepository.getRelationByUuid(uuid);
         return Optional.ofNullable(relation);
     }
 }

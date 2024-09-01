@@ -31,7 +31,7 @@ public interface GraphNodeRepository extends Neo4jRepository<GraphNode, Long> {
 
     @Query("MATCH (g:Graph) WHERE g.uuid = $graphUuid SET g.update_time = $currentTime "
             + "MATCH (gn:GraphNode) WHERE gn.uuid = $graphNodeUuid SET gn.update_time = $currentTime with g,gn "
-            + "CREATE (g)-[r:HAVE{uuid: $relationUuid, create_time: $currentTime}]->(gn)")
+            + "CREATE (g)-[r:RELATION{name: 'HAVE', uuid: $relationUuid, create_time: $currentTime}]->(gn)")
     void bindGraphToGraphNode(@Param("graphUuid") String graphUuid,
                               @Param("graphNodeUuid") String graphNodeUuid,
                               @Param("relationUuid") String relationUuid,
