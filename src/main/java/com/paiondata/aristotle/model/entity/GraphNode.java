@@ -2,6 +2,7 @@ package com.paiondata.aristotle.model.entity;
 
 import com.paiondata.aristotle.model.BaseEntity;
 import lombok.Data;
+import lombok.Setter;
 import org.neo4j.ogm.annotation.NodeEntity;
 import org.springframework.data.neo4j.core.schema.GeneratedValue;
 import org.springframework.data.neo4j.core.schema.Id;
@@ -25,6 +26,9 @@ public class GraphNode extends BaseEntity {
 
     @Property("description")
     private String description;
+
+    @Property("create_time")
+    private Date createTime;
 
     @Property("update_time")
     private Date updateTime;

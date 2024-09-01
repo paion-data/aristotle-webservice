@@ -4,6 +4,7 @@ public class Message {
     public static final String USER_NULL = "The user does not exist!";
     public static final String GRAPH_NULL = "The graph does not exist!";
     public static final String GRAPH_NODE_NULL = "The graph node does not exist!";
+    public static final String RELATION_NULL = "The relation does not exist!";
     public static final String CREATE_SUCCESS = "Created successfully.";
     public static final String CREATE_FAIL = "Failed to create.";
     public static final String UPDATE_SUCCESS = "Updated successfully.";

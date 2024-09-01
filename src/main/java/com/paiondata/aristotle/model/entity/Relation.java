@@ -1,17 +1,14 @@
 package com.paiondata.aristotle.model.entity;
 
-import com.paiondata.aristotle.model.BaseEntity;
-import lombok.Data;
-import lombok.Setter;
-import org.neo4j.ogm.annotation.NodeEntity;
+import org.neo4j.ogm.annotation.RelationshipEntity;
 import org.springframework.data.neo4j.core.schema.GeneratedValue;
 import org.springframework.data.neo4j.core.schema.Id;
 import org.springframework.data.neo4j.core.schema.Property;
+
 import java.util.Date;
 
-@NodeEntity(label = "Graph")
-@Data
-public class Graph extends BaseEntity {
+@RelationshipEntity(type = "HAVE")
+public class Relation {
 
     @Id
     @GeneratedValue
@@ -20,15 +17,12 @@ public class Graph extends BaseEntity {
     @Property("uuid")
     private String uuid;
 
-    @Property("title")
-    private String title;
-
-    @Property("description")
-    private String description;
+//    @Property("name")
+//    private String name;
 
     @Property("create_time")
     private Date createTime;
 
-    @Property("update_time")
-    private Date updateTime;
+//    @Property("update_time")
+//    private Date updateTime;
 }

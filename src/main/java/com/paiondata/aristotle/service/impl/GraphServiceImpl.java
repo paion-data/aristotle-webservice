@@ -54,7 +54,7 @@ public class GraphServiceImpl implements GraphService {
         String title = graphCreateDTO.getTitle();
         String description = graphCreateDTO.getDescription();
         String uuid = UUID.fastUUID().toString(true);
-        Date now = Date.from(LocalDateTime.now().atZone(ZoneId.systemDefault()).toInstant());
+        Date now = getCurrentTime();
 
         if (graphRepository.checkGraphExists(title, description) == 0) {
             graphRepository.createGraph(title, description, uuid, now);
@@ -69,6 +69,7 @@ public class GraphServiceImpl implements GraphService {
         Optional<User> optionalUser = userService.getUserByUidcid(uidcid);
         Optional<Graph> optionalGraph = getGraphByUuid(uuid);
         String relationUuid = UUID.fastUUID().toString(true);
+        Date now = getCurrentTime();
 
         if (!optionalUser.isPresent() || !optionalGraph.isPresent()) {
             if (!optionalUser.isPresent()) {
@@ -78,7 +79,7 @@ public class GraphServiceImpl implements GraphService {
             }
         }
 
-        graphRepository.bindUsertoGraph(uidcid, uuid, relationUuid);
+        graphRepository.bindUsertoGraph(uidcid, uuid, relationUuid, now);
     }
 
     @Transactional
@@ -99,10 +100,12 @@ public class GraphServiceImpl implements GraphService {
     @Override
     public void updateGraph(GraphUpdateDTO graphUpdateDTO) {
         Optional<Graph> graphByUuid = getGraphByUuid(graphUpdateDTO.getUuid());
+        Date now = getCurrentTime();
 
         if (graphByUuid.isPresent()) {
             graphRepository.updateGraphByUuid(graphUpdateDTO.getUuid(),
-                    graphUpdateDTO.getTitle(), graphUpdateDTO.getDescription());
+                    graphUpdateDTO.getTitle(), graphUpdateDTO.getDescription(),
+                    now);
         } else {
             throw new GraphNullException(Message.GRAPH_NULL);
         }
@@ -110,5 +113,9 @@ public class GraphServiceImpl implements GraphService {
 
     private List<String> getRelatedGraphNodeUuids(List<String> uuids) {
         return graphRepository.getGraphNodeUuidsByGraphUuids(uuids);
+    }
+
+    private Date getCurrentTime() {
+        return Date.from(LocalDateTime.now().atZone(ZoneId.systemDefault()).toInstant());
     }
 }

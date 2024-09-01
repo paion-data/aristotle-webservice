@@ -5,7 +5,6 @@ import com.paiondata.aristotle.common.base.Message;
 import com.paiondata.aristotle.common.exception.GraphNodeExistsException;
 import com.paiondata.aristotle.common.exception.GraphNodeNullException;
 import com.paiondata.aristotle.common.exception.GraphNullException;
-import com.paiondata.aristotle.common.exception.UserNullException;
 import com.paiondata.aristotle.model.dto.GraphCreateDTO;
 import com.paiondata.aristotle.model.dto.GraphUpdateDTO;
 import com.paiondata.aristotle.model.entity.Graph;
@@ -67,6 +66,7 @@ public class GraphNodeServiceImpl implements GraphNodeService {
         Optional<Graph> optionalGraph = graphService.getGraphByUuid(graphUuid);
         Optional<GraphNode> graphNodeOptional = getGraphNodeByUuid(graphNodeUuid);
         String relationUuid = UUID.fastUUID().toString(true);
+        Date now = getCurrentTime();
 
         if (!optionalGraph.isPresent() || !graphNodeOptional.isPresent()) {
             if (!optionalGraph.isPresent()) {
@@ -76,7 +76,7 @@ public class GraphNodeServiceImpl implements GraphNodeService {
             }
         }
 
-        graphNodeRepository.bindGraphToGraphNode(graphUuid, graphNodeUuid, relationUuid);
+        graphNodeRepository.bindGraphToGraphNode(graphUuid, graphNodeUuid, relationUuid, now);
     }
 
     @Transactional
@@ -85,6 +85,7 @@ public class GraphNodeServiceImpl implements GraphNodeService {
         Optional<GraphNode> graphNodeOptional1 = getGraphNodeByUuid(uuid1);
         Optional<GraphNode> graphNodeOptional2 = getGraphNodeByUuid(uuid2);
         String relationUuid = UUID.fastUUID().toString(true);
+        Date now = getCurrentTime();
 
         if (!graphNodeOptional1.isPresent() || !graphNodeOptional2.isPresent()) {
             if (!graphNodeOptional1.isPresent()) {
@@ -94,7 +95,7 @@ public class GraphNodeServiceImpl implements GraphNodeService {
             }
         }
 
-        graphNodeRepository.bindGraphNodeToGraphNode(uuid1, uuid2, relation, relationUuid);
+        graphNodeRepository.bindGraphNodeToGraphNode(uuid1, uuid2, relation, relationUuid, now);
     }
 
     @Transactional
@@ -112,12 +113,18 @@ public class GraphNodeServiceImpl implements GraphNodeService {
     @Override
     public void updateGraphNode(GraphUpdateDTO graphUpdateDTO) {
         Optional<GraphNode> graphNodeByUuid = getGraphNodeByUuid(graphUpdateDTO.getUuid());
+        Date now = getCurrentTime();
 
         if (graphNodeByUuid.isPresent()) {
             graphNodeRepository.updateGraphNodeByUuid(graphUpdateDTO.getUuid(),
-                    graphUpdateDTO.getTitle(), graphUpdateDTO.getDescription());
+                    graphUpdateDTO.getTitle(), graphUpdateDTO.getDescription(),
+                    now);
         } else {
             throw new GraphNodeNullException(Message.GRAPH_NODE_NULL);
         }
+    }
+
+    private Date getCurrentTime() {
+        return Date.from(LocalDateTime.now().atZone(ZoneId.systemDefault()).toInstant());
     }
 }

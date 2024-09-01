@@ -22,18 +22,20 @@ public interface GraphRepository extends Neo4jRepository<Graph, Long> {
     long checkGraphExists(@Param("title") String title,
                           @Param("description") String description);
 
-    @Query("CREATE (g:Graph { title: $title, description: $description, uuid: $uuid, update_time: $updateTime }) "
+    @Query("CREATE (g:Graph { title: $title, description: $description, uuid: $uuid, create_time: $createTime }) "
             + "RETURN g")
     Graph createGraph(@Param("title") String title,
                       @Param("description") String description,
                       @Param("uuid") String uuid,
-                      @Param("updateTime") Date updateTime);
+                      @Param("createTime") Date updateTime);
 
-    @Query("MATCH (u:User) WHERE u.uidcid = $userUidcid MATCH (g:Graph) WHERE g.uuid = $graphUuid with u,g"
-            + " CREATE (u)-[r:HAVE{ uuid:$relationUuid }]->(g)")
+    @Query("MATCH (u:User) WHERE u.uidcid = $userUidcid MATCH (g:Graph) WHERE g.uuid = $graphUuid "
+            + "SET g.update_time = $currentTime with u,g "
+            + "CREATE (u)-[r:HAVE{ uuid: $relationUuid, create_time:$ currentTime }]->(g)")
     void bindUsertoGraph(@Param("userUidcid") String userUidcid,
                          @Param("graphUuid") String graphUuid,
-                         @Param("relationUuid") String relationUuid);
+                         @Param("relationUuid") String relationUuid,
+                         @Param("currentTime") Date currentTime);
 
     @Query("MATCH (g:Graph) WHERE g.uuid IN $uuids RETURN count(g)")
     long countByUuids(List<String> uuids);
@@ -47,8 +49,10 @@ public interface GraphRepository extends Neo4jRepository<Graph, Long> {
             + "RETURN g.uuid")
     List<String> getGraphNodeUuidsByGraphUuids(List<String> uuids);
 
-    @Query("MATCH (g:Graph { uuid: $uuid }) SET g.title = $title ,g.description = $description RETURN g")
+    @Query("MATCH (g:Graph { uuid: $uuid }) " +
+            "SET g.title = $title ,g.description = $description, g.update_time = $updateTime RETURN g")
     void updateGraphByUuid(@Param("uuid") String uuid,
                                @Param("title") String title,
-                               @Param("description") String description);
+                               @Param("description") String description,
+                           @Param("updateTime") Date updateTime);
 }

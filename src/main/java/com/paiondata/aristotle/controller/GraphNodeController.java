@@ -18,7 +18,7 @@ import java.util.List;
 import java.util.Optional;
 
 @RestController
-@RequestMapping("/graphNode")
+@RequestMapping("/node")
 public class GraphNodeController {
 
     @Autowired
