@@ -37,10 +37,4 @@ public interface UserRepository extends Neo4jRepository<User, Long> {
             + "MATCH (u)-[r:HAVE]->(g:Graph) "
             + "RETURN g.uuid")
     List<String> getGraphUuidsByUserUidcid(List<String> uidcids);
-
-    @Query("MATCH (u:User { uidcid: $uidcid }) "
-            + "WITH u "
-            + "MATCH (u)-[r:HAVE]->(g:Graph) "
-            + "RETURN g")
-    List<Graph> getGraphByUserUidcid(String uidcid);
 }

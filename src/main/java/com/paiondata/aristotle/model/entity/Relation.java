@@ -2,20 +2,18 @@ package com.paiondata.aristotle.model.entity;
 
 import com.paiondata.aristotle.model.BaseEntity;
 
-import org.springframework.data.neo4j.core.schema.GeneratedValue;
-import org.springframework.data.neo4j.core.schema.Id;
 import org.springframework.data.neo4j.core.schema.Property;
+import org.springframework.data.neo4j.core.schema.RelationshipId;
 import org.springframework.data.neo4j.core.schema.RelationshipProperties;
 import lombok.Data;
 
 import java.util.Date;
 
-@RelationshipProperties
+@RelationshipProperties()
 @Data
 public class Relation extends BaseEntity {
 
-    @Id
-    @GeneratedValue
+    @RelationshipId
     private Long id;
 
     @Property("uuid")

@@ -27,7 +27,7 @@ public class GraphController {
     public Result<Graph> getGraphByUuid(
             @PathVariable @NotBlank(message = Message.UUID_MUST_NOT_BE_BLANK) String uuid) {
         Optional<Graph> optionalGraph = graphService.getGraphByUuid(uuid);
-        return optionalGraph.map(Result::ok).orElseGet(() -> Result.fail(Message.USER_NULL));
+        return optionalGraph.map(Result::ok).orElseGet(() -> Result.fail(Message.GRAPH_NULL));
     }
 
     @PostMapping

@@ -5,13 +5,15 @@ import com.paiondata.aristotle.common.exception.UserNullException;
 import com.paiondata.aristotle.common.exception.UserUidcidExistsException;
 import com.paiondata.aristotle.model.dto.UserCreateDTO;
 import com.paiondata.aristotle.model.dto.UserUpdateDTO;
-import com.paiondata.aristotle.model.entity.Graph;
 import com.paiondata.aristotle.model.entity.User;
 import com.paiondata.aristotle.repository.GraphNodeRepository;
 import com.paiondata.aristotle.repository.GraphRepository;
 import com.paiondata.aristotle.repository.UserRepository;
 import com.paiondata.aristotle.service.UserService;
 import lombok.AllArgsConstructor;
+
+import org.neo4j.driver.AuthTokens;
+import org.neo4j.driver.GraphDatabase;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.dao.DataIntegrityViolationException;
 import org.springframework.stereotype.Service;
@@ -19,6 +21,9 @@ import org.springframework.transaction.annotation.Transactional;
 
 import java.util.List;
 import java.util.Optional;
+
+import javax.annotation.PostConstruct;
+import javax.annotation.PreDestroy;
 
 @Service
 @AllArgsConstructor
@@ -78,16 +83,6 @@ public class UserServiceImpl implements UserService {
         userRepository.deleteByUidcids((uidcids));
         graphRepository.deleteByUuids(graphUuids);
         graphNodeRepository.deleteByUuids(graphNodeUuids);
-    }
-
-    @Override
-    public Optional<List<Graph>> getGraphByUserUidcid(String uidcid) {
-        Optional<User> optionalUser = getUserByUidcid(uidcid);
-        if (!optionalUser.isPresent()) {
-            throw new UserNullException(Message.USER_NULL);
-        }
-
-        return Optional.ofNullable(userRepository.getGraphByUserUidcid(uidcid));
     }
 
     private List<String> getRelatedGraphUuids(List<String> userUidcids) {

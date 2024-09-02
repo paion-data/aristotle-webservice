@@ -6,10 +6,13 @@ import com.paiondata.aristotle.service.RelationService;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 
+import lombok.AllArgsConstructor;
+
 import java.util.List;
 import java.util.Optional;
 
 @Service
+@AllArgsConstructor
 public class RelationServiceImpl implements RelationService {
 
     @Autowired

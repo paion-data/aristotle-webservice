@@ -6,6 +6,7 @@ import com.paiondata.aristotle.model.entity.Graph;
 import com.paiondata.aristotle.model.entity.User;
 
 import java.util.List;
+import java.util.Map;
 import java.util.Optional;
 
 public interface UserService {
@@ -17,6 +18,4 @@ public interface UserService {
     void updateUser(UserUpdateDTO user);
 
     void deleteUser(List<String> uidcids);
-
-    Optional<List<Graph>> getGraphByUserUidcid(String uidcid);
 }
