@@ -34,8 +34,8 @@ public class Neo4jServiceImpl implements Neo4jService {
                 List<Map<String, Object>> resultList = new ArrayList<>();
                 while (result.hasNext()) {
                     Record record = result.next();
-                    Map<String, Object> userNode = extractNode(record.get("u"));
-                    Map<String, Object> graphNode = extractNode(record.get("g"));
+                    Map<String, Object> userNode = extractUserNode(record.get("u"));
+                    Map<String, Object> graphNode = extractGraphNode(record.get("g"));
                     Map<String, Object> relation = extractRelationship(record.get("r"));
 
                     Map<String, Object> combinedResult = new HashMap<>();
@@ -45,24 +45,34 @@ public class Neo4jServiceImpl implements Neo4jService {
 
                     resultList.add(combinedResult);
                 }
-                System.out.println(resultList);
                 return resultList;
             });
         }
     }
 
-    private Map<String, Object> extractNode(Object node) {
+    private Map<String, Object> extractUserNode(Object node) {
         Map<String, Object> nodeInfo = new HashMap<>();
         if (node instanceof NodeValue) {
             NodeValue nodeValue = (NodeValue) node;
             Map<String, Object> nodeMap = nodeValue.asNode().asMap();
 
-            System.out.println("Node Map: " + nodeMap);
+            nodeInfo.put("uidcid", nodeMap.get("uidcid"));
+            nodeInfo.put("nickName", nodeMap.get("nick_name"));
+        }
+        return nodeInfo;
+    }
 
-            nodeInfo.put("elementId", nodeMap.get("elementId"));
-            nodeInfo.put("identity", nodeMap.get("id"));
-            nodeInfo.put("labels", nodeMap.get("labels"));
-            nodeInfo.put("properties", nodeMap.get("properties"));
+    private Map<String, Object> extractGraphNode(Object node) {
+        Map<String, Object> nodeInfo = new HashMap<>();
+        if (node instanceof NodeValue) {
+            NodeValue nodeValue = (NodeValue) node;
+            Map<String, Object> nodeMap = nodeValue.asNode().asMap();
+
+            nodeInfo.put("description", nodeMap.get("description"));
+            nodeInfo.put("updateTime", nodeMap.get("update_time"));
+            nodeInfo.put("createTime", nodeMap.get("create_time"));
+            nodeInfo.put("title", nodeMap.get("title"));
+            nodeInfo.put("uuid", nodeMap.get("uuid"));
         }
         return nodeInfo;
     }
@@ -73,16 +83,10 @@ public class Neo4jServiceImpl implements Neo4jService {
             RelationshipValue relationshipValue = (RelationshipValue) relationship;
             Map<String, Object> relMap = relationshipValue.asRelationship().asMap();
 
-            System.out.println("Relationship Map: " + relMap);
-
-            relationshipInfo.put("elementId", relMap.get("elementId"));
-            relationshipInfo.put("identity", relMap.get("id"));
-            relationshipInfo.put("start", relMap.get("start"));
-            relationshipInfo.put("end", relMap.get("end"));
-            relationshipInfo.put("type", relMap.get("type"));
-            relationshipInfo.put("properties", relMap.get("properties"));
-            relationshipInfo.put("startNodeElementId", relMap.get("startNode"));
-            relationshipInfo.put("endNodeElementId", relMap.get("endNode"));
+            relationshipInfo.put("name", relMap.get("name"));
+            relationshipInfo.put("createTime", relMap.get("create_time"));
+            relationshipInfo.put("updateTime", relMap.get("update_time"));
+            relationshipInfo.put("uuid", relMap.get("uuid"));
         }
         return relationshipInfo;
     }
