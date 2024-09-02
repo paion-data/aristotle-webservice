@@ -14,6 +14,6 @@ public interface RelationRepository extends Neo4jRepository<Graph, Long> {
 
     @Query("MATCH p=(u:User)-[r:RELATION]->(g:Graph) "
             + "WHERE r.uuid = $uuid "
-            + "RETURN p")
+            + "RETURN r")
     List<Relation> getRelationByUuid(@Param("uuid") String uuid);
 }

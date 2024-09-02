@@ -85,24 +85,6 @@
             <version>3.3.1</version>
         </dependency>
 
-        <!--neo4j相关配置-->
-        <dependency>
-            <groupId>org.neo4j.driver</groupId>
-            <artifactId>neo4j-java-driver</artifactId>
-            <version>4.4.4</version>
-        </dependency>
-        <dependency>
-            <groupId>org.neo4j</groupId>
-            <artifactId>neo4j-ogm-embedded-driver</artifactId>
-            <version>3.2.28</version>
-            <exclusions>
-                <exclusion>
-                    <artifactId>classgraph</artifactId>
-                    <groupId>io.github.classgraph</groupId>
-                </exclusion>
-            </exclusions>
-        </dependency>
-
         <!-- Swagger3 -->
         <dependency>
             <groupId>io.springfox</groupId>

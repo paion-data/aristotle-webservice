@@ -2,18 +2,15 @@ package com.paiondata.aristotle.model.entity;
 
 import com.paiondata.aristotle.model.BaseEntity;
 
-import org.neo4j.ogm.annotation.EndNode;
-import org.neo4j.ogm.annotation.RelationshipEntity;
-import org.neo4j.ogm.annotation.StartNode;
 import org.springframework.data.neo4j.core.schema.GeneratedValue;
 import org.springframework.data.neo4j.core.schema.Id;
 import org.springframework.data.neo4j.core.schema.Property;
-
+import org.springframework.data.neo4j.core.schema.RelationshipProperties;
 import lombok.Data;
 
 import java.util.Date;
 
-@RelationshipEntity(type = "RELATION")
+@RelationshipProperties
 @Data
 public class Relation extends BaseEntity {
 
@@ -32,10 +29,4 @@ public class Relation extends BaseEntity {
 
     @Property("update_time")
     private Date updateTime;
-
-    @StartNode
-    private User user;
-
-    @EndNode
-    private Graph graph;
 }

@@ -2,15 +2,14 @@ package com.paiondata.aristotle.model.entity;
 
 import com.paiondata.aristotle.model.BaseEntity;
 import lombok.Data;
-import lombok.Setter;
-import org.neo4j.ogm.annotation.NodeEntity;
 import org.springframework.data.neo4j.core.schema.GeneratedValue;
 import org.springframework.data.neo4j.core.schema.Id;
+import org.springframework.data.neo4j.core.schema.Node;
 import org.springframework.data.neo4j.core.schema.Property;
 
 import java.util.Date;
 
-@NodeEntity(label = "GraphNode")
+@Node("GraphNode")
 @Data
 public class GraphNode extends BaseEntity {
 
