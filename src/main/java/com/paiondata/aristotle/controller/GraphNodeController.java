@@ -36,7 +36,7 @@ public class GraphNodeController {
         return Result.ok(Message.CREATE_SUCCESS);
     }
 
-    @PostMapping("/bindGraphNode")
+    @PostMapping("/bind")
     public Result<String> bindGraphNode(@RequestBody @Valid BindGraphNodeDTO bindGraphNodeDTO) {
         graphNodeService.bindGraphNode(bindGraphNodeDTO.getUuid1(),
                 bindGraphNodeDTO.getUuid2(), bindGraphNodeDTO.getRelation());

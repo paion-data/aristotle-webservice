@@ -67,7 +67,7 @@ public class GraphNodeServiceImpl implements GraphNodeService {
         graphNodeRepository.createAndBindGraphNode(title, description, graphUuid, graphNodeUuid, relationUuid, now);
 
         String targetGraphNodeUuid = graphNodeCreateDTO.getGraphNodeUuid();
-        if (!targetGraphNodeUuid.isBlank()) {
+        if (targetGraphNodeUuid != null) {
             String relation = graphNodeCreateDTO.getRelation();
             Optional<GraphNode> targetGraphNode = getGraphNodeByUuid(targetGraphNodeUuid);
             String relationUuid1 = UUID.fastUUID().toString(true);

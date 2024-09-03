@@ -5,10 +5,15 @@ import com.paiondata.aristotle.model.BaseEntity;
 
 import lombok.Data;
 
+import java.util.List;
+
 import javax.validation.constraints.NotBlank;
 
 @Data
 public class GraphNodeCreateDTO extends BaseEntity {
+
+    @NotBlank(message = Message.TEMPORARY_ID_MUST_NOT_BE_BLANK)
+    private Long temporaryId;
 
     @NotBlank(message = Message.TITLE_MUST_NOT_BE_BLANK)
     private String title;
@@ -19,9 +24,7 @@ public class GraphNodeCreateDTO extends BaseEntity {
     @NotBlank(message = Message.UUID_MUST_NOT_BE_BLANK)
     private String graphUuid;
 
-    private String graphNodeUuid;
+    private List<GraphNodeExistDTO> graphNodeExistDTO;
 
-    private String relation;
-
-    private boolean isTarget;
+    private List<GraphNodeTemporaryDTO> graphNodeTemporaryDTO;
 }
