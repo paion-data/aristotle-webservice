@@ -76,6 +76,11 @@ public class GraphNodeServiceImpl implements GraphNodeService {
             }
         }
 
+        GraphNode relation = graphNodeRepository.getRelationByGraphUuidAndNodeUuid(graphUuid, graphNodeUuid);
+        if (relation != null) {
+            throw new GraphNodeExistsException(Message.RELATION_EXISTS);
+        }
+
         graphNodeRepository.bindGraphToGraphNode(graphUuid, graphNodeUuid, relationUuid, now);
     }
 
@@ -93,6 +98,11 @@ public class GraphNodeServiceImpl implements GraphNodeService {
             } else {
                 throw new GraphNodeNullException(Message.GRAPH_NODE_NULL);
             }
+        }
+
+        GraphNode relationByDoubleUuid = graphNodeRepository.getRelationByDoubleUuid(uuid1, uuid2);
+        if (relationByDoubleUuid != null) {
+            throw new GraphNodeExistsException(Message.RELATION_EXISTS);
         }
 
         graphNodeRepository.bindGraphNodeToGraphNode(uuid1, uuid2, relation, relationUuid, now);

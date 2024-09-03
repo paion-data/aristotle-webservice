@@ -8,6 +8,7 @@ import com.paiondata.aristotle.common.exception.UserNullException;
 import com.paiondata.aristotle.model.dto.GraphCreateDTO;
 import com.paiondata.aristotle.model.dto.GraphUpdateDTO;
 import com.paiondata.aristotle.model.entity.Graph;
+import com.paiondata.aristotle.model.entity.Relation;
 import com.paiondata.aristotle.model.entity.User;
 import com.paiondata.aristotle.repository.GraphRepository;
 import com.paiondata.aristotle.service.GraphService;
@@ -77,6 +78,11 @@ public class GraphServiceImpl implements GraphService {
             } else {
                 throw new GraphNullException(Message.GRAPH_NULL);
             }
+        }
+
+        Graph relation = graphRepository.getRelationByUidcidAndUuid(uidcid, uuid);
+        if (relation != null) {
+            throw new GraphExistsException(Message.RELATION_EXISTS);
         }
 
         graphRepository.bindUsertoGraph(uidcid, uuid, relationUuid, now);

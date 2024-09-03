@@ -37,7 +37,7 @@ public interface GraphNodeRepository extends Neo4jRepository<GraphNode, Long> {
                               @Param("relationUuid") String relationUuid,
                               @Param("currentTime") Date currentTime);
 
-    @Query("MATCH (gn1:GraphNode) WHERE gn1.uuid = $uuid1 SET gn1.update_time = $currentTime "
+    @Query("MATCH (gn1:GraphNode) WHERE gn1.uuid = $uuid1 SET gn1.update_time = $currentTime WITH gn1 "
             + "MATCH (gn2:GraphNode) WHERE gn2.uuid = $uuid2 SET gn2.update_time = $currentTime "
             + "WITH gn1,gn2 "
             + "CREATE (gn1)-[r:RELATION{name: $relation, uuid: $relationUuid, create_time: $currentTime}]->(gn2)")
@@ -59,4 +59,14 @@ public interface GraphNodeRepository extends Neo4jRepository<GraphNode, Long> {
                                @Param("title") String title,
                                @Param("description") String description,
                                @Param("updateTime") Date updateTime);
+
+    @Query("MATCH (g:Graph)-[r:RELATION]->(gn:GraphNode) "
+            + "WHERE g.uuid = $uuid1 AND gn.uuid = $uuid2 "
+            + "RETURN gn")
+    GraphNode getRelationByGraphUuidAndNodeUuid(@Param("uuid1") String uuid1, @Param("uuid2") String uuid2);
+
+    @Query("MATCH (gn1:GraphNode)-[r:RELATION]->(gn2:GraphNode) "
+            + "WHERE gn1.uuid = $uuid1 AND gn2.uuid = $uuid2 "
+            + "RETURN gn1")
+    GraphNode getRelationByDoubleUuid(@Param("uuid1") String uuid1, @Param("uuid2") String uuid2);
 }

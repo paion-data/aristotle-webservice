@@ -1,6 +1,8 @@
 package com.paiondata.aristotle.repository;
 
 import com.paiondata.aristotle.model.entity.Graph;
+import com.paiondata.aristotle.model.entity.Relation;
+
 import org.springframework.data.neo4j.repository.Neo4jRepository;
 import org.springframework.data.neo4j.repository.query.Query;
 import org.springframework.data.repository.query.Param;
@@ -55,4 +57,9 @@ public interface GraphRepository extends Neo4jRepository<Graph, Long> {
                                @Param("title") String title,
                                @Param("description") String description,
                            @Param("updateTime") Date updateTime);
+
+    @Query("MATCH (u:User)-[r:RELATION]->(g:Graph) "
+            + "WHERE u.uidcid = $uidcid AND g.uuid = $uuid "
+            + "RETURN g")
+    Graph getRelationByUidcidAndUuid(@Param("uidcid") String uidcid, @Param("uuid") String uuid);
 }
