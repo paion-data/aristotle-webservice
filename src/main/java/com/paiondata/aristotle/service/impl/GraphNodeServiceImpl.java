@@ -5,7 +5,7 @@ import com.paiondata.aristotle.common.base.Message;
 import com.paiondata.aristotle.common.exception.GraphNodeExistsException;
 import com.paiondata.aristotle.common.exception.GraphNodeNullException;
 import com.paiondata.aristotle.common.exception.GraphNullException;
-import com.paiondata.aristotle.model.dto.GraphCreateDTO;
+import com.paiondata.aristotle.model.dto.GraphNodeCreateDTO;
 import com.paiondata.aristotle.model.dto.GraphUpdateDTO;
 import com.paiondata.aristotle.model.entity.Graph;
 import com.paiondata.aristotle.model.entity.GraphNode;
@@ -47,41 +47,42 @@ public class GraphNodeServiceImpl implements GraphNodeService {
 
     @Transactional
     @Override
-    public void createGraphNode(GraphCreateDTO graphCreateDTO) {
-        String title = graphCreateDTO.getTitle();
-        String description = graphCreateDTO.getDescription();
-        String uuid = UUID.fastUUID().toString(true);
+    public void createAndBindGraphNode(GraphNodeCreateDTO graphNodeCreateDTO) {
+        String title = graphNodeCreateDTO.getTitle();
+        String description = graphNodeCreateDTO.getDescription();
+        String graphUuid = graphNodeCreateDTO.getGraphUuid();
+        String graphNodeUuid = UUID.fastUUID().toString(true);
+        String relationUuid = UUID.fastUUID().toString(true);
         Date now = Date.from(LocalDateTime.now().atZone(ZoneId.systemDefault()).toInstant());
 
-        if (graphNodeRepository.checkGraphNodeExists(title, description) == 0) {
-            graphNodeRepository.createGraphNode(title, description, uuid, now);
-        } else {
+        Optional<Graph> optionalGraph = graphService.getGraphByUuid(graphUuid);
+        if (!optionalGraph.isPresent()) {
+            throw new GraphNullException(Message.GRAPH_NULL);
+        }
+
+        if (graphNodeRepository.checkGraphNodeExists(title, description) > 0) {
             throw new GraphNodeExistsException(Message.GRAPH_NODE_EXISTS);
         }
-    }
 
-    @Transactional
-    @Override
-    public void bindGraph(String graphUuid, String graphNodeUuid) {
-        Optional<Graph> optionalGraph = graphService.getGraphByUuid(graphUuid);
-        Optional<GraphNode> graphNodeOptional = getGraphNodeByUuid(graphNodeUuid);
-        String relationUuid = UUID.fastUUID().toString(true);
-        Date now = getCurrentTime();
+        graphNodeRepository.createAndBindGraphNode(title, description, graphUuid, graphNodeUuid, relationUuid, now);
 
-        if (!optionalGraph.isPresent() || !graphNodeOptional.isPresent()) {
-            if (!optionalGraph.isPresent()) {
-                throw new GraphNullException(Message.GRAPH_NULL);
-            } else {
+        String targetGraphNodeUuid = graphNodeCreateDTO.getGraphNodeUuid();
+        if (!targetGraphNodeUuid.isBlank()) {
+            String relation = graphNodeCreateDTO.getRelation();
+            Optional<GraphNode> targetGraphNode = getGraphNodeByUuid(targetGraphNodeUuid);
+            String relationUuid1 = UUID.fastUUID().toString(true);
+
+            if (!targetGraphNode.isPresent()) {
                 throw new GraphNodeNullException(Message.GRAPH_NODE_NULL);
             }
-        }
 
-        GraphNode relation = graphNodeRepository.getRelationByGraphUuidAndNodeUuid(graphUuid, graphNodeUuid);
-        if (relation != null) {
-            throw new GraphNodeExistsException(Message.RELATION_EXISTS);
+            boolean isTarget = graphNodeCreateDTO.isTarget();
+            if (isTarget) {
+                graphNodeRepository.bindGraphNodeToGraphNode(graphNodeUuid, targetGraphNodeUuid, relation, relationUuid1, now);
+            } else {
+                graphNodeRepository.bindGraphNodeToGraphNode(targetGraphNodeUuid, graphNodeUuid, relation, relationUuid1, now);
+            }
         }
-
-        graphNodeRepository.bindGraphToGraphNode(graphUuid, graphNodeUuid, relationUuid, now);
     }
 
     @Transactional

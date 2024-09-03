@@ -51,41 +51,20 @@ public class GraphServiceImpl implements GraphService {
 
     @Transactional
     @Override
-    public void createGraph(GraphCreateDTO graphCreateDTO) {
+    public void createAndBindGraph(GraphCreateDTO graphCreateDTO) {
         String title = graphCreateDTO.getTitle();
         String description = graphCreateDTO.getDescription();
-        String uuid = UUID.fastUUID().toString(true);
-        Date now = getCurrentTime();
-
-        if (graphRepository.checkGraphExists(title, description) == 0) {
-            graphRepository.createGraph(title, description, uuid, now);
-        } else {
-            throw new GraphExistsException(Message.GRAPH_EXISTS);
-        }
-    }
-
-    @Transactional
-    @Override
-    public void bindUserGraph(String uidcid, String uuid) {
-        Optional<User> optionalUser = userService.getUserByUidcid(uidcid);
-        Optional<Graph> optionalGraph = getGraphByUuid(uuid);
+        String uidcid = graphCreateDTO.getUserUidcid();
+        String graphUuid = UUID.fastUUID().toString(true);
         String relationUuid = UUID.fastUUID().toString(true);
         Date now = getCurrentTime();
 
-        if (!optionalUser.isPresent() || !optionalGraph.isPresent()) {
-            if (!optionalUser.isPresent()) {
-                throw new UserNullException(Message.USER_NULL);
-            } else {
-                throw new GraphNullException(Message.GRAPH_NULL);
-            }
+        Optional<User> optionalUser = userService.getUserByUidcid(uidcid);
+        if (!optionalUser.isPresent()) {
+            throw new UserNullException(Message.USER_NULL);
         }
 
-        Graph relation = graphRepository.getRelationByUidcidAndUuid(uidcid, uuid);
-        if (relation != null) {
-            throw new GraphExistsException(Message.RELATION_EXISTS);
-        }
-
-        graphRepository.bindUsertoGraph(uidcid, uuid, relationUuid, now);
+        graphRepository.createAndBindGraph(title, description, uidcid, graphUuid, relationUuid, now);
     }
 
     @Transactional

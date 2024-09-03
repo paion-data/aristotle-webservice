@@ -2,9 +2,8 @@ package com.paiondata.aristotle.controller;
 
 import com.paiondata.aristotle.common.base.Message;
 import com.paiondata.aristotle.common.base.Result;
-import com.paiondata.aristotle.model.dto.BindGraphGraphNodeDTO;
 import com.paiondata.aristotle.model.dto.BindGraphNodeDTO;
-import com.paiondata.aristotle.model.dto.GraphCreateDTO;
+import com.paiondata.aristotle.model.dto.GraphNodeCreateDTO;
 import com.paiondata.aristotle.model.dto.GraphUpdateDTO;
 import com.paiondata.aristotle.model.entity.GraphNode;
 import com.paiondata.aristotle.service.GraphNodeService;
@@ -32,15 +31,9 @@ public class GraphNodeController {
     }
 
     @PostMapping
-    public Result<String> createGraphNode(@RequestBody @Valid GraphCreateDTO graphCreateDTO) {
-        graphNodeService.createGraphNode(graphCreateDTO);
+    public Result<String> createAndBindGraphNode(@RequestBody @Valid GraphNodeCreateDTO graphNodeCreateDTO) {
+        graphNodeService.createAndBindGraphNode(graphNodeCreateDTO);
         return Result.ok(Message.CREATE_SUCCESS);
-    }
-
-    @PostMapping("/bindGraph")
-    public Result<String> bindGraph(@RequestBody @Valid BindGraphGraphNodeDTO bindGraphGraphNodeDTO) {
-        graphNodeService.bindGraph(bindGraphGraphNodeDTO.getGraphUuid(), bindGraphGraphNodeDTO.getGraphNodeUuid());
-        return Result.ok(Message.BOUND_SUCCESS);
     }
 
     @PostMapping("/bindGraphNode")
@@ -62,5 +55,4 @@ public class GraphNodeController {
         graphNodeService.deleteByUuids(uuids);
         return Result.ok(Message.DELETE_SUCCESS);
     }
-
 }

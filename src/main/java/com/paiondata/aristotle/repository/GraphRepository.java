@@ -24,12 +24,16 @@ public interface GraphRepository extends Neo4jRepository<Graph, Long> {
     long checkGraphExists(@Param("title") String title,
                           @Param("description") String description);
 
-    @Query("CREATE (g:Graph { title: $title, description: $description, uuid: $uuid, create_time: $createTime }) "
-            + "RETURN g")
-    Graph createGraph(@Param("title") String title,
+    @Query("MATCH (u:User) WHERE u.uidcid = $userUidcid "
+            + "CREATE (g:Graph {uuid: $graphUuid, title: $title, description: $description,create_time: $currentTime}) "
+            + "WITH u, g "
+            + "CREATE (u)-[r:RELATION {name: 'HAVE', uuid: $relationUuid, create_time: $currentTime}]->(g)")
+    Graph createAndBindGraph(@Param("title") String title,
                       @Param("description") String description,
-                      @Param("uuid") String uuid,
-                      @Param("createTime") Date updateTime);
+                      @Param("userUidcid") String userUidcid,
+                      @Param("graphUuid") String graphUuid,
+                      @Param("relationUuid") String relationUuid,
+                      @Param("currentTime") Date currentTime);
 
     @Query("MATCH (u:User) WHERE u.uidcid = $userUidcid MATCH (g:Graph) WHERE g.uuid = $graphUuid "
             + "SET g.update_time = $currentTime with u,g "

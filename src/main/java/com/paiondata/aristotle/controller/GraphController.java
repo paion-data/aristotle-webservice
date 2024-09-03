@@ -2,7 +2,6 @@ package com.paiondata.aristotle.controller;
 
 import com.paiondata.aristotle.common.base.Message;
 import com.paiondata.aristotle.common.base.Result;
-import com.paiondata.aristotle.model.dto.BindGraphUserDTO;
 import com.paiondata.aristotle.model.dto.GraphCreateDTO;
 import com.paiondata.aristotle.model.dto.GraphUpdateDTO;
 import com.paiondata.aristotle.model.entity.Graph;
@@ -31,15 +30,9 @@ public class GraphController {
     }
 
     @PostMapping
-    public Result<String> createGraph(@RequestBody @Valid GraphCreateDTO graphCreateDTO) {
-        graphService.createGraph(graphCreateDTO);
+    public Result<String> createAndBindGraph(@RequestBody @Valid GraphCreateDTO graphCreateDTO) {
+        graphService.createAndBindGraph(graphCreateDTO);
         return Result.ok(Message.CREATE_SUCCESS);
-    }
-
-    @PostMapping("/bind")
-    public Result<String> bindUser(@RequestBody @Valid BindGraphUserDTO bindGraphUserDTO) {
-        graphService.bindUserGraph(bindGraphUserDTO.getUserUidcid(), bindGraphUserDTO.getGraphUuid());
-        return Result.ok(Message.BOUND_SUCCESS);
     }
 
     @PutMapping

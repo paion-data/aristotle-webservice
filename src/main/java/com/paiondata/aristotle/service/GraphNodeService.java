@@ -1,6 +1,6 @@
 package com.paiondata.aristotle.service;
 
-import com.paiondata.aristotle.model.dto.GraphCreateDTO;
+import com.paiondata.aristotle.model.dto.GraphNodeCreateDTO;
 import com.paiondata.aristotle.model.dto.GraphUpdateDTO;
 import com.paiondata.aristotle.model.entity.GraphNode;
 
@@ -13,9 +13,7 @@ public interface GraphNodeService {
 
     Optional<GraphNode> getGraphNodeByUuid(String uuid);
 
-    void createGraphNode(GraphCreateDTO graphCreateDTO);
-
-    void bindGraph(String graphUuid, String graphNodeUuid);
+    void createAndBindGraphNode(GraphNodeCreateDTO graphNodeCreateDTO);
 
     void bindGraphNode(String uuid1, String uuid2, String relation);
 
