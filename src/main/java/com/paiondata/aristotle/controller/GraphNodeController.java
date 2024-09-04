@@ -3,6 +3,7 @@ package com.paiondata.aristotle.controller;
 import com.paiondata.aristotle.common.base.Message;
 import com.paiondata.aristotle.common.base.Result;
 import com.paiondata.aristotle.model.dto.BindGraphNodeDTO;
+import com.paiondata.aristotle.model.dto.GraphGraphNodeCreateDTO;
 import com.paiondata.aristotle.model.dto.GraphNodeCreateDTO;
 import com.paiondata.aristotle.model.dto.GraphUpdateDTO;
 import com.paiondata.aristotle.model.entity.GraphNode;
@@ -33,6 +34,12 @@ public class GraphNodeController {
     @PostMapping
     public Result<String> createAndBindGraphNode(@RequestBody @Valid GraphNodeCreateDTO graphNodeCreateDTO) {
         graphNodeService.createAndBindGraphNode(graphNodeCreateDTO);
+        return Result.ok(Message.CREATE_SUCCESS);
+    }
+
+    @PostMapping("/graph")
+    public Result<String> createAndBindGraphGraphNode(@RequestBody @Valid GraphGraphNodeCreateDTO graphNodeCreateDTO) {
+        graphNodeService.createAndBindGraphGraphNode(graphNodeCreateDTO);
         return Result.ok(Message.CREATE_SUCCESS);
     }
 

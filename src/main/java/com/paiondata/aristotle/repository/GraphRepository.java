@@ -27,7 +27,8 @@ public interface GraphRepository extends Neo4jRepository<Graph, Long> {
     @Query("MATCH (u:User) WHERE u.uidcid = $userUidcid "
             + "CREATE (g:Graph {uuid: $graphUuid, title: $title, description: $description,create_time: $currentTime}) "
             + "WITH u, g "
-            + "CREATE (u)-[r:RELATION {name: 'HAVE', uuid: $relationUuid, create_time: $currentTime}]->(g)")
+            + "CREATE (u)-[r:RELATION {name: 'HAVE', uuid: $relationUuid, create_time: $currentTime}]->(g) "
+            + "RETURN g")
     Graph createAndBindGraph(@Param("title") String title,
                       @Param("description") String description,
                       @Param("userUidcid") String userUidcid,

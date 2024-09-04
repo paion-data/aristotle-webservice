@@ -1,6 +1,5 @@
 package com.paiondata.aristotle.repository;
 
-import com.paiondata.aristotle.model.entity.Graph;
 import com.paiondata.aristotle.model.entity.GraphNode;
 import org.springframework.data.neo4j.repository.Neo4jRepository;
 import org.springframework.data.neo4j.repository.query.Query;
@@ -19,14 +18,17 @@ public interface GraphNodeRepository extends Neo4jRepository<GraphNode, Long> {
     @Query("MATCH (gn:GraphNode { uuid: $uuid }) RETURN gn")
     GraphNode getGraphNodeByUuid(String uuid);
 
-    @Query("MATCH (gn:GraphNode { title: $title, description: $description }) RETURN count(gn)")
+    @Query("MATCH (g:Graph { uuid: $uuid })-[r:RELATION]->(gn:GraphNode { title: $title, description: $description }) "
+            + "RETURN count(gn)")
     long checkGraphNodeExists(@Param("title") String title,
-                          @Param("description") String description);
+                          @Param("description") String description,
+                              @Param("uuid") String uuid);
 
     @Query("MATCH (g:Graph) WHERE g.uuid = $graphUuid SET g.update_time = $currentTime "
             +"CREATE (gn:GraphNode{uuid:$graphNodeUuid,title:$title,description:$description,create_time:$currentTime})"
             + " WITH g, gn "
-            + "CREATE (g)-[r:RELATION {name: 'HAVE', uuid: $relationUuid, create_time: $currentTime}]->(gn)")
+            + "CREATE (g)-[r:RELATION {name: 'HAVE', uuid: $relationUuid, create_time: $currentTime}]->(gn) "
+            + "RETURN gn")
     GraphNode createAndBindGraphNode(@Param("title") String title,
                                      @Param("description") String description,
                                      @Param("graphUuid") String graphUuid,

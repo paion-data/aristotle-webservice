@@ -5,7 +5,9 @@ import com.paiondata.aristotle.model.BaseEntity;
 import lombok.Data;
 
 @Data
-public class GraphNodeExistDTO extends BaseEntity {
+public class GraphNodeExistRelationDTO extends BaseEntity {
+
+    private Long temporaryId;
 
     private String existGraphNodeUuid;
 

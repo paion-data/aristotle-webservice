@@ -23,5 +23,7 @@ public class Message {
     public static final String NICK_NAME_MUST_NOT_BE_BLANK = "nickName must not be blank!";
     public static final String TITLE_MUST_NOT_BE_BLANK = "title must not be blank!";
     public static final String DESCRIPTION_MUST_NOT_BE_BLANK = "description must not be blank!";
+    public static final String TEMPORARY_ID_MUST_NOT_NULL = "temporaryId must not null!";
     public static final String DELETE_SUCCESS = "Deleted successfully.";
+    public static final String SAME_NODE_RELATIONSHIP_ERROR = "The graph node cannot be bound to itself.";
 }

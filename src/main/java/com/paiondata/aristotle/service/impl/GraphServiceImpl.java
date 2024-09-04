@@ -51,7 +51,7 @@ public class GraphServiceImpl implements GraphService {
 
     @Transactional
     @Override
-    public void createAndBindGraph(GraphCreateDTO graphCreateDTO) {
+    public Graph createAndBindGraph(GraphCreateDTO graphCreateDTO) {
         String title = graphCreateDTO.getTitle();
         String description = graphCreateDTO.getDescription();
         String uidcid = graphCreateDTO.getUserUidcid();
@@ -64,7 +64,7 @@ public class GraphServiceImpl implements GraphService {
             throw new UserNullException(Message.USER_NULL);
         }
 
-        graphRepository.createAndBindGraph(title, description, uidcid, graphUuid, relationUuid, now);
+        return graphRepository.createAndBindGraph(title, description, uidcid, graphUuid, relationUuid, now);
     }
 
     @Transactional

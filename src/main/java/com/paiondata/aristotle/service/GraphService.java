@@ -13,7 +13,7 @@ public interface GraphService {
 
     Optional<Graph> getGraphByUuid(String uuid);
 
-    void createAndBindGraph(GraphCreateDTO graphCreateDTO);
+    Graph createAndBindGraph(GraphCreateDTO graphCreateDTO);
 
     void deleteByUuids(List<String> Uuids);
 

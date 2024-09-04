@@ -1,6 +1,10 @@
 package com.paiondata.aristotle.service.impl;
 
+import com.paiondata.aristotle.common.base.Message;
+import com.paiondata.aristotle.common.exception.UserNullException;
+import com.paiondata.aristotle.service.GraphNodeService;
 import com.paiondata.aristotle.service.Neo4jService;
+import com.paiondata.aristotle.service.UserService;
 
 import org.neo4j.driver.*;
 import org.neo4j.driver.Record;
@@ -19,6 +23,12 @@ import java.util.Set;
 @Service
 public class Neo4jServiceImpl implements Neo4jService {
 
+    @Autowired
+    private UserService userService;
+
+    @Autowired
+    private GraphNodeService graphNodeService;
+
     private final Driver driver;
 
     @Autowired
@@ -28,6 +38,11 @@ public class Neo4jServiceImpl implements Neo4jService {
 
     @Override
     public List<Map<String, Object>> getGraphByUserUidcid(String uidcid) {
+
+        if (!userService.getUserByUidcid(uidcid).isPresent()) {
+            throw new UserNullException(Message.USER_NULL);
+        }
+
         String cypherQuery = "MATCH (u:User)-[r:RELATION]->(g:Graph) WHERE u.uidcid = $uidcid RETURN DISTINCT u, r, g";
 
         try (Session session = driver.session(SessionConfig.builder().build())) {
@@ -54,6 +69,11 @@ public class Neo4jServiceImpl implements Neo4jService {
 
     @Override
     public List<Map<String, Object>> getGraphNodeByGraphUuid(String uuid) {
+
+        if (!graphNodeService.getGraphNodeByUuid(uuid).isPresent()) {
+            throw new UserNullException(Message.GRAPH_NULL);
+        }
+
         String cypherQuery = "MATCH (g:Graph { uuid: $uuid }) "
                 + "OPTIONAL MATCH (g)-[:RELATION]->(n1:GraphNode) "
                 + "OPTIONAL MATCH (n1)-[r:RELATION]->(n2:GraphNode) "

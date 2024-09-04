@@ -5,9 +5,11 @@ import com.paiondata.aristotle.model.BaseEntity;
 import lombok.Data;
 
 @Data
-public class GraphNodeTemporaryDTO extends BaseEntity {
+public class GraphNodeTemporaryRelationDTO extends BaseEntity {
 
-    private String temporaryId;
+    private Long temporaryId1;
+
+    private Long temporaryId2;
 
     private String temporaryRelation;
 
