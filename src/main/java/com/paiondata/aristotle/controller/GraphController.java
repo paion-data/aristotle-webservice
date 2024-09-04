@@ -6,6 +6,8 @@ import com.paiondata.aristotle.model.dto.GraphCreateDTO;
 import com.paiondata.aristotle.model.dto.GraphUpdateDTO;
 import com.paiondata.aristotle.model.entity.Graph;
 import com.paiondata.aristotle.service.GraphService;
+import com.paiondata.aristotle.service.Neo4jService;
+
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.web.bind.annotation.*;
 
@@ -13,6 +15,7 @@ import javax.validation.Valid;
 import javax.validation.constraints.NotBlank;
 import javax.validation.constraints.NotEmpty;
 import java.util.List;
+import java.util.Map;
 import java.util.Optional;
 
 @RestController
@@ -22,11 +25,21 @@ public class GraphController {
     @Autowired
     private GraphService graphService;
 
+    @Autowired
+    private Neo4jService neo4jService;
+
     @GetMapping("/{uuid}")
     public Result<Graph> getGraphByUuid(
             @PathVariable @NotBlank(message = Message.UUID_MUST_NOT_BE_BLANK) String uuid) {
         Optional<Graph> optionalGraph = graphService.getGraphByUuid(uuid);
         return optionalGraph.map(Result::ok).orElseGet(() -> Result.fail(Message.GRAPH_NULL));
+    }
+
+    @GetMapping("/node/{uuid}")
+    public Result<List<Map<String, Object>>> getGraphNodeByGraphUuid (
+            @PathVariable @NotBlank(message = Message.UUID_MUST_NOT_BE_BLANK) String uuid) {
+        List<Map<String, Object>> results = neo4jService.getGraphNodeByGraphUuid(uuid);
+        return Result.ok(results);
     }
 
     @PostMapping

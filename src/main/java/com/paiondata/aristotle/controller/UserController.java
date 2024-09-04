@@ -37,7 +37,6 @@ public class UserController {
     public Result<List<Map<String, Object>>> getGraphByUserUidcid(
             @PathVariable @NotBlank(message = Message.UIDCID_MUST_NOT_BE_BLANK) String uidcid) {
         List<Map<String, Object>> results = neo4jService.getGraphByUserUidcid(uidcid);
-//        List<User> results = userService.getGraphByUserUidcid(uidcid);
         return Result.ok(results);
     }
 
