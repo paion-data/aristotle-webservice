@@ -25,15 +25,12 @@ public interface UserRepository extends Neo4jRepository<User, Long> {
     User updateUser(@Param("uidcid") String uidcid,
                     @Param("nickName") String nickName);
 
-    @Query("MATCH (u:User) WHERE u.uidcid IN $uidcids RETURN count(u)")
-    long countByUidcids(List<String> uidcids);
-
     @Query("MATCH (u:User) WHERE u.uidcid IN $uidcids DETACH DELETE u")
     void deleteByUidcids(List<String> uidcids);
 
     @Query("MATCH (u:User) WHERE u.uidcid IN $uidcids "
             + "WITH u "
-            + "MATCH (u)-[r:HAVE]->(g:Graph) "
+            + "MATCH (u)-[r:RELATION]->(g:Graph) "
             + "RETURN g.uuid")
     List<String> getGraphUuidsByUserUidcid(List<String> uidcids);
 }

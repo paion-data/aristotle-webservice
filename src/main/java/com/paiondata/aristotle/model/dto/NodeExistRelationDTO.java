@@ -11,6 +11,4 @@ public class NodeExistRelationDTO extends BaseEntity {
     private String toId;
 
     private String relationName;
-
-    private boolean isFromIdExist;
 }

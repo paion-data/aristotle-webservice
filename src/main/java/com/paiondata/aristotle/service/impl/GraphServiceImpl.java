@@ -52,7 +52,7 @@ public class GraphServiceImpl implements GraphService {
         Date now = getCurrentTime();
 
         Optional<User> optionalUser = userService.getUserByUidcid(uidcid);
-        if (!optionalUser.isPresent()) {
+        if (optionalUser.isEmpty()) {
             throw new UserNullException(Message.USER_NULL);
         }
 
@@ -62,9 +62,10 @@ public class GraphServiceImpl implements GraphService {
     @Transactional
     @Override
     public void deleteByUuids(List<String> uuids) {
-        long l = graphRepository.countByUuids(uuids);
-        if (l != uuids.size()) {
-            throw new GraphNullException(Message.GRAPH_NULL);
+        for (String uuid : uuids) {
+            if (getGraphByUuid(uuid).isEmpty()) {
+                throw new GraphNullException(Message.GRAPH_NULL);
+            }
         }
 
         List<String> relatedGraphNodeUuids = getRelatedGraphNodeUuids(uuids);

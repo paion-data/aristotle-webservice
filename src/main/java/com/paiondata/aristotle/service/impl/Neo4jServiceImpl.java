@@ -33,7 +33,7 @@ public class Neo4jServiceImpl implements Neo4jService {
     @Override
     public List<Map<String, Object>> getGraphByUserUidcid(String uidcid) {
 
-        if (!userService.getUserByUidcid(uidcid).isPresent()) {
+        if (userService.getUserByUidcid(uidcid).isEmpty()) {
             throw new UserNullException(Message.USER_NULL);
         }
 
@@ -64,7 +64,7 @@ public class Neo4jServiceImpl implements Neo4jService {
     @Override
     public List<Map<String, Object>> getGraphNodeByGraphUuid(String uuid) {
 
-        if (!graphNodeService.getGraphNodeByUuid(uuid).isPresent()) {
+        if (graphNodeService.getGraphNodeByUuid(uuid).isEmpty()) {
             throw new UserNullException(Message.GRAPH_NULL);
         }
 

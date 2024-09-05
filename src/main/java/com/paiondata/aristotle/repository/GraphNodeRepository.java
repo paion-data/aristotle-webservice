@@ -37,9 +37,6 @@ public interface GraphNodeRepository extends Neo4jRepository<GraphNode, Long> {
                                   @Param("relationUuid") String relationUuid,
                                   @Param("currentTime") Date currentTime);
 
-    @Query("MATCH (gn:GraphNode) WHERE gn.uuid IN $uuids RETURN count(gn)")
-    long countByUuids(List<String> uuids);
-
     @Query("MATCH (gn:GraphNode) WHERE gn.uuid IN $uuids DETACH DELETE gn")
     void deleteByUuids(List<String> uuids);
 

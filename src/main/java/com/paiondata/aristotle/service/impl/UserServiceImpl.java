@@ -66,13 +66,17 @@ public class UserServiceImpl implements UserService {
     @Transactional
     @Override
     public void deleteUser(List<String> uidcids) {
-        long l = userRepository.countByUidcids(uidcids);
-        if (l != uidcids.size()) {
-            throw new UserNullException(Message.USER_NULL);
+        for (String uidcid : uidcids) {
+            if (getUserByUidcid(uidcid).isEmpty()) {
+                throw new UserNullException(Message.USER_NULL);
+            }
         }
 
         List<String> graphUuids = getRelatedGraphUuids(uidcids);
         List<String> graphNodeUuids = getRelatedGraphNodeUuids(graphUuids);
+
+        System.out.println(graphUuids);
+        System.out.println(graphNodeUuids);
 
         userRepository.deleteByUidcids((uidcids));
         graphRepository.deleteByUuids(graphUuids);

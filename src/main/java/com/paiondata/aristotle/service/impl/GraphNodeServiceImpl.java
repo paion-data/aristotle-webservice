@@ -41,12 +41,12 @@ public class GraphNodeServiceImpl implements GraphNodeService {
         String graphUuid = graphNodeCreateDTO.getGraphUuid();
 
         Optional<Graph> optionalGraph = graphService.getGraphByUuid(graphUuid);
-        if (!optionalGraph.isPresent()) {
+        if (optionalGraph.isEmpty()) {
             throw new GraphNullException(Message.GRAPH_NULL);
         }
 
         Date now = getCurrentTime();
-        Map<Long, String> uuidMap = new HashMap<>();
+        Map<String, String> uuidMap = new HashMap<>();
 
         createGraphNode(graphNodeCreateDTO.getGraphNodeDTO(), uuidMap, now, graphUuid);
 
@@ -62,14 +62,14 @@ public class GraphNodeServiceImpl implements GraphNodeService {
         String graphUuid = graph.getUuid();
 
         Date now = getCurrentTime();
-        Map<Long, String> uuidMap = new HashMap<>();
+        Map<String, String> uuidMap = new HashMap<>();
 
         createGraphNode(graphNodeCreateDTO.getGraphNodeDTO(), uuidMap, now, graphUuid);
 
         bindTemporaryNodeRelations(graphNodeCreateDTO.getGraphNodeTemporaryRelationDTO(), uuidMap, now);
     }
 
-    private void createGraphNode (List<NodeDTO> graphNodeDTO, Map<Long, String> uuidMap,
+    private void createGraphNode (List<NodeDTO> graphNodeDTO, Map<String, String> uuidMap,
                                   Date now, String graphUuid) {
         for (NodeDTO dto : graphNodeDTO) {
             String graphNodeUuid = UUID.fastUUID().toString(true);
@@ -83,18 +83,22 @@ public class GraphNodeServiceImpl implements GraphNodeService {
     }
 
     private void bindExistingNodeRelations(List<NodeExistRelationDTO> graphNodeExistRelationDTO,
-                                           Map<Long, String> uuidMap, Date now) {
+                                           Map<String, String> uuidMap, Date now) {
 
         if (graphNodeExistRelationDTO == null || graphNodeExistRelationDTO.isEmpty()) {
             return;
         }
 
         for (NodeExistRelationDTO dto : graphNodeExistRelationDTO) {
-            String existGraphNodeUuid = dto.isFromIdExist() ? dto.getFromId() : dto.getToId();
 
-            String temporaryGraphNodeUuid = dto.isFromIdExist() ? uuidMap.get(dto.getToId()) : uuidMap.get(dto.getFromId());
+            String existGraphNodeUuid =
+                    getGraphNodeByUuid(dto.getFromId()).isPresent() ? dto.getFromId() : dto.getToId();
 
-            if (!getGraphNodeByUuid(existGraphNodeUuid).isPresent()) {
+            String temporaryGraphNodeUuid =
+                    getGraphNodeByUuid(
+                            dto.getFromId()).isPresent() ? uuidMap.get(dto.getToId()) : uuidMap.get(dto.getFromId());
+
+            if (getGraphNodeByUuid(existGraphNodeUuid).isEmpty()) {
                 throw new GraphNodeNullException(Message.GRAPH_NODE_NULL);
             }
 
@@ -105,7 +109,7 @@ public class GraphNodeServiceImpl implements GraphNodeService {
     }
 
     private void bindTemporaryNodeRelations(List<NodeTemporaryRelationDTO> gntrDTO,
-                                            Map<Long, String> uuidMap, Date now) {
+                                            Map<String, String> uuidMap, Date now) {
         if (gntrDTO == null || gntrDTO.isEmpty()) {
             return;
         }
@@ -132,8 +136,8 @@ public class GraphNodeServiceImpl implements GraphNodeService {
         String relationUuid = UUID.fastUUID().toString(true);
         Date now = getCurrentTime();
 
-        if (!graphNodeOptional1.isPresent() || !graphNodeOptional2.isPresent()) {
-            if (!graphNodeOptional1.isPresent()) {
+        if (graphNodeOptional1.isEmpty() || graphNodeOptional2.isEmpty()) {
+            if (graphNodeOptional1.isEmpty()) {
                 throw new GraphNodeNullException(Message.GRAPH_NODE_NULL);
             } else {
                 throw new GraphNodeNullException(Message.GRAPH_NODE_NULL);
@@ -146,9 +150,10 @@ public class GraphNodeServiceImpl implements GraphNodeService {
     @Transactional
     @Override
     public void deleteByUuids(List<String> uuids) {
-        long l = graphNodeRepository.countByUuids(uuids);
-        if (l != uuids.size()) {
-            throw new GraphNullException(Message.GRAPH_NULL);
+        for (String uuid : uuids) {
+            if (getGraphNodeByUuid(uuid).isEmpty()) {
+                throw new GraphNodeNullException(Message.GRAPH_NODE_NULL);
+            }
         }
 
         graphNodeRepository.deleteByUuids(uuids);

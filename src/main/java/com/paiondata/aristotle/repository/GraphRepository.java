@@ -28,16 +28,13 @@ public interface GraphRepository extends Neo4jRepository<Graph, Long> {
                       @Param("relationUuid") String relationUuid,
                       @Param("currentTime") Date currentTime);
 
-    @Query("MATCH (g:Graph) WHERE g.uuid IN $uuids RETURN count(g)")
-    long countByUuids(List<String> uuids);
-
     @Query("MATCH (g:Graph) WHERE g.uuid IN $uuids DETACH DELETE g")
     void deleteByUuids(List<String> uuids);
 
     @Query("MATCH (g:Graph) WHERE g.uuid IN $uuids "
             + "WITH g "
-            + "MATCH (g)-[r:HAVE]->(gn:GraphNode) "
-            + "RETURN g.uuid")
+            + "MATCH (g)-[r:RELATION]->(gn:GraphNode) "
+            + "RETURN gn.uuid")
     List<String> getGraphNodeUuidsByGraphUuids(List<String> uuids);
 
     @Query("MATCH (g:Graph { uuid: $uuid }) " +
