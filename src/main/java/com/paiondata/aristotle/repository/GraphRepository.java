@@ -1,7 +1,6 @@
 package com.paiondata.aristotle.repository;
 
 import com.paiondata.aristotle.model.entity.Graph;
-import com.paiondata.aristotle.model.entity.Relation;
 
 import org.springframework.data.neo4j.repository.Neo4jRepository;
 import org.springframework.data.neo4j.repository.query.Query;
@@ -14,15 +13,8 @@ import java.util.List;
 @Repository
 public interface GraphRepository extends Neo4jRepository<Graph, Long> {
 
-    @Query("MATCH (g:Graph { title: $title }) RETURN g")
-    Graph getGraphByTitle(String title);
-
     @Query("MATCH (g:Graph) WHERE g.uuid = $uuid RETURN g")
     Graph getGraphByUuid(String uuid);
-
-    @Query("MATCH (g:Graph { title: $title, description: $description }) RETURN count(g)")
-    long checkGraphExists(@Param("title") String title,
-                          @Param("description") String description);
 
     @Query("MATCH (u:User) WHERE u.uidcid = $userUidcid "
             + "CREATE (g:Graph {uuid: $graphUuid, title: $title, description: $description,create_time: $currentTime}) "
@@ -35,14 +27,6 @@ public interface GraphRepository extends Neo4jRepository<Graph, Long> {
                       @Param("graphUuid") String graphUuid,
                       @Param("relationUuid") String relationUuid,
                       @Param("currentTime") Date currentTime);
-
-    @Query("MATCH (u:User) WHERE u.uidcid = $userUidcid MATCH (g:Graph) WHERE g.uuid = $graphUuid "
-            + "SET g.update_time = $currentTime with u,g "
-            + "CREATE (u)-[r:RELATION{ name: 'HAVE', uuid: $relationUuid, create_time:$ currentTime }]->(g)")
-    void bindUsertoGraph(@Param("userUidcid") String userUidcid,
-                         @Param("graphUuid") String graphUuid,
-                         @Param("relationUuid") String relationUuid,
-                         @Param("currentTime") Date currentTime);
 
     @Query("MATCH (g:Graph) WHERE g.uuid IN $uuids RETURN count(g)")
     long countByUuids(List<String> uuids);
@@ -62,9 +46,4 @@ public interface GraphRepository extends Neo4jRepository<Graph, Long> {
                                @Param("title") String title,
                                @Param("description") String description,
                            @Param("updateTime") Date updateTime);
-
-    @Query("MATCH (u:User)-[r:RELATION]->(g:Graph) "
-            + "WHERE u.uidcid = $uidcid AND g.uuid = $uuid "
-            + "RETURN g")
-    Graph getRelationByUidcidAndUuid(@Param("uidcid") String uidcid, @Param("uuid") String uuid);
 }

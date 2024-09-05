@@ -1,11 +1,10 @@
 package com.paiondata.aristotle.model.entity;
 
 import com.paiondata.aristotle.model.BaseEntity;
-
+import lombok.Data;
 import org.springframework.data.neo4j.core.schema.Property;
 import org.springframework.data.neo4j.core.schema.RelationshipId;
 import org.springframework.data.neo4j.core.schema.RelationshipProperties;
-import lombok.Data;
 
 import java.util.Date;
 

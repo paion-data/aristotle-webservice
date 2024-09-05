@@ -5,20 +5,14 @@ import com.paiondata.aristotle.common.exception.UserNullException;
 import com.paiondata.aristotle.service.GraphNodeService;
 import com.paiondata.aristotle.service.Neo4jService;
 import com.paiondata.aristotle.service.UserService;
-
-import org.neo4j.driver.*;
 import org.neo4j.driver.Record;
+import org.neo4j.driver.*;
 import org.neo4j.driver.internal.value.NodeValue;
 import org.neo4j.driver.internal.value.RelationshipValue;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 
-import java.util.ArrayList;
-import java.util.HashMap;
-import java.util.HashSet;
-import java.util.List;
-import java.util.Map;
-import java.util.Set;
+import java.util.*;
 
 @Service
 public class Neo4jServiceImpl implements Neo4jService {

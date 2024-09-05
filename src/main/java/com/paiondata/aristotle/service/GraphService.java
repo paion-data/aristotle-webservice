@@ -9,8 +9,6 @@ import java.util.Optional;
 
 public interface GraphService {
 
-    Optional<Graph> getGraphByTitle(String title);
-
     Optional<Graph> getGraphByUuid(String uuid);
 
     Graph createAndBindGraph(GraphCreateDTO graphCreateDTO);

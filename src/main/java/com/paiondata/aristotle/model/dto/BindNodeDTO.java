@@ -7,14 +7,14 @@ import lombok.Data;
 import javax.validation.constraints.NotBlank;
 
 @Data
-public class BindGraphNodeDTO extends BaseEntity {
+public class BindNodeDTO extends BaseEntity {
 
     @NotBlank(message = Message.UUID_MUST_NOT_BE_BLANK)
-    private String uuid1;
+    private String fromId;
 
     @NotBlank(message = Message.UUID_MUST_NOT_BE_BLANK)
-    private String uuid2;
+    private String toId;
 
     @NotBlank(message = Message.RELATION_MUST_NOT_BE_BLANK)
-    private String relation;
+    private String relationName;
 }

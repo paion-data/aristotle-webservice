@@ -6,13 +6,13 @@ import java.util.List;
 import javax.validation.Valid;
 
 @Data
-public class GraphGraphNodeCreateDTO extends BaseEntity {
+public class GraphAndNodeCreateDTO extends BaseEntity {
 
     @Valid
     private GraphCreateDTO graphCreateDTO;
 
     @Valid
-    private List<GraphNodeDTO> graphNodeDTO;
+    private List<NodeDTO> graphNodeDTO;
 
-    private List<GraphNodeTemporaryRelationDTO> graphNodeTemporaryRelationDTO;
+    private List<NodeTemporaryRelationDTO> graphNodeTemporaryRelationDTO;
 }

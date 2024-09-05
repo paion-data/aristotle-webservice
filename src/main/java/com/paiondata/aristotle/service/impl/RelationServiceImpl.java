@@ -3,10 +3,9 @@ package com.paiondata.aristotle.service.impl;
 import com.paiondata.aristotle.model.entity.Relation;
 import com.paiondata.aristotle.repository.RelationRepository;
 import com.paiondata.aristotle.service.RelationService;
+import lombok.AllArgsConstructor;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
-
-import lombok.AllArgsConstructor;
 
 import java.util.List;
 import java.util.Optional;

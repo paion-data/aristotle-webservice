@@ -2,13 +2,11 @@ package com.paiondata.aristotle.service.impl;
 
 import cn.hutool.core.lang.UUID;
 import com.paiondata.aristotle.common.base.Message;
-import com.paiondata.aristotle.common.exception.GraphExistsException;
 import com.paiondata.aristotle.common.exception.GraphNullException;
 import com.paiondata.aristotle.common.exception.UserNullException;
 import com.paiondata.aristotle.model.dto.GraphCreateDTO;
 import com.paiondata.aristotle.model.dto.GraphUpdateDTO;
 import com.paiondata.aristotle.model.entity.Graph;
-import com.paiondata.aristotle.model.entity.Relation;
 import com.paiondata.aristotle.model.entity.User;
 import com.paiondata.aristotle.repository.GraphRepository;
 import com.paiondata.aristotle.service.GraphService;
@@ -36,12 +34,6 @@ public class GraphServiceImpl implements GraphService {
 
     @Autowired
     private GraphRepository graphNodeRepository;
-
-    @Override
-    public Optional<Graph> getGraphByTitle(String title) {
-        Graph graph = graphRepository.getGraphByTitle(title);
-        return Optional.ofNullable(graph);
-    }
 
     @Override
     public Optional<Graph> getGraphByUuid(String Uuid) {
