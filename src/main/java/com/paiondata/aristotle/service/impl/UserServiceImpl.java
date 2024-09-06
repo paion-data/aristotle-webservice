@@ -75,9 +75,6 @@ public class UserServiceImpl implements UserService {
         List<String> graphUuids = getRelatedGraphUuids(uidcids);
         List<String> graphNodeUuids = getRelatedGraphNodeUuids(graphUuids);
 
-        System.out.println(graphUuids);
-        System.out.println(graphNodeUuids);
-
         userRepository.deleteByUidcids((uidcids));
         graphRepository.deleteByUuids(graphUuids);
         graphNodeRepository.deleteByUuids(graphNodeUuids);

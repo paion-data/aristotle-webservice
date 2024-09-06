@@ -17,7 +17,5 @@ public class NodeCreateDTO extends BaseEntity {
     @Valid
     private List<NodeDTO> graphNodeDTO;
 
-    private List<NodeExistRelationDTO> graphNodeExistRelationDTO;
-
-    private List<NodeTemporaryRelationDTO> graphNodeTemporaryRelationDTO;
+    private List<NodeRelationDTO> graphNodeRelationDTO;
 }

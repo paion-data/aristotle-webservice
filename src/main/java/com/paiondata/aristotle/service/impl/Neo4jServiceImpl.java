@@ -77,7 +77,7 @@ public class Neo4jServiceImpl implements Neo4jService {
             return session.readTransaction(tx -> {
                 var result = tx.run(cypherQuery, Values.parameters("uuid", uuid));
                 List<Map<String, Object>> resultList = new ArrayList<>();
-                Set<String> seenNodeIds = new HashSet<>(); // 用于存储已经处理过的节点ID
+                Set<String> seenNodeIds = new HashSet<>();
 
                 while (result.hasNext()) {
                     Record record = result.next();

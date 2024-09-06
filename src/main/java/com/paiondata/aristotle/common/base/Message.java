@@ -22,4 +22,5 @@ public class Message {
     public static final String DESCRIPTION_MUST_NOT_BE_BLANK = "description must not be blank!";
     public static final String TEMPORARY_ID_MUST_NOT_NULL = "temporaryId must not null!";
     public static final String DELETE_SUCCESS = "Deleted successfully.";
+    public static final String DUPLICATE_KEY = "Duplicate key found: ";
 }

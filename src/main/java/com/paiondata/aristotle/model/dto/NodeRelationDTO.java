@@ -4,7 +4,7 @@ import com.paiondata.aristotle.model.BaseEntity;
 import lombok.Data;
 
 @Data
-public class NodeExistRelationDTO extends BaseEntity {
+public class NodeRelationDTO extends BaseEntity {
 
     private String fromId;
 

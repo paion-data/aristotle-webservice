@@ -4,6 +4,7 @@ import cn.hutool.core.lang.UUID;
 import com.paiondata.aristotle.common.base.Message;
 import com.paiondata.aristotle.common.exception.GraphNodeNullException;
 import com.paiondata.aristotle.common.exception.GraphNullException;
+import com.paiondata.aristotle.common.exception.TemporaryKeyException;
 import com.paiondata.aristotle.model.dto.*;
 import com.paiondata.aristotle.model.entity.Graph;
 import com.paiondata.aristotle.model.entity.GraphNode;
@@ -50,9 +51,7 @@ public class GraphNodeServiceImpl implements GraphNodeService {
 
         createGraphNode(graphNodeCreateDTO.getGraphNodeDTO(), uuidMap, now, graphUuid);
 
-        bindExistingNodeRelations(graphNodeCreateDTO.getGraphNodeExistRelationDTO(), uuidMap, now);
-
-        bindTemporaryNodeRelations(graphNodeCreateDTO.getGraphNodeTemporaryRelationDTO(), uuidMap, now);
+        bindNodeRelations(graphNodeCreateDTO.getGraphNodeRelationDTO(), uuidMap, now);
     }
 
     @Transactional
@@ -66,7 +65,7 @@ public class GraphNodeServiceImpl implements GraphNodeService {
 
         createGraphNode(graphNodeCreateDTO.getGraphNodeDTO(), uuidMap, now, graphUuid);
 
-        bindTemporaryNodeRelations(graphNodeCreateDTO.getGraphNodeTemporaryRelationDTO(), uuidMap, now);
+        bindNodeRelations(graphNodeCreateDTO.getGraphNodeRelationDTO(), uuidMap, now);
     }
 
     private void createGraphNode (List<NodeDTO> graphNodeDTO, Map<String, String> uuidMap,
@@ -78,49 +77,33 @@ public class GraphNodeServiceImpl implements GraphNodeService {
             GraphNode createdNode = graphNodeRepository.createAndBindGraphNode(dto.getTitle(), dto.getDescription(),
                     graphUuid, graphNodeUuid, relationUuid, now);
 
-            uuidMap.put(dto.getTemporaryId(), createdNode.getUuid());
-        }
-    }
-
-    private void bindExistingNodeRelations(List<NodeExistRelationDTO> graphNodeExistRelationDTO,
-                                           Map<String, String> uuidMap, Date now) {
-
-        if (graphNodeExistRelationDTO == null || graphNodeExistRelationDTO.isEmpty()) {
-            return;
-        }
-
-        for (NodeExistRelationDTO dto : graphNodeExistRelationDTO) {
-
-            String existGraphNodeUuid =
-                    getGraphNodeByUuid(dto.getFromId()).isPresent() ? dto.getFromId() : dto.getToId();
-
-            String temporaryGraphNodeUuid =
-                    getGraphNodeByUuid(
-                            dto.getFromId()).isPresent() ? uuidMap.get(dto.getToId()) : uuidMap.get(dto.getFromId());
-
-            if (getGraphNodeByUuid(existGraphNodeUuid).isEmpty()) {
-                throw new GraphNodeNullException(Message.GRAPH_NODE_NULL);
+            if (uuidMap.containsKey(dto.getTemporaryId())) {
+                throw new TemporaryKeyException(Message.DUPLICATE_KEY + dto.getTemporaryId());
+            } else {
+                uuidMap.put(dto.getTemporaryId(), createdNode.getUuid());
             }
-
-            String relation = dto.getRelationName();
-            String relationUuid = UUID.fastUUID().toString(true);
-            bindGraphNodeRelation(existGraphNodeUuid, temporaryGraphNodeUuid, relation, relationUuid, now);
         }
     }
 
-    private void bindTemporaryNodeRelations(List<NodeTemporaryRelationDTO> gntrDTO,
-                                            Map<String, String> uuidMap, Date now) {
-        if (gntrDTO == null || gntrDTO.isEmpty()) {
+    private void bindNodeRelations(List<NodeRelationDTO> graphNodeRelationDTO,
+                                   Map<String, String> uuidMap, Date now) {
+        if (graphNodeRelationDTO == null || graphNodeRelationDTO.isEmpty()) {
             return;
         }
 
-        for (NodeTemporaryRelationDTO dto : gntrDTO) {
-            String uuid1 = uuidMap.get(dto.getFromId());
-            String uuid2 = uuidMap.get(dto.getToId());
+        for (NodeRelationDTO dto : graphNodeRelationDTO) {
             String relation = dto.getRelationName();
             String relationUuid = UUID.fastUUID().toString(true);
-            bindGraphNodeRelation(uuid1, uuid2, relation, relationUuid, now);
+
+            String fromId = getNodeId(dto.getFromId(), uuidMap);
+            String toId = getNodeId(dto.getToId(), uuidMap);
+
+            bindGraphNodeRelation(fromId, toId, relation, relationUuid, now);
         }
+    }
+
+    private String getNodeId(String id, Map<String, String> uuidMap) {
+        return uuidMap.getOrDefault(id, id);
     }
 
     private void bindGraphNodeRelation(String uuid1, String uuid2, String relation, String relationUuid,
