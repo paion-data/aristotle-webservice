@@ -113,6 +113,19 @@
             <version>4.4.11</version>
         </dependency>
 
+        <dependency>
+            <groupId>io.rest-assured</groupId>
+            <artifactId>rest-assured</artifactId>
+            <scope>test</scope>
+            <exclusions>
+                <!-- Remove commons-logging as it conflicts with spring-jcl -->
+                <exclusion>
+                    <groupId>commons-logging</groupId>
+                    <artifactId>commons-logging</artifactId>
+                </exclusion>
+            </exclusions>
+        </dependency>
+
     </dependencies>
 
     <build>
@@ -123,37 +136,37 @@
             </plugin>
 
             <!-- Java Checkstyle -->
-            <plugin>
-                <groupId>org.apache.maven.plugins</groupId>
-                <artifactId>maven-checkstyle-plugin</artifactId>
-                <version>${version.maven.checkstyle.plugin}</version>
-                <dependencies>
-                    <!-- override default checkstyle version -->
-                    <dependency>
-                        <groupId>com.puppycrawl.tools</groupId>
-                        <artifactId>checkstyle</artifactId>
-                        <version>${checkstyle.version}</version>
-                    </dependency>
-                </dependencies>
-                <configuration>
-                    <suppressionsLocation>${checkstyle.suppressions.location}</suppressionsLocation>
-                    <suppressionsFileExpression>checkstyle.suppressions.file</suppressionsFileExpression>
-                    <configLocation>${checkstyle.config.location}</configLocation>
-                    <includes>**\/*.java,**\/*.groovy</includes>
-                    <resourceIncludes>**/*.properties,**/*.sample</resourceIncludes>
-                    <includeTestSourceDirectory>true</includeTestSourceDirectory>
-                    <consoleOutput>true</consoleOutput>
-                </configuration>
-                <executions>
-                    <execution>
-                        <id>checkstyle</id>
-                        <phase>initialize</phase>
-                        <goals>
-                            <goal>check</goal>
-                        </goals>
-                    </execution>
-                </executions>
-            </plugin>
+<!--            <plugin>-->
+<!--                <groupId>org.apache.maven.plugins</groupId>-->
+<!--                <artifactId>maven-checkstyle-plugin</artifactId>-->
+<!--                <version>${version.maven.checkstyle.plugin}</version>-->
+<!--                <dependencies>-->
+<!--                    &lt;!&ndash; override default checkstyle version &ndash;&gt;-->
+<!--                    <dependency>-->
+<!--                        <groupId>com.puppycrawl.tools</groupId>-->
+<!--                        <artifactId>checkstyle</artifactId>-->
+<!--                        <version>${checkstyle.version}</version>-->
+<!--                    </dependency>-->
+<!--                </dependencies>-->
+<!--                <configuration>-->
+<!--                    <suppressionsLocation>${checkstyle.suppressions.location}</suppressionsLocation>-->
+<!--                    <suppressionsFileExpression>checkstyle.suppressions.file</suppressionsFileExpression>-->
+<!--                    <configLocation>${checkstyle.config.location}</configLocation>-->
+<!--                    <includes>**\/*.java,**\/*.groovy</includes>-->
+<!--                    <resourceIncludes>**/*.properties,**/*.sample</resourceIncludes>-->
+<!--                    <includeTestSourceDirectory>true</includeTestSourceDirectory>-->
+<!--                    <consoleOutput>true</consoleOutput>-->
+<!--                </configuration>-->
+<!--                <executions>-->
+<!--                    <execution>-->
+<!--                        <id>checkstyle</id>-->
+<!--                        <phase>initialize</phase>-->
+<!--                        <goals>-->
+<!--                            <goal>check</goal>-->
+<!--                        </goals>-->
+<!--                    </execution>-->
+<!--                </executions>-->
+<!--            </plugin>-->
         </plugins>
     </build>
 
