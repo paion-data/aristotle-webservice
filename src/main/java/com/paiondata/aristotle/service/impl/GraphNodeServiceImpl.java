@@ -3,6 +3,7 @@ package com.paiondata.aristotle.service.impl;
 import cn.hutool.core.lang.UUID;
 import com.paiondata.aristotle.common.base.Message;
 import com.paiondata.aristotle.common.exception.GraphNodeNullException;
+import com.paiondata.aristotle.common.exception.GraphNodeRelationException;
 import com.paiondata.aristotle.common.exception.GraphNullException;
 import com.paiondata.aristotle.common.exception.TemporaryKeyException;
 import com.paiondata.aristotle.model.dto.*;
@@ -46,12 +47,25 @@ public class GraphNodeServiceImpl implements GraphNodeService {
             throw new GraphNullException(Message.GRAPH_NULL);
         }
 
+        List<NodeRelationDTO> graphNodeRelationDTO = graphNodeCreateDTO.getGraphNodeRelationDTO();
+        List<String> checkIds = new ArrayList<>();
+        for (NodeRelationDTO dto : graphNodeRelationDTO) {
+            checkIds.add(dto.getFromId());
+            checkIds.add(dto.getToId());
+        }
+        List<String> graphUuidByGraphNodeUuid = graphNodeRepository.getGraphUuidByGraphNodeUuid(checkIds);
+        for (String s : graphUuidByGraphNodeUuid) {
+            if (!s.equals(graphUuid)) {
+                throw new GraphNodeRelationException(Message.BOUND_ANOTHER_GRAPH + s);
+            }
+        }
+
         Date now = getCurrentTime();
         Map<String, String> uuidMap = new HashMap<>();
 
         createGraphNode(graphNodeCreateDTO.getGraphNodeDTO(), uuidMap, now, graphUuid);
 
-        bindNodeRelations(graphNodeCreateDTO.getGraphNodeRelationDTO(), uuidMap, now);
+        bindNodeRelations(graphNodeRelationDTO, uuidMap, now);
     }
 
     @Transactional
@@ -98,17 +112,12 @@ public class GraphNodeServiceImpl implements GraphNodeService {
             String fromId = getNodeId(dto.getFromId(), uuidMap);
             String toId = getNodeId(dto.getToId(), uuidMap);
 
-            bindGraphNodeRelation(fromId, toId, relation, relationUuid, now);
+            graphNodeRepository.bindGraphNodeToGraphNode(fromId, toId, relation, relationUuid, now);
         }
     }
 
     private String getNodeId(String id, Map<String, String> uuidMap) {
         return uuidMap.getOrDefault(id, id);
-    }
-
-    private void bindGraphNodeRelation(String uuid1, String uuid2, String relation, String relationUuid,
-                                       Date now) {
-        graphNodeRepository.bindGraphNodeToGraphNode(uuid1, uuid2, relation, relationUuid, now);
     }
 
     @Transactional

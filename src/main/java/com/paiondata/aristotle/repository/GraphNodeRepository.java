@@ -46,4 +46,7 @@ public interface GraphNodeRepository extends Neo4jRepository<GraphNode, Long> {
                                @Param("title") String title,
                                @Param("description") String description,
                                @Param("updateTime") Date updateTime);
+
+    @Query("MATCH (g:Graph)-[r:RELATION]->(gn:GraphNode) WHERE gn.uuid in $uuids RETURN g.uuid")
+    List<String> getGraphUuidByGraphNodeUuid(List<String> uuids);
 }
