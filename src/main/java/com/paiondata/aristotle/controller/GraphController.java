@@ -35,9 +35,9 @@ public class GraphController {
     }
 
     @GetMapping("/node/{uuid}")
-    public Result<List<Map<String, Object>>> getGraphNodeByGraphUuid (
+    public Result<List<Map<String, Map<String, Object>>>> getGraphNodeByGraphUuid (
             @PathVariable @NotBlank(message = Message.UUID_MUST_NOT_BE_BLANK) String uuid) {
-        List<Map<String, Object>> results = neo4jService.getGraphNodeByGraphUuid(uuid);
+        List<Map<String, Map<String, Object>>> results = neo4jService.getGraphNodeByGraphUuid(uuid);
         return Result.ok(results);
     }
 

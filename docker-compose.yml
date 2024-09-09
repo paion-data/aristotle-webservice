@@ -1,4 +1,11 @@
 services:
+  web:
+    build: .
+    ports:
+      - "8080:8080"
+    depends_on:
+      neo4j:
+        condition: service_healthy
   neo4j:
     image: neo4j:latest
     environment:
@@ -9,13 +16,11 @@ services:
     ports:
       - "7474:7474"
       - "7687:7687"
-  web:
-    build: .
-    ports:
-      - "8080:8080"
-    depends_on:
-      neo4j:
-        condition: service_healthy
-
+    healthcheck:
+      test: [ "CMD", "curl", "--fail", "http://localhost:7474/db/data/" ]
+      interval: 30s
+      timeout: 10s
+      retries: 3
+      start_period: 40s
 volumes:
   neo4j-data:

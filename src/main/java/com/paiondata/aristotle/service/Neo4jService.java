@@ -5,7 +5,7 @@ import java.util.Map;
 
 public interface Neo4jService {
 
-    List<Map<String, Object>> getGraphByUserUidcid(String uidcid);
+    List<Map<String, Map<String, Object>>> getGraphByUserUidcid(String uidcid);
 
-    List<Map<String, Object>> getGraphNodeByGraphUuid(String uuid);
+    List<Map<String, Map<String, Object>>> getGraphNodeByGraphUuid(String uuid);
 }

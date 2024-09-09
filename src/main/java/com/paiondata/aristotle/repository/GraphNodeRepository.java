@@ -16,9 +16,9 @@ public interface GraphNodeRepository extends Neo4jRepository<GraphNode, Long> {
     GraphNode getGraphNodeByUuid(String uuid);
 
     @Query("MATCH (g:Graph) WHERE g.uuid = $graphUuid SET g.update_time = $currentTime "
-            +"CREATE (gn:GraphNode{uuid:$graphNodeUuid,title:$title,description:$description,create_time:$currentTime})"
+            +"CREATE (gn:GraphNode{uuid:$graphNodeUuid,title:$title,description:$description,create_time:$currentTime,update_time:$currentTime})"
             + " WITH g, gn "
-            + "CREATE (g)-[r:RELATION {name: 'HAVE', uuid: $relationUuid, create_time: $currentTime}]->(gn) "
+            + "CREATE (g)-[r:RELATION {name: 'HAVE', uuid: $relationUuid, create_time: $currentTime, update_time: $currentTime}]->(gn) "
             + "RETURN gn")
     GraphNode createAndBindGraphNode(@Param("title") String title,
                                      @Param("description") String description,
@@ -30,7 +30,7 @@ public interface GraphNodeRepository extends Neo4jRepository<GraphNode, Long> {
     @Query("MATCH (gn1:GraphNode) WHERE gn1.uuid = $uuid1 SET gn1.update_time = $currentTime WITH gn1 "
             + "MATCH (gn2:GraphNode) WHERE gn2.uuid = $uuid2 SET gn2.update_time = $currentTime "
             + "WITH gn1,gn2 "
-            + "CREATE (gn1)-[r:RELATION{name: $relation, uuid: $relationUuid, create_time: $currentTime}]->(gn2)")
+            + "CREATE (gn1)-[r:RELATION{name: $relation, uuid: $relationUuid, create_time: $currentTime, update_time: $currentTime}]->(gn2)")
     void bindGraphNodeToGraphNode(@Param("uuid1") String uuid1,
                                   @Param("uuid2") String uuid2,
                                   @Param("relation") String relation,

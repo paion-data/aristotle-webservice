@@ -3,6 +3,7 @@ package com.paiondata.aristotle.service.impl;
 import com.paiondata.aristotle.common.base.Message;
 import com.paiondata.aristotle.common.exception.UserNullException;
 import com.paiondata.aristotle.service.GraphNodeService;
+import com.paiondata.aristotle.service.GraphService;
 import com.paiondata.aristotle.service.Neo4jService;
 import com.paiondata.aristotle.service.UserService;
 import org.neo4j.driver.Record;
@@ -13,6 +14,7 @@ import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 
 import java.util.*;
+import java.util.stream.Collectors;
 
 @Service
 public class Neo4jServiceImpl implements Neo4jService {
@@ -21,7 +23,7 @@ public class Neo4jServiceImpl implements Neo4jService {
     private UserService userService;
 
     @Autowired
-    private GraphNodeService graphNodeService;
+    private GraphService graphService;
 
     private final Driver driver;
 
@@ -31,7 +33,7 @@ public class Neo4jServiceImpl implements Neo4jService {
     }
 
     @Override
-    public List<Map<String, Object>> getGraphByUserUidcid(String uidcid) {
+    public List<Map<String, Map<String, Object>>> getGraphByUserUidcid(String uidcid) {
 
         if (userService.getUserByUidcid(uidcid).isEmpty()) {
             throw new UserNullException(Message.USER_NULL);
@@ -42,14 +44,14 @@ public class Neo4jServiceImpl implements Neo4jService {
         try (Session session = driver.session(SessionConfig.builder().build())) {
             return session.readTransaction(tx -> {
                 var result = tx.run(cypherQuery, Values.parameters("uidcid", uidcid));
-                List<Map<String, Object>> resultList = new ArrayList<>();
+                List<Map<String, Map<String, Object>>> resultList = new ArrayList<>();
                 while (result.hasNext()) {
                     Record record = result.next();
                     Map<String, Object> userNode = extractUser(record.get("u"));
                     Map<String, Object> graphNode = extractGraph(record.get("g"));
                     Map<String, Object> relation = extractRelationship(record.get("r"));
 
-                    Map<String, Object> combinedResult = new HashMap<>();
+                    Map<String, Map<String, Object>> combinedResult = new HashMap<>();
                     combinedResult.put("user", userNode);
                     combinedResult.put("graph", graphNode);
                     combinedResult.put("relation", relation);
@@ -62,9 +64,9 @@ public class Neo4jServiceImpl implements Neo4jService {
     }
 
     @Override
-    public List<Map<String, Object>> getGraphNodeByGraphUuid(String uuid) {
+    public List<Map<String, Map<String, Object>>> getGraphNodeByGraphUuid(String uuid) {
 
-        if (graphNodeService.getGraphNodeByUuid(uuid).isEmpty()) {
+        if (graphService.getGraphByUuid(uuid).isEmpty()) {
             throw new UserNullException(Message.GRAPH_NULL);
         }
 
@@ -76,8 +78,7 @@ public class Neo4jServiceImpl implements Neo4jService {
         try (Session session = driver.session(SessionConfig.builder().build())) {
             return session.readTransaction(tx -> {
                 var result = tx.run(cypherQuery, Values.parameters("uuid", uuid));
-                List<Map<String, Object>> resultList = new ArrayList<>();
-                Set<String> seenNodeIds = new HashSet<>();
+                List<Map<String, Map<String, Object>>> resultList = new ArrayList<>();
 
                 while (result.hasNext()) {
                     Record record = result.next();
@@ -85,21 +86,30 @@ public class Neo4jServiceImpl implements Neo4jService {
                     Map<String, Object> n2 = extractGraphNode(record.get("n2"));
                     Map<String, Object> relation = extractRelationship(record.get("r"));
 
-                    if (n1 != null && !seenNodeIds.contains(n1.get("uuid"))) {
-                        seenNodeIds.add((String) n1.get("uuid"));
-                        seenNodeIds.add((String) n2.get("uuid"));
-                        Map<String, Object> combinedResult = new HashMap<>();
-                        combinedResult.put("graphNode1", n1);
-                        combinedResult.put("relation", relation);
-                        combinedResult.put("graphNode2", n2);
 
-                        if (relation == null && seenNodeIds.contains(n1.get("uuid"))) {
-                            continue;
+                    Map<String, Map<String, Object>> combinedResult = new HashMap<>();
+                    combinedResult.put("graphNode1", n1);
+                    combinedResult.put("relation", relation);
+                    combinedResult.put("graphNode2", n2);
+
+                    resultList.add(combinedResult);
+                }
+
+                for (Map<String, Map<String, Object>> stringObjectMap : resultList) {
+                    System.out.println(stringObjectMap);
+                }
+
+                for (int i = 0; i< resultList.size(); i++) {
+                    for (int j = 0; j < resultList.size(); j++) {
+                        if (resultList.get(i).get("graphNode2").isEmpty()
+                                && resultList.get(i).get("graphNode1").equals(resultList.get(j).get("graphNode2"))) {
+                            if (!resultList.get(j).get("graphNode1").equals(resultList.get(j).get("graphNode2"))) {
+                                resultList.remove(i);
+                            }
                         }
-
-                        resultList.add(combinedResult);
                     }
                 }
+
                 return resultList;
             });
         }
