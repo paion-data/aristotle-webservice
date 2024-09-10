@@ -77,6 +77,10 @@ public class GraphNodeServiceImpl implements GraphNodeService {
         Date now = getCurrentTime();
         Map<String, String> uuidMap = new HashMap<>();
 
+        if (graphNodeCreateDTO.getGraphNodeDTO() == null) {
+            return;
+        }
+
         createGraphNode(graphNodeCreateDTO.getGraphNodeDTO(), uuidMap, now, graphUuid);
 
         bindNodeRelations(graphNodeCreateDTO.getGraphNodeRelationDTO(), uuidMap, now);
