@@ -1,6 +1,8 @@
 package com.paiondata.aristotle.repository;
 
 import com.paiondata.aristotle.model.entity.User;
+import com.paiondata.aristotle.model.vo.UserVO;
+
 import org.springframework.data.neo4j.repository.Neo4jRepository;
 import org.springframework.data.neo4j.repository.query.Query;
 import org.springframework.data.repository.query.Param;
@@ -13,6 +15,9 @@ public interface UserRepository extends Neo4jRepository<User, Long> {
 
     @Query("MATCH (u:User { uidcid: $uidcid }) RETURN u")
     User getUserByUidcid(String uidcid);
+
+    @Query("MATCH (u:User) RETURN u")
+    List<User> findAll();
 
     @Query("MATCH (u:User { uidcid: $uidcid }) RETURN count(u)")
     long checkUidcidExists(String uidcid);

@@ -6,10 +6,13 @@ import com.paiondata.aristotle.common.exception.UserUidcidExistsException;
 import com.paiondata.aristotle.model.dto.UserCreateDTO;
 import com.paiondata.aristotle.model.dto.UserUpdateDTO;
 import com.paiondata.aristotle.model.entity.User;
+import com.paiondata.aristotle.model.vo.UserVO;
 import com.paiondata.aristotle.repository.GraphNodeRepository;
 import com.paiondata.aristotle.repository.GraphRepository;
 import com.paiondata.aristotle.repository.UserRepository;
+import com.paiondata.aristotle.service.Neo4jService;
 import com.paiondata.aristotle.service.UserService;
+
 import lombok.AllArgsConstructor;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.dao.DataIntegrityViolationException;
@@ -17,6 +20,7 @@ import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
 import java.util.List;
+import java.util.stream.Collectors;
 import java.util.Optional;
 
 @Service
@@ -32,11 +36,46 @@ public class UserServiceImpl implements UserService {
     @Autowired
     private GraphNodeRepository graphNodeRepository;
 
+    @Autowired
+    private Neo4jService neo4jService;
+
+    @Override
+    @Transactional(readOnly = true)
+    public UserVO getUserVOByUidcid(String uidcid) {
+        User user = userRepository.getUserByUidcid(uidcid);
+
+        if (user == null) {
+            throw new UserNullException(Message.USER_NULL);
+        }
+
+        UserVO vo = UserVO.builder()
+                .uidcid(user.getUidcid())
+                .nickName(user.getNickName())
+                .graphs(neo4jService.getUserByUidcid(user.getUidcid()))
+                .build();
+
+        return vo;
+    }
+
     @Override
     @Transactional(readOnly = true)
     public Optional<User> getUserByUidcid(String uidcid) {
         User user = userRepository.getUserByUidcid(uidcid);
         return Optional.ofNullable(user);
+    }
+
+    @Override
+    @Transactional(readOnly = true)
+    public List<UserVO> getAllUsers() {
+        List<User> users = userRepository.findAll();
+
+        return users.stream()
+                .map(user -> UserVO.builder()
+                        .uidcid(user.getUidcid())
+                        .nickName(user.getNickName())
+                        .graphs(neo4jService.getUserByUidcid(user.getUidcid()))
+                        .build())
+                .collect(Collectors.toList());
     }
 
     @Transactional

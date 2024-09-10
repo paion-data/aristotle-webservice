@@ -16,14 +16,15 @@ FROM ubuntu:22.04
 LABEL maintainer="Wentao (Peter) Pan"
 LABEL maintainer-email="Doom9527@gmail.com"
 
-ARG WS_VERSION=1.0-SNAPSHOT
+ARG WS_VERSION=0.0.1-SNAPSHOT
 
 ENV JAVA_HOME /usr/lib/jvm/java-17-openjdk-amd64
 
-RUN apt update && \
-    apt upgrade -y && \
-    apt install -y software-properties-common wget openjdk-17-jdk
+RUN apt-get update && \
+    apt-get upgrade -y && \
+    apt-get install -y software-properties-common wget openjdk-17-jdk && \
+    rm -rf /var/lib/apt/lists/*
 
-COPY ./target/aristotle-$WS_VERSION.jar /tmp/app.jar
+COPY ./target/Aristotle-$WS_VERSION.jar /tmp/app.jar
 
 ENTRYPOINT ["java", "-jar", "/tmp/app.jar"]

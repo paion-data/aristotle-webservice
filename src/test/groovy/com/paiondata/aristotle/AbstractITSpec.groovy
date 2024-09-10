@@ -24,7 +24,7 @@ import org.apache.http.HttpStatus
 import groovy.json.JsonBuilder
 import io.restassured.RestAssured
 import io.restassured.response.Response
-import jakarta.validation.constraints.NotNull
+import javax.validation.constraints.NotNull
 import static org.hamcrest.Matchers.equalTo
 import spock.lang.Specification
 
@@ -45,20 +45,15 @@ abstract class AbstractITSpec extends Specification {
 
         RestAssured.baseURI = "http://localhost"
         RestAssured.port = WS_PORT
-        RestAssured.basePath = "/v1/data/"
-
-        System.setProperty("HIBERNATE_HBM2DDL_AUTO", "create")
     }
 
     def cleanupSpec() {
         RestAssured.reset()
 
         childCleanupSpec()
-
-        System.clearProperty("HIBERNATE_HBM2DDL_AUTO")
     }
 
-    def "JSON API allows for POSTing, GETing, PATCHing, and DELETing a book"() {
+    def "JSON API allows for POSTing, GETing, PUTTing, and DELETing a book"() {
         expect: "database is initially empty"
         RestAssured
                 .given()

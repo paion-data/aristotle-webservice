@@ -2,10 +2,9 @@ package com.paiondata.aristotle.service.impl;
 
 import com.paiondata.aristotle.common.base.Message;
 import com.paiondata.aristotle.common.exception.UserNullException;
-import com.paiondata.aristotle.service.GraphNodeService;
-import com.paiondata.aristotle.service.GraphService;
+import com.paiondata.aristotle.repository.GraphRepository;
+import com.paiondata.aristotle.repository.UserRepository;
 import com.paiondata.aristotle.service.Neo4jService;
-import com.paiondata.aristotle.service.UserService;
 import org.neo4j.driver.Record;
 import org.neo4j.driver.*;
 import org.neo4j.driver.internal.value.NodeValue;
@@ -14,16 +13,15 @@ import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 
 import java.util.*;
-import java.util.stream.Collectors;
 
 @Service
 public class Neo4jServiceImpl implements Neo4jService {
 
     @Autowired
-    private UserService userService;
+    private GraphRepository graphRepository;
 
     @Autowired
-    private GraphService graphService;
+    private UserRepository userRepository;
 
     private final Driver driver;
 
@@ -33,30 +31,23 @@ public class Neo4jServiceImpl implements Neo4jService {
     }
 
     @Override
-    public List<Map<String, Map<String, Object>>> getGraphByUserUidcid(String uidcid) {
+    public List<Map<String, Object>> getUserByUidcid(String uidcid) {
 
-        if (userService.getUserByUidcid(uidcid).isEmpty()) {
+        if (userRepository.getUserByUidcid(uidcid) == null) {
             throw new UserNullException(Message.USER_NULL);
         }
 
-        String cypherQuery = "MATCH (u:User)-[r:RELATION]->(g:Graph) WHERE u.uidcid = $uidcid RETURN DISTINCT u, r, g";
+        String cypherQuery = "MATCH (u:User)-[r:RELATION]->(g:Graph) WHERE u.uidcid = $uidcid RETURN DISTINCT g";
 
         try (Session session = driver.session(SessionConfig.builder().build())) {
             return session.readTransaction(tx -> {
                 var result = tx.run(cypherQuery, Values.parameters("uidcid", uidcid));
-                List<Map<String, Map<String, Object>>> resultList = new ArrayList<>();
+                List<Map<String, Object>> resultList = new ArrayList<>();
                 while (result.hasNext()) {
                     Record record = result.next();
-                    Map<String, Object> userNode = extractUser(record.get("u"));
                     Map<String, Object> graphNode = extractGraph(record.get("g"));
-                    Map<String, Object> relation = extractRelationship(record.get("r"));
 
-                    Map<String, Map<String, Object>> combinedResult = new HashMap<>();
-                    combinedResult.put("user", userNode);
-                    combinedResult.put("graph", graphNode);
-                    combinedResult.put("relation", relation);
-
-                    resultList.add(combinedResult);
+                    resultList.add(graphNode);
                 }
                 return resultList;
             });
@@ -66,7 +57,7 @@ public class Neo4jServiceImpl implements Neo4jService {
     @Override
     public List<Map<String, Map<String, Object>>> getGraphNodeByGraphUuid(String uuid) {
 
-        if (graphService.getGraphByUuid(uuid).isEmpty()) {
+        if (graphRepository.getGraphByUuid(uuid) == null) {
             throw new UserNullException(Message.GRAPH_NULL);
         }
 
@@ -113,18 +104,6 @@ public class Neo4jServiceImpl implements Neo4jService {
                 return resultList;
             });
         }
-    }
-
-    private Map<String, Object> extractUser(Object node) {
-        Map<String, Object> nodeInfo = new HashMap<>();
-        if (node instanceof NodeValue) {
-            NodeValue nodeValue = (NodeValue) node;
-            Map<String, Object> nodeMap = nodeValue.asNode().asMap();
-
-            nodeInfo.put("uidcid", nodeMap.get("uidcid"));
-            nodeInfo.put("nickName", nodeMap.get("nick_name"));
-        }
-        return nodeInfo;
     }
 
     private Map<String, Object> extractGraph(Object node) {

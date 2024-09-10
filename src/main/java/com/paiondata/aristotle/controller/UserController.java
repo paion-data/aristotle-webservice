@@ -4,7 +4,7 @@ import com.paiondata.aristotle.common.base.Message;
 import com.paiondata.aristotle.common.base.Result;
 import com.paiondata.aristotle.model.dto.UserCreateDTO;
 import com.paiondata.aristotle.model.dto.UserUpdateDTO;
-import com.paiondata.aristotle.model.entity.User;
+import com.paiondata.aristotle.model.vo.UserVO;
 import com.paiondata.aristotle.service.Neo4jService;
 import com.paiondata.aristotle.service.UserService;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -15,7 +15,6 @@ import javax.validation.constraints.NotBlank;
 import javax.validation.constraints.NotEmpty;
 import java.util.List;
 import java.util.Map;
-import java.util.Optional;
 
 @RestController
 @RequestMapping("/user")
@@ -28,15 +27,20 @@ public class UserController {
     private Neo4jService neo4jService;
 
     @GetMapping("/{uidcid}")
-    public Result<User> getUser(@PathVariable @NotBlank(message = Message.UIDCID_MUST_NOT_BE_BLANK) String uidcid) {
-        Optional<User> optionalUser = userService.getUserByUidcid(uidcid);
-        return optionalUser.map(Result::ok).orElseGet(() -> Result.fail(Message.USER_NULL));
+    public Result<UserVO> getUser(@PathVariable @NotBlank(message = Message.UIDCID_MUST_NOT_BE_BLANK) String uidcid) {
+        return Result.ok(userService.getUserVOByUidcid(uidcid));
+    }
+
+    @GetMapping
+    public Result<List<UserVO>> getAll() {
+        List<UserVO> allUsers = userService.getAllUsers();
+        return Result.ok(allUsers);
     }
 
     @GetMapping("/graph/{uidcid}")
-    public Result<List<Map<String, Map<String, Object>>>> getGraphByUserUidcid(
+    public Result<List<Map<String, Object>>> getGraphByUserUidcid(
             @PathVariable @NotBlank(message = Message.UIDCID_MUST_NOT_BE_BLANK) String uidcid) {
-        List<Map<String, Map<String, Object>>> results = neo4jService.getGraphByUserUidcid(uidcid);
+        List<Map<String, Object>> results = neo4jService.getUserByUidcid(uidcid);
         return Result.ok(results);
     }
 
