@@ -8,8 +8,10 @@ import com.paiondata.aristotle.model.dto.GraphCreateDTO;
 import com.paiondata.aristotle.model.dto.GraphUpdateDTO;
 import com.paiondata.aristotle.model.entity.Graph;
 import com.paiondata.aristotle.model.entity.User;
+import com.paiondata.aristotle.model.vo.GraphVO;
 import com.paiondata.aristotle.repository.GraphRepository;
 import com.paiondata.aristotle.service.GraphService;
+import com.paiondata.aristotle.service.Neo4jService;
 import com.paiondata.aristotle.service.UserService;
 import lombok.AllArgsConstructor;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -34,6 +36,27 @@ public class GraphServiceImpl implements GraphService {
 
     @Autowired
     private GraphRepository graphNodeRepository;
+
+    @Autowired
+    private Neo4jService neo4jService;
+
+    @Override
+    public GraphVO getGraphVOByUuid(String uuid) {
+        Graph graphByUuid = graphRepository.getGraphByUuid(uuid);
+
+        if (graphByUuid == null) {
+            throw new GraphNullException(Message.GRAPH_NULL);
+        }
+
+        return GraphVO.builder()
+                .uuid(graphByUuid.getUuid())
+                .title(graphByUuid.getTitle())
+                .description(graphByUuid.getDescription())
+                .createTime(graphByUuid.getCreateTime())
+                .updateTime(graphByUuid.getUpdateTime())
+                .nodes(neo4jService.getGraphNodeByGraphUuid(uuid))
+                .build();
+    }
 
     @Override
     public Optional<Graph> getGraphByUuid(String Uuid) {

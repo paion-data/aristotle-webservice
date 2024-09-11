@@ -79,22 +79,18 @@ public class Neo4jServiceImpl implements Neo4jService {
 
 
                     Map<String, Map<String, Object>> combinedResult = new HashMap<>();
-                    combinedResult.put("graphNode1", n1);
+                    combinedResult.put("startNode", n1);
                     combinedResult.put("relation", relation);
-                    combinedResult.put("graphNode2", n2);
+                    combinedResult.put("endNode", n2);
 
                     resultList.add(combinedResult);
                 }
 
-                for (Map<String, Map<String, Object>> stringObjectMap : resultList) {
-                    System.out.println(stringObjectMap);
-                }
-
                 for (int i = 0; i< resultList.size(); i++) {
                     for (int j = 0; j < resultList.size(); j++) {
-                        if (resultList.get(i).get("graphNode2").isEmpty()
-                                && resultList.get(i).get("graphNode1").equals(resultList.get(j).get("graphNode2"))) {
-                            if (!resultList.get(j).get("graphNode1").equals(resultList.get(j).get("graphNode2"))) {
+                        if (resultList.get(i).get("endNode").isEmpty()
+                                && resultList.get(i).get("startNode").equals(resultList.get(j).get("endNode"))) {
+                            if (!resultList.get(j).get("startNode").equals(resultList.get(j).get("endNode"))) {
                                 resultList.remove(i);
                             }
                         }
