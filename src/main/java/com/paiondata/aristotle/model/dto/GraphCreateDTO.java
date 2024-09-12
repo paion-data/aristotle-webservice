@@ -2,10 +2,13 @@ package com.paiondata.aristotle.model.dto;
 
 import com.paiondata.aristotle.common.base.Message;
 import com.paiondata.aristotle.model.BaseEntity;
+
+import lombok.Builder;
 import lombok.Data;
 
 import javax.validation.constraints.NotBlank;
 
+@Builder
 @Data
 public class GraphCreateDTO extends BaseEntity {
 

@@ -9,6 +9,7 @@ import com.paiondata.aristotle.model.dto.GraphUpdateDTO;
 import com.paiondata.aristotle.model.entity.Graph;
 import com.paiondata.aristotle.model.entity.User;
 import com.paiondata.aristotle.model.vo.GraphVO;
+import com.paiondata.aristotle.repository.GraphNodeRepository;
 import com.paiondata.aristotle.repository.GraphRepository;
 import com.paiondata.aristotle.service.GraphService;
 import com.paiondata.aristotle.service.Neo4jService;
@@ -35,7 +36,7 @@ public class GraphServiceImpl implements GraphService {
     private UserService userService;
 
     @Autowired
-    private GraphRepository graphNodeRepository;
+    private GraphNodeRepository graphNodeRepository;
 
     @Autowired
     private Neo4jService neo4jService;
