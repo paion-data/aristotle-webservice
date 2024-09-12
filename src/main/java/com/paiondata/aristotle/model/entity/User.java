@@ -1,8 +1,10 @@
 package com.paiondata.aristotle.model.entity;
 
 import com.paiondata.aristotle.model.BaseEntity;
+import lombok.AllArgsConstructor;
 import lombok.Builder;
 import lombok.Data;
+import lombok.NoArgsConstructor;
 import org.springframework.data.neo4j.core.schema.*;
 
 import java.util.List;
@@ -10,6 +12,8 @@ import java.util.List;
 @Node("User")
 @Data
 @Builder
+@AllArgsConstructor
+@NoArgsConstructor
 public class User extends BaseEntity {
 
     @Id

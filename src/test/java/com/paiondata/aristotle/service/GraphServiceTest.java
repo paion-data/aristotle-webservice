@@ -190,9 +190,6 @@ public class GraphServiceTest {
                 .userUidcid("non-existing-uidcid")
                 .build();
 
-
-        when(userService.getUserByUidcid("testUidcid")).thenReturn(Optional.empty());
-
         // Act & Assert
         assertThrows(UserNullException.class, () -> graphService.createAndBindGraph(graphCreateDTO));
     }
@@ -225,7 +222,6 @@ public class GraphServiceTest {
         List<String> uuids = Arrays.asList("uuid1", "uuid2");
 
         when(graphRepository.getGraphByUuid("uuid1")).thenReturn(null);
-        when(graphRepository.getGraphByUuid("uuid2")).thenReturn(Graph.builder().uuid("uuid2").build());
 
         // Act & Assert
         assertThrows(GraphNullException.class, () -> graphService.deleteByUuids(uuids));
@@ -238,18 +234,25 @@ public class GraphServiceTest {
 
     @Test
     public void testUpdateGraph_WhenGraphExists_ShouldUpdateGraph() {
-        // Given
+        // Arrange
         String uuid = "test-uuid";
         GraphUpdateDTO graphUpdateDTO = new GraphUpdateDTO();
         graphUpdateDTO.setUuid(uuid);
         graphUpdateDTO.setTitle("Updated Title");
         graphUpdateDTO.setDescription("Updated Description");
 
-        when(graphService.getGraphByUuid(uuid)).thenReturn(Optional.of(new Graph()));
+        when(graphRepository.getGraphByUuid(uuid)).thenReturn(new Graph());
 
-        // When & Then
+        // Act & Assert
         assertDoesNotThrow(() -> graphService.updateGraph(graphUpdateDTO));
-        verify(graphRepository).updateGraphByUuid(uuid, "Updated Title", "Updated Description", any(Date.class));
+
+        // Verify
+        verify(graphRepository).updateGraphByUuid(
+                eq(uuid),
+                eq("Updated Title"),
+                eq("Updated Description"),
+                any(Date.class)
+        );
     }
 
     @Test
