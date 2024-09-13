@@ -1,9 +1,6 @@
 package com.paiondata.aristotle.service;
 
-import static org.junit.Assert.assertEquals;
-import static org.junit.Assert.assertFalse;
 import static org.junit.Assert.assertThrows;
-import static org.junit.Assert.assertTrue;
 import static org.mockito.ArgumentMatchers.any;
 import static org.mockito.ArgumentMatchers.anyString;
 import static org.mockito.Mockito.doThrow;
@@ -22,13 +19,13 @@ import com.paiondata.aristotle.repository.GraphRepository;
 import com.paiondata.aristotle.repository.UserRepository;
 import com.paiondata.aristotle.service.impl.UserServiceImpl;
 
-import org.junit.Before;
-import org.junit.Test;
-import org.junit.runner.RunWith;
+import org.junit.jupiter.api.Assertions;
+import org.junit.jupiter.api.BeforeEach;
+import org.junit.jupiter.api.Test;
+import org.junit.jupiter.api.extension.ExtendWith;
 import org.mockito.InjectMocks;
 import org.mockito.Mock;
-import org.mockito.MockitoAnnotations;
-import org.mockito.junit.MockitoJUnitRunner;
+import org.mockito.junit.jupiter.MockitoExtension;
 import org.springframework.dao.DataIntegrityViolationException;
 
 import java.util.ArrayList;
@@ -38,8 +35,8 @@ import java.util.List;
 import java.util.Map;
 import java.util.Optional;
 
-@RunWith(MockitoJUnitRunner.class)
-public class UserServiceTest {
+@ExtendWith(MockitoExtension.class)
+public class UserServiceSpec {
 
     @InjectMocks
     private UserServiceImpl userService;
@@ -56,9 +53,8 @@ public class UserServiceTest {
     @Mock
     Neo4jService neo4jService;
 
-    @Before
+    @BeforeEach
     public void setup() {
-        MockitoAnnotations.initMocks(this);
     }
 
     @Test
@@ -74,18 +70,18 @@ public class UserServiceTest {
         List<Map<String, Object>> graphs = Collections.singletonList(Collections.singletonMap("key", "value"));
 
         when(userRepository.getUserByUidcid(uidcid)).thenReturn(user);
-        when(neo4jService.getUserByUidcid(uidcid)).thenReturn(graphs);
+        when(neo4jService.getUserAndGraphsByUidcid(uidcid)).thenReturn(graphs);
 
         // Act
         UserVO userVO = userService.getUserVOByUidcid(uidcid);
 
         // Assert
-        assertEquals(uidcid, userVO.getUidcid());
-        assertEquals(nickName, userVO.getNickName());
-        assertEquals(graphs, userVO.getGraphs());
+        Assertions.assertEquals(uidcid, userVO.getUidcid());
+        Assertions.assertEquals(nickName, userVO.getNickName());
+        Assertions.assertEquals(graphs, userVO.getGraphs());
 
         verify(userRepository, times(1)).getUserByUidcid(uidcid);
-        verify(neo4jService, times(1)).getUserByUidcid(uidcid);
+        verify(neo4jService, times(1)).getUserAndGraphsByUidcid(uidcid);
     }
 
     @Test
@@ -98,7 +94,7 @@ public class UserServiceTest {
         assertThrows(UserNullException.class, () -> userService.getUserVOByUidcid(uidcid));
 
         verify(userRepository, times(1)).getUserByUidcid(uidcid);
-        verify(neo4jService, never()).getUserByUidcid(anyString());
+        verify(neo4jService, never()).getUserAndGraphsByUidcid(anyString());
     }
 
     @Test
@@ -116,8 +112,8 @@ public class UserServiceTest {
         Optional<User> userOptional = userService.getUserByUidcid(uidcid);
 
         // Assert
-        assertTrue(userOptional.isPresent());
-        assertEquals(expectedUser, userOptional.get());
+        Assertions.assertTrue(userOptional.isPresent());
+        Assertions.assertEquals(expectedUser, userOptional.get());
     }
 
     @Test
@@ -131,7 +127,7 @@ public class UserServiceTest {
         Optional<User> userOptional = userService.getUserByUidcid(uidcid);
 
         // Assert
-        assertFalse(userOptional.isPresent());
+        Assertions.assertFalse(userOptional.isPresent());
     }
 
     @Test
@@ -145,21 +141,21 @@ public class UserServiceTest {
         List<Map<String, Object>> graphs2 = Collections.singletonList(Collections.singletonMap("key", "value2"));
 
         when(userRepository.findAll()).thenReturn(users);
-        when(neo4jService.getUserByUidcid("uid1")).thenReturn(graphs1);
-        when(neo4jService.getUserByUidcid("uid2")).thenReturn(graphs2);
+        when(neo4jService.getUserAndGraphsByUidcid("uid1")).thenReturn(graphs1);
+        when(neo4jService.getUserAndGraphsByUidcid("uid2")).thenReturn(graphs2);
 
         // Act
         List<UserVO> userVOS = userService.getAllUsers();
 
         // Assert
-        assertEquals(2, userVOS.size());
-        assertEquals("uid1", userVOS.get(0).getUidcid());
-        assertEquals("nick1", userVOS.get(0).getNickName());
-        assertEquals(graphs1, userVOS.get(0).getGraphs());
+        Assertions.assertEquals(2, userVOS.size());
+        Assertions.assertEquals("uid1", userVOS.get(0).getUidcid());
+        Assertions.assertEquals("nick1", userVOS.get(0).getNickName());
+        Assertions.assertEquals(graphs1, userVOS.get(0).getGraphs());
 
-        assertEquals("uid2", userVOS.get(1).getUidcid());
-        assertEquals("nick2", userVOS.get(1).getNickName());
-        assertEquals(graphs2, userVOS.get(1).getGraphs());
+        Assertions.assertEquals("uid2", userVOS.get(1).getUidcid());
+        Assertions.assertEquals("nick2", userVOS.get(1).getNickName());
+        Assertions.assertEquals(graphs2, userVOS.get(1).getGraphs());
     }
 
     @Test
@@ -173,7 +169,7 @@ public class UserServiceTest {
         List<UserVO> userVOS = userService.getAllUsers();
 
         // Assert
-        assertEquals(0, userVOS.size());
+        Assertions.assertEquals(0, userVOS.size());
     }
 
     @Test
@@ -246,13 +242,12 @@ public class UserServiceTest {
         List<String> uidcids = Arrays.asList("uid1", "uid2");
 
         when(userRepository.getUserByUidcid("uid1")).thenReturn(null);
-        when(userRepository.getUserByUidcid("uid2")).thenReturn(User.builder().uidcid("uid2").build());
 
         // Act & Assert
         assertThrows(UserNullException.class, () -> userService.deleteUser(uidcids));
 
         // Verify
-        verify(userRepository, times(1)).getUserByUidcid(anyString());
+        verify(userRepository, times(1)).getUserByUidcid("uid1");
         verify(userRepository, never()).deleteByUidcids(any());
         verify(graphRepository, never()).deleteByUuids(any());
         verify(graphNodeRepository, never()).deleteByUuids(any());

@@ -51,7 +51,7 @@ public class UserServiceImpl implements UserService {
         UserVO vo = UserVO.builder()
                 .uidcid(user.getUidcid())
                 .nickName(user.getNickName())
-                .graphs(neo4jService.getUserByUidcid(user.getUidcid()))
+                .graphs(neo4jService.getUserAndGraphsByUidcid(user.getUidcid()))
                 .build();
 
         return vo;
@@ -73,7 +73,7 @@ public class UserServiceImpl implements UserService {
                 .map(user -> UserVO.builder()
                         .uidcid(user.getUidcid())
                         .nickName(user.getNickName())
-                        .graphs(neo4jService.getUserByUidcid(user.getUidcid()))
+                        .graphs(neo4jService.getUserAndGraphsByUidcid(user.getUidcid()))
                         .build())
                 .collect(Collectors.toList());
     }

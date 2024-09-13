@@ -31,7 +31,7 @@ public class Neo4jServiceImpl implements Neo4jService {
     }
 
     @Override
-    public List<Map<String, Object>> getUserByUidcid(String uidcid) {
+    public List<Map<String, Object>> getUserAndGraphsByUidcid(String uidcid) {
 
         if (userRepository.getUserByUidcid(uidcid) == null) {
             throw new UserNullException(Message.USER_NULL);

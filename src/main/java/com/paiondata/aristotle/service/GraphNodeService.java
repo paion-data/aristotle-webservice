@@ -10,15 +10,15 @@ import java.util.Optional;
 
 public interface GraphNodeService {
 
-    Optional<GraphNode> getGraphNodeByUuid(String uuid);
+    Optional<GraphNode> getNodeByUuid(String uuid);
 
-    void createAndBindGraphNode(NodeCreateDTO graphNodeCreateDTO);
+    void createAndBindGraphAndNode(NodeCreateDTO graphNodeCreateDTO);
 
-    void createAndBindGraphGraphNode(GraphAndNodeCreateDTO graphNodeCreateDTO);
+    void createGraphAndBindGraphAndNode(GraphAndNodeCreateDTO graphNodeCreateDTO);
 
-    void bindGraphNode(String uuid1, String uuid2, String relation);
+    void bindNodes(String uuid1, String uuid2, String relation);
 
     void deleteByUuids(List<String> uuids);
 
-    void updateGraphNode(GraphUpdateDTO graphUpdateDTO);
+    void updateNode(GraphUpdateDTO graphUpdateDTO);
 }

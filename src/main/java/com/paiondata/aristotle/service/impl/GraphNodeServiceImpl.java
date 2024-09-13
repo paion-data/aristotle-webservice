@@ -19,7 +19,12 @@ import org.springframework.transaction.annotation.Transactional;
 
 import java.time.LocalDateTime;
 import java.time.ZoneId;
-import java.util.*;
+import java.util.ArrayList;
+import java.util.Date;
+import java.util.HashMap;
+import java.util.List;
+import java.util.Map;
+import java.util.Optional;
 
 @Service
 @AllArgsConstructor
@@ -32,24 +37,39 @@ public class GraphNodeServiceImpl implements GraphNodeService {
     private GraphService graphService;
 
     @Override
-    public Optional<GraphNode> getGraphNodeByUuid(String uuid) {
+    public Optional<GraphNode> getNodeByUuid(String uuid) {
         GraphNode graphNode = graphNodeRepository.getGraphNodeByUuid(uuid);
         return Optional.ofNullable(graphNode);
     }
 
     @Transactional
     @Override
-    public void createAndBindGraphNode(NodeCreateDTO graphNodeCreateDTO) {
-        String graphUuid = graphNodeCreateDTO.getGraphUuid();
+    public void createAndBindGraphAndNode(NodeCreateDTO nodeCreateDTO) {
+        String graphUuid = nodeCreateDTO.getGraphUuid();
 
         Optional<Graph> optionalGraph = graphService.getGraphByUuid(graphUuid);
         if (optionalGraph.isEmpty()) {
             throw new GraphNullException(Message.GRAPH_NULL);
         }
 
-        List<NodeRelationDTO> graphNodeRelationDTO = graphNodeCreateDTO.getGraphNodeRelationDTO();
+        checkInputRelationsAndBindGraphAndNode(nodeCreateDTO.getGraphNodeDTO(),
+                nodeCreateDTO.getGraphNodeRelationDTO(), graphUuid);
+    }
+
+    @Transactional
+    @Override
+    public void createGraphAndBindGraphAndNode(GraphAndNodeCreateDTO graphNodeCreateDTO) {
+        Graph graph = graphService.createAndBindGraph(graphNodeCreateDTO.getGraphCreateDTO());
+        String graphUuid = graph.getUuid();
+
+        checkInputRelationsAndBindGraphAndNode(graphNodeCreateDTO.getGraphNodeDTO(),
+                graphNodeCreateDTO.getGraphNodeRelationDTO(), graphUuid);
+    }
+
+    private void checkInputRelationsAndBindGraphAndNode(List<NodeDTO> nodeDTOs,
+                                                        List<NodeRelationDTO> nodeRelationDTOs, String graphUuid) {
         List<String> checkIds = new ArrayList<>();
-        for (NodeRelationDTO dto : graphNodeRelationDTO) {
+        for (NodeRelationDTO dto : nodeRelationDTOs) {
             checkIds.add(dto.getFromId());
             checkIds.add(dto.getToId());
         }
@@ -63,32 +83,17 @@ public class GraphNodeServiceImpl implements GraphNodeService {
         Date now = getCurrentTime();
         Map<String, String> uuidMap = new HashMap<>();
 
-        createGraphNode(graphNodeCreateDTO.getGraphNodeDTO(), uuidMap, now, graphUuid);
-
-        bindNodeRelations(graphNodeRelationDTO, uuidMap, now);
-    }
-
-    @Transactional
-    @Override
-    public void createAndBindGraphGraphNode(GraphAndNodeCreateDTO graphNodeCreateDTO) {
-        Graph graph = graphService.createAndBindGraph(graphNodeCreateDTO.getGraphCreateDTO());
-        String graphUuid = graph.getUuid();
-
-        Date now = getCurrentTime();
-        Map<String, String> uuidMap = new HashMap<>();
-
-        if (graphNodeCreateDTO.getGraphNodeDTO() == null) {
+        if (nodeDTOs == null) {
             return;
         }
 
-        createGraphNode(graphNodeCreateDTO.getGraphNodeDTO(), uuidMap, now, graphUuid);
-
-        bindNodeRelations(graphNodeCreateDTO.getGraphNodeRelationDTO(), uuidMap, now);
+        createNodes(nodeDTOs, uuidMap, now, graphUuid);
+        bindNodeRelations(nodeRelationDTOs, uuidMap, now);
     }
 
-    private void createGraphNode (List<NodeDTO> graphNodeDTO, Map<String, String> uuidMap,
-                                  Date now, String graphUuid) {
-        for (NodeDTO dto : graphNodeDTO) {
+    private void createNodes(List<NodeDTO> nodeDTOs, Map<String, String> uuidMap,
+                             Date now, String graphUuid) {
+        for (NodeDTO dto : nodeDTOs) {
             String graphNodeUuid = UUID.fastUUID().toString(true);
             String relationUuid = UUID.fastUUID().toString(true);
 
@@ -126,9 +131,9 @@ public class GraphNodeServiceImpl implements GraphNodeService {
 
     @Transactional
     @Override
-    public void bindGraphNode(String uuid1, String uuid2, String relation) {
-        Optional<GraphNode> graphNodeOptional1 = getGraphNodeByUuid(uuid1);
-        Optional<GraphNode> graphNodeOptional2 = getGraphNodeByUuid(uuid2);
+    public void bindNodes(String startNode, String endNode, String relation) {
+        Optional<GraphNode> graphNodeOptional1 = getNodeByUuid(startNode);
+        Optional<GraphNode> graphNodeOptional2 = getNodeByUuid(endNode);
         String relationUuid = UUID.fastUUID().toString(true);
         Date now = getCurrentTime();
 
@@ -140,14 +145,14 @@ public class GraphNodeServiceImpl implements GraphNodeService {
             }
         }
 
-        graphNodeRepository.bindGraphNodeToGraphNode(uuid1, uuid2, relation, relationUuid, now);
+        graphNodeRepository.bindGraphNodeToGraphNode(startNode, endNode, relation, relationUuid, now);
     }
 
     @Transactional
     @Override
     public void deleteByUuids(List<String> uuids) {
         for (String uuid : uuids) {
-            if (getGraphNodeByUuid(uuid).isEmpty()) {
+            if (getNodeByUuid(uuid).isEmpty()) {
                 throw new GraphNodeNullException(Message.GRAPH_NODE_NULL);
             }
         }
@@ -157,8 +162,8 @@ public class GraphNodeServiceImpl implements GraphNodeService {
 
     @Transactional
     @Override
-    public void updateGraphNode(GraphUpdateDTO graphUpdateDTO) {
-        Optional<GraphNode> graphNodeByUuid = getGraphNodeByUuid(graphUpdateDTO.getUuid());
+    public void updateNode(GraphUpdateDTO graphUpdateDTO) {
+        Optional<GraphNode> graphNodeByUuid = getNodeByUuid(graphUpdateDTO.getUuid());
         Date now = getCurrentTime();
 
         if (graphNodeByUuid.isPresent()) {

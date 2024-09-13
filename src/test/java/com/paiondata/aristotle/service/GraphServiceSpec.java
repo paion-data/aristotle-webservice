@@ -1,9 +1,6 @@
 package com.paiondata.aristotle.service;
 
-import static org.junit.Assert.assertEquals;
-import static org.junit.Assert.assertFalse;
 import static org.junit.Assert.assertThrows;
-import static org.junit.Assert.assertTrue;
 import static org.junit.jupiter.api.Assertions.assertDoesNotThrow;
 import static org.mockito.ArgumentMatchers.any;
 import static org.mockito.ArgumentMatchers.eq;
@@ -12,7 +9,6 @@ import static org.mockito.Mockito.times;
 import static org.mockito.Mockito.verify;
 import static org.mockito.Mockito.when;
 
-import com.paiondata.aristotle.AristotleApplication;
 import com.paiondata.aristotle.common.exception.GraphNullException;
 import com.paiondata.aristotle.common.exception.UserNullException;
 import com.paiondata.aristotle.model.dto.GraphCreateDTO;
@@ -24,13 +20,13 @@ import com.paiondata.aristotle.repository.GraphNodeRepository;
 import com.paiondata.aristotle.repository.GraphRepository;
 import com.paiondata.aristotle.service.impl.GraphServiceImpl;
 
-import org.junit.Before;
-import org.junit.Test;
-import org.junit.runner.RunWith;
+import org.junit.jupiter.api.Assertions;
+import org.junit.jupiter.api.BeforeEach;
+import org.junit.jupiter.api.Test;
+import org.junit.jupiter.api.extension.ExtendWith;
 import org.mockito.InjectMocks;
 import org.mockito.Mock;
-import org.mockito.MockitoAnnotations;
-import org.mockito.junit.MockitoJUnitRunner;
+import org.mockito.junit.jupiter.MockitoExtension;
 
 import java.util.ArrayList;
 import java.util.Arrays;
@@ -40,8 +36,8 @@ import java.util.List;
 import java.util.Map;
 import java.util.Optional;
 
-@RunWith(MockitoJUnitRunner.class)
-public class GraphServiceTest {
+@ExtendWith(MockitoExtension.class)
+public class GraphServiceSpec {
 
     @InjectMocks
     private GraphServiceImpl graphService;
@@ -58,13 +54,12 @@ public class GraphServiceTest {
     @Mock
     private Neo4jService neo4jService;
 
-    @Before
+    @BeforeEach
     public void setup() {
-        MockitoAnnotations.initMocks(this);
     }
 
     @Test
-    public void getGraphVOByUuid_GraphExists_ReturnGraphVO() {
+    void getGraphVOByUuid_GraphExists_ReturnGraphVO() {
         // Arrange
         String uuid = "test-uuid";
         String title = "test-title";
@@ -89,19 +84,19 @@ public class GraphServiceTest {
         GraphVO graphVO = graphService.getGraphVOByUuid(uuid);
 
         // Assert
-        assertEquals(uuid, graphVO.getUuid());
-        assertEquals(title, graphVO.getTitle());
-        assertEquals(description, graphVO.getDescription());
-        assertEquals(currentTime, graphVO.getCreateTime());
-        assertEquals(currentTime, graphVO.getUpdateTime());
-        assertEquals(nodes, graphVO.getNodes());
+        Assertions.assertEquals(uuid, graphVO.getUuid());
+        Assertions.assertEquals(title, graphVO.getTitle());
+        Assertions.assertEquals(description, graphVO.getDescription());
+        Assertions.assertEquals(currentTime, graphVO.getCreateTime());
+        Assertions.assertEquals(currentTime, graphVO.getUpdateTime());
+        Assertions.assertEquals(nodes, graphVO.getNodes());
 
         verify(graphRepository, times(1)).getGraphByUuid(uuid);
         verify(neo4jService, times(1)).getGraphNodeByGraphUuid(uuid);
     }
 
     @Test
-    public void getGraphVOByUuid_GraphDoesNotExist_ThrowsGraphNullException() {
+    void getGraphVOByUuid_GraphDoesNotExist_ThrowsGraphNullException() {
         // Arrange
         String uuid = "non-existing-uuid";
         when(graphRepository.getGraphByUuid(uuid)).thenReturn(null);
@@ -114,7 +109,7 @@ public class GraphServiceTest {
     }
 
     @Test
-    public void getGraphByUuid_GraphExists_ReturnGraph() {
+    void getGraphByUuid_GraphExists_ReturnGraph() {
         // Arrange
         String uuid = "test-uuid";
         Date currentTime = new Date();
@@ -132,12 +127,12 @@ public class GraphServiceTest {
         Optional<Graph> graphOptional = graphService.getGraphByUuid(uuid);
 
         // Assert
-        assertTrue(graphOptional.isPresent());
-        assertEquals(graph, graphOptional.get());
+        Assertions.assertTrue(graphOptional.isPresent());
+        Assertions.assertEquals(graph, graphOptional.get());
     }
 
     @Test
-    public void getGraphByUuid_GraphDoesNotExist_ReturnsEmptyOptional() {
+    void getGraphByUuid_GraphDoesNotExist_ReturnsEmptyOptional() {
         // Arrange
         String uuid = "test-uuid";
 
@@ -147,11 +142,11 @@ public class GraphServiceTest {
         Optional<Graph> graphOptional = graphService.getGraphByUuid(uuid);
 
         // Assert
-        assertFalse(graphOptional.isPresent());
+        Assertions.assertFalse(graphOptional.isPresent());
     }
 
     @Test
-    public void createAndBindGraph_ValidInput_GraphCreatedSuccessfully() {
+    void createAndBindGraph_ValidInput_GraphCreatedSuccessfully() {
         // Arrange
         String uidcid = "testUidcid";
         String title = "Test Title";
@@ -182,7 +177,7 @@ public class GraphServiceTest {
     }
 
     @Test
-    public void createAndBindGraph_UserNotFound_ThrowsUserNullException() {
+    void createAndBindGraph_UserNotFound_ThrowsUserNullException() {
         // Arrange
         GraphCreateDTO graphCreateDTO = GraphCreateDTO.builder()
                         .title("Test Graph")
@@ -195,7 +190,7 @@ public class GraphServiceTest {
     }
 
     @Test
-    public void deleteByUuids_GraphExist_DeletesGraphsAndRelateData() {
+    void deleteByUuids_GraphExist_DeletesGraphsAndRelateData() {
         // Arrange
         List<String> uuids = Arrays.asList("uuid1", "uuid2");
         List<Graph> graphs = new ArrayList<>();
@@ -217,7 +212,7 @@ public class GraphServiceTest {
     }
 
     @Test
-    public void deleteByUuids_GraphDoesNotExist_ThrowsGraphNullException() {
+    void deleteByUuids_GraphDoesNotExist_ThrowsGraphNullException() {
         // Arrange
         List<String> uuids = Arrays.asList("uuid1", "uuid2");
 
@@ -233,7 +228,7 @@ public class GraphServiceTest {
     }
 
     @Test
-    public void testUpdateGraph_WhenGraphExists_ShouldUpdateGraph() {
+    void testUpdateGraph_WhenGraphExists_ShouldUpdateGraph() {
         // Arrange
         String uuid = "test-uuid";
         GraphUpdateDTO graphUpdateDTO = new GraphUpdateDTO();
@@ -256,7 +251,7 @@ public class GraphServiceTest {
     }
 
     @Test
-    public void updateGraph_GraphNotExists_ThrowsGraphNullException() {
+    void updateGraph_GraphNotExists_ThrowsGraphNullException() {
         // Arrange
         GraphUpdateDTO graphUpdateDTO = GraphUpdateDTO.builder()
                 .uuid("test-uuid")

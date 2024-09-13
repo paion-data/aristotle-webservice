@@ -27,32 +27,32 @@ public class GraphNodeController {
     @GetMapping("/{uuid}")
     public Result<GraphNode> getNodeByUuid(
             @PathVariable @NotBlank(message = Message.UUID_MUST_NOT_BE_BLANK) String uuid) {
-        Optional<GraphNode> optionalGraphNode = graphNodeService.getGraphNodeByUuid(uuid);
+        Optional<GraphNode> optionalGraphNode = graphNodeService.getNodeByUuid(uuid);
         return optionalGraphNode.map(Result::ok).orElseGet(() -> Result.fail(Message.GRAPH_NODE_NULL));
     }
 
     @PostMapping
     public Result<String> createAndBindNode(@RequestBody @Valid NodeCreateDTO graphNodeCreateDTO) {
-        graphNodeService.createAndBindGraphNode(graphNodeCreateDTO);
+        graphNodeService.createAndBindGraphAndNode(graphNodeCreateDTO);
         return Result.ok(Message.CREATE_SUCCESS);
     }
 
     @PostMapping("/graph")
-    public Result<String> createAndBindGraphAndNode(@RequestBody @Valid GraphAndNodeCreateDTO graphNodeCreateDTO) {
-        graphNodeService.createAndBindGraphGraphNode(graphNodeCreateDTO);
+    public Result<String> createGraphAndBindGraphAndNode(@RequestBody @Valid GraphAndNodeCreateDTO graphNodeCreateDTO) {
+        graphNodeService.createGraphAndBindGraphAndNode(graphNodeCreateDTO);
         return Result.ok(Message.CREATE_SUCCESS);
     }
 
     @PostMapping("/bind")
     public Result<String> bindNodes(@RequestBody @Valid BindNodeDTO bindGraphNodeDTO) {
-        graphNodeService.bindGraphNode(bindGraphNodeDTO.getFromId(),
+        graphNodeService.bindNodes(bindGraphNodeDTO.getFromId(),
                 bindGraphNodeDTO.getToId(), bindGraphNodeDTO.getRelationName());
         return Result.ok(Message.BOUND_SUCCESS);
     }
 
     @PutMapping
     public Result<String> updateNode(@RequestBody GraphUpdateDTO graphUpdateDTO) {
-        graphNodeService.updateGraphNode(graphUpdateDTO);
+        graphNodeService.updateNode(graphUpdateDTO);
         return Result.ok(Message.UPDATE_SUCCESS);
     }
 
