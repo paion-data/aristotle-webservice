@@ -1,5 +1,4 @@
 version: '3.8'
-
 services:
   web:
     build: .
@@ -19,7 +18,7 @@ services:
       - "7474:7474"
       - "7687:7687"
     healthcheck:
-      test: [ "CMD", "curl", "--fail", "http://localhost:7474/db/data/" ]
+      test: ["CMD", "curl", "--fail", "http://localhost:7474/db/data/"]
       interval: 30s
       timeout: 10s
       retries: 3
