@@ -22,7 +22,7 @@ import org.testcontainers.spock.Testcontainers
 import java.time.Duration
 
 @Testcontainers
-class DockerComposeITSpec extends AbstractITSpec {
+class DockerComposeITSpec extends HealthCheckITSpec {
     def DockerComposeContainer COMPOSE = new DockerComposeContainer(new File("docker-compose.yml"))
             .withExposedService(
                     "web",
