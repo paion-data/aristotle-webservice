@@ -34,7 +34,7 @@ public class Neo4jServiceImpl implements Neo4jService {
     public List<Map<String, Object>> getUserAndGraphsByUidcid(String uidcid) {
 
         if (userRepository.getUserByUidcid(uidcid) == null) {
-            throw new UserNullException(Message.USER_NULL);
+            throw new UserNullException(Message.USER_NULL + uidcid);
         }
 
         String cypherQuery = "MATCH (u:User)-[r:RELATION]->(g:Graph) WHERE u.uidcid = $uidcid RETURN DISTINCT g";
@@ -58,7 +58,7 @@ public class Neo4jServiceImpl implements Neo4jService {
     public List<Map<String, Map<String, Object>>> getGraphNodeByGraphUuid(String uuid) {
 
         if (graphRepository.getGraphByUuid(uuid) == null) {
-            throw new UserNullException(Message.GRAPH_NULL);
+            throw new UserNullException(Message.GRAPH_NULL + uuid);
         }
 
         String cypherQuery = "MATCH (g:Graph { uuid: $uuid }) "

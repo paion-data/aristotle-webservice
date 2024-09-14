@@ -49,7 +49,7 @@ public class GraphNodeServiceImpl implements GraphNodeService {
 
         Optional<Graph> optionalGraph = graphService.getGraphByUuid(graphUuid);
         if (optionalGraph.isEmpty()) {
-            throw new GraphNullException(Message.GRAPH_NULL);
+            throw new GraphNullException(Message.GRAPH_NULL + graphUuid);
         }
 
         checkInputRelationsAndBindGraphAndNode(nodeCreateDTO.getGraphNodeDTO(),
@@ -60,6 +60,11 @@ public class GraphNodeServiceImpl implements GraphNodeService {
     @Override
     public void createGraphAndBindGraphAndNode(GraphAndNodeCreateDTO graphNodeCreateDTO) {
         Graph graph = graphService.createAndBindGraph(graphNodeCreateDTO.getGraphCreateDTO());
+
+        if (graphNodeCreateDTO.getGraphNodeDTO() == null) {
+            return;
+        }
+
         String graphUuid = graph.getUuid();
 
         checkInputRelationsAndBindGraphAndNode(graphNodeCreateDTO.getGraphNodeDTO(),
@@ -68,6 +73,15 @@ public class GraphNodeServiceImpl implements GraphNodeService {
 
     private void checkInputRelationsAndBindGraphAndNode(List<NodeDTO> nodeDTOs,
                                                         List<NodeRelationDTO> nodeRelationDTOs, String graphUuid) {
+        Date now = getCurrentTime();
+        Map<String, String> uuidMap = new HashMap<>();
+
+        createNodes(nodeDTOs, uuidMap, now, graphUuid);
+
+        if (nodeRelationDTOs == null) {
+            return;
+        }
+
         List<String> checkIds = new ArrayList<>();
         for (NodeRelationDTO dto : nodeRelationDTOs) {
             checkIds.add(dto.getFromId());
@@ -80,14 +94,6 @@ public class GraphNodeServiceImpl implements GraphNodeService {
             }
         }
 
-        Date now = getCurrentTime();
-        Map<String, String> uuidMap = new HashMap<>();
-
-        if (nodeDTOs == null) {
-            return;
-        }
-
-        createNodes(nodeDTOs, uuidMap, now, graphUuid);
         bindNodeRelations(nodeRelationDTOs, uuidMap, now);
     }
 
@@ -131,21 +137,25 @@ public class GraphNodeServiceImpl implements GraphNodeService {
 
     @Transactional
     @Override
-    public void bindNodes(String startNode, String endNode, String relation) {
-        Optional<GraphNode> graphNodeOptional1 = getNodeByUuid(startNode);
-        Optional<GraphNode> graphNodeOptional2 = getNodeByUuid(endNode);
-        String relationUuid = UUID.fastUUID().toString(true);
-        Date now = getCurrentTime();
+    public void bindNodes(List<BindNodeDTO> dtos) {
+        for (BindNodeDTO dto : dtos) {
+            String startNode = dto.getFromId();
+            String endNode = dto.getToId();
+            Optional<GraphNode> graphNodeOptional1 = getNodeByUuid(startNode);
+            Optional<GraphNode> graphNodeOptional2 = getNodeByUuid(endNode);
+            String relationUuid = UUID.fastUUID().toString(true);
+            Date now = getCurrentTime();
 
-        if (graphNodeOptional1.isEmpty() || graphNodeOptional2.isEmpty()) {
-            if (graphNodeOptional1.isEmpty()) {
-                throw new GraphNodeNullException(Message.GRAPH_NODE_NULL);
-            } else {
-                throw new GraphNodeNullException(Message.GRAPH_NODE_NULL);
+            if (graphNodeOptional1.isEmpty() || graphNodeOptional2.isEmpty()) {
+                if (graphNodeOptional1.isEmpty()) {
+                    throw new GraphNodeNullException(Message.GRAPH_NODE_NULL + startNode);
+                } else {
+                    throw new GraphNodeNullException(Message.GRAPH_NODE_NULL + endNode);
+                }
             }
-        }
 
-        graphNodeRepository.bindGraphNodeToGraphNode(startNode, endNode, relation, relationUuid, now);
+            graphNodeRepository.bindGraphNodeToGraphNode(startNode, endNode, dto.getRelationName(), relationUuid, now);
+        }
     }
 
     @Transactional
@@ -153,7 +163,7 @@ public class GraphNodeServiceImpl implements GraphNodeService {
     public void deleteByUuids(List<String> uuids) {
         for (String uuid : uuids) {
             if (getNodeByUuid(uuid).isEmpty()) {
-                throw new GraphNodeNullException(Message.GRAPH_NODE_NULL);
+                throw new GraphNodeNullException(Message.GRAPH_NODE_NULL + uuid);
             }
         }
 
@@ -163,15 +173,15 @@ public class GraphNodeServiceImpl implements GraphNodeService {
     @Transactional
     @Override
     public void updateNode(GraphUpdateDTO graphUpdateDTO) {
-        Optional<GraphNode> graphNodeByUuid = getNodeByUuid(graphUpdateDTO.getUuid());
+        String uuid = graphUpdateDTO.getUuid();
+        Optional<GraphNode> graphNodeByUuid = getNodeByUuid(uuid);
         Date now = getCurrentTime();
 
         if (graphNodeByUuid.isPresent()) {
-            graphNodeRepository.updateGraphNodeByUuid(graphUpdateDTO.getUuid(),
-                    graphUpdateDTO.getTitle(), graphUpdateDTO.getDescription(),
+            graphNodeRepository.updateGraphNodeByUuid(uuid, graphUpdateDTO.getTitle(), graphUpdateDTO.getDescription(),
                     now);
         } else {
-            throw new GraphNodeNullException(Message.GRAPH_NODE_NULL);
+            throw new GraphNodeNullException(Message.GRAPH_NODE_NULL + uuid);
         }
     }
 

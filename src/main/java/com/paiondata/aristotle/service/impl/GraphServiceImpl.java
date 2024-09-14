@@ -46,7 +46,7 @@ public class GraphServiceImpl implements GraphService {
         Graph graphByUuid = graphRepository.getGraphByUuid(uuid);
 
         if (graphByUuid == null) {
-            throw new GraphNullException(Message.GRAPH_NULL);
+            throw new GraphNullException(Message.GRAPH_NULL + uuid);
         }
 
         return GraphVO.builder()
@@ -77,7 +77,7 @@ public class GraphServiceImpl implements GraphService {
 
         Optional<User> optionalUser = userService.getUserByUidcid(uidcid);
         if (optionalUser.isEmpty()) {
-            throw new UserNullException(Message.USER_NULL);
+            throw new UserNullException(Message.USER_NULL + uidcid);
         }
 
         return graphRepository.createAndBindGraph(title, description, uidcid, graphUuid, relationUuid, now);
@@ -88,7 +88,7 @@ public class GraphServiceImpl implements GraphService {
     public void deleteByUuids(List<String> uuids) {
         for (String uuid : uuids) {
             if (getGraphByUuid(uuid).isEmpty()) {
-                throw new GraphNullException(Message.GRAPH_NULL);
+                throw new GraphNullException(Message.GRAPH_NULL + uuid);
             }
         }
 
@@ -101,15 +101,14 @@ public class GraphServiceImpl implements GraphService {
     @Transactional
     @Override
     public void updateGraph(GraphUpdateDTO graphUpdateDTO) {
-        Optional<Graph> graphByUuid = getGraphByUuid(graphUpdateDTO.getUuid());
+        String uuid = graphUpdateDTO.getUuid();
+        Optional<Graph> graphByUuid = getGraphByUuid(uuid);
         Date now = getCurrentTime();
 
         if (graphByUuid.isPresent()) {
-            graphRepository.updateGraphByUuid(graphUpdateDTO.getUuid(),
-                    graphUpdateDTO.getTitle(), graphUpdateDTO.getDescription(),
-                    now);
+            graphRepository.updateGraphByUuid(uuid, graphUpdateDTO.getTitle(), graphUpdateDTO.getDescription(), now);
         } else {
-            throw new GraphNullException(Message.GRAPH_NULL);
+            throw new GraphNullException(Message.GRAPH_NULL + uuid);
         }
     }
 

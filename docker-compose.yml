@@ -1,4 +1,3 @@
-version: '3.8'
 services:
   web:
     build: .
@@ -11,17 +10,17 @@ services:
     image: neo4j:latest
     environment:
       NEO4J_AUTH: neo4j/12345678
-      NEO4JLABS_PLUGINS: apoc
+      NEO4JLABS_PLUGINS: "[\"apoc\"]"
     volumes:
       - neo4j-data:/data
     ports:
       - "7474:7474"
       - "7687:7687"
     healthcheck:
-      test: ["CMD", "curl", "--fail", "http://localhost:7474/db/data/"]
+      test: [ "CMD-SHELL", "curl", "--fail", "http://localhost:7474/db/data" ]
       interval: 30s
       timeout: 10s
-      retries: 3
-      start_period: 40s
+      retries: 5
+
 volumes:
   neo4j-data:

@@ -45,7 +45,7 @@ public class UserServiceImpl implements UserService {
         User user = userRepository.getUserByUidcid(uidcid);
 
         if (user == null) {
-            throw new UserNullException(Message.USER_NULL);
+            throw new UserNullException(Message.USER_NULL + uidcid);
         }
 
         UserVO vo = UserVO.builder()
@@ -98,7 +98,7 @@ public class UserServiceImpl implements UserService {
         if (userRepository.checkUidcidExists(uidcid) != 0) {
             userRepository.updateUser(uidcid, user.getNickName());
         } else {
-            throw new UserNullException(Message.USER_NULL);
+            throw new UserNullException(Message.USER_NULL + uidcid);
         }
     }
 
@@ -107,7 +107,7 @@ public class UserServiceImpl implements UserService {
     public void deleteUser(List<String> uidcids) {
         for (String uidcid : uidcids) {
             if (getUserByUidcid(uidcid).isEmpty()) {
-                throw new UserNullException(Message.USER_NULL);
+                throw new UserNullException(Message.USER_NULL + uidcid);
             }
         }
 

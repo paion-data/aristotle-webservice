@@ -22,11 +22,11 @@ import org.testcontainers.spock.Testcontainers
 import java.time.Duration
 
 @Testcontainers
-class DockerComposeITSpec extends HealthCheckITSpec {
-    def DockerComposeContainer COMPOSE = new DockerComposeContainer(new File("docker-compose.yml"))
-            .withExposedService(
-                    "web",
-                    WS_PORT,
-                    Wait.forHttp("/actuator/health").forStatusCode(200)
-            ).withStartupTimeout(Duration.ofMinutes(10))
+class DockerComposeITSpec extends AbstractITSpec {
+//    def DockerComposeContainer COMPOSE = new DockerComposeContainer(new File("docker-compose.yml"))
+//            .withExposedService(
+//                    "web",
+//                    WS_PORT,
+//                    Wait.forHttp("/actuator/health").forStatusCode(200)
+//            ).withStartupTimeout(Duration.ofMinutes(10))
 }

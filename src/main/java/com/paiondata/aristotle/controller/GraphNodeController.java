@@ -28,7 +28,7 @@ public class GraphNodeController {
     public Result<GraphNode> getNodeByUuid(
             @PathVariable @NotBlank(message = Message.UUID_MUST_NOT_BE_BLANK) String uuid) {
         Optional<GraphNode> optionalGraphNode = graphNodeService.getNodeByUuid(uuid);
-        return optionalGraphNode.map(Result::ok).orElseGet(() -> Result.fail(Message.GRAPH_NODE_NULL));
+        return optionalGraphNode.map(Result::ok).orElseGet(() -> Result.fail(Message.GRAPH_NODE_NULL + uuid));
     }
 
     @PostMapping
@@ -44,9 +44,8 @@ public class GraphNodeController {
     }
 
     @PostMapping("/bind")
-    public Result<String> bindNodes(@RequestBody @Valid BindNodeDTO bindGraphNodeDTO) {
-        graphNodeService.bindNodes(bindGraphNodeDTO.getFromId(),
-                bindGraphNodeDTO.getToId(), bindGraphNodeDTO.getRelationName());
+    public Result<String> bindNodes(@RequestBody @Valid List<BindNodeDTO> dtos) {
+        graphNodeService.bindNodes(dtos);
         return Result.ok(Message.BOUND_SUCCESS);
     }
 
