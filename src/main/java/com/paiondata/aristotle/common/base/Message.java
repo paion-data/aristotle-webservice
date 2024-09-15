@@ -23,4 +23,5 @@ public class Message {
     public static final String DELETE_SUCCESS = "Deleted successfully.";
     public static final String DUPLICATE_KEY = "Duplicate key found: ";
     public static final String BOUND_ANOTHER_GRAPH = "Could not bind graphNode by another graph: ";
+    public static final String GRAPH_NODE_RELATION_NULL = "The relation does not exist: ";
 }

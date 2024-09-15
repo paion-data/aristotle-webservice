@@ -185,6 +185,39 @@ public class GraphNodeServiceImpl implements GraphNodeService {
         }
     }
 
+    @Override
+    public void updateRelation(RelationUpdateDTO relationUpdateDTO) {
+        String graphUuid = relationUpdateDTO.getGraphUuid();
+        Map<String, String> updateMap = relationUpdateDTO.getUpdateMap();
+        List<String> deleteList = relationUpdateDTO.getDeleteList();
+
+        if (updateMap != null && !updateMap.isEmpty()) {
+            validateAndUpdateRelations(updateMap, graphUuid);
+        }
+
+        if (deleteList != null && !deleteList.isEmpty()) {
+            validateAndDeleteRelations(deleteList, graphUuid);
+        }
+    }
+
+    private void validateAndUpdateRelations(Map<String, String> updateMap, String graphUuid) {
+        updateMap.forEach((uuid, newName) -> {
+            if (graphNodeRepository.getRelationByUuid(uuid) == null) {
+                throw new GraphNodeRelationException(Message.GRAPH_NODE_RELATION_NULL + uuid);
+            }
+            graphNodeRepository.updateRelationByUuid(uuid, newName, graphUuid);
+        });
+    }
+
+    private void validateAndDeleteRelations(List<String> deleteList, String graphUuid) {
+        deleteList.forEach(uuid -> {
+            if (graphNodeRepository.getRelationByUuid(uuid) == null) {
+                throw new GraphNodeRelationException(Message.GRAPH_NODE_RELATION_NULL + uuid);
+            }
+            graphNodeRepository.deleteRelationByUuid(uuid, graphUuid);
+        });
+    }
+
     private Date getCurrentTime() {
         return Date.from(LocalDateTime.now().atZone(ZoneId.systemDefault()).toInstant());
     }

@@ -2,10 +2,7 @@ package com.paiondata.aristotle.controller;
 
 import com.paiondata.aristotle.common.base.Message;
 import com.paiondata.aristotle.common.base.Result;
-import com.paiondata.aristotle.model.dto.BindNodeDTO;
-import com.paiondata.aristotle.model.dto.GraphAndNodeCreateDTO;
-import com.paiondata.aristotle.model.dto.GraphUpdateDTO;
-import com.paiondata.aristotle.model.dto.NodeCreateDTO;
+import com.paiondata.aristotle.model.dto.*;
 import com.paiondata.aristotle.model.entity.GraphNode;
 import com.paiondata.aristotle.service.GraphNodeService;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -52,6 +49,12 @@ public class GraphNodeController {
     @PutMapping
     public Result<String> updateNode(@RequestBody GraphUpdateDTO graphUpdateDTO) {
         graphNodeService.updateNode(graphUpdateDTO);
+        return Result.ok(Message.UPDATE_SUCCESS);
+    }
+
+    @PutMapping("/relate")
+    public Result<String> updateNodeRelation(@Valid @RequestBody RelationUpdateDTO relationUpdateDTO) {
+        graphNodeService.updateRelation(relationUpdateDTO);
         return Result.ok(Message.UPDATE_SUCCESS);
     }
 

@@ -49,4 +49,21 @@ public interface GraphNodeRepository extends Neo4jRepository<GraphNode, Long> {
 
     @Query("MATCH (g:Graph)-[r:RELATION]->(gn:GraphNode) WHERE gn.uuid in $uuids RETURN g.uuid")
     List<String> getGraphUuidByGraphNodeUuid(List<String> uuids);
+
+    @Query("MATCH (g:Graph {uuid: $graphUuid})-[:RELATION]->(gn1:GraphNode) " +
+            "MATCH (gn1)-[r:RELATION {uuid: $relationUuid}]->(:GraphNode) " +
+            "SET r.name = $relationName")
+    void updateRelationByUuid(@Param("relationUuid") String relationUuid,
+                              @Param("relationName") String relationName,
+                              @Param("graphUuid") String graphUuid);
+
+    @Query("MATCH (g:Graph {uuid: $graphUuid})-[:RELATION]->(gn1:GraphNode) " +
+            "MATCH (gn1)-[r:RELATION {uuid: $relationUuid}]->(:GraphNode) " +
+            "DELETE r")
+    void deleteRelationByUuid(String relationUuid, String graphUuid);
+
+    @Query("MATCH (g:Graph)-[:RELATION]->(gn1:GraphNode) " +
+            "MATCH (gn1)-[r:RELATION {uuid: $relationUuid}]->(:GraphNode) " +
+            "RETURN r.name")
+    String getRelationByUuid(String relationUuid);
 }
