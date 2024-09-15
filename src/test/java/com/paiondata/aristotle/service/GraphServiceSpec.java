@@ -1,5 +1,19 @@
+/*
+ * Copyright 2024 Paion Data
+ *
+ * Licensed under the Apache License, Version 2.0 (the "License");
+ * you may not use this file except in compliance with the License.
+ * You may obtain a copy of the License at
+ *
+ *     http://www.apache.org/licenses/LICENSE-2.0
+ *
+ * Unless required by applicable law or agreed to in writing, software
+ * distributed under the License is distributed on an "AS IS" BASIS,
+ * WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
+ * See the License for the specific language governing permissions and
+ * limitations under the License.
+ */
 package com.paiondata.aristotle.service;
-
 
 import static org.junit.jupiter.api.Assertions.assertDoesNotThrow;
 import static org.junit.jupiter.api.Assertions.assertThrows;
@@ -29,6 +43,9 @@ import org.mockito.InjectMocks;
 import org.mockito.Mock;
 import org.mockito.junit.jupiter.MockitoExtension;
 
+import java.text.SimpleDateFormat;
+import java.time.LocalDateTime;
+import java.time.ZoneId;
 import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.Collections;
@@ -60,12 +77,12 @@ public class GraphServiceSpec {
     }
 
     @Test
-    void getGraphVOByUuid_GraphExists_ReturnGraphVO() {
+    void getGraphVOByUuidGraphExists_ReturnGraphVO() {
         // Arrange
         String uuid = "test-uuid";
         String title = "test-title";
         String description = "test-description";
-        Date currentTime = new Date();
+        String currentTime = getCurrentTime();
         Graph graph = Graph.builder()
                 .uuid(uuid)
                 .title(title)
@@ -113,7 +130,7 @@ public class GraphServiceSpec {
     void getGraphByUuid_GraphExists_ReturnGraph() {
         // Arrange
         String uuid = "test-uuid";
-        Date currentTime = new Date();
+        String currentTime = getCurrentTime();
         Graph graph = Graph.builder()
                 .uuid(uuid)
                 .title("test-title")
@@ -173,7 +190,7 @@ public class GraphServiceSpec {
                 eq(uidcid),
                 any(String.class), // graphUuid
                 any(String.class), // relationUuid
-                any(Date.class)
+                any(String.class)  // currentTime
         );
     }
 
@@ -229,7 +246,7 @@ public class GraphServiceSpec {
     }
 
     @Test
-    void testUpdateGraph_WhenGraphExists_ShouldUpdateGraph() {
+    void updateGraph_WhenGraphExists_ShouldUpdateGraph() {
         // Arrange
         String uuid = "test-uuid";
         GraphUpdateDTO graphUpdateDTO = new GraphUpdateDTO();
@@ -243,11 +260,11 @@ public class GraphServiceSpec {
         assertDoesNotThrow(() -> graphService.updateGraph(graphUpdateDTO));
 
         // Verify
-        verify(graphRepository).updateGraphByUuid(
+        verify(neo4jService, times(1)).updateGraphByUuid(
                 eq(uuid),
                 eq("Updated Title"),
                 eq("Updated Description"),
-                any(Date.class)
+                any(String.class)
         );
     }
 
@@ -263,5 +280,10 @@ public class GraphServiceSpec {
 
         // Act & Assert
         assertThrows(GraphNullException.class, () -> graphService.updateGraph(graphUpdateDTO));
+    }
+
+    private String getCurrentTime() {
+        return new SimpleDateFormat("yyyy-MM-dd HH:mm:ss")
+                .format(Date.from(LocalDateTime.now().atZone(ZoneId.systemDefault()).toInstant()));
     }
 }

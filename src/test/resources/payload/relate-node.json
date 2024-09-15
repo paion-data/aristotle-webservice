@@ -1,0 +1,17 @@
+[
+  {
+    "fromId": "%s",
+    "relationName": "-",
+    "toId": "%s"
+  },
+  {
+    "fromId": "%s",
+    "relationName": "-",
+    "toId": "%s"
+  },
+  {
+    "fromId": "%s",
+    "relationName": "-",
+    "toId": "%s"
+  }
+]

@@ -16,17 +16,16 @@
 package com.paiondata.aristotle
 
 import org.testcontainers.containers.DockerComposeContainer
-import org.testcontainers.containers.wait.strategy.Wait
 import org.testcontainers.spock.Testcontainers
-
+import org.testcontainers.containers.wait.strategy.Wait
 import java.time.Duration
 
 @Testcontainers
 class DockerComposeITSpec extends AbstractITSpec {
-//    def DockerComposeContainer COMPOSE = new DockerComposeContainer(new File("docker-compose.yml"))
-//            .withExposedService(
-//                    "web",
-//                    WS_PORT,
-//                    Wait.forHttp("/actuator/health").forStatusCode(200)
-//            ).withStartupTimeout(Duration.ofMinutes(10))
+    def DockerComposeContainer COMPOSE = new DockerComposeContainer(new File("docker-compose.yml"))
+            .withExposedService(
+                    "web",
+                    WS_PORT,
+                    Wait.forHttp("/actuator/health").forStatusCode(200)
+            ).withStartupTimeout(Duration.ofMinutes(10))
 }
