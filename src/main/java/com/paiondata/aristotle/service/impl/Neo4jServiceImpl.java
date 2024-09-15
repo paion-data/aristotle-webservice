@@ -2,6 +2,7 @@ package com.paiondata.aristotle.service.impl;
 
 import com.paiondata.aristotle.common.base.Message;
 import com.paiondata.aristotle.common.exception.UserNullException;
+import com.paiondata.aristotle.model.entity.GraphNode;
 import com.paiondata.aristotle.repository.GraphRepository;
 import com.paiondata.aristotle.repository.UserRepository;
 import com.paiondata.aristotle.service.Neo4jService;
@@ -12,6 +13,7 @@ import org.neo4j.driver.internal.value.RelationshipValue;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 
+import java.text.SimpleDateFormat;
 import java.util.*;
 
 @Service
@@ -86,19 +88,78 @@ public class Neo4jServiceImpl implements Neo4jService {
                     resultList.add(combinedResult);
                 }
 
-                for (int i = 0; i< resultList.size(); i++) {
-                    for (int j = 0; j < resultList.size(); j++) {
-                        if (resultList.get(i).get("endNode").isEmpty()
-                                && resultList.get(i).get("startNode").equals(resultList.get(j).get("endNode"))) {
-                            if (!resultList.get(j).get("startNode").equals(resultList.get(j).get("endNode"))) {
-                                resultList.remove(i);
+                Iterator<Map<String, Map<String, Object>>> iterator = resultList.iterator();
+                while (iterator.hasNext()) {
+                    Map<String, Map<String, Object>> current = iterator.next();
+                    if (current.get("endNode").isEmpty()) {
+                        boolean removeFlag = false;
+                        for (Map<String, Map<String, Object>> other : resultList) {
+                            if (current.get("startNode").equals(other.get("endNode"))
+                                    && !other.get("startNode").equals(other.get("endNode"))) {
+                                removeFlag = true;
+                                break;
                             }
+                        }
+                        if (removeFlag) {
+                            iterator.remove();
                         }
                     }
                 }
 
                 return resultList;
             });
+        }
+    }
+
+    @Override
+    public void updateGraphByUuid(String uuid, String title, String description, String currentTime) {
+        StringBuilder cypherQuery = new StringBuilder("MATCH (g:Graph { uuid: $uuid }) ");
+        Map<String, Object> parameters = new HashMap<>();
+        parameters.put("uuid", uuid);
+
+        if (title != null) {
+            cypherQuery.append("SET g.title = $title ");
+            parameters.put("title", title);
+        }
+
+        if (description != null) {
+            cypherQuery.append("SET g.description = $description ");
+            parameters.put("description", description);
+        }
+
+        cypherQuery.append("SET g.update_time = $updateTime ");
+        parameters.put("updateTime", currentTime);
+
+        cypherQuery.append("RETURN g");
+
+        try (Session session = driver.session()) {
+            session.run(cypherQuery.toString(), parameters);
+        }
+    }
+
+    @Override
+    public void updateNodeByUuid(String uuid, String title, String description, String currentTime) {
+        StringBuilder cypherQuery = new StringBuilder("MATCH (gn:GraphNode { uuid: $uuid }) ");
+        Map<String, Object> parameters = new HashMap<>();
+        parameters.put("uuid", uuid);
+
+        if (title != null) {
+            cypherQuery.append("SET gn.title = $title ");
+            parameters.put("title", title);
+        }
+
+        if (description != null) {
+            cypherQuery.append("SET gn.description = $description ");
+            parameters.put("description", description);
+        }
+
+        cypherQuery.append("SET gn.update_time = $updateTime ");
+        parameters.put("updateTime", currentTime);
+
+        cypherQuery.append("RETURN gn");
+
+        try (Session session = driver.session()) {
+            session.run(cypherQuery.toString(), parameters);
         }
     }
 

@@ -4,7 +4,6 @@ import com.paiondata.aristotle.model.BaseEntity;
 
 import lombok.Builder;
 import lombok.Data;
-import java.util.Date;
 import java.util.List;
 import java.util.Map;
 
@@ -18,9 +17,9 @@ public class GraphVO extends BaseEntity {
 
     private String description;
 
-    private Date createTime;
+    private String createTime;
 
-    private Date updateTime;
+    private String updateTime;
 
     private List<Map<String, Map<String, Object>>> nodes;
 }

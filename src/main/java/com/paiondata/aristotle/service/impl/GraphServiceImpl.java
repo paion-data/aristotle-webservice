@@ -19,6 +19,7 @@ import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
+import java.text.SimpleDateFormat;
 import java.time.LocalDateTime;
 import java.time.ZoneId;
 import java.util.Date;
@@ -73,7 +74,7 @@ public class GraphServiceImpl implements GraphService {
         String uidcid = graphCreateDTO.getUserUidcid();
         String graphUuid = UUID.fastUUID().toString(true);
         String relationUuid = UUID.fastUUID().toString(true);
-        Date now = getCurrentTime();
+        String now = getCurrentTime();
 
         Optional<User> optionalUser = userService.getUserByUidcid(uidcid);
         if (optionalUser.isEmpty()) {
@@ -103,10 +104,10 @@ public class GraphServiceImpl implements GraphService {
     public void updateGraph(GraphUpdateDTO graphUpdateDTO) {
         String uuid = graphUpdateDTO.getUuid();
         Optional<Graph> graphByUuid = getGraphByUuid(uuid);
-        Date now = getCurrentTime();
+        String now = getCurrentTime();
 
         if (graphByUuid.isPresent()) {
-            graphRepository.updateGraphByUuid(uuid, graphUpdateDTO.getTitle(), graphUpdateDTO.getDescription(), now);
+            neo4jService.updateGraphByUuid(uuid, graphUpdateDTO.getTitle(), graphUpdateDTO.getDescription(), now);
         } else {
             throw new GraphNullException(Message.GRAPH_NULL + uuid);
         }
@@ -116,7 +117,8 @@ public class GraphServiceImpl implements GraphService {
         return graphRepository.getGraphNodeUuidsByGraphUuids(uuids);
     }
 
-    private Date getCurrentTime() {
-        return Date.from(LocalDateTime.now().atZone(ZoneId.systemDefault()).toInstant());
+    private String getCurrentTime() {
+        return new SimpleDateFormat("yyyy-MM-dd HH:mm:ss")
+                .format(Date.from(LocalDateTime.now().atZone(ZoneId.systemDefault()).toInstant()));
     }
 }

@@ -26,7 +26,7 @@ public interface GraphRepository extends Neo4jRepository<Graph, Long> {
                       @Param("userUidcid") String userUidcid,
                       @Param("graphUuid") String graphUuid,
                       @Param("relationUuid") String relationUuid,
-                      @Param("currentTime") Date currentTime);
+                      @Param("currentTime") String currentTime);
 
     @Query("MATCH (g:Graph) WHERE g.uuid IN $uuids DETACH DELETE g")
     void deleteByUuids(List<String> uuids);
@@ -36,11 +36,4 @@ public interface GraphRepository extends Neo4jRepository<Graph, Long> {
             + "MATCH (g)-[r:RELATION]->(gn:GraphNode) "
             + "RETURN gn.uuid")
     List<String> getGraphNodeUuidsByGraphUuids(List<String> uuids);
-
-    @Query("MATCH (g:Graph { uuid: $uuid }) " +
-            "SET g.title = $title ,g.description = $description, g.update_time = $updateTime RETURN g")
-    void updateGraphByUuid(@Param("uuid") String uuid,
-                               @Param("title") String title,
-                               @Param("description") String description,
-                           @Param("updateTime") Date updateTime);
 }

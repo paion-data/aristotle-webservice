@@ -12,11 +12,13 @@ import com.paiondata.aristotle.model.entity.GraphNode;
 import com.paiondata.aristotle.repository.GraphNodeRepository;
 import com.paiondata.aristotle.service.GraphNodeService;
 import com.paiondata.aristotle.service.GraphService;
+import com.paiondata.aristotle.service.Neo4jService;
 import lombok.AllArgsConstructor;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
+import java.text.SimpleDateFormat;
 import java.time.LocalDateTime;
 import java.time.ZoneId;
 import java.util.ArrayList;
@@ -35,6 +37,9 @@ public class GraphNodeServiceImpl implements GraphNodeService {
 
     @Autowired
     private GraphService graphService;
+
+    @Autowired
+    private Neo4jService neo4jService;
 
     @Override
     public Optional<GraphNode> getNodeByUuid(String uuid) {
@@ -73,7 +78,7 @@ public class GraphNodeServiceImpl implements GraphNodeService {
 
     private void checkInputRelationsAndBindGraphAndNode(List<NodeDTO> nodeDTOs,
                                                         List<NodeRelationDTO> nodeRelationDTOs, String graphUuid) {
-        Date now = getCurrentTime();
+        String now = getCurrentTime();
         Map<String, String> uuidMap = new HashMap<>();
 
         createNodes(nodeDTOs, uuidMap, now, graphUuid);
@@ -98,7 +103,7 @@ public class GraphNodeServiceImpl implements GraphNodeService {
     }
 
     private void createNodes(List<NodeDTO> nodeDTOs, Map<String, String> uuidMap,
-                             Date now, String graphUuid) {
+                             String now, String graphUuid) {
         for (NodeDTO dto : nodeDTOs) {
             String graphNodeUuid = UUID.fastUUID().toString(true);
             String relationUuid = UUID.fastUUID().toString(true);
@@ -115,7 +120,7 @@ public class GraphNodeServiceImpl implements GraphNodeService {
     }
 
     private void bindNodeRelations(List<NodeRelationDTO> graphNodeRelationDTO,
-                                   Map<String, String> uuidMap, Date now) {
+                                   Map<String, String> uuidMap, String now) {
         if (graphNodeRelationDTO == null || graphNodeRelationDTO.isEmpty()) {
             return;
         }
@@ -144,7 +149,7 @@ public class GraphNodeServiceImpl implements GraphNodeService {
             Optional<GraphNode> graphNodeOptional1 = getNodeByUuid(startNode);
             Optional<GraphNode> graphNodeOptional2 = getNodeByUuid(endNode);
             String relationUuid = UUID.fastUUID().toString(true);
-            Date now = getCurrentTime();
+            String now = getCurrentTime();
 
             if (graphNodeOptional1.isEmpty() || graphNodeOptional2.isEmpty()) {
                 if (graphNodeOptional1.isEmpty()) {
@@ -175,11 +180,10 @@ public class GraphNodeServiceImpl implements GraphNodeService {
     public void updateNode(GraphUpdateDTO graphUpdateDTO) {
         String uuid = graphUpdateDTO.getUuid();
         Optional<GraphNode> graphNodeByUuid = getNodeByUuid(uuid);
-        Date now = getCurrentTime();
+        String now = getCurrentTime();
 
         if (graphNodeByUuid.isPresent()) {
-            graphNodeRepository.updateGraphNodeByUuid(uuid, graphUpdateDTO.getTitle(), graphUpdateDTO.getDescription(),
-                    now);
+            neo4jService.updateNodeByUuid(uuid, graphUpdateDTO.getTitle(), graphUpdateDTO.getDescription(), now);
         } else {
             throw new GraphNodeNullException(Message.GRAPH_NODE_NULL + uuid);
         }
@@ -218,7 +222,8 @@ public class GraphNodeServiceImpl implements GraphNodeService {
         });
     }
 
-    private Date getCurrentTime() {
-        return Date.from(LocalDateTime.now().atZone(ZoneId.systemDefault()).toInstant());
+    private String getCurrentTime() {
+        return new SimpleDateFormat("yyyy-MM-dd HH:mm:ss")
+                .format(Date.from(LocalDateTime.now().atZone(ZoneId.systemDefault()).toInstant()));
     }
 }

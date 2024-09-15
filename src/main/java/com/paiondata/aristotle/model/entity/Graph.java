@@ -12,8 +12,6 @@ import org.springframework.data.neo4j.core.schema.Id;
 import org.springframework.data.neo4j.core.schema.Node;
 import org.springframework.data.neo4j.core.schema.Property;
 
-import java.util.Date;
-
 @Builder
 @Node("Graph")
 @Data
@@ -35,8 +33,8 @@ public class Graph extends BaseEntity {
     private String description;
 
     @Property("create_time")
-    private Date createTime;
+    private String createTime;
 
     @Property("update_time")
-    private Date updateTime;
+    private String updateTime;
 }
