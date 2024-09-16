@@ -15,7 +15,15 @@
 ################################################
 
 spring:
+  mvc:
+    pathmatch:
+      matching-strategy: ant_path_matcher
   application:
-    name: Transcription-ws
+    name: Aristotle
+  neo4j:
+    uri: ${NEO4J_URI:bolt://localhost:7687}
+    authentication:
+      username: ${NEO4J_USERNAME:neo4j}
+      password: ${NEO4J_PASSWORD:12345678}
 server:
-  port: 8082
+  port: 8080

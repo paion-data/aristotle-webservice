@@ -17,11 +17,13 @@ package com.paiondata.aristotle;
 
 import org.springframework.boot.SpringApplication;
 import org.springframework.boot.autoconfigure.SpringBootApplication;
+import org.springframework.data.neo4j.repository.config.EnableNeo4jRepositories;
 
 /**
  * Main application class for starting the Aristotle application.
  */
 @SpringBootApplication
+@EnableNeo4jRepositories(basePackages = "com.paiondata.aristotle.repository")
 public class AristotleApplication {
 
     /**
