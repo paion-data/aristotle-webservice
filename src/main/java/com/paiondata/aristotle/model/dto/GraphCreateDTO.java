@@ -25,18 +25,38 @@ import lombok.NoArgsConstructor;
 
 import javax.validation.constraints.NotBlank;
 
-@Builder
+/**
+ * Data Transfer Object (DTO) for creating graphs.
+ *
+ * This DTO is used to encapsulate the data required for creating a new graph.
+ */
 @Data
+@Builder
 @AllArgsConstructor
 @NoArgsConstructor
 public class GraphCreateDTO extends BaseEntity {
 
+    /**
+     * The title of the graph.
+     *
+     * @see Message#TITLE_MUST_NOT_BE_BLANK
+     */
     @NotBlank(message = Message.TITLE_MUST_NOT_BE_BLANK)
     private String title;
 
+    /**
+     * The description of the graph.
+     *
+     * @see Message#DESCRIPTION_MUST_NOT_BE_BLANK
+     */
     @NotBlank(message = Message.DESCRIPTION_MUST_NOT_BE_BLANK)
     private String description;
 
+    /**
+     * The UID/CID of the user who owns the graph.
+     *
+     * @see Message#UIDCID_MUST_NOT_BE_BLANK
+     */
     @NotBlank(message = Message.UIDCID_MUST_NOT_BE_BLANK)
     private String userUidcid;
 }

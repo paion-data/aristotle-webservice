@@ -15,21 +15,47 @@
  */
 package com.paiondata.aristotle.model.dto;
 
+import com.paiondata.aristotle.common.base.Message;
 import com.paiondata.aristotle.model.BaseEntity;
 import lombok.AllArgsConstructor;
 import lombok.Builder;
 import lombok.Data;
 import lombok.NoArgsConstructor;
 
-@Builder
+import javax.validation.constraints.NotBlank;
+
+/**
+ * Data Transfer Object (DTO) for representing a relation between two nodes.
+ *
+ * This DTO is used to encapsulate the data required for defining a relation between two nodes in a graph.
+ */
 @Data
+@Builder
 @AllArgsConstructor
 @NoArgsConstructor
 public class NodeRelationDTO extends BaseEntity {
 
+    /**
+     * The UUID of the source node in the relation.
+     *
+     * @see Message#UUID_MUST_NOT_BE_BLANK
+     */
+    @NotBlank(message = Message.UUID_MUST_NOT_BE_BLANK)
     private String fromId;
 
+    /**
+     * The UUID of the target node in the relation.
+     *
+     * @see Message#UUID_MUST_NOT_BE_BLANK
+     */
+    @NotBlank(message = Message.UUID_MUST_NOT_BE_BLANK)
     private String toId;
 
+    /**
+     * The name of the relation between the two nodes.
+     *
+     * @see Message#RELATION_MUST_NOT_BE_BLANK
+     */
+    @NotBlank(message = Message.RELATION_MUST_NOT_BE_BLANK)
     private String relationName;
 }

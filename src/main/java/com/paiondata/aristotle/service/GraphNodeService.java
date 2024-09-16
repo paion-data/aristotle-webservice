@@ -25,19 +25,60 @@ import com.paiondata.aristotle.model.dto.GraphUpdateDTO;
 import java.util.List;
 import java.util.Optional;
 
+/**
+ * Service implementation for managing graph nodes.
+ *
+ * This class provides methods for CRUD operations on graph nodes and their relationships.
+ */
 public interface GraphNodeService {
 
+    /**
+     * Retrieves a graph node by its UUID.
+     *
+     * @param uuid the UUID of the graph node
+     * @return an {@code Optional} containing the graph node if found
+     */
     Optional<GraphNode> getNodeByUuid(String uuid);
 
-    void createAndBindGraphAndNode(NodeCreateDTO graphNodeCreateDTO);
+    /**
+     * Creates and binds a graph and a node based on the provided DTO.
+     *
+     * @param nodeCreateDTO the DTO containing information for creating the graph and node
+     */
+    void createAndBindGraphAndNode(NodeCreateDTO nodeCreateDTO);
 
+    /**
+     * Creates a graph and binds it with a node based on the provided DTO.
+     *
+     * @param graphNodeCreateDTO the DTO containing information for creating the graph and node
+     */
     void createGraphAndBindGraphAndNode(GraphAndNodeCreateDTO graphNodeCreateDTO);
 
+    /**
+     * Binds nodes based on the provided DTOs.
+     *
+     * @param dtos the list of DTOs for binding nodes
+     */
     void bindNodes(List<BindNodeDTO> dtos);
 
+    /**
+     * Deletes graph nodes by their UUIDs.
+     *
+     * @param uuids the list of UUIDs of the graph nodes to be deleted
+     */
     void deleteByUuids(List<String> uuids);
 
+    /**
+     * Updates a graph node based on the provided DTO.
+     *
+     * @param graphUpdateDTO the DTO containing information for updating the graph node
+     */
     void updateNode(GraphUpdateDTO graphUpdateDTO);
 
+    /**
+     * Updates graph node relations based on the provided DTO.
+     *
+     * @param relationUpdateDTO the DTO containing information for updating the graph node relations
+     */
     void updateRelation(RelationUpdateDTO relationUpdateDTO);
 }

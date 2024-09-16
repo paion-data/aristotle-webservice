@@ -15,11 +15,23 @@
  */
 package com.paiondata.aristotle.common.exception;
 
-public class TemporaryKeyException extends BaseException{
+/**
+ * This class represents an exception thrown when there is an issue with a temporary key.
+ */
+
+public class TemporaryKeyException extends BaseException {
+
+    /**
+     * Constructs a new TemporaryKeyException with no detail message.
+     */
     public TemporaryKeyException() {
     }
 
-    public TemporaryKeyException(String msg) {
+    /**
+     * Constructs a new TemporaryKeyException with the specified detail message.
+     * @param msg  the detail message.
+     */
+    public TemporaryKeyException(final String msg) {
         super(msg);
     }
 }

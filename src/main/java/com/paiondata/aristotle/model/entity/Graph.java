@@ -27,29 +27,62 @@ import org.springframework.data.neo4j.core.schema.Id;
 import org.springframework.data.neo4j.core.schema.Node;
 import org.springframework.data.neo4j.core.schema.Property;
 
-@Builder
+/**
+ * Represents a graph entity in the system.
+ *
+ * This class encapsulates the properties and metadata of a graph.
+ */
 @Node("Graph")
 @Data
-@NoArgsConstructor
+@Builder
 @AllArgsConstructor
+@NoArgsConstructor
 public class Graph extends BaseEntity {
 
+    /**
+     * The unique identifier of the graph.
+     */
     @Id
     @GeneratedValue
     private Long id;
 
+    /**
+     * The UUID of the graph.
+     *
+     * @see Property#uuid
+     */
     @Property("uuid")
     private String uuid;
 
+    /**
+     * The title of the graph.
+     *
+     * @see Property#title
+     */
     @Property("title")
     private String title;
 
+    /**
+     * The description of the graph.
+     *
+     * @see Property#description
+     */
     @Property("description")
     private String description;
 
+    /**
+     * The creation time of the graph.
+     *
+     * @see Property#create_time
+     */
     @Property("create_time")
     private String createTime;
 
+    /**
+     * The last update time of the graph.
+     *
+     * @see Property#update_time
+     */
     @Property("update_time")
     private String updateTime;
 }

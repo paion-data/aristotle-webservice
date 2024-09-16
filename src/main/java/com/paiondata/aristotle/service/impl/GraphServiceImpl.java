@@ -41,6 +41,10 @@ import java.util.Date;
 import java.util.List;
 import java.util.Optional;
 
+/**
+ * Service implementation for managing graphs.
+ * This class provides methods for CRUD operations on graphs and their relationships.
+ */
 @Service
 @AllArgsConstructor
 public class GraphServiceImpl implements GraphService {
@@ -57,9 +61,15 @@ public class GraphServiceImpl implements GraphService {
     @Autowired
     private Neo4jService neo4jService;
 
+    /**
+     * Retrieves a graph view object (VO) by its UUID.
+     *
+     * @param uuid the UUID of the graph
+     */
+    @Transactional(readOnly = true)
     @Override
-    public GraphVO getGraphVOByUuid(String uuid) {
-        Graph graphByUuid = graphRepository.getGraphByUuid(uuid);
+    public GraphVO getGraphVOByUuid(final String uuid) {
+        final Graph graphByUuid = graphRepository.getGraphByUuid(uuid);
 
         if (graphByUuid == null) {
             throw new GraphNullException(Message.GRAPH_NULL + uuid);
@@ -75,23 +85,34 @@ public class GraphServiceImpl implements GraphService {
                 .build();
     }
 
+    /**
+     * Retrieves a graph by its UUID.
+     *
+     * @param uuid the UUID of the graph
+     */
+    @Transactional(readOnly = true)
     @Override
-    public Optional<Graph> getGraphByUuid(String Uuid) {
-        Graph graph = graphRepository.getGraphByUuid(Uuid);
+    public Optional<Graph> getGraphByUuid(final String uuid) {
+        final Graph graph = graphRepository.getGraphByUuid(uuid);
         return Optional.ofNullable(graph);
     }
 
+    /**
+     * Creates and binds a new graph using the provided DTO.
+     *
+     * @param graphCreateDTO the DTO containing details to create a new graph
+     */
     @Transactional
     @Override
-    public Graph createAndBindGraph(GraphCreateDTO graphCreateDTO) {
-        String title = graphCreateDTO.getTitle();
-        String description = graphCreateDTO.getDescription();
-        String uidcid = graphCreateDTO.getUserUidcid();
-        String graphUuid = UUID.fastUUID().toString(true);
-        String relationUuid = UUID.fastUUID().toString(true);
-        String now = getCurrentTime();
+    public Graph createAndBindGraph(final GraphCreateDTO graphCreateDTO) {
+        final String title = graphCreateDTO.getTitle();
+        final String description = graphCreateDTO.getDescription();
+        final String uidcid = graphCreateDTO.getUserUidcid();
+        final String graphUuid = UUID.fastUUID().toString(true);
+        final String relationUuid = UUID.fastUUID().toString(true);
+        final String now = getCurrentTime();
 
-        Optional<User> optionalUser = userService.getUserByUidcid(uidcid);
+        final Optional<User> optionalUser = userService.getUserByUidcid(uidcid);
         if (optionalUser.isEmpty()) {
             throw new UserNullException(Message.USER_NULL + uidcid);
         }
@@ -99,27 +120,37 @@ public class GraphServiceImpl implements GraphService {
         return graphRepository.createAndBindGraph(title, description, uidcid, graphUuid, relationUuid, now);
     }
 
+    /**
+     * Deletes graphs by their UUIDs.
+     *
+     * @param uuids the list of UUIDs of graphs to be deleted
+     */
     @Transactional
     @Override
-    public void deleteByUuids(List<String> uuids) {
-        for (String uuid : uuids) {
+    public void deleteByUuids(final List<String> uuids) {
+        for (final String uuid : uuids) {
             if (getGraphByUuid(uuid).isEmpty()) {
                 throw new GraphNullException(Message.GRAPH_NULL + uuid);
             }
         }
 
-        List<String> relatedGraphNodeUuids = getRelatedGraphNodeUuids(uuids);
+        final List<String> relatedGraphNodeUuids = getRelatedGraphNodeUuids(uuids);
 
         graphNodeRepository.deleteByUuids(relatedGraphNodeUuids);
         graphRepository.deleteByUuids(uuids);
     }
 
+    /**
+     * Updates a graph using the provided DTO.
+     *
+     * @param graphUpdateDTO the DTO containing details to update an existing graph
+     */
     @Transactional
     @Override
-    public void updateGraph(GraphUpdateDTO graphUpdateDTO) {
-        String uuid = graphUpdateDTO.getUuid();
-        Optional<Graph> graphByUuid = getGraphByUuid(uuid);
-        String now = getCurrentTime();
+    public void updateGraph(final GraphUpdateDTO graphUpdateDTO) {
+        final String uuid = graphUpdateDTO.getUuid();
+        final Optional<Graph> graphByUuid = getGraphByUuid(uuid);
+        final String now = getCurrentTime();
 
         if (graphByUuid.isPresent()) {
             neo4jService.updateGraphByUuid(uuid, graphUpdateDTO.getTitle(), graphUpdateDTO.getDescription(), now);
@@ -128,10 +159,22 @@ public class GraphServiceImpl implements GraphService {
         }
     }
 
-    private List<String> getRelatedGraphNodeUuids(List<String> uuids) {
+    /**
+     * Retrieves the UUIDs of graph nodes related to a list of graph UUIDs.
+     *
+     * @param uuids the list of UUIDs of graphs
+     *
+     * @return the list of UUIDs of graph nodes
+     */
+    private List<String> getRelatedGraphNodeUuids(final List<String> uuids) {
         return graphRepository.getGraphNodeUuidsByGraphUuids(uuids);
     }
 
+    /**
+     * Gets the current time in the specified format.
+     *
+     * @return the current time
+     */
     private String getCurrentTime() {
         return new SimpleDateFormat("yyyy-MM-dd HH:mm:ss")
                 .format(Date.from(LocalDateTime.now().atZone(ZoneId.systemDefault()).toInstant()));

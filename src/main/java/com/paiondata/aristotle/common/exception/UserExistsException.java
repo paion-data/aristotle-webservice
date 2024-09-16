@@ -15,11 +15,23 @@
  */
 package com.paiondata.aristotle.common.exception;
 
-public class GraphNodeExistsException extends BaseException{
-    public GraphNodeExistsException() {
+/**
+ * This class represents an exception thrown when a user with a specific uidcid already exists.
+ */
+
+public class UserExistsException extends BaseException {
+
+    /**
+     * Constructs a new UserExistsException with no detail message.
+     */
+    public UserExistsException() {
     }
 
-    public GraphNodeExistsException(String msg) {
+    /**
+     * Constructs a new UserExistsException with the specified detail message.
+     * @param msg  the detail message.
+     */
+    public UserExistsException(final String msg) {
         super(msg);
     }
 }

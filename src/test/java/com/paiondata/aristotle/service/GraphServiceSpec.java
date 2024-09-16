@@ -24,6 +24,7 @@ import static org.mockito.Mockito.times;
 import static org.mockito.Mockito.verify;
 import static org.mockito.Mockito.when;
 
+import com.paiondata.aristotle.base.TestConstants;
 import com.paiondata.aristotle.common.exception.GraphNullException;
 import com.paiondata.aristotle.common.exception.UserNullException;
 import com.paiondata.aristotle.model.dto.GraphCreateDTO;
@@ -54,6 +55,10 @@ import java.util.List;
 import java.util.Map;
 import java.util.Optional;
 
+/**
+ * Test class for the Graph Service.
+ * Uses Mockito to mock dependencies and validate graph service operations.
+ */
 @ExtendWith(MockitoExtension.class)
 public class GraphServiceSpec {
 
@@ -72,18 +77,24 @@ public class GraphServiceSpec {
     @Mock
     private Neo4jService neo4jService;
 
+    /**
+     * Setup method to initialize mocks and test data.
+     */
     @BeforeEach
     public void setup() {
     }
 
+    /**
+     * Tests that getting a GraphVO by UUID returns the correct GraphVO when the graph exists.
+     */
     @Test
-    void getGraphVOByUuidGraphExists_ReturnGraphVO() {
+    void getGraphVOByUuidGraphExistReturnGraphVO() {
         // Arrange
-        String uuid = "test-uuid";
-        String title = "test-title";
-        String description = "test-description";
-        String currentTime = getCurrentTime();
-        Graph graph = Graph.builder()
+        final String uuid = TestConstants.TEST_ID1;
+        final String title = TestConstants.TEST_TILE1;
+        final String description = TestConstants.TEST_DESCRIPTION1;
+        final String currentTime = getCurrentTime();
+        final Graph graph = Graph.builder()
                 .uuid(uuid)
                 .title(title)
                 .description(description)
@@ -91,7 +102,7 @@ public class GraphServiceSpec {
                 .updateTime(currentTime)
                 .build();
 
-        List<Map<String, Map<String, Object>>> nodes =
+        final List<Map<String, Map<String, Object>>> nodes =
                 Collections.singletonList(Collections.singletonMap("node",
                         Collections.singletonMap("id", "test-node-id")));
 
@@ -99,7 +110,7 @@ public class GraphServiceSpec {
         when(neo4jService.getGraphNodeByGraphUuid(uuid)).thenReturn(nodes);
 
         // Act
-        GraphVO graphVO = graphService.getGraphVOByUuid(uuid);
+        final GraphVO graphVO = graphService.getGraphVOByUuid(uuid);
 
         // Assert
         Assertions.assertEquals(uuid, graphVO.getUuid());
@@ -113,10 +124,13 @@ public class GraphServiceSpec {
         verify(neo4jService, times(1)).getGraphNodeByGraphUuid(uuid);
     }
 
+    /**
+     * Tests that getting a GraphVO by UUID throws a GraphNullException when the graph does not exist.
+     */
     @Test
-    void getGraphVOByUuid_GraphDoesNotExist_ThrowsGraphNullException() {
+    void getGraphVOByUuidGraphDoesNotExistThrowsGraphNullException() {
         // Arrange
-        String uuid = "non-existing-uuid";
+        final String uuid = TestConstants.TEST_ID1;
         when(graphRepository.getGraphByUuid(uuid)).thenReturn(null);
 
         // Act & Assert
@@ -126,15 +140,18 @@ public class GraphServiceSpec {
         verify(neo4jService, never()).getGraphNodeByGraphUuid(uuid);
     }
 
+    /**
+     * Tests that getting a Graph by UUID returns the correct Graph when it exists.
+     */
     @Test
-    void getGraphByUuid_GraphExists_ReturnGraph() {
+    void getGraphByUuidGraphExistsReturnGraph() {
         // Arrange
-        String uuid = "test-uuid";
-        String currentTime = getCurrentTime();
-        Graph graph = Graph.builder()
+        final String uuid = TestConstants.TEST_ID1;
+        final String currentTime = getCurrentTime();
+        final Graph graph = Graph.builder()
                 .uuid(uuid)
-                .title("test-title")
-                .description("test-description")
+                .title(TestConstants.TEST_TILE1)
+                .description(TestConstants.TEST_DESCRIPTION1)
                 .createTime(currentTime)
                 .updateTime(currentTime)
                 .build();
@@ -142,40 +159,46 @@ public class GraphServiceSpec {
         when(graphRepository.getGraphByUuid(uuid)).thenReturn(graph);
 
         // Act
-        Optional<Graph> graphOptional = graphService.getGraphByUuid(uuid);
+        final Optional<Graph> graphOptional = graphService.getGraphByUuid(uuid);
 
         // Assert
         Assertions.assertTrue(graphOptional.isPresent());
         Assertions.assertEquals(graph, graphOptional.get());
     }
 
+    /**
+     * Tests that getting a Graph by UUID returns an empty Optional when the graph does not exist.
+     */
     @Test
-    void getGraphByUuid_GraphDoesNotExist_ReturnsEmptyOptional() {
+    void getGraphByUuidGraphDoesNotExistReturnsEmptyOptional() {
         // Arrange
-        String uuid = "test-uuid";
+        final String uuid = TestConstants.TEST_ID1;
 
         when(graphRepository.getGraphByUuid(uuid)).thenReturn(null);
 
         // Act
-        Optional<Graph> graphOptional = graphService.getGraphByUuid(uuid);
+        final Optional<Graph> graphOptional = graphService.getGraphByUuid(uuid);
 
         // Assert
         Assertions.assertFalse(graphOptional.isPresent());
     }
 
+    /**
+     * Tests that creating and binding a graph with valid input results in successful creation.
+     */
     @Test
-    void createAndBindGraph_ValidInput_GraphCreatedSuccessfully() {
+    void createAndBindGraphValidInputGraphCreatedSuccessfully() {
         // Arrange
-        String uidcid = "testUidcid";
-        String title = "Test Title";
-        String description = "Test Description";
-        GraphCreateDTO graphCreateDTO = GraphCreateDTO.builder()
+        final String uidcid = TestConstants.TEST_ID1;
+        final String title = TestConstants.TEST_TILE1;
+        final String description = TestConstants.TEST_DESCRIPTION1;
+        final GraphCreateDTO graphCreateDTO = GraphCreateDTO.builder()
                 .userUidcid(uidcid)
                 .title(title)
                 .description(description)
                 .build();
 
-        User user = User.builder()
+        final User user = User.builder()
                 .uidcid(uidcid)
                 .build();
         when(userService.getUserByUidcid(uidcid)).thenReturn(Optional.of(user));
@@ -194,31 +217,37 @@ public class GraphServiceSpec {
         );
     }
 
+    /**
+     * Tests that creating and binding a graph throws a UserNullException when the user is not found.
+     */
     @Test
-    void createAndBindGraph_UserNotFound_ThrowsUserNullException() {
+    void createAndBindGraphUserNotFoundThrowsUserNullException() {
         // Arrange
-        GraphCreateDTO graphCreateDTO = GraphCreateDTO.builder()
-                        .title("Test Graph")
-                                .description("Test Description")
-                .userUidcid("non-existing-uidcid")
+        final GraphCreateDTO graphCreateDTO = GraphCreateDTO.builder()
+                .title(TestConstants.TEST_TILE1)
+                .description(TestConstants.TEST_DESCRIPTION1)
+                .userUidcid(TestConstants.TEST_ID1)
                 .build();
 
         // Act & Assert
         assertThrows(UserNullException.class, () -> graphService.createAndBindGraph(graphCreateDTO));
     }
 
+    /**
+     * Tests that deleting graphs by UUIDs deletes the graphs and related data when they exist.
+     */
     @Test
-    void deleteByUuids_GraphExist_DeletesGraphsAndRelateData() {
+    void deleteByUuidsGraphExistDeletesGraphsAndRelateData() {
         // Arrange
-        List<String> uuids = Arrays.asList("uuid1", "uuid2");
-        List<Graph> graphs = new ArrayList<>();
-        graphs.add(Graph.builder().uuid("uuid1").build());
-        graphs.add(Graph.builder().uuid("uuid2").build());
+        final List<String> uuids = Arrays.asList(TestConstants.TEST_ID1, TestConstants.TEST_ID2);
+        final List<Graph> graphs = new ArrayList<>();
+        graphs.add(Graph.builder().uuid(TestConstants.TEST_ID1).build());
+        graphs.add(Graph.builder().uuid(TestConstants.TEST_ID2).build());
 
-        List<String> relatedGraphNodeUuids = Arrays.asList("uuid1", "uuid2");
+        final List<String> relatedGraphNodeUuids = Arrays.asList(TestConstants.TEST_ID1, TestConstants.TEST_ID2);
 
-        when(graphRepository.getGraphByUuid("uuid1")).thenReturn(graphs.get(0));
-        when(graphRepository.getGraphByUuid("uuid2")).thenReturn(graphs.get(1));
+        when(graphRepository.getGraphByUuid(TestConstants.TEST_ID1)).thenReturn(graphs.get(0));
+        when(graphRepository.getGraphByUuid(TestConstants.TEST_ID2)).thenReturn(graphs.get(1));
         when(graphRepository.getGraphNodeUuidsByGraphUuids(uuids)).thenReturn(relatedGraphNodeUuids);
 
         // Act
@@ -229,30 +258,36 @@ public class GraphServiceSpec {
         verify(graphNodeRepository, times(1)).deleteByUuids(relatedGraphNodeUuids);
     }
 
+    /**
+     * Tests that deleting graphs by UUIDs throws a GraphNullException when a graph does not exist.
+     */
     @Test
-    void deleteByUuids_GraphDoesNotExist_ThrowsGraphNullException() {
+    void deleteByUuidsGraphDoesNotExistThrowsGraphNullException() {
         // Arrange
-        List<String> uuids = Arrays.asList("uuid1", "uuid2");
+        final List<String> uuids = Arrays.asList(TestConstants.TEST_ID1, TestConstants.TEST_ID2);
 
-        when(graphRepository.getGraphByUuid("uuid1")).thenReturn(null);
+        when(graphRepository.getGraphByUuid(TestConstants.TEST_ID1)).thenReturn(null);
 
         // Act & Assert
         assertThrows(GraphNullException.class, () -> graphService.deleteByUuids(uuids));
 
         // Verify
-        verify(graphRepository, times(1)).getGraphByUuid("uuid1");
+        verify(graphRepository, times(1)).getGraphByUuid(TestConstants.TEST_ID1);
         verify(graphRepository, never()).deleteByUuids(any());
         verify(graphNodeRepository, never()).deleteByUuids(any());
     }
 
+    /**
+     * Tests that updating a graph updates the graph when it exists.
+     */
     @Test
-    void updateGraph_WhenGraphExists_ShouldUpdateGraph() {
+    void updateGraphWhenGraphExistsShouldUpdateGraph() {
         // Arrange
-        String uuid = "test-uuid";
-        GraphUpdateDTO graphUpdateDTO = new GraphUpdateDTO();
+        final String uuid = TestConstants.TEST_ID1;
+        final GraphUpdateDTO graphUpdateDTO = new GraphUpdateDTO();
         graphUpdateDTO.setUuid(uuid);
-        graphUpdateDTO.setTitle("Updated Title");
-        graphUpdateDTO.setDescription("Updated Description");
+        graphUpdateDTO.setTitle(TestConstants.TEST_TILE2);
+        graphUpdateDTO.setDescription(TestConstants.TEST_DESCRIPTION2);
 
         when(graphRepository.getGraphByUuid(uuid)).thenReturn(new Graph());
 
@@ -262,19 +297,22 @@ public class GraphServiceSpec {
         // Verify
         verify(neo4jService, times(1)).updateGraphByUuid(
                 eq(uuid),
-                eq("Updated Title"),
-                eq("Updated Description"),
+                eq(TestConstants.TEST_TILE2),
+                eq(TestConstants.TEST_DESCRIPTION2),
                 any(String.class)
         );
     }
 
+    /**
+     * Tests that updating a graph throws a GraphNullException when the graph does not exist.
+     */
     @Test
-    void updateGraph_GraphNotExists_ThrowsGraphNullException() {
+    void updateGraphGraphNotExistsThrowsGraphNullException() {
         // Arrange
-        GraphUpdateDTO graphUpdateDTO = GraphUpdateDTO.builder()
-                .uuid("test-uuid")
+        final GraphUpdateDTO graphUpdateDTO = GraphUpdateDTO.builder()
+                .uuid(TestConstants.TEST_ID1)
                 .build();
-        String uuid = graphUpdateDTO.getUuid();
+        final String uuid = graphUpdateDTO.getUuid();
 
         when(graphRepository.getGraphByUuid(uuid)).thenReturn(null);
 
@@ -282,6 +320,10 @@ public class GraphServiceSpec {
         assertThrows(GraphNullException.class, () -> graphService.updateGraph(graphUpdateDTO));
     }
 
+    /**
+     * Get current time.
+     * @return current time
+     */
     private String getCurrentTime() {
         return new SimpleDateFormat("yyyy-MM-dd HH:mm:ss")
                 .format(Date.from(LocalDateTime.now().atZone(ZoneId.systemDefault()).toInstant()));

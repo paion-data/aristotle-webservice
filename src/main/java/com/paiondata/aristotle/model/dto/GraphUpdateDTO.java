@@ -15,6 +15,7 @@
  */
 package com.paiondata.aristotle.model.dto;
 
+import com.paiondata.aristotle.common.base.Message;
 import com.paiondata.aristotle.model.BaseEntity;
 
 import lombok.AllArgsConstructor;
@@ -22,15 +23,34 @@ import lombok.Builder;
 import lombok.Data;
 import lombok.NoArgsConstructor;
 
-@Builder
+import javax.validation.constraints.NotBlank;
+
+/**
+ * Data Transfer Object (DTO) for updating graphs.
+ *
+ * This DTO is used to encapsulate the data required for updating an existing graph.
+ */
 @Data
-@NoArgsConstructor
+@Builder
 @AllArgsConstructor
+@NoArgsConstructor
 public class GraphUpdateDTO extends BaseEntity {
 
+    /**
+     * The unique identifier (UUID) of the graph.
+     *
+     * @see Message#UUID_MUST_NOT_BE_BLANK
+     */
+    @NotBlank(message = Message.UUID_MUST_NOT_BE_BLANK)
     private String uuid;
 
+    /**
+     * The updated title of the graph.
+     */
     private String title;
 
+    /**
+     * The updated description of the graph.
+     */
     private String description;
 }

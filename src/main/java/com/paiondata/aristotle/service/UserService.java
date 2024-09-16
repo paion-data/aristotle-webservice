@@ -23,17 +23,53 @@ import com.paiondata.aristotle.model.vo.UserVO;
 import java.util.List;
 import java.util.Optional;
 
+/**
+ * Service implementation for user-related operations.
+ * This class provides methods for managing users, including creating, updating, and deleting users.
+ */
 public interface UserService {
 
+    /**
+     * Retrieves a UserVO by UIDCID.
+     *
+     * @param uidcid the UIDCID of the user
+     * @return the UserVO containing user details and associated graphs
+     */
     UserVO getUserVOByUidcid(String uidcid);
 
+    /**
+     * Retrieves an optional user by UIDCID.
+     *
+     * @param uidcid the UIDCID of the user
+     * @return an Optional containing the user if found, or empty otherwise
+     */
     Optional<User> getUserByUidcid(String uidcid);
 
+    /**
+     * Retrieves all users as UserVOs.
+     *
+     * @return a list of UserVOs containing user details and associated graphs
+     */
     List<UserVO> getAllUsers();
 
+    /**
+     * Creates a new user.
+     *
+     * @param user the UserCreateDTO containing user details
+     */
     void createUser(UserCreateDTO user);
 
+    /**
+     * Updates an existing user.
+     *
+     * @param user the UserUpdateDTO containing updated user details
+     */
     void updateUser(UserUpdateDTO user);
 
+    /**
+     * Deletes multiple users along with their related graphs and graph nodes.
+     *
+     * @param uidcids a list of UIDCIDs of the users to be deleted
+     */
     void deleteUser(List<String> uidcids);
 }

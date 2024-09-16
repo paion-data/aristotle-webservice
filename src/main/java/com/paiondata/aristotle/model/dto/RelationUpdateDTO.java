@@ -26,16 +26,34 @@ import javax.validation.constraints.NotBlank;
 import java.util.List;
 import java.util.Map;
 
-@Builder
+/**
+ * Data Transfer Object (DTO) for updating relations in a graph.
+ *
+ * This DTO is used to encapsulate the data required for updating and deleting relations in a graph.
+ */
 @Data
-@NoArgsConstructor
+@Builder
 @AllArgsConstructor
+@NoArgsConstructor
 public class RelationUpdateDTO extends BaseEntity {
 
+    /**
+     * The UUID of the graph where the relations will be updated.
+     *
+     * @see Message#UUID_MUST_NOT_BE_BLANK
+     */
     @NotBlank(message = Message.UUID_MUST_NOT_BE_BLANK)
     private String graphUuid;
 
+    /**
+     * A map containing the updates to be applied to the relations.
+     *
+     * The keys represent the identifiers of the relations, and the values represent the updated values.
+     */
     private Map<String, String> updateMap;
 
+    /**
+     * A list of identifiers of relations to be deleted.
+     */
     private List<String> deleteList;
 }

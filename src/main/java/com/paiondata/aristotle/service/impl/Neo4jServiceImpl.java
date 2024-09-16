@@ -15,6 +15,7 @@
  */
 package com.paiondata.aristotle.service.impl;
 
+import com.paiondata.aristotle.common.base.Constants;
 import com.paiondata.aristotle.common.base.Message;
 import com.paiondata.aristotle.common.exception.UserNullException;
 import com.paiondata.aristotle.repository.GraphRepository;
@@ -29,6 +30,7 @@ import org.neo4j.driver.internal.value.NodeValue;
 import org.neo4j.driver.internal.value.RelationshipValue;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
+import org.springframework.transaction.annotation.Transactional;
 
 import java.util.List;
 import java.util.Map;
@@ -36,6 +38,10 @@ import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.Iterator;
 
+/**
+ * Service implementation for Neo4j operations.
+ * This class provides methods for querying and updating data in Neo4j.
+ */
 @Service
 public class Neo4jServiceImpl implements Neo4jService {
 
@@ -47,27 +53,37 @@ public class Neo4jServiceImpl implements Neo4jService {
 
     private final Driver driver;
 
+    /**
+     * Constructs a Neo4jServiceImpl object with the specified Driver.
+     * @param driver the Driver instance
+     */
     @Autowired
-    public Neo4jServiceImpl(Driver driver) {
+    public Neo4jServiceImpl(final Driver driver) {
         this.driver = driver;
     }
 
+    /**
+     * Retrieves users and their associated graphs by UIDCID.
+     *
+     * @param uidcid the UIDCID of the user
+     */
+    @Transactional(readOnly = true)
     @Override
-    public List<Map<String, Object>> getUserAndGraphsByUidcid(String uidcid) {
+    public List<Map<String, Object>> getUserAndGraphsByUidcid(final String uidcid) {
 
         if (userRepository.getUserByUidcid(uidcid) == null) {
             throw new UserNullException(Message.USER_NULL + uidcid);
         }
 
-        String cypherQuery = "MATCH (u:User)-[r:RELATION]->(g:Graph) WHERE u.uidcid = $uidcid RETURN DISTINCT g";
+        final String cypherQuery = "MATCH (u:User)-[r:RELATION]->(g:Graph) WHERE u.uidcid = $uidcid RETURN DISTINCT g";
 
         try (Session session = driver.session(SessionConfig.builder().build())) {
             return session.readTransaction(tx -> {
-                var result = tx.run(cypherQuery, Values.parameters("uidcid", uidcid));
-                List<Map<String, Object>> resultList = new ArrayList<>();
+                final var result = tx.run(cypherQuery, Values.parameters("uidcid", uidcid));
+                final List<Map<String, Object>> resultList = new ArrayList<>();
                 while (result.hasNext()) {
-                    Record record = result.next();
-                    Map<String, Object> graphNode = extractGraph(record.get("g"));
+                    final Record record = result.next();
+                    final Map<String, Object> graphNode = extractGraph(record.get("g"));
 
                     resultList.add(graphNode);
                 }
@@ -76,46 +92,51 @@ public class Neo4jServiceImpl implements Neo4jService {
         }
     }
 
+    /**
+     * Retrieves graph nodes and their relationships by graph UUID.
+     *
+     * @param uuid the UUID of the graph
+     */
+    @Transactional(readOnly = true)
     @Override
-    public List<Map<String, Map<String, Object>>> getGraphNodeByGraphUuid(String uuid) {
+    public List<Map<String, Map<String, Object>>> getGraphNodeByGraphUuid(final String uuid) {
 
         if (graphRepository.getGraphByUuid(uuid) == null) {
             throw new UserNullException(Message.GRAPH_NULL + uuid);
         }
 
-        String cypherQuery = "MATCH (g:Graph { uuid: $uuid }) "
-                + "OPTIONAL MATCH (g)-[:RELATION]->(n1:GraphNode) "
+        final String cypherQuery = "MATCH (g1:Graph { uuid: $uuid }) "
+                + "OPTIONAL MATCH (g1)-[:RELATION]->(n1:GraphNode) "
                 + "OPTIONAL MATCH (n1)-[r:RELATION]->(n2:GraphNode) "
                 + "RETURN DISTINCT n1, r, n2";
 
         try (Session session = driver.session(SessionConfig.builder().build())) {
             return session.readTransaction(tx -> {
-                var result = tx.run(cypherQuery, Values.parameters("uuid", uuid));
-                List<Map<String, Map<String, Object>>> resultList = new ArrayList<>();
+                final var result = tx.run(cypherQuery, Values.parameters(Constants.UUID, uuid));
+                final List<Map<String, Map<String, Object>>> resultList = new ArrayList<>();
 
                 while (result.hasNext()) {
-                    Record record = result.next();
-                    Map<String, Object> n1 = extractGraphNode(record.get("n1"));
-                    Map<String, Object> n2 = extractGraphNode(record.get("n2"));
-                    Map<String, Object> relation = extractRelationship(record.get("r"));
+                    final Record record = result.next();
+                    final Map<String, Object> n1 = extractGraphNode(record.get("n1"));
+                    final Map<String, Object> n2 = extractGraphNode(record.get("n2"));
+                    final Map<String, Object> relation = extractRelationship(record.get("r"));
 
-
-                    Map<String, Map<String, Object>> combinedResult = new HashMap<>();
-                    combinedResult.put("startNode", n1);
+                    final Map<String, Map<String, Object>> combinedResult = new HashMap<>();
+                    combinedResult.put(Constants.START_NODE, n1);
                     combinedResult.put("relation", relation);
-                    combinedResult.put("endNode", n2);
+                    combinedResult.put(Constants.END_NODE, n2);
 
                     resultList.add(combinedResult);
                 }
 
-                Iterator<Map<String, Map<String, Object>>> iterator = resultList.iterator();
+                final Iterator<Map<String, Map<String, Object>>> iterator = resultList.iterator();
                 while (iterator.hasNext()) {
-                    Map<String, Map<String, Object>> current = iterator.next();
-                    if (current.get("endNode").isEmpty()) {
+                    final Map<String, Map<String, Object>> current = iterator.next();
+                    if (current.get(Constants.END_NODE).isEmpty()) {
                         boolean removeFlag = false;
-                        for (Map<String, Map<String, Object>> other : resultList) {
-                            if (current.get("startNode").equals(other.get("endNode"))
-                                    && !other.get("startNode").equals(other.get("endNode"))) {
+                        for (final Map<String, Map<String, Object>> other : resultList) {
+                            if (current.get(Constants.START_NODE).equals(other.get(Constants.END_NODE))
+                                    && !other.get(Constants.START_NODE).equals(other.get(Constants.END_NODE))) {
                                 removeFlag = true;
                                 break;
                             }
@@ -131,24 +152,34 @@ public class Neo4jServiceImpl implements Neo4jService {
         }
     }
 
+    /**
+     * Updates a graph by its UUID.
+     *
+     * @param uuid the UUID of the graph
+     * @param title the new title of the graph
+     * @param description the new description of the graph
+     * @param currentTime the current time for update
+     */
+    @Transactional
     @Override
-    public void updateGraphByUuid(String uuid, String title, String description, String currentTime) {
-        StringBuilder cypherQuery = new StringBuilder("MATCH (g:Graph { uuid: $uuid }) ");
-        Map<String, Object> parameters = new HashMap<>();
-        parameters.put("uuid", uuid);
+    public void updateGraphByUuid(final String uuid, final String title,
+                                  final String description, final String currentTime) {
+        final StringBuilder cypherQuery = new StringBuilder("MATCH (g:Graph { uuid: $uuid }) ");
+        final Map<String, Object> parameters = new HashMap<>();
+        parameters.put(Constants.UUID, uuid);
 
         if (title != null) {
             cypherQuery.append("SET g.title = $title ");
-            parameters.put("title", title);
+            parameters.put(Constants.TITLE, title);
         }
 
         if (description != null) {
             cypherQuery.append("SET g.description = $description ");
-            parameters.put("description", description);
+            parameters.put(Constants.DESCRIPTION, description);
         }
 
         cypherQuery.append("SET g.update_time = $updateTime ");
-        parameters.put("updateTime", currentTime);
+        parameters.put(Constants.UPDATE_TIME, currentTime);
 
         cypherQuery.append("RETURN g");
 
@@ -157,24 +188,34 @@ public class Neo4jServiceImpl implements Neo4jService {
         }
     }
 
+    /**
+     * Updates a graph node by its UUID.
+     *
+     * @param uuid the UUID of the graph node
+     * @param title the new title of the graph node
+     * @param description the new description of the graph node
+     * @param currentTime the current time for update
+     */
+    @Transactional
     @Override
-    public void updateNodeByUuid(String uuid, String title, String description, String currentTime) {
-        StringBuilder cypherQuery = new StringBuilder("MATCH (gn:GraphNode { uuid: $uuid }) ");
-        Map<String, Object> parameters = new HashMap<>();
-        parameters.put("uuid", uuid);
+    public void updateNodeByUuid(final String uuid, final String title,
+                                 final String description, final String currentTime) {
+        final StringBuilder cypherQuery = new StringBuilder("MATCH (gn:GraphNode { uuid: $uuid }) ");
+        final Map<String, Object> parameters = new HashMap<>();
+        parameters.put(Constants.UUID, uuid);
 
         if (title != null) {
             cypherQuery.append("SET gn.title = $title ");
-            parameters.put("title", title);
+            parameters.put(Constants.TITLE, title);
         }
 
         if (description != null) {
             cypherQuery.append("SET gn.description = $description ");
-            parameters.put("description", description);
+            parameters.put(Constants.DESCRIPTION, description);
         }
 
         cypherQuery.append("SET gn.update_time = $updateTime ");
-        parameters.put("updateTime", currentTime);
+        parameters.put(Constants.UPDATE_TIME, currentTime);
 
         cypherQuery.append("RETURN gn");
 
@@ -183,46 +224,67 @@ public class Neo4jServiceImpl implements Neo4jService {
         }
     }
 
-    private Map<String, Object> extractGraph(Object node) {
-        Map<String, Object> nodeInfo = new HashMap<>();
+    /**
+     * Extracts information from a graph node.
+     *
+     * @param node the graph node object
+     *
+     * @return a map containing the extracted information
+     */
+    private Map<String, Object> extractGraph(final Object node) {
+        final Map<String, Object> nodeInfo = new HashMap<>();
         if (node instanceof NodeValue) {
-            NodeValue nodeValue = (NodeValue) node;
-            Map<String, Object> nodeMap = nodeValue.asNode().asMap();
+            final NodeValue nodeValue = (NodeValue) node;
+            final Map<String, Object> nodeMap = nodeValue.asNode().asMap();
 
-            nodeInfo.put("description", nodeMap.get("description"));
-            nodeInfo.put("updateTime", nodeMap.get("update_time"));
-            nodeInfo.put("createTime", nodeMap.get("create_time"));
-            nodeInfo.put("title", nodeMap.get("title"));
-            nodeInfo.put("uuid", nodeMap.get("uuid"));
+            nodeInfo.put(Constants.DESCRIPTION, nodeMap.get(Constants.DESCRIPTION));
+            nodeInfo.put(Constants.UPDATE_TIME, nodeMap.get(Constants.UPDATE_TIME_WITHOUT_HUMP));
+            nodeInfo.put(Constants.CREATE_TIME, nodeMap.get(Constants.CREATE_TIME_WITHOUT_HUMP));
+            nodeInfo.put(Constants.TITLE, nodeMap.get(Constants.TITLE));
+            nodeInfo.put(Constants.UUID, nodeMap.get(Constants.UUID));
         }
         return nodeInfo;
     }
 
-    private Map<String, Object> extractRelationship(Object relationship) {
-        Map<String, Object> relationshipInfo = new HashMap<>();
+    /**
+     * Extracts information from a relationship.
+     *
+     * @param relationship the relationship object
+     *
+     * @return a map containing the extracted information
+     */
+    private Map<String, Object> extractRelationship(final Object relationship) {
+        final Map<String, Object> relationshipInfo = new HashMap<>();
         if (relationship instanceof RelationshipValue) {
-            RelationshipValue relationshipValue = (RelationshipValue) relationship;
-            Map<String, Object> relMap = relationshipValue.asRelationship().asMap();
+            final RelationshipValue relationshipValue = (RelationshipValue) relationship;
+            final Map<String, Object> relMap = relationshipValue.asRelationship().asMap();
 
-            relationshipInfo.put("name", relMap.get("name"));
-            relationshipInfo.put("createTime", relMap.get("create_time"));
-            relationshipInfo.put("updateTime", relMap.get("update_time"));
-            relationshipInfo.put("uuid", relMap.get("uuid"));
+            relationshipInfo.put(Constants.NAME, relMap.get(Constants.NAME));
+            relationshipInfo.put(Constants.CREATE_TIME, relMap.get(Constants.CREATE_TIME_WITHOUT_HUMP));
+            relationshipInfo.put(Constants.UPDATE_TIME, relMap.get(Constants.UPDATE_TIME_WITHOUT_HUMP));
+            relationshipInfo.put(Constants.UUID, relMap.get(Constants.UUID));
         }
         return relationshipInfo;
     }
 
-    private Map<String, Object> extractGraphNode(Object node) {
-        Map<String, Object> nodeInfo = new HashMap<>();
+    /**
+     * Extracts information from a graph node.
+     *
+     * @param node the graph node object
+     *
+     * @return a map containing the extracted information
+     */
+    private Map<String, Object> extractGraphNode(final Object node) {
+        final Map<String, Object> nodeInfo = new HashMap<>();
         if (node instanceof NodeValue) {
-            NodeValue nodeValue = (NodeValue) node;
-            Map<String, Object> nodeMap = nodeValue.asNode().asMap();
+            final NodeValue nodeValue = (NodeValue) node;
+            final Map<String, Object> nodeMap = nodeValue.asNode().asMap();
 
-            nodeInfo.put("description", nodeMap.get("description"));
-            nodeInfo.put("updateTime", nodeMap.get("update_time"));
-            nodeInfo.put("createTime", nodeMap.get("create_time"));
-            nodeInfo.put("title", nodeMap.get("title"));
-            nodeInfo.put("uuid", nodeMap.get("uuid"));
+            nodeInfo.put(Constants.DESCRIPTION, nodeMap.get(Constants.DESCRIPTION));
+            nodeInfo.put(Constants.UPDATE_TIME, nodeMap.get(Constants.UPDATE_TIME_WITHOUT_HUMP));
+            nodeInfo.put(Constants.CREATE_TIME, nodeMap.get(Constants.CREATE_TIME_WITHOUT_HUMP));
+            nodeInfo.put(Constants.TITLE, nodeMap.get(Constants.TITLE));
+            nodeInfo.put(Constants.UUID, nodeMap.get(Constants.UUID));
         }
         return nodeInfo;
     }
