@@ -17,6 +17,8 @@ package com.paiondata.aristotle.model.vo;
 
 import com.paiondata.aristotle.model.BaseEntity;
 
+import io.swagger.annotations.ApiModel;
+import io.swagger.annotations.ApiModelProperty;
 import lombok.AllArgsConstructor;
 import lombok.Builder;
 import lombok.Data;
@@ -34,31 +36,37 @@ import java.util.Map;
 @Builder
 @AllArgsConstructor
 @NoArgsConstructor
+@ApiModel(description = "Represents a graph")
 public class GraphVO extends BaseEntity {
 
     /**
      * The UUID of the graph.
      */
+    @ApiModelProperty(value = "The UUID of the graph")
     private String uuid;
 
     /**
      * The title of the graph.
      */
+    @ApiModelProperty(value = "The title of the graph")
     private String title;
 
     /**
      * The description of the graph.
      */
+    @ApiModelProperty(value = "The description of the graph")
     private String description;
 
     /**
      * The creation time of the graph.
      */
+    @ApiModelProperty(value = "The creation time of the graph")
     private String createTime;
 
     /**
      * The last update time of the graph.
      */
+    @ApiModelProperty(value = "The last update time of the graph")
     private String updateTime;
 
     /**
@@ -66,5 +74,6 @@ public class GraphVO extends BaseEntity {
      *
      * Each node is represented as a map containing node-specific information.
      */
+    @ApiModelProperty(value = "The list of nodes in the graph")
     private List<Map<String, Map<String, Object>>> nodes;
 }

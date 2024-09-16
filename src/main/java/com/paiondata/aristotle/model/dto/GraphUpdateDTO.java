@@ -18,6 +18,8 @@ package com.paiondata.aristotle.model.dto;
 import com.paiondata.aristotle.common.base.Message;
 import com.paiondata.aristotle.model.BaseEntity;
 
+import io.swagger.annotations.ApiModel;
+import io.swagger.annotations.ApiModelProperty;
 import lombok.AllArgsConstructor;
 import lombok.Builder;
 import lombok.Data;
@@ -34,23 +36,27 @@ import javax.validation.constraints.NotBlank;
 @Builder
 @AllArgsConstructor
 @NoArgsConstructor
+@ApiModel(description = "Data Transfer Object (DTO) for updating graphs or nodes.")
 public class GraphUpdateDTO extends BaseEntity {
 
     /**
-     * The unique identifier (UUID) of the graph.
+     * The unique identifier (UUID) of the graph or node.
      *
      * @see Message#UUID_MUST_NOT_BE_BLANK
      */
+    @ApiModelProperty(value = "The unique identifier (UUID) of the graph or node.", required = true)
     @NotBlank(message = Message.UUID_MUST_NOT_BE_BLANK)
     private String uuid;
 
     /**
-     * The updated title of the graph.
+     * The updated title of the graph or node.
      */
+    @ApiModelProperty(value = "The updated title of the graph or node.")
     private String title;
 
     /**
-     * The updated description of the graph.
+     * The updated description of the graph or node.
      */
+    @ApiModelProperty(value = "The updated description of the graph or node.")
     private String description;
 }

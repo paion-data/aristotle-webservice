@@ -22,6 +22,8 @@ import com.paiondata.aristotle.model.dto.UserUpdateDTO;
 import com.paiondata.aristotle.model.vo.UserVO;
 import com.paiondata.aristotle.service.Neo4jService;
 import com.paiondata.aristotle.service.UserService;
+import io.swagger.annotations.Api;
+import io.swagger.annotations.ApiOperation;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.web.bind.annotation.GetMapping;
 import org.springframework.web.bind.annotation.PathVariable;
@@ -41,6 +43,7 @@ import java.util.Map;
 /**
  * Controller for handling user-related operations.
  */
+@Api(tags = "User controller for handling user-related operations")
 @RestController
 @RequestMapping("/user")
 public class UserController {
@@ -57,6 +60,7 @@ public class UserController {
      * @param uidcid the UID/CID of the user
      * @return the result containing the user or an error message if not found
      */
+    @ApiOperation(value = "Retrieves a user by UID/CID")
     @GetMapping("/{uidcid}")
     public Result<UserVO> getUser(@PathVariable @NotBlank(message = Message.UIDCID_MUST_NOT_BE_BLANK)
                                       final String uidcid) {
@@ -68,6 +72,7 @@ public class UserController {
      *
      * @return the result containing a list of all users
      */
+    @ApiOperation(value = "Retrieves all users")
     @GetMapping
     public Result<List<UserVO>> getAll() {
         final List<UserVO> allUsers = userService.getAllUsers();
@@ -80,6 +85,7 @@ public class UserController {
      * @param uidcid the UID/CID of the user
      * @return the result containing the graph data or an error message if not found
      */
+    @ApiOperation(value = "Retrieves the graph data associated with a user by UID/CID")
     @GetMapping("/graph/{uidcid}")
     public Result<List<Map<String, Object>>> getGraphByUserUidcid(
             @PathVariable @NotBlank(message = Message.UIDCID_MUST_NOT_BE_BLANK) final String uidcid) {
@@ -93,6 +99,7 @@ public class UserController {
      * @param userCreateDTO the DTO containing the user creation information
      * @return the result indicating the success of the creation
      */
+    @ApiOperation(value = "Creates a new user")
     @PostMapping
     public Result<String> createUser(@RequestBody @Valid final UserCreateDTO userCreateDTO) {
         userService.createUser(userCreateDTO);
@@ -105,6 +112,7 @@ public class UserController {
      * @param userUpdateDTO the DTO containing the updated user information
      * @return the result indicating the success of the update
      */
+    @ApiOperation(value = "Updates an existing user")
     @PutMapping
     public Result<String> updateUser(@RequestBody final @Valid UserUpdateDTO userUpdateDTO) {
         userService.updateUser(userUpdateDTO);
@@ -117,6 +125,7 @@ public class UserController {
      * @param uidcids the list of UID/CIDs of the users to be deleted
      * @return the result indicating the success of the deletion
      */
+    @ApiOperation(value = "Deletes users by their UID/CIDs")
     @DeleteMapping
     public Result<String> deleteUser(@RequestBody @NotEmpty(message = Message.UIDCID_MUST_NOT_BE_BLANK)
                                          final List<String> uidcids) {

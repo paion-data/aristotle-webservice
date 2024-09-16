@@ -20,6 +20,8 @@ import com.paiondata.aristotle.common.base.Result;
 import com.paiondata.aristotle.model.dto.GraphUpdateDTO;
 import com.paiondata.aristotle.model.vo.GraphVO;
 import com.paiondata.aristotle.service.GraphService;
+import io.swagger.annotations.Api;
+import io.swagger.annotations.ApiOperation;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.web.bind.annotation.GetMapping;
 import org.springframework.web.bind.annotation.PathVariable;
@@ -36,6 +38,7 @@ import java.util.List;
 /**
  * Controller for handling graph-related operations.
  */
+@Api(tags = "Graph controller for handling graph-related operations")
 @RestController
 @RequestMapping("/graph")
 public class GraphController {
@@ -49,6 +52,7 @@ public class GraphController {
      * @param uuid the UUID of the graph
      * @return the result containing the graph and its nodes
      */
+    @ApiOperation(value = "Retrieves a graph and its nodes by UUID")
     @GetMapping("/{uuid}")
     public Result<GraphVO> getGraphAndNodesByGraphUuid(
             @PathVariable @NotBlank(message = Message.UUID_MUST_NOT_BE_BLANK) final String uuid) {
@@ -61,6 +65,7 @@ public class GraphController {
      * @param graphUpdateDTO the DTO containing the updated graph information
      * @return the result indicating the success of the update
      */
+    @ApiOperation(value = "Updates a graph")
     @PutMapping
     public Result<String> updateGraph(@RequestBody final GraphUpdateDTO graphUpdateDTO) {
         graphService.updateGraph(graphUpdateDTO);
@@ -73,6 +78,7 @@ public class GraphController {
      * @param uuids the list of UUIDs of the graphs to be deleted
      * @return the result indicating the success of the deletion
      */
+    @ApiOperation(value = "Deletes graphs by their UUIDs")
     @DeleteMapping
     public Result<String> deleteGraph(@RequestBody @NotEmpty(message = Message.UUID_MUST_NOT_BE_BLANK)
                                           final List<String> uuids) {

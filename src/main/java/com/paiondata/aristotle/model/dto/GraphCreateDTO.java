@@ -18,6 +18,8 @@ package com.paiondata.aristotle.model.dto;
 import com.paiondata.aristotle.common.base.Message;
 import com.paiondata.aristotle.model.BaseEntity;
 
+import io.swagger.annotations.ApiModel;
+import io.swagger.annotations.ApiModelProperty;
 import lombok.AllArgsConstructor;
 import lombok.Builder;
 import lombok.Data;
@@ -34,6 +36,7 @@ import javax.validation.constraints.NotBlank;
 @Builder
 @AllArgsConstructor
 @NoArgsConstructor
+@ApiModel(description = "Data Transfer Object (DTO) for creating graphs.")
 public class GraphCreateDTO extends BaseEntity {
 
     /**
@@ -41,6 +44,7 @@ public class GraphCreateDTO extends BaseEntity {
      *
      * @see Message#TITLE_MUST_NOT_BE_BLANK
      */
+    @ApiModelProperty(value = "The title of the graph.", required = true)
     @NotBlank(message = Message.TITLE_MUST_NOT_BE_BLANK)
     private String title;
 
@@ -49,6 +53,7 @@ public class GraphCreateDTO extends BaseEntity {
      *
      * @see Message#DESCRIPTION_MUST_NOT_BE_BLANK
      */
+    @ApiModelProperty(value = "The description of the graph.", required = true)
     @NotBlank(message = Message.DESCRIPTION_MUST_NOT_BE_BLANK)
     private String description;
 
@@ -57,6 +62,7 @@ public class GraphCreateDTO extends BaseEntity {
      *
      * @see Message#UIDCID_MUST_NOT_BE_BLANK
      */
+    @ApiModelProperty(value = "The UID/CID of the user who owns the graph.", required = true)
     @NotBlank(message = Message.UIDCID_MUST_NOT_BE_BLANK)
     private String userUidcid;
 }

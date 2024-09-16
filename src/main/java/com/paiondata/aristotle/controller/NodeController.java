@@ -24,6 +24,8 @@ import com.paiondata.aristotle.model.dto.GraphUpdateDTO;
 import com.paiondata.aristotle.model.dto.BindNodeDTO;
 import com.paiondata.aristotle.model.entity.GraphNode;
 import com.paiondata.aristotle.service.GraphNodeService;
+import io.swagger.annotations.Api;
+import io.swagger.annotations.ApiOperation;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.web.bind.annotation.GetMapping;
 import org.springframework.web.bind.annotation.PathVariable;
@@ -43,6 +45,7 @@ import java.util.Optional;
 /**
  * Controller for handling graph node-related operations.
  */
+@Api(tags = "Node controller for handling graph node-related operations")
 @RestController
 @RequestMapping("/node")
 public class NodeController {
@@ -56,6 +59,7 @@ public class NodeController {
      * @param uuid the UUID of the graph node
      * @return the result containing the graph node or an error message if not found
      */
+    @ApiOperation(value = "Retrieves a node by UUID")
     @GetMapping("/{uuid}")
     public Result<GraphNode> getNodeByUuid(
             @PathVariable @NotBlank(message = Message.UUID_MUST_NOT_BE_BLANK) final String uuid) {
@@ -69,6 +73,8 @@ public class NodeController {
      * @param graphNodeCreateDTO the DTO containing the graph node creation information
      * @return the result indicating the success of the creation
      */
+    @ApiOperation(value = "Creates and binds nodes",
+            notes = "The nodes could be created without binding any relations")
     @PostMapping
     public Result<String> createAndBindNode(@RequestBody @Valid final NodeCreateDTO graphNodeCreateDTO) {
         graphNodeService.createAndBindGraphAndNode(graphNodeCreateDTO);
@@ -81,6 +87,8 @@ public class NodeController {
      * @param graphNodeCreateDTO the DTO containing the graph and node creation information
      * @return the result indicating the success of the creation
      */
+    @ApiOperation(value = "Creates a graph and binds it with nodes",
+            notes = "You can create just graphs, or just graphs and nodes without binding any relations between nodes")
     @PostMapping("/graph")
     public Result<String> createGraphAndBindGraphAndNode(
             @RequestBody @Valid final GraphAndNodeCreateDTO graphNodeCreateDTO) {
@@ -94,6 +102,7 @@ public class NodeController {
      * @param dtos the list of DTOs containing the binding information
      * @return the result indicating the success of the binding
      */
+    @ApiOperation(value = "Binds multiple nodes")
     @PostMapping("/bind")
     public Result<String> bindNodes(@RequestBody @Valid final List<BindNodeDTO> dtos) {
         graphNodeService.bindNodes(dtos);
@@ -106,6 +115,7 @@ public class NodeController {
      * @param graphUpdateDTO the DTO containing the updated graph node information
      * @return the result indicating the success of the update
      */
+    @ApiOperation(value = "Updates a node")
     @PutMapping
     public Result<String> updateNode(@RequestBody @Valid final GraphUpdateDTO graphUpdateDTO) {
         graphNodeService.updateNode(graphUpdateDTO);
@@ -118,6 +128,7 @@ public class NodeController {
      * @param relationUpdateDTO the DTO containing the relation update information
      * @return the result indicating the success of the update
      */
+    @ApiOperation(value = "Updates a relation between nodes")
     @PutMapping("/relate")
     public Result<String> updateNodeRelation(@RequestBody @Valid final RelationUpdateDTO relationUpdateDTO) {
         graphNodeService.updateRelation(relationUpdateDTO);
@@ -130,6 +141,7 @@ public class NodeController {
      * @param uuids the list of UUIDs of the graph nodes to be deleted
      * @return the result indicating the success of the deletion
      */
+    @ApiOperation(value = "Deletes nodes by their UUIDs")
     @DeleteMapping
     public Result<String> deleteNode(@RequestBody @NotEmpty(message = Message.UUID_MUST_NOT_BE_BLANK)
                                          final List<String> uuids) {

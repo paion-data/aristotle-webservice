@@ -18,6 +18,8 @@ package com.paiondata.aristotle.model.dto;
 import com.paiondata.aristotle.common.base.Message;
 import com.paiondata.aristotle.model.BaseEntity;
 
+import io.swagger.annotations.ApiModel;
+import io.swagger.annotations.ApiModelProperty;
 import lombok.AllArgsConstructor;
 import lombok.Builder;
 import lombok.Data;
@@ -25,6 +27,7 @@ import lombok.NoArgsConstructor;
 
 import javax.validation.Valid;
 import javax.validation.constraints.NotBlank;
+import javax.validation.constraints.NotNull;
 import java.util.List;
 
 /**
@@ -36,6 +39,7 @@ import java.util.List;
 @Builder
 @AllArgsConstructor
 @NoArgsConstructor
+@ApiModel(description = "Data Transfer Object (DTO) for creating nodes within a graph.")
 public class NodeCreateDTO extends BaseEntity {
 
     /**
@@ -43,6 +47,7 @@ public class NodeCreateDTO extends BaseEntity {
      *
      * @see Message#UUID_MUST_NOT_BE_BLANK
      */
+    @ApiModelProperty(value = "The UUID of the graph where the nodes will be created.", required = true)
     @NotBlank(message = Message.UUID_MUST_NOT_BE_BLANK)
     private String graphUuid;
 
@@ -51,6 +56,8 @@ public class NodeCreateDTO extends BaseEntity {
      *
      * @see NodeDTO
      */
+    @ApiModelProperty(value = "The list of nodes to be created within the graph.", required = true)
+    @NotNull
     @Valid
     private List<NodeDTO> graphNodeDTO;
 
@@ -59,6 +66,7 @@ public class NodeCreateDTO extends BaseEntity {
      *
      * @see NodeRelationDTO
      */
+    @ApiModelProperty(value = "The list of relations between nodes within the graph.")
     @Valid
     private List<NodeRelationDTO> graphNodeRelationDTO;
 }
