@@ -17,6 +17,13 @@
     <description>Aristotle</description>
     <url>https://github.com/paion-data/aristotle</url>
 
+    <developers>
+        <developer>
+            <name>Paion Data Team</name>
+            <url>https://github.com/paion-data</url>
+        </developer>
+    </developers>
+
     <licenses>
         <license>
             <name>The Apache Software License, Version 2.0</name>
@@ -25,25 +32,14 @@
         </license>
     </licenses>
 
-    <developers>
-        <developer>
-            <name>Paion Data Team</name>
-            <url>https://github.com/paion-data</url>
-        </developer>
-    </developers>
-
-    <scm>
-        <connection/>
-        <developerConnection/>
-        <tag/>
-        <url/>
-    </scm>
     <properties>
         <java.version>17</java.version>
         <lombok.version>1.18.34</lombok.version>
         <hutool.version>5.8.29</hutool.version>
         <spring-boot.version>3.3.2</spring-boot.version>
 
+        <version.knife4j>3.0.3</version.knife4j>
+        <version.springfox>3.0.0</version.springfox>
         <version.maven.checkstyle.plugin>3.1.2</version.maven.checkstyle.plugin>
         <checkstyle.config.location>checkstyle.xml</checkstyle.config.location>
         <checkstyle.version>8.30</checkstyle.version>
@@ -89,21 +85,21 @@
         <dependency>
             <groupId>io.springfox</groupId>
             <artifactId>springfox-boot-starter</artifactId>
-            <version>3.0.0</version>
+            <version>${version.springfox}</version>
         </dependency>
 
         <!-- https://mvnrepository.com/artifact/io.springfox/springfox-swagger-ui -->
         <dependency>
             <groupId>io.springfox</groupId>
             <artifactId>springfox-swagger-ui</artifactId>
-            <version>3.0.0</version>
+            <version>${version.springfox}</version>
         </dependency>
 
         <!-- https://mvnrepository.com/artifact/com.github.xiaoymin/knife4j-spring-boot-starter -->
         <dependency>
             <groupId>com.github.xiaoymin</groupId>
             <artifactId>knife4j-spring-boot-starter</artifactId>
-            <version>3.0.3</version>
+            <version>${version.knife4j}</version>
         </dependency>
 
         <!-- Neo4j Driver -->
@@ -207,37 +203,37 @@
             </plugin>
 
             <!-- Java Checkstyle -->
-<!--            <plugin>-->
-<!--                <groupId>org.apache.maven.plugins</groupId>-->
-<!--                <artifactId>maven-checkstyle-plugin</artifactId>-->
-<!--                <version>${version.maven.checkstyle.plugin}</version>-->
-<!--                <dependencies>-->
-<!--                    &lt;!&ndash; override default checkstyle version &ndash;&gt;-->
-<!--                    <dependency>-->
-<!--                        <groupId>com.puppycrawl.tools</groupId>-->
-<!--                        <artifactId>checkstyle</artifactId>-->
-<!--                        <version>${checkstyle.version}</version>-->
-<!--                    </dependency>-->
-<!--                </dependencies>-->
-<!--                <configuration>-->
-<!--                    <suppressionsLocation>${checkstyle.suppressions.location}</suppressionsLocation>-->
-<!--                    <suppressionsFileExpression>checkstyle.suppressions.file</suppressionsFileExpression>-->
-<!--                    <configLocation>${checkstyle.config.location}</configLocation>-->
-<!--                    <includes>**\/*.java,**\/*.groovy</includes>-->
-<!--                    <resourceIncludes>**/*.properties,**/*.sample</resourceIncludes>-->
-<!--                    <includeTestSourceDirectory>true</includeTestSourceDirectory>-->
-<!--                    <consoleOutput>true</consoleOutput>-->
-<!--                </configuration>-->
-<!--                <executions>-->
-<!--                    <execution>-->
-<!--                        <id>checkstyle</id>-->
-<!--                        <phase>initialize</phase>-->
-<!--                        <goals>-->
-<!--                            <goal>check</goal>-->
-<!--                        </goals>-->
-<!--                    </execution>-->
-<!--                </executions>-->
-<!--            </plugin>-->
+            <!--            <plugin>-->
+            <!--                <groupId>org.apache.maven.plugins</groupId>-->
+            <!--                <artifactId>maven-checkstyle-plugin</artifactId>-->
+            <!--                <version>${version.maven.checkstyle.plugin}</version>-->
+            <!--                <dependencies>-->
+            <!--                    &lt;!&ndash; override default checkstyle version &ndash;&gt;-->
+            <!--                    <dependency>-->
+            <!--                        <groupId>com.puppycrawl.tools</groupId>-->
+            <!--                        <artifactId>checkstyle</artifactId>-->
+            <!--                        <version>${checkstyle.version}</version>-->
+            <!--                    </dependency>-->
+            <!--                </dependencies>-->
+            <!--                <configuration>-->
+            <!--                    <suppressionsLocation>${checkstyle.suppressions.location}</suppressionsLocation>-->
+            <!--                    <suppressionsFileExpression>checkstyle.suppressions.file</suppressionsFileExpression>-->
+            <!--                    <configLocation>${checkstyle.config.location}</configLocation>-->
+            <!--                    <includes>**\/*.java,**\/*.groovy</includes>-->
+            <!--                    <resourceIncludes>**/*.properties,**/*.sample</resourceIncludes>-->
+            <!--                    <includeTestSourceDirectory>true</includeTestSourceDirectory>-->
+            <!--                    <consoleOutput>true</consoleOutput>-->
+            <!--                </configuration>-->
+            <!--                <executions>-->
+            <!--                    <execution>-->
+            <!--                        <id>checkstyle</id>-->
+            <!--                        <phase>initialize</phase>-->
+            <!--                        <goals>-->
+            <!--                            <goal>check</goal>-->
+            <!--                        </goals>-->
+            <!--                    </execution>-->
+            <!--                </executions>-->
+            <!--            </plugin>-->
 
             <!-- Groovy Spock -->
             <plugin>
