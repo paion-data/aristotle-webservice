@@ -17,6 +17,8 @@ package com.paiondata.aristotle.model.dto;
 
 import com.paiondata.aristotle.common.base.Message;
 import com.paiondata.aristotle.model.BaseEntity;
+import io.swagger.annotations.ApiModel;
+import io.swagger.annotations.ApiModelProperty;
 import lombok.AllArgsConstructor;
 import lombok.Builder;
 import lombok.Data;
@@ -33,6 +35,7 @@ import javax.validation.constraints.NotBlank;
 @Builder
 @AllArgsConstructor
 @NoArgsConstructor
+@ApiModel(description = "Represents a node in a graph.")
 public class NodeDTO extends BaseEntity {
 
     /**
@@ -40,6 +43,7 @@ public class NodeDTO extends BaseEntity {
      *
      * @see Message#TEMPORARY_ID_MUST_NOT_NULL
      */
+    @ApiModelProperty(value = "The temporary identifier of the node.", required = true)
     @NotBlank(message = Message.TEMPORARY_ID_MUST_NOT_NULL)
     private String temporaryId;
 
@@ -48,6 +52,7 @@ public class NodeDTO extends BaseEntity {
      *
      * @see Message#TITLE_MUST_NOT_BE_BLANK
      */
+    @ApiModelProperty(value = "The title of the node.", required = true)
     @NotBlank(message = Message.TITLE_MUST_NOT_BE_BLANK)
     private String title;
 
@@ -56,6 +61,7 @@ public class NodeDTO extends BaseEntity {
      *
      * @see Message#DESCRIPTION_MUST_NOT_BE_BLANK
      */
+    @ApiModelProperty(value = "The description of the node.", required = true)
     @NotBlank(message = Message.DESCRIPTION_MUST_NOT_BE_BLANK)
     private String description;
 }

@@ -17,6 +17,8 @@ package com.paiondata.aristotle.model.vo;
 
 import com.paiondata.aristotle.model.BaseEntity;
 
+import io.swagger.annotations.ApiModel;
+import io.swagger.annotations.ApiModelProperty;
 import lombok.AllArgsConstructor;
 import lombok.Builder;
 import lombok.Data;
@@ -34,16 +36,19 @@ import java.util.Map;
 @Builder
 @AllArgsConstructor
 @NoArgsConstructor
+@ApiModel(description = "Represents a user")
 public class UserVO extends BaseEntity {
 
     /**
      * The unique identifier (UID/CID) of the user.
      */
+    @ApiModelProperty(value = "The unique identifier (UID/CID) of the user")
     private String uidcid;
 
     /**
      * The nickname of the user.
      */
+    @ApiModelProperty(value = "The nickname of the user")
     private String nickName;
 
     /**
@@ -51,5 +56,6 @@ public class UserVO extends BaseEntity {
      *
      * Each graph is represented as a map containing graph-specific information.
      */
+    @ApiModelProperty(value = "The list of graphs associated with the user")
     private List<Map<String, Object>> graphs;
 }

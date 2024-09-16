@@ -17,6 +17,8 @@ package com.paiondata.aristotle.model.dto;
 
 import com.paiondata.aristotle.common.base.Message;
 import com.paiondata.aristotle.model.BaseEntity;
+import io.swagger.annotations.ApiModel;
+import io.swagger.annotations.ApiModelProperty;
 import lombok.AllArgsConstructor;
 import lombok.Builder;
 import lombok.Data;
@@ -33,6 +35,7 @@ import javax.validation.constraints.NotBlank;
 @Builder
 @AllArgsConstructor
 @NoArgsConstructor
+@ApiModel(description = "Represents a relation between two nodes in a graph.")
 public class NodeRelationDTO extends BaseEntity {
 
     /**
@@ -40,6 +43,7 @@ public class NodeRelationDTO extends BaseEntity {
      *
      * @see Message#UUID_MUST_NOT_BE_BLANK
      */
+    @ApiModelProperty(value = "The UUID of the source node in the relation.", required = true)
     @NotBlank(message = Message.UUID_MUST_NOT_BE_BLANK)
     private String fromId;
 
@@ -48,6 +52,7 @@ public class NodeRelationDTO extends BaseEntity {
      *
      * @see Message#UUID_MUST_NOT_BE_BLANK
      */
+    @ApiModelProperty(value = "The UUID of the target node in the relation.", required = true)
     @NotBlank(message = Message.UUID_MUST_NOT_BE_BLANK)
     private String toId;
 
@@ -56,6 +61,7 @@ public class NodeRelationDTO extends BaseEntity {
      *
      * @see Message#RELATION_MUST_NOT_BE_BLANK
      */
+    @ApiModelProperty(value = "The name of the relation between the two nodes.", required = true)
     @NotBlank(message = Message.RELATION_MUST_NOT_BE_BLANK)
     private String relationName;
 }

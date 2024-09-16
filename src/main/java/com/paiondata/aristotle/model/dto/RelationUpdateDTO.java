@@ -17,6 +17,8 @@ package com.paiondata.aristotle.model.dto;
 
 import com.paiondata.aristotle.common.base.Message;
 import com.paiondata.aristotle.model.BaseEntity;
+import io.swagger.annotations.ApiModel;
+import io.swagger.annotations.ApiModelProperty;
 import lombok.AllArgsConstructor;
 import lombok.Builder;
 import lombok.Data;
@@ -35,6 +37,7 @@ import java.util.Map;
 @Builder
 @AllArgsConstructor
 @NoArgsConstructor
+@ApiModel(description = "Data Transfer Object for updating relations in a graph.")
 public class RelationUpdateDTO extends BaseEntity {
 
     /**
@@ -42,6 +45,7 @@ public class RelationUpdateDTO extends BaseEntity {
      *
      * @see Message#UUID_MUST_NOT_BE_BLANK
      */
+    @ApiModelProperty(value = "The UUID of the graph where the relations will be updated.", required = true)
     @NotBlank(message = Message.UUID_MUST_NOT_BE_BLANK)
     private String graphUuid;
 
@@ -50,10 +54,12 @@ public class RelationUpdateDTO extends BaseEntity {
      *
      * The keys represent the identifiers of the relations, and the values represent the updated values.
      */
+    @ApiModelProperty(value = "A map containing the updates to be applied to the relations.")
     private Map<String, String> updateMap;
 
     /**
      * A list of identifiers of relations to be deleted.
      */
+    @ApiModelProperty(value = "A list of identifiers of relations to be deleted.")
     private List<String> deleteList;
 }
