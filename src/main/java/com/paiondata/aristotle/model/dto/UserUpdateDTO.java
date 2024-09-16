@@ -17,16 +17,38 @@ package com.paiondata.aristotle.model.dto;
 
 import com.paiondata.aristotle.common.base.Message;
 import com.paiondata.aristotle.model.BaseEntity;
+
+import lombok.AllArgsConstructor;
+import lombok.Builder;
 import lombok.Data;
+import lombok.NoArgsConstructor;
 
 import javax.validation.constraints.NotBlank;
 
+/**
+ * Data Transfer Object (DTO) for updating a user.
+ *
+ * This DTO is used to encapsulate the data required for updating an existing user.
+ */
 @Data
+@Builder
+@AllArgsConstructor
+@NoArgsConstructor
 public class UserUpdateDTO extends BaseEntity {
 
+    /**
+     * The unique identifier (UID/CID) of the user.
+     *
+     * @see Message#UIDCID_MUST_NOT_BE_BLANK
+     */
     @NotBlank(message = Message.UIDCID_MUST_NOT_BE_BLANK)
     private String uidcid;
 
+    /**
+     * The nickname of the user.
+     *
+     * @see Message#NICK_NAME_MUST_NOT_BE_BLANK
+     */
     @NotBlank(message = Message.NICK_NAME_MUST_NOT_BE_BLANK)
     private String nickName;
 }

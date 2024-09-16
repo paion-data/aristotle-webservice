@@ -15,11 +15,22 @@
  */
 package com.paiondata.aristotle.common.exception;
 
-public class GraphExistsException extends BaseException{
+/**
+ * This class represents an exception thrown when a graph already exists.
+ */
+public class GraphExistsException extends BaseException {
+
+    /**
+     * Constructs a new GraphExistsException with no detail message.
+     */
     public GraphExistsException() {
     }
 
-    public GraphExistsException(String msg) {
+    /**
+     * Constructs a new GraphExistsException with the specified detail message.
+     * @param msg the detail message.
+     */
+    public GraphExistsException(final String msg) {
         super(msg);
     }
 }

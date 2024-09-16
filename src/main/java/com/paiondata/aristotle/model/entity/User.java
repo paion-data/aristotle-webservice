@@ -20,10 +20,19 @@ import lombok.AllArgsConstructor;
 import lombok.Builder;
 import lombok.Data;
 import lombok.NoArgsConstructor;
-import org.springframework.data.neo4j.core.schema.*;
+import org.springframework.data.neo4j.core.schema.GeneratedValue;
+import org.springframework.data.neo4j.core.schema.Id;
+import org.springframework.data.neo4j.core.schema.Node;
+import org.springframework.data.neo4j.core.schema.Property;
+import org.springframework.data.neo4j.core.schema.Relationship;
 
 import java.util.List;
 
+/**
+ * Represents a user entity in the system.
+ *
+ * This class encapsulates the properties and relationships of a user.
+ */
 @Node("User")
 @Data
 @Builder
@@ -31,16 +40,35 @@ import java.util.List;
 @NoArgsConstructor
 public class User extends BaseEntity {
 
+    /**
+     * The unique identifier of the user.
+     */
     @Id
     @GeneratedValue
     private Long id;
 
+    /**
+     * The unique identifier (UID/CID) of the user.
+     *
+     * @see Property#uidcid
+     */
     @Property("uidcid")
     private String uidcid;
 
+    /**
+     * The nickname of the user.
+     *
+     * @see Property#nick_name
+     */
     @Property("nick_name")
     private String nickName;
 
+    /**
+     * The list of graphs associated with the user.
+     *
+     * @see Relationship#type
+     * @see Relationship#direction
+     */
     @Relationship(type = "RELATION", direction = Relationship.Direction.OUTGOING)
     private List<Graph> graphs;
 }

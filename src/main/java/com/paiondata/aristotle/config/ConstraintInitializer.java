@@ -22,14 +22,22 @@ import org.neo4j.driver.Driver;
 import org.neo4j.driver.Session;
 import org.neo4j.driver.SessionConfig;
 
+/**
+ * Initializes constraints in the Neo4j database.
+ */
 @Component
 public class ConstraintInitializer implements CommandLineRunner {
 
     @Autowired
     private Driver neo4jDriver;
 
+    /**
+     * Runs the initialization of unique constraints for the Neo4j database.
+     *
+     * @param args command line arguments.
+     */
     @Override
-    public void run(String... args) {
+    public void run(final String... args) {
         try (Session session = neo4jDriver.session(SessionConfig.builder().build())) {
             session.writeTransaction(tx -> {
                 tx.run("CREATE CONSTRAINT IF NOT EXISTS FOR (u:User) REQUIRE u.uidcid IS UNIQUE");

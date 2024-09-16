@@ -49,45 +49,11 @@ abstract class AbstractITSpec extends Specification {
     private static final String TEST_NODE_TITLE_03 = "Aos"
     private static final String UPDATE_NODE_TITLE = "Los"
 
-    /**
-     * Loads a resource file, under "payload" resource directory, as a {@code String} object given that resource file
-     * name.
-     *
-     * @param resourceName  The specified resource file name
-     *
-     * @return the resource file content as a single {@code String}
-     *
-     * @throws NullPointerException if {@code resourceName} is {@code null}
-     * @throws IllegalStateException if an I/O error occurs reading from the resource file stream
-     * @throws IllegalArgumentException  if resource path is not formatted strictly according to RFC2396 and cannot be
-     * converted to a URI.
-     */
     @NotNull
     protected String payload(final @NotNull String resourceName) {
         return resource("payload", resourceName)
     }
 
-    /**
-     * Loads a resource file content as a {@code String} object according to a provided resource path.
-     * <p>
-     * The resource path is defined by two components:
-     * <ol>
-     *     <li> a relative path under "resource" folder
-     *     <li> the name of the resource filew* </ol>
-     * For example, when we would like to read
-     * "src/test/resources/payload/metadata/multiple-fields-metadata-request.json", then the relative path is
-     * "payload/metadata" and the name of the resource file is "multiple-fields-metadata-request.json"
-     *
-     * @param resourceDirPath  The relative path under "resource" folder
-     * @param resourceFilename  The specified resource file name
-     *
-     * @return the resource file content as a single {@code String}
-     *
-     * @throws NullPointerException if {@code resourceFilename} is {@code null}
-     * @throws IllegalStateException if an I/O error occurs reading from the resource file stream
-     * @throws IllegalArgumentException  if resource path is not formatted strictly according to RFC2396 and cannot be
-     * converted to a URI.
-     */
     @NotNull
     protected String resource(final @NotNull String resourceDirPath, final @NotNull String resourceFilename) {
         Objects.requireNonNull(resourceDirPath)

@@ -33,6 +33,9 @@ import javax.validation.constraints.NotBlank;
 import javax.validation.constraints.NotEmpty;
 import java.util.List;
 
+/**
+ * Controller for handling graph-related operations.
+ */
 @RestController
 @RequestMapping("/graph")
 public class GraphController {
@@ -40,21 +43,39 @@ public class GraphController {
     @Autowired
     private GraphService graphService;
 
+    /**
+     * Retrieves a graph and its nodes by UUID.
+     *
+     * @param uuid the UUID of the graph
+     * @return the result containing the graph and its nodes
+     */
     @GetMapping("/{uuid}")
     public Result<GraphVO> getGraphAndNodesByGraphUuid(
-            @PathVariable @NotBlank(message = Message.UUID_MUST_NOT_BE_BLANK) String uuid) {
+            @PathVariable @NotBlank(message = Message.UUID_MUST_NOT_BE_BLANK) final String uuid) {
         return Result.ok(graphService.getGraphVOByUuid(uuid));
     }
 
+    /**
+     * Updates a graph.
+     *
+     * @param graphUpdateDTO the DTO containing the updated graph information
+     * @return the result indicating the success of the update
+     */
     @PutMapping
-    public Result<String> updateGraph(@RequestBody GraphUpdateDTO graphUpdateDTO) {
+    public Result<String> updateGraph(@RequestBody final GraphUpdateDTO graphUpdateDTO) {
         graphService.updateGraph(graphUpdateDTO);
         return Result.ok(Message.UPDATE_SUCCESS);
     }
 
+    /**
+     * Deletes graphs by their UUIDs.
+     *
+     * @param uuids the list of UUIDs of the graphs to be deleted
+     * @return the result indicating the success of the deletion
+     */
     @DeleteMapping
     public Result<String> deleteGraph(@RequestBody @NotEmpty(message = Message.UUID_MUST_NOT_BE_BLANK)
-                                     List<String> uuids) {
+                                          final List<String> uuids) {
         graphService.deleteByUuids(uuids);
         return Result.ok(Message.DELETE_SUCCESS);
     }

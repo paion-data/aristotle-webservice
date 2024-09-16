@@ -23,15 +23,50 @@ import com.paiondata.aristotle.model.vo.GraphVO;
 import java.util.List;
 import java.util.Optional;
 
+/**
+ * Service implementation for managing graphs.
+ * This class provides methods for CRUD operations on graphs and their relationships.
+ */
 public interface GraphService {
 
+    /**
+     * Retrieves a graph view object (VO) by its UUID.
+     *
+     * @param uuid the UUID of the graph
+     *
+     * @return the graph view object
+     */
     GraphVO getGraphVOByUuid(String uuid);
 
+    /**
+     * Retrieves a graph by its UUID.
+     *
+     * @param uuid the UUID of the graph
+     *
+     * @return an optional containing the graph if found, or empty if not found
+     */
     Optional<Graph> getGraphByUuid(String uuid);
 
+    /**
+     * Creates and binds a new graph using the provided DTO.
+     *
+     * @param graphCreateDTO the DTO containing details to create a new graph
+     *
+     * @return the created graph
+     */
     Graph createAndBindGraph(GraphCreateDTO graphCreateDTO);
 
-    void deleteByUuids(List<String> Uuids);
+    /**
+     * Deletes graphs by their UUIDs.
+     *
+     * @param uuids the list of UUIDs of graphs to be deleted
+     */
+    void deleteByUuids(List<String> uuids);
 
+    /**
+     * Updates a graph using the provided DTO.
+     *
+     * @param graphUpdateDTO the DTO containing details to update an existing graph
+     */
     void updateGraph(GraphUpdateDTO graphUpdateDTO);
 }

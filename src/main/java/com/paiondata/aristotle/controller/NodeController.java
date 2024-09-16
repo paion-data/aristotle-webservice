@@ -40,53 +40,99 @@ import javax.validation.constraints.NotEmpty;
 import java.util.List;
 import java.util.Optional;
 
+/**
+ * Controller for handling graph node-related operations.
+ */
 @RestController
 @RequestMapping("/node")
-public class GraphNodeController {
+public class NodeController {
 
     @Autowired
     private GraphNodeService graphNodeService;
 
+    /**
+     * Retrieves a graph node by UUID.
+     *
+     * @param uuid the UUID of the graph node
+     * @return the result containing the graph node or an error message if not found
+     */
     @GetMapping("/{uuid}")
     public Result<GraphNode> getNodeByUuid(
-            @PathVariable @NotBlank(message = Message.UUID_MUST_NOT_BE_BLANK) String uuid) {
-        Optional<GraphNode> optionalGraphNode = graphNodeService.getNodeByUuid(uuid);
+            @PathVariable @NotBlank(message = Message.UUID_MUST_NOT_BE_BLANK) final String uuid) {
+        final Optional<GraphNode> optionalGraphNode = graphNodeService.getNodeByUuid(uuid);
         return optionalGraphNode.map(Result::ok).orElseGet(() -> Result.fail(Message.GRAPH_NODE_NULL + uuid));
     }
 
+    /**
+     * Creates and binds a graph node.
+     *
+     * @param graphNodeCreateDTO the DTO containing the graph node creation information
+     * @return the result indicating the success of the creation
+     */
     @PostMapping
-    public Result<String> createAndBindNode(@RequestBody @Valid NodeCreateDTO graphNodeCreateDTO) {
+    public Result<String> createAndBindNode(@RequestBody @Valid final NodeCreateDTO graphNodeCreateDTO) {
         graphNodeService.createAndBindGraphAndNode(graphNodeCreateDTO);
         return Result.ok(Message.CREATE_SUCCESS);
     }
 
+    /**
+     * Creates a graph and binds it with a graph node.
+     *
+     * @param graphNodeCreateDTO the DTO containing the graph and node creation information
+     * @return the result indicating the success of the creation
+     */
     @PostMapping("/graph")
-    public Result<String> createGraphAndBindGraphAndNode(@RequestBody @Valid GraphAndNodeCreateDTO graphNodeCreateDTO) {
+    public Result<String> createGraphAndBindGraphAndNode(
+            @RequestBody @Valid final GraphAndNodeCreateDTO graphNodeCreateDTO) {
         graphNodeService.createGraphAndBindGraphAndNode(graphNodeCreateDTO);
         return Result.ok(Message.CREATE_SUCCESS);
     }
 
+    /**
+     * Binds multiple nodes.
+     *
+     * @param dtos the list of DTOs containing the binding information
+     * @return the result indicating the success of the binding
+     */
     @PostMapping("/bind")
-    public Result<String> bindNodes(@RequestBody @Valid List<BindNodeDTO> dtos) {
+    public Result<String> bindNodes(@RequestBody @Valid final List<BindNodeDTO> dtos) {
         graphNodeService.bindNodes(dtos);
         return Result.ok(Message.BOUND_SUCCESS);
     }
 
+    /**
+     * Updates a graph node.
+     *
+     * @param graphUpdateDTO the DTO containing the updated graph node information
+     * @return the result indicating the success of the update
+     */
     @PutMapping
-    public Result<String> updateNode(@RequestBody GraphUpdateDTO graphUpdateDTO) {
+    public Result<String> updateNode(@RequestBody @Valid final GraphUpdateDTO graphUpdateDTO) {
         graphNodeService.updateNode(graphUpdateDTO);
         return Result.ok(Message.UPDATE_SUCCESS);
     }
 
+    /**
+     * Updates a relation between graph nodes.
+     *
+     * @param relationUpdateDTO the DTO containing the relation update information
+     * @return the result indicating the success of the update
+     */
     @PutMapping("/relate")
-    public Result<String> updateNodeRelation(@Valid @RequestBody RelationUpdateDTO relationUpdateDTO) {
+    public Result<String> updateNodeRelation(@RequestBody @Valid final RelationUpdateDTO relationUpdateDTO) {
         graphNodeService.updateRelation(relationUpdateDTO);
         return Result.ok(Message.UPDATE_SUCCESS);
     }
 
+    /**
+     * Deletes graph nodes by their UUIDs.
+     *
+     * @param uuids the list of UUIDs of the graph nodes to be deleted
+     * @return the result indicating the success of the deletion
+     */
     @DeleteMapping
     public Result<String> deleteNode(@RequestBody @NotEmpty(message = Message.UUID_MUST_NOT_BE_BLANK)
-                                      List<String> uuids) {
+                                         final List<String> uuids) {
         graphNodeService.deleteByUuids(uuids);
         return Result.ok(Message.DELETE_SUCCESS);
     }

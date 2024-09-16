@@ -24,18 +24,38 @@ import lombok.NoArgsConstructor;
 
 import javax.validation.constraints.NotBlank;
 
-@Builder
+/**
+ * Data Transfer Object (DTO) for representing a node.
+ *
+ * This DTO is used to encapsulate the data required for a node in a graph.
+ */
 @Data
+@Builder
 @AllArgsConstructor
 @NoArgsConstructor
 public class NodeDTO extends BaseEntity {
 
+    /**
+     * The temporary identifier of the node.
+     *
+     * @see Message#TEMPORARY_ID_MUST_NOT_NULL
+     */
     @NotBlank(message = Message.TEMPORARY_ID_MUST_NOT_NULL)
     private String temporaryId;
 
+    /**
+     * The title of the node.
+     *
+     * @see Message#TITLE_MUST_NOT_BE_BLANK
+     */
     @NotBlank(message = Message.TITLE_MUST_NOT_BE_BLANK)
     private String title;
 
+    /**
+     * The description of the node.
+     *
+     * @see Message#DESCRIPTION_MUST_NOT_BE_BLANK
+     */
     @NotBlank(message = Message.DESCRIPTION_MUST_NOT_BE_BLANK)
     private String description;
 }

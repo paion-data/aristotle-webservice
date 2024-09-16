@@ -15,11 +15,22 @@
  */
 package com.paiondata.aristotle.common.exception;
 
-public class GraphNullException extends BaseException{
+/**
+ * This class represents an exception thrown when a graph is null.
+ */
+public class GraphNullException extends BaseException {
+
+    /**
+     * Constructs a new GraphNullException with no detail message.
+     */
     public GraphNullException() {
     }
 
-    public GraphNullException(String msg) {
+    /**
+     * Constructs a new GraphNullException with the specified detail message.
+     * @param msg the detail message.
+     */
+    public GraphNullException(final String msg) {
         super(msg);
     }
 }

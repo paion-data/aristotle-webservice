@@ -38,6 +38,9 @@ import javax.validation.constraints.NotEmpty;
 import java.util.List;
 import java.util.Map;
 
+/**
+ * Controller for handling user-related operations.
+ */
 @RestController
 @RequestMapping("/user")
 public class UserController {
@@ -48,39 +51,75 @@ public class UserController {
     @Autowired
     private Neo4jService neo4jService;
 
+    /**
+     * Retrieves a user by UID/CID.
+     *
+     * @param uidcid the UID/CID of the user
+     * @return the result containing the user or an error message if not found
+     */
     @GetMapping("/{uidcid}")
-    public Result<UserVO> getUser(@PathVariable @NotBlank(message = Message.UIDCID_MUST_NOT_BE_BLANK) String uidcid) {
+    public Result<UserVO> getUser(@PathVariable @NotBlank(message = Message.UIDCID_MUST_NOT_BE_BLANK)
+                                      final String uidcid) {
         return Result.ok(userService.getUserVOByUidcid(uidcid));
     }
 
+    /**
+     * Retrieves all users.
+     *
+     * @return the result containing a list of all users
+     */
     @GetMapping
     public Result<List<UserVO>> getAll() {
-        List<UserVO> allUsers = userService.getAllUsers();
+        final List<UserVO> allUsers = userService.getAllUsers();
         return Result.ok(allUsers);
     }
 
+    /**
+     * Retrieves the graph data associated with a user by UID/CID.
+     *
+     * @param uidcid the UID/CID of the user
+     * @return the result containing the graph data or an error message if not found
+     */
     @GetMapping("/graph/{uidcid}")
     public Result<List<Map<String, Object>>> getGraphByUserUidcid(
-            @PathVariable @NotBlank(message = Message.UIDCID_MUST_NOT_BE_BLANK) String uidcid) {
-        List<Map<String, Object>> results = neo4jService.getUserAndGraphsByUidcid(uidcid);
+            @PathVariable @NotBlank(message = Message.UIDCID_MUST_NOT_BE_BLANK) final String uidcid) {
+        final List<Map<String, Object>> results = neo4jService.getUserAndGraphsByUidcid(uidcid);
         return Result.ok(results);
     }
 
+    /**
+     * Creates a new user.
+     *
+     * @param userCreateDTO the DTO containing the user creation information
+     * @return the result indicating the success of the creation
+     */
     @PostMapping
-    public Result<String> createUser(@RequestBody @Valid UserCreateDTO userCreateDTO) {
+    public Result<String> createUser(@RequestBody @Valid final UserCreateDTO userCreateDTO) {
         userService.createUser(userCreateDTO);
         return Result.ok(Message.CREATE_SUCCESS);
     }
 
+    /**
+     * Updates an existing user.
+     *
+     * @param userUpdateDTO the DTO containing the updated user information
+     * @return the result indicating the success of the update
+     */
     @PutMapping
-    public Result<String> updateUser(@RequestBody @Valid UserUpdateDTO userUpdateDTO) {
+    public Result<String> updateUser(@RequestBody final @Valid UserUpdateDTO userUpdateDTO) {
         userService.updateUser(userUpdateDTO);
         return Result.ok(Message.UPDATE_SUCCESS);
     }
 
+    /**
+     * Deletes users by their UID/CIDs.
+     *
+     * @param uidcids the list of UID/CIDs of the users to be deleted
+     * @return the result indicating the success of the deletion
+     */
     @DeleteMapping
     public Result<String> deleteUser(@RequestBody @NotEmpty(message = Message.UIDCID_MUST_NOT_BE_BLANK)
-                                         List<String> uidcids) {
+                                         final List<String> uidcids) {
         userService.deleteUser(uidcids);
         return Result.ok(Message.DELETE_SUCCESS);
     }

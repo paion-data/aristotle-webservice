@@ -15,11 +15,22 @@
  */
 package com.paiondata.aristotle.common.exception;
 
-public class UserNullException extends BaseException{
+/**
+ * This class represents an exception thrown when a user is null.
+ */
+public class UserNullException extends BaseException {
+
+    /**
+     * Constructs a new UserNullException with no detail message.
+     */
     public UserNullException() {
     }
 
-    public UserNullException(String msg) {
+    /**
+     * Constructs a new UserNullException with the specified detail message.
+     * @param msg  the detail message.
+     */
+    public UserNullException(final String msg) {
         super(msg);
     }
 }

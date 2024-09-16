@@ -15,11 +15,22 @@
  */
 package com.paiondata.aristotle.common.exception;
 
-public class GraphNodeNullException extends BaseException{
-    public GraphNodeNullException() {
+/**
+ * This class represents an exception thrown when there is an issue with a graph node relation.
+ */
+public class NodeRelationException extends BaseException {
+
+    /**
+     * Constructs a new NodeRelationException with no detail message.
+     */
+    public NodeRelationException() {
     }
 
-    public GraphNodeNullException(String msg) {
+    /**
+     * Constructs a new NodeRelationException with the specified detail message.
+     * @param msg the detail message.
+     */
+    public NodeRelationException(final String msg) {
         super(msg);
     }
 }

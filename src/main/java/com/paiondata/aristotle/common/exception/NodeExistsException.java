@@ -15,11 +15,22 @@
  */
 package com.paiondata.aristotle.common.exception;
 
-public class UserUidcidExistsException extends BaseException{
-    public UserUidcidExistsException() {
+/**
+ * This class represents an exception thrown when a graph node already exists.
+ */
+public class NodeExistsException extends BaseException {
+
+    /**
+     * Constructs a new NodeExistsException with no detail message.
+     */
+    public NodeExistsException() {
     }
 
-    public UserUidcidExistsException(String msg) {
+    /**
+     * Constructs a new NodeExistsException with the specified detail message.
+     * @param msg the detail message.
+     */
+    public NodeExistsException(final String msg) {
         super(msg);
     }
 }

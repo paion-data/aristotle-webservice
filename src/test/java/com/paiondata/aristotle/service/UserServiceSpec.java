@@ -24,8 +24,9 @@ import static org.mockito.Mockito.times;
 import static org.mockito.Mockito.verify;
 import static org.mockito.Mockito.when;
 
+import com.paiondata.aristotle.base.TestConstants;
+import com.paiondata.aristotle.common.exception.UserExistsException;
 import com.paiondata.aristotle.common.exception.UserNullException;
-import com.paiondata.aristotle.common.exception.UserUidcidExistsException;
 import com.paiondata.aristotle.model.dto.UserCreateDTO;
 import com.paiondata.aristotle.model.entity.User;
 import com.paiondata.aristotle.model.vo.UserVO;
@@ -50,6 +51,9 @@ import java.util.List;
 import java.util.Map;
 import java.util.Optional;
 
+/**
+ * Tests for UserService.
+ */
 @ExtendWith(MockitoExtension.class)
 public class UserServiceSpec {
 
@@ -66,29 +70,36 @@ public class UserServiceSpec {
     private GraphNodeRepository graphNodeRepository;
 
     @Mock
-    Neo4jService neo4jService;
+    private Neo4jService neo4jService;
 
+    /**
+     * Sets up the test environment before each test.
+     */
     @BeforeEach
     public void setup() {
     }
 
+    /**
+     * Tests that getting a UserVO by UIDCID returns the correct UserVO when the user exists.
+     */
     @Test
-    public void getUserVOByUidcid_UserExists_ReturnsUserVO() {
+    public void getUserVOByUidcidUserExistsReturnsUserVO() {
         // Arrange
-        String uidcid = "testUidcid";
-        String nickName = "testNickName";
-        User user = User.builder()
+        final String uidcid = TestConstants.TEST_ID1;
+        final String nickName = TestConstants.TEST_NAME1;
+        final User user = User.builder()
                 .uidcid(uidcid)
                 .nickName(nickName)
                 .build();
 
-        List<Map<String, Object>> graphs = Collections.singletonList(Collections.singletonMap("key", "value"));
+        final List<Map<String, Object>> graphs = Collections.singletonList(Collections.singletonMap(
+                TestConstants.TEST_KEY1, TestConstants.TEST_VALUE1));
 
         when(userRepository.getUserByUidcid(uidcid)).thenReturn(user);
         when(neo4jService.getUserAndGraphsByUidcid(uidcid)).thenReturn(graphs);
 
         // Act
-        UserVO userVO = userService.getUserVOByUidcid(uidcid);
+        final UserVO userVO = userService.getUserVOByUidcid(uidcid);
 
         // Assert
         Assertions.assertEquals(uidcid, userVO.getUidcid());
@@ -99,10 +110,13 @@ public class UserServiceSpec {
         verify(neo4jService, times(1)).getUserAndGraphsByUidcid(uidcid);
     }
 
+    /**
+     * Tests that getting a UserVO by UIDCID throws a UserNullException when the user does not exist.
+     */
     @Test
-    public void getUserVOByUidcid_UserDoesNotExist_ThrowsUserNullException() {
+    public void getUserVOByUidcidUserDoesNotExistThrowsUserNullException() {
         // Arrange
-        String uidcid = "testUidcid";
+        final String uidcid = TestConstants.TEST_ID1;
         when(userRepository.getUserByUidcid(uidcid)).thenReturn(null);
 
         // Act & Assert
@@ -112,87 +126,104 @@ public class UserServiceSpec {
         verify(neo4jService, never()).getUserAndGraphsByUidcid(anyString());
     }
 
+    /**
+     * Tests that getting a user by UIDCID returns the correct user when the user exists.
+     */
     @Test
-    public void getUserByUidcid_UserExists_ReturnsUser() {
+    public void getUserByUidcidUserExistsReturnsUser() {
         // Arrange
-        String uidcid = "testUidcid";
-        User expectedUser = User.builder()
+        final String uidcid = TestConstants.TEST_ID1;
+        final User expectedUser = User.builder()
                 .uidcid(uidcid)
-                .nickName("testNickName")
+                .nickName(TestConstants.TEST_NAME1)
                 .build();
 
         when(userRepository.getUserByUidcid(uidcid)).thenReturn(expectedUser);
 
         // Act
-        Optional<User> userOptional = userService.getUserByUidcid(uidcid);
+        final Optional<User> userOptional = userService.getUserByUidcid(uidcid);
 
         // Assert
         Assertions.assertTrue(userOptional.isPresent());
         Assertions.assertEquals(expectedUser, userOptional.get());
     }
 
+    /**
+     * Tests that getting a user by UIDCID returns an empty Optional when the user does not exist.
+     */
     @Test
-    public void getUserByUidcid_UserDoesNotExist_ReturnsEmptyOptional() {
+    public void getUserByUidcidUserDoesNotExistReturnsEmptyOptional() {
         // Arrange
-        String uidcid = "nonExistentUidcid";
+        final String uidcid = TestConstants.TEST_ID1;
 
         when(userRepository.getUserByUidcid(uidcid)).thenReturn(null);
 
         // Act
-        Optional<User> userOptional = userService.getUserByUidcid(uidcid);
+        final Optional<User> userOptional = userService.getUserByUidcid(uidcid);
 
         // Assert
         Assertions.assertFalse(userOptional.isPresent());
     }
 
+    /**
+     * Tests that getting all users returns a list of UserVOs when users exist.
+     */
     @Test
-    public void getAllUsers_UsersExist_ReturnsListOfUserVOs() {
+    public void getAllUsersUsersExistReturnsListOfUserVOs() {
         // Arrange
-        List<User> users = new ArrayList<>();
-        users.add(User.builder().uidcid("uid1").nickName("nick1").build());
-        users.add(User.builder().uidcid("uid2").nickName("nick2").build());
+        final List<User> users = new ArrayList<>();
+        users.add(User.builder().uidcid(TestConstants.TEST_ID1).nickName(TestConstants.TEST_NAME1).build());
+        users.add(User.builder().uidcid(TestConstants.TEST_ID2).nickName(TestConstants.TEST_NAME2).build());
 
-        List<Map<String, Object>> graphs1 = Collections.singletonList(Collections.singletonMap("key", "value1"));
-        List<Map<String, Object>> graphs2 = Collections.singletonList(Collections.singletonMap("key", "value2"));
+        final List<Map<String, Object>> graphs1 = Collections.singletonList(Collections.singletonMap(
+                TestConstants.TEST_KEY1, TestConstants.TEST_VALUE1));
+        final List<Map<String, Object>> graphs2 = Collections.singletonList(Collections.singletonMap(
+                TestConstants.TEST_KEY2, TestConstants.TEST_VALUE1));
 
         when(userRepository.findAll()).thenReturn(users);
-        when(neo4jService.getUserAndGraphsByUidcid("uid1")).thenReturn(graphs1);
-        when(neo4jService.getUserAndGraphsByUidcid("uid2")).thenReturn(graphs2);
+        when(neo4jService.getUserAndGraphsByUidcid(TestConstants.TEST_ID1)).thenReturn(graphs1);
+        when(neo4jService.getUserAndGraphsByUidcid(TestConstants.TEST_ID2)).thenReturn(graphs2);
 
         // Act
-        List<UserVO> userVOS = userService.getAllUsers();
+        final List<UserVO> userVOS = userService.getAllUsers();
 
         // Assert
         Assertions.assertEquals(2, userVOS.size());
-        Assertions.assertEquals("uid1", userVOS.get(0).getUidcid());
-        Assertions.assertEquals("nick1", userVOS.get(0).getNickName());
+        Assertions.assertEquals(TestConstants.TEST_ID1, userVOS.get(0).getUidcid());
+        Assertions.assertEquals(TestConstants.TEST_NAME1, userVOS.get(0).getNickName());
         Assertions.assertEquals(graphs1, userVOS.get(0).getGraphs());
 
-        Assertions.assertEquals("uid2", userVOS.get(1).getUidcid());
-        Assertions.assertEquals("nick2", userVOS.get(1).getNickName());
+        Assertions.assertEquals(TestConstants.TEST_ID2, userVOS.get(1).getUidcid());
+        Assertions.assertEquals(TestConstants.TEST_NAME2, userVOS.get(1).getNickName());
         Assertions.assertEquals(graphs2, userVOS.get(1).getGraphs());
     }
 
+    /**
+     * Tests that getting all users returns an empty list when no users exist.
+     */
     @Test
-    public void getAllUsers_NoUsersExist_ReturnsEmptyList() {
+    public void getAllUsersNoUsersExistReturnsEmptyList() {
         // Arrange
-        List<User> users = Collections.emptyList();
+        final List<User> users = Collections.emptyList();
 
         when(userRepository.findAll()).thenReturn(users);
 
         // Act
-        List<UserVO> userVOS = userService.getAllUsers();
+        final List<UserVO> userVOS = userService.getAllUsers();
 
         // Assert
         Assertions.assertEquals(0, userVOS.size());
     }
 
+    /**
+     * Tests that creating a user works correctly when the user information is valid.
+     */
     @Test
-    public void createUser_UserInfoValid_CreatesUser() {
+    public void createUserUserInfoValidCreatesUser() {
         // Arrange
-        String uidcid = "testUidcid";
-        String nickName = "testNickName";
-        UserCreateDTO user = UserCreateDTO.builder()
+        final String uidcid = TestConstants.TEST_ID1;
+        final String nickName = TestConstants.TEST_NAME1;
+        final UserCreateDTO user = UserCreateDTO.builder()
                 .uidcid(uidcid)
                 .nickName(nickName)
                 .build();
@@ -204,12 +235,15 @@ public class UserServiceSpec {
         verify(userRepository).createUser(uidcid, nickName);
     }
 
+    /**
+     * Tests that creating a user throws a UserExistsException when the user already exists.
+     */
     @Test
-    public void createUser_UserAlreadyExists_ThrowsUserUidcidExistsException() {
+    public void createUserUserAlreadyExistsThrowsUserUidcidExistsException() {
         // Arrange
-        String uidcid = "existingUidcid";
-        String nickName = "existingNickName";
-        UserCreateDTO user = UserCreateDTO.builder()
+        final String uidcid = TestConstants.TEST_ID1;
+        final String nickName = TestConstants.TEST_NAME1;
+        final UserCreateDTO user = UserCreateDTO.builder()
                 .uidcid(uidcid)
                 .nickName(nickName)
                 .build();
@@ -219,25 +253,28 @@ public class UserServiceSpec {
                 .createUser(uidcid, nickName);
 
         // Act & Assert
-        assertThrows(UserUidcidExistsException.class, () -> userService.createUser(user));
+        assertThrows(UserExistsException.class, () -> userService.createUser(user));
 
         // Verify
         verify(userRepository).createUser(uidcid, nickName);
     }
 
+    /**
+     * Tests that deleting users works correctly when the users exist.
+     */
     @Test
-    public void deleteUser_UsersExist_DeletesUsersAndRelatedData() {
+    public void deleteUserUsersExistDeletesUsersAndRelatedData() {
         // Arrange
-        List<String> uidcids = Arrays.asList("uid1", "uid2");
-        List<User> users = new ArrayList<>();
-        users.add(User.builder().uidcid("uid1").build());
-        users.add(User.builder().uidcid("uid2").build());
+        final List<String> uidcids = Arrays.asList(TestConstants.TEST_ID1, TestConstants.TEST_ID2);
+        final List<User> users = new ArrayList<>();
+        users.add(User.builder().uidcid(TestConstants.TEST_ID1).build());
+        users.add(User.builder().uidcid(TestConstants.TEST_ID2).build());
 
-        List<String> graphUuids = Arrays.asList("graph1", "graph2");
-        List<String> graphNodeUuids = Arrays.asList("node1", "node2");
+        final List<String> graphUuids = Arrays.asList("graph1", "graph2");
+        final List<String> graphNodeUuids = Arrays.asList("node1", "node2");
 
-        when(userRepository.getUserByUidcid("uid1")).thenReturn(users.get(0));
-        when(userRepository.getUserByUidcid("uid2")).thenReturn(users.get(1));
+        when(userRepository.getUserByUidcid(TestConstants.TEST_ID1)).thenReturn(users.get(0));
+        when(userRepository.getUserByUidcid(TestConstants.TEST_ID2)).thenReturn(users.get(1));
         when(userRepository.getGraphUuidsByUserUidcid(uidcids)).thenReturn(graphUuids);
         when(graphRepository.getGraphNodeUuidsByGraphUuids(graphUuids)).thenReturn(graphNodeUuids);
 
@@ -251,18 +288,21 @@ public class UserServiceSpec {
         verify(graphNodeRepository).deleteByUuids(graphNodeUuids);
     }
 
+    /**
+     * Tests that deleting users throws a UserNullException when a user does not exist.
+     */
     @Test
-    public void deleteUser_UserDoesNotExist_ThrowsUserNullException() {
+    public void deleteUserUserDoesNotExistThrowsUserNullException() {
         // Arrange
-        List<String> uidcids = Arrays.asList("uid1", "uid2");
+        final List<String> uidcids = Arrays.asList(TestConstants.TEST_ID1, TestConstants.TEST_ID2);
 
-        when(userRepository.getUserByUidcid("uid1")).thenReturn(null);
+        when(userRepository.getUserByUidcid(TestConstants.TEST_ID1)).thenReturn(null);
 
         // Act & Assert
         assertThrows(UserNullException.class, () -> userService.deleteUser(uidcids));
 
         // Verify
-        verify(userRepository, times(1)).getUserByUidcid("uid1");
+        verify(userRepository, times(1)).getUserByUidcid(TestConstants.TEST_ID1);
         verify(userRepository, never()).deleteByUidcids(any());
         verify(graphRepository, never()).deleteByUuids(any());
         verify(graphNodeRepository, never()).deleteByUuids(any());

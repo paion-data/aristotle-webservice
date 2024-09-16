@@ -17,19 +17,39 @@ package com.paiondata.aristotle.model.vo;
 
 import com.paiondata.aristotle.model.BaseEntity;
 
+import lombok.AllArgsConstructor;
 import lombok.Builder;
 import lombok.Data;
+import lombok.NoArgsConstructor;
 
 import java.util.List;
 import java.util.Map;
 
+/**
+ * Represents a value object (VO) for a user.
+ *
+ * This class encapsulates the properties and metadata of a user.
+ */
 @Data
 @Builder
+@AllArgsConstructor
+@NoArgsConstructor
 public class UserVO extends BaseEntity {
 
+    /**
+     * The unique identifier (UID/CID) of the user.
+     */
     private String uidcid;
 
+    /**
+     * The nickname of the user.
+     */
     private String nickName;
 
+    /**
+     * The list of graphs associated with the user.
+     *
+     * Each graph is represented as a map containing graph-specific information.
+     */
     private List<Map<String, Object>> graphs;
 }

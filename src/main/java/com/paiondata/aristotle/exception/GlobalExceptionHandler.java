@@ -225,14 +225,14 @@ public class GlobalExceptionHandler {
      * @return a result object indicating failure with INTERNAL_SERVER_ERROR status
      */
     @ExceptionHandler(MethodArgumentNotValidException.class)
-    public Result<List<String>> parameterExceptionHandler(MethodArgumentNotValidException e) {
+    public Result<List<String>> parameterExceptionHandler(final MethodArgumentNotValidException e) {
         // get exception information
-        BindingResult exceptions = e.getBindingResult();
+        final BindingResult exceptions = e.getBindingResult();
         // all error arguments are listed here, returned using list
-        List<String> fieldErrorMsg = new ArrayList<>();
+        final List<String> fieldErrorMsg = new ArrayList<>();
         // check whether error information exists in the exception. If yes, use the information in the exception
         if (exceptions.hasErrors()) {
-            List<ObjectError> errors = exceptions.getAllErrors();
+            final List<ObjectError> errors = exceptions.getAllErrors();
             if (!errors.isEmpty()) {
                 errors.forEach(msg -> fieldErrorMsg.add(msg.getDefaultMessage()));
                 return Result.fail(Message.PARAM_VERIFY_FAIL, fieldErrorMsg);

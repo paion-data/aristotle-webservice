@@ -17,7 +17,7 @@ package com.paiondata.aristotle.service.impl;
 
 import com.paiondata.aristotle.common.base.Message;
 import com.paiondata.aristotle.common.exception.UserNullException;
-import com.paiondata.aristotle.common.exception.UserUidcidExistsException;
+import com.paiondata.aristotle.common.exception.UserExistsException;
 import com.paiondata.aristotle.model.dto.UserCreateDTO;
 import com.paiondata.aristotle.model.dto.UserUpdateDTO;
 import com.paiondata.aristotle.model.entity.User;
@@ -38,6 +38,10 @@ import java.util.List;
 import java.util.stream.Collectors;
 import java.util.Optional;
 
+/**
+ * Service implementation for user-related operations.
+ * This class provides methods for managing users, including creating, updating, and deleting users.
+ */
 @Service
 @AllArgsConstructor
 public class UserServiceImpl implements UserService {
@@ -54,35 +58,50 @@ public class UserServiceImpl implements UserService {
     @Autowired
     private Neo4jService neo4jService;
 
-    @Override
+    /**
+     * Retrieves a UserVO by UIDCID.
+     *
+     * @param uidcid the UIDCID of the user
+     * @return the UserVO containing user details and associated graphs
+     */
     @Transactional(readOnly = true)
-    public UserVO getUserVOByUidcid(String uidcid) {
-        User user = userRepository.getUserByUidcid(uidcid);
+    @Override
+    public UserVO getUserVOByUidcid(final String uidcid) {
+        final User user = userRepository.getUserByUidcid(uidcid);
 
         if (user == null) {
             throw new UserNullException(Message.USER_NULL + uidcid);
         }
 
-        UserVO vo = UserVO.builder()
+        return UserVO.builder()
                 .uidcid(user.getUidcid())
                 .nickName(user.getNickName())
                 .graphs(neo4jService.getUserAndGraphsByUidcid(user.getUidcid()))
                 .build();
-
-        return vo;
     }
 
-    @Override
+    /**
+     * Retrieves an optional user by UIDCID.
+     *
+     * @param uidcid the UIDCID of the user
+     * @return an Optional containing the user if found, or empty otherwise
+     */
     @Transactional(readOnly = true)
-    public Optional<User> getUserByUidcid(String uidcid) {
-        User user = userRepository.getUserByUidcid(uidcid);
+    @Override
+    public Optional<User> getUserByUidcid(final String uidcid) {
+        final User user = userRepository.getUserByUidcid(uidcid);
         return Optional.ofNullable(user);
     }
 
-    @Override
+    /**
+     * Retrieves all users as UserVOs.
+     *
+     * @return a list of UserVOs containing user details and associated graphs
+     */
     @Transactional(readOnly = true)
+    @Override
     public List<UserVO> getAllUsers() {
-        List<User> users = userRepository.findAll();
+        final List<User> users = userRepository.findAll();
 
         return users.stream()
                 .map(user -> UserVO.builder()
@@ -93,22 +112,32 @@ public class UserServiceImpl implements UserService {
                 .collect(Collectors.toList());
     }
 
+    /**
+     * Creates a new user.
+     *
+     * @param user the UserCreateDTO containing user details
+     */
     @Transactional
     @Override
-    public void createUser(UserCreateDTO user) {
-        String uidcid = user.getUidcid();
+    public void createUser(final UserCreateDTO user) {
+        final String uidcid = user.getUidcid();
 
         try {
             userRepository.createUser(uidcid, user.getNickName());
-        } catch (DataIntegrityViolationException e) {
-            throw new UserUidcidExistsException(Message.UIDCID_EXISTS + uidcid);
+        } catch (final DataIntegrityViolationException e) {
+            throw new UserExistsException(Message.UIDCID_EXISTS + uidcid);
         }
     }
 
+    /**
+     * Updates an existing user.
+     *
+     * @param user the UserUpdateDTO containing updated user details
+     */
     @Transactional
     @Override
-    public void updateUser(UserUpdateDTO user) {
-        String uidcid = user.getUidcid();
+    public void updateUser(final UserUpdateDTO user) {
+        final String uidcid = user.getUidcid();
 
         if (userRepository.checkUidcidExists(uidcid) != 0) {
             userRepository.updateUser(uidcid, user.getNickName());
@@ -117,28 +146,45 @@ public class UserServiceImpl implements UserService {
         }
     }
 
+    /**
+     * Deletes multiple users along with their related graphs and graph nodes.
+     *
+     * @param uidcids a list of UIDCIDs of the users to be deleted
+     */
     @Transactional
     @Override
-    public void deleteUser(List<String> uidcids) {
-        for (String uidcid : uidcids) {
+    public void deleteUser(final List<String> uidcids) {
+        for (final String uidcid : uidcids) {
             if (getUserByUidcid(uidcid).isEmpty()) {
                 throw new UserNullException(Message.USER_NULL + uidcid);
             }
         }
 
-        List<String> graphUuids = getRelatedGraphUuids(uidcids);
-        List<String> graphNodeUuids = getRelatedGraphNodeUuids(graphUuids);
+        final List<String> graphUuids = getRelatedGraphUuids(uidcids);
+        final List<String> graphNodeUuids = getRelatedGraphNodeUuids(graphUuids);
 
         userRepository.deleteByUidcids((uidcids));
         graphRepository.deleteByUuids(graphUuids);
         graphNodeRepository.deleteByUuids(graphNodeUuids);
     }
 
-    private List<String> getRelatedGraphUuids(List<String> userUidcids) {
+    /**
+     * Retrieves the UUIDs of related graphs for a list of user UIDCIDs.
+     *
+     * @param userUidcids a list of user UIDCIDs
+     * @return a list of related graph UUIDs
+     */
+    private List<String> getRelatedGraphUuids(final List<String> userUidcids) {
         return userRepository.getGraphUuidsByUserUidcid(userUidcids);
     }
 
-    private List<String> getRelatedGraphNodeUuids(List<String> graphUuids) {
+    /**
+     * Retrieves the UUIDs of related graph nodes for a list of graph UUIDs.
+     *
+     * @param graphUuids a list of graph UUIDs
+     * @return a list of related graph node UUIDs
+     */
+    private List<String> getRelatedGraphNodeUuids(final List<String> graphUuids) {
         return graphRepository.getGraphNodeUuidsByGraphUuids(graphUuids);
     }
 }

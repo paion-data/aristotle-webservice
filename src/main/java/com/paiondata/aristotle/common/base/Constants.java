@@ -54,4 +54,54 @@ public interface Constants {
      * Indicates a failed operation.
      */
     Integer FAIL = HttpStatus.ERROR;
+
+    /**
+     * Represents the UUID field in the database.
+     */
+    String UUID = "uuid";
+
+    /**
+     * Represents the start node field in the database.
+     */
+    String START_NODE = "startNode";
+
+    /**
+     * Represents the end node field in the database.
+     */
+    String END_NODE = "endNode";
+
+    /**
+     * Represents the title field in the database.
+     */
+    String TITLE = "title";
+
+    /**
+     * Represents the description field in the database.
+     */
+    String DESCRIPTION = "description";
+
+    /**
+     * Represents the update time field in the database.
+     */
+    String UPDATE_TIME = "updateTime";
+
+    /**
+     * Represents the update time field in the database without hump.
+     */
+    String UPDATE_TIME_WITHOUT_HUMP = "update_time";
+
+    /**
+     * Represents the create time field in the database.
+     */
+    String CREATE_TIME = "createTime";
+
+    /**
+     * Represents the create time field in the database without hump.
+     */
+    String CREATE_TIME_WITHOUT_HUMP = "create_time";
+
+    /**
+     * Represents the name field in the database.
+     */
+    String NAME = "name";
 }

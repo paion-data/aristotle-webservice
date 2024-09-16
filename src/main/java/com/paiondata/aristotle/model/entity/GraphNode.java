@@ -18,6 +18,7 @@ package com.paiondata.aristotle.model.entity;
 import com.paiondata.aristotle.model.BaseEntity;
 
 import lombok.AllArgsConstructor;
+import lombok.Builder;
 import lombok.Data;
 import lombok.NoArgsConstructor;
 
@@ -26,28 +27,62 @@ import org.springframework.data.neo4j.core.schema.Id;
 import org.springframework.data.neo4j.core.schema.Node;
 import org.springframework.data.neo4j.core.schema.Property;
 
+/**
+ * Represents a node entity within a graph.
+ *
+ * This class encapsulates the properties and metadata of a graph node.
+ */
 @Node("GraphNode")
 @Data
+@Builder
 @AllArgsConstructor
 @NoArgsConstructor
 public class GraphNode extends BaseEntity {
 
+    /**
+     * The unique identifier of the graph node.
+     */
     @Id
     @GeneratedValue
     private Long id;
 
+    /**
+     * The UUID of the graph node.
+     *
+     * @see Property#uuid
+     */
     @Property("uuid")
     private String uuid;
 
+    /**
+     * The title of the graph node.
+     *
+     * @see Property#title
+     */
     @Property("title")
     private String title;
 
+    /**
+     * The description of the graph node.
+     *
+     * @see Property#description
+     */
     @Property("description")
     private String description;
 
+    /**
+     * The creation time of the graph node.
+     *
+     * @see Property#create_time
+     */
     @Property("create_time")
     private String createTime;
 
+    /**
+     * The last update time of the graph node.
+     *
+     * @see Property#update_time
+     */
     @Property("update_time")
     private String updateTime;
 }

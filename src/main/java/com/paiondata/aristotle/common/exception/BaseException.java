@@ -16,15 +16,21 @@
 package com.paiondata.aristotle.common.exception;
 
 /**
- * 业务异常
+ * This class represents a base exception used throughout the application.
  */
 public class BaseException extends RuntimeException {
 
+    /**
+     * Constructs a new BaseException with no detail message.
+     */
     public BaseException() {
     }
 
-    public BaseException(String msg) {
+    /**
+     * Constructs a new BaseException with the specified detail message.
+     * @param msg the detail message.
+     */
+    public BaseException(final String msg) {
         super(msg);
     }
-
 }
