@@ -16,7 +16,7 @@
 package com.paiondata.aristotle
 
 import io.restassured.http.ContentType
-import jakarta.validation.constraints.NotNull
+import javax.validation.constraints.NotNull
 import org.junit.Assert
 import io.restassured.RestAssured
 import io.restassured.response.Response
