@@ -17,6 +17,7 @@ package com.paiondata.aristotle.controller;
 
 import com.paiondata.aristotle.common.base.Message;
 import com.paiondata.aristotle.common.base.Result;
+import com.paiondata.aristotle.model.dto.GraphDeleteDTO;
 import com.paiondata.aristotle.model.dto.GraphUpdateDTO;
 import com.paiondata.aristotle.model.vo.GraphVO;
 import com.paiondata.aristotle.service.GraphService;
@@ -31,9 +32,8 @@ import org.springframework.web.bind.annotation.DeleteMapping;
 import org.springframework.web.bind.annotation.PutMapping;
 import org.springframework.web.bind.annotation.RequestBody;
 
+import javax.validation.Valid;
 import javax.validation.constraints.NotBlank;
-import javax.validation.constraints.NotEmpty;
-import java.util.List;
 
 /**
  * Controller for handling graph-related operations.
@@ -75,14 +75,14 @@ public class GraphController {
     /**
      * Deletes graphs by their UUIDs.
      *
-     * @param uuids the list of UUIDs of the graphs to be deleted
+     * @param graphDeleteDTO the list of UUIDs of the graphs to be deleted
      * @return the result indicating the success of the deletion
      */
     @ApiOperation(value = "Deletes graphs by their UUIDs")
     @DeleteMapping
-    public Result<String> deleteGraph(@RequestBody @NotEmpty(message = Message.UUID_MUST_NOT_BE_BLANK)
-                                          final List<String> uuids) {
-        graphService.deleteByUuids(uuids);
+    public Result<String> deleteGraph(@RequestBody @Valid
+                                          final GraphDeleteDTO graphDeleteDTO) {
+        graphService.deleteByUuids(graphDeleteDTO);
         return Result.ok(Message.DELETE_SUCCESS);
     }
 }

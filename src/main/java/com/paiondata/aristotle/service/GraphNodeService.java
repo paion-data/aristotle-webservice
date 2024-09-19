@@ -15,6 +15,7 @@
  */
 package com.paiondata.aristotle.service;
 
+import com.paiondata.aristotle.model.dto.NodeDeleteDTO;
 import com.paiondata.aristotle.model.entity.GraphNode;
 import com.paiondata.aristotle.model.dto.BindNodeDTO;
 import com.paiondata.aristotle.model.dto.GraphAndNodeCreateDTO;
@@ -64,9 +65,9 @@ public interface GraphNodeService {
     /**
      * Deletes graph nodes by their UUIDs.
      *
-     * @param uuids the list of UUIDs of the graph nodes to be deleted
+     * @param nodeDeleteDTO the list of UUIDs of the graph nodes to be deleted
      */
-    void deleteByUuids(List<String> uuids);
+    void deleteByUuids(NodeDeleteDTO nodeDeleteDTO);
 
     /**
      * Updates a graph node based on the provided DTO.

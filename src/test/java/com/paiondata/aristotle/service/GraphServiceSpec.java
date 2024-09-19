@@ -18,16 +18,20 @@ package com.paiondata.aristotle.service;
 import static org.junit.jupiter.api.Assertions.assertDoesNotThrow;
 import static org.junit.jupiter.api.Assertions.assertThrows;
 import static org.mockito.ArgumentMatchers.any;
+import static org.mockito.ArgumentMatchers.anyList;
 import static org.mockito.ArgumentMatchers.eq;
+import static org.mockito.Mockito.doNothing;
 import static org.mockito.Mockito.never;
 import static org.mockito.Mockito.times;
 import static org.mockito.Mockito.verify;
 import static org.mockito.Mockito.when;
 
 import com.paiondata.aristotle.base.TestConstants;
+import com.paiondata.aristotle.common.exception.DeleteException;
 import com.paiondata.aristotle.common.exception.GraphNullException;
 import com.paiondata.aristotle.common.exception.UserNullException;
 import com.paiondata.aristotle.model.dto.GraphCreateDTO;
+import com.paiondata.aristotle.model.dto.GraphDeleteDTO;
 import com.paiondata.aristotle.model.dto.GraphUpdateDTO;
 import com.paiondata.aristotle.model.entity.Graph;
 import com.paiondata.aristotle.model.entity.User;
@@ -47,8 +51,6 @@ import org.mockito.junit.jupiter.MockitoExtension;
 import java.text.SimpleDateFormat;
 import java.time.LocalDateTime;
 import java.time.ZoneId;
-import java.util.ArrayList;
-import java.util.Arrays;
 import java.util.Collections;
 import java.util.Date;
 import java.util.List;
@@ -234,47 +236,78 @@ public class GraphServiceSpec {
     }
 
     /**
-     * Tests that deleting graphs by UUIDs deletes the graphs and related data when they exist.
+     * Tests that deleting a graph throws a GraphNullException when the graph does not exist.
      */
     @Test
-    void deleteByUuidsGraphExistDeletesGraphsAndRelateData() {
+    public void deleteByUuidsGraphNotExistThrowsGraphNullException() {
         // Arrange
-        final List<String> uuids = Arrays.asList(TestConstants.TEST_ID1, TestConstants.TEST_ID2);
-        final List<Graph> graphs = new ArrayList<>();
-        graphs.add(Graph.builder().uuid(TestConstants.TEST_ID1).build());
-        graphs.add(Graph.builder().uuid(TestConstants.TEST_ID2).build());
+        String uidcid = TestConstants.TEST_ID1;
+        String uuid = TestConstants.TEST_ID2;
 
-        final List<String> relatedGraphNodeUuids = Arrays.asList(TestConstants.TEST_ID1, TestConstants.TEST_ID2);
+        GraphDeleteDTO graphDeleteDTO = GraphDeleteDTO.builder()
+                .uidcid(uidcid)
+                .uuids(Collections.singletonList(uuid))
+                .build();
 
-        when(graphRepository.getGraphByUuid(TestConstants.TEST_ID1)).thenReturn(graphs.get(0));
-        when(graphRepository.getGraphByUuid(TestConstants.TEST_ID2)).thenReturn(graphs.get(1));
-        when(graphRepository.getGraphNodeUuidsByGraphUuids(uuids)).thenReturn(relatedGraphNodeUuids);
+        when(graphRepository.getGraphByUuid(uuid)).thenReturn(null);
 
-        // Act
-        graphService.deleteByUuids(uuids);
-
-        // Assert
-        verify(graphRepository, times(1)).deleteByUuids(uuids);
-        verify(graphNodeRepository, times(1)).deleteByUuids(relatedGraphNodeUuids);
+        // Act & Assert
+        assertThrows(GraphNullException.class, () -> graphService.deleteByUuids(graphDeleteDTO));
     }
 
     /**
-     * Tests that deleting graphs by UUIDs throws a GraphNullException when a graph does not exist.
+     * Tests that deleting a graph throws a DeleteException when the graph is bound to another user.
      */
     @Test
-    void deleteByUuidsGraphDoesNotExistThrowsGraphNullException() {
+    public void deleteByUuidsGraphBoundToAnotherUserThrowsDeleteException() {
         // Arrange
-        final List<String> uuids = Arrays.asList(TestConstants.TEST_ID1, TestConstants.TEST_ID2);
+        String uidcid = TestConstants.TEST_ID1;
+        String uuid = TestConstants.TEST_ID2;
 
-        when(graphRepository.getGraphByUuid(TestConstants.TEST_ID1)).thenReturn(null);
+        Graph graph = Graph.builder()
+                .uuid(uuid)
+                .build();
+
+        GraphDeleteDTO graphDeleteDTO = GraphDeleteDTO.builder()
+                .uidcid(uidcid)
+                .uuids(Collections.singletonList(uuid))
+                .build();
+
+        when(graphRepository.getGraphByUuid(uuid)).thenReturn(graph);
+        when(graphRepository.getGraphByGraphUuidAndUidcid(uuid, uidcid)).thenReturn(null);
 
         // Act & Assert
-        assertThrows(GraphNullException.class, () -> graphService.deleteByUuids(uuids));
+        assertThrows(DeleteException.class, () -> graphService.deleteByUuids(graphDeleteDTO));
+    }
 
-        // Verify
-        verify(graphRepository, times(1)).getGraphByUuid(TestConstants.TEST_ID1);
-        verify(graphRepository, never()).deleteByUuids(any());
-        verify(graphNodeRepository, never()).deleteByUuids(any());
+    @Test
+    public void deleteByUuidsValidRequestDeletesGraphsAndRelatedGraphNodes() {
+        // Arrange
+        String uidcid = TestConstants.TEST_ID1;
+        String graphUuid = TestConstants.TEST_ID2;
+        String nodeUuid = TestConstants.TEST_ID3;
+
+        Graph graph = Graph.builder()
+                .uuid(uidcid)
+                .build();
+
+        GraphDeleteDTO graphDeleteDTO = GraphDeleteDTO.builder()
+                .uidcid(uidcid)
+                .uuids(Collections.singletonList(graphUuid))
+                .build();
+
+        when(graphRepository.getGraphByUuid(graphUuid)).thenReturn(graph);
+        when(graphRepository.getGraphByGraphUuidAndUidcid(graphUuid, uidcid)).thenReturn(graphUuid);
+        when(graphRepository.getGraphNodeUuidsByGraphUuids(anyList())).thenReturn(Collections.singletonList(nodeUuid));
+
+        doNothing().when(graphNodeRepository).deleteByUuids(anyList());
+        doNothing().when(graphRepository).deleteByUuids(anyList());
+
+        graphService.deleteByUuids(graphDeleteDTO);
+
+        // Act & Assert
+        verify(graphNodeRepository, times(1)).deleteByUuids(Collections.singletonList(nodeUuid));
+        verify(graphRepository, times(1)).deleteByUuids(Collections.singletonList(graphUuid));
     }
 
     /**
