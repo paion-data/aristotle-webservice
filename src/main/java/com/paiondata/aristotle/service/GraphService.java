@@ -16,11 +16,11 @@
 package com.paiondata.aristotle.service;
 
 import com.paiondata.aristotle.model.dto.GraphCreateDTO;
+import com.paiondata.aristotle.model.dto.GraphDeleteDTO;
 import com.paiondata.aristotle.model.dto.GraphUpdateDTO;
 import com.paiondata.aristotle.model.entity.Graph;
 import com.paiondata.aristotle.model.vo.GraphVO;
 
-import java.util.List;
 import java.util.Optional;
 
 /**
@@ -59,9 +59,9 @@ public interface GraphService {
     /**
      * Deletes graphs by their UUIDs.
      *
-     * @param uuids the list of UUIDs of graphs to be deleted
+     * @param graphDeleteDTO the DTO containing the UUIDs of the graphs to delete
      */
-    void deleteByUuids(List<String> uuids);
+    void deleteByUuids(GraphDeleteDTO graphDeleteDTO);
 
     /**
      * Updates a graph using the provided DTO.

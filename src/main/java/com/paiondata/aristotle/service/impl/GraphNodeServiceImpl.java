@@ -17,12 +17,14 @@ package com.paiondata.aristotle.service.impl;
 
 import cn.hutool.core.lang.UUID;
 import com.paiondata.aristotle.common.base.Message;
+import com.paiondata.aristotle.common.exception.DeleteException;
 import com.paiondata.aristotle.common.exception.NodeNullException;
 import com.paiondata.aristotle.common.exception.NodeRelationException;
 import com.paiondata.aristotle.common.exception.GraphNullException;
 import com.paiondata.aristotle.common.exception.TemporaryKeyException;
 import com.paiondata.aristotle.model.dto.BindNodeDTO;
 import com.paiondata.aristotle.model.dto.NodeDTO;
+import com.paiondata.aristotle.model.dto.NodeDeleteDTO;
 import com.paiondata.aristotle.model.dto.NodeRelationDTO;
 import com.paiondata.aristotle.model.dto.GraphAndNodeCreateDTO;
 import com.paiondata.aristotle.model.dto.GraphUpdateDTO;
@@ -247,14 +249,20 @@ public class GraphNodeServiceImpl implements GraphNodeService {
     /**
      * Deletes graph nodes by their UUIDs.
      *
-     * @param uuids the list of UUIDs of the graph nodes to be deleted
+     * @param nodeDeleteDTO the list of UUIDs of the graph nodes to be deleted
      */
     @Transactional
     @Override
-    public void deleteByUuids(final List<String> uuids) {
+    public void deleteByUuids(final NodeDeleteDTO nodeDeleteDTO) {
+        final String graphUuid = nodeDeleteDTO.getUuid();
+        final List<String> uuids = nodeDeleteDTO.getUuids();
+
         for (final String uuid : uuids) {
             if (getNodeByUuid(uuid).isEmpty()) {
                 throw new NodeNullException(Message.GRAPH_NODE_NULL + uuid);
+            }
+            if (graphNodeRepository.getNodeByGraphUuidAndNodeUuid(graphUuid, uuid) == null) {
+                throw new DeleteException(Message.NODE_BIND_ANOTHER_USER + uuid);
             }
         }
 

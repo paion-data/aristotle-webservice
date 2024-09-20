@@ -32,21 +32,13 @@ abstract class AbstractITSpec extends Specification {
     private static final String USER_ENDPOINT = "/user"
     private static final String GRAPH_ENDPOINT = "/graph"
     private static final String NODE_ENDPOINT = "/node"
-    private static final String NODE_GRAPH_ENDPOINT = "/node/graph"
-    private static final String NODE_BIND_ENDPOINT = "/node/bind"
     private static final String CREATE_UPDATE_USER_JSON = "create-update-user.json"
-    private static final String CREATE_GRAPH_JSON = "create-graph.json"
     private static final String UPDATE_GRAPH_JSON = "update-graph.json"
-    private static final String CREATE_NODE_JSON = "create-node.json"
-    private static final String REALTE_NODE_JSON = "relate-node.json"
     private static final String TEST_UIDCID = "6b47"
     private static final String TEST_NICK_NAME = "Jame"
     private static final String UPDATE_NICK_NAME = "Fame"
     private static final String TEST_GRAPH_TITLE = "Rus"
     private static final String UPDATE_GRAPH_TITLE = "Kas"
-    private static final String TEST_NODE_TITLE_01 = "Mos"
-    private static final String TEST_NODE_TITLE_02 = "Nos"
-    private static final String TEST_NODE_TITLE_03 = "Aos"
     private static final String UPDATE_NODE_TITLE = "Los"
 
     @NotNull
@@ -182,9 +174,9 @@ abstract class AbstractITSpec extends Specification {
                 .given()
                 .contentType(ContentType.JSON)
                 .accept(ContentType.JSON)
-                .body(String.format(payload(CREATE_GRAPH_JSON), TEST_UIDCID, TEST_GRAPH_TITLE))
+                .body(String.format(payload("create-graph.json"), TEST_UIDCID, TEST_GRAPH_TITLE))
                 .when()
-                .post(NODE_GRAPH_ENDPOINT)
+                .post("/node/graph")
                 .then()
                 .extract()
                 .response()
@@ -240,9 +232,9 @@ abstract class AbstractITSpec extends Specification {
                 .given()
                 .contentType(ContentType.JSON)
                 .accept(ContentType.JSON)
-                .body(String.format(payload(CREATE_NODE_JSON),
+                .body(String.format(payload("create-node.json"),
                         getGraphEntityResponse.jsonPath().get("data.graphs[0].uuid"),
-                        TEST_NODE_TITLE_01, TEST_NODE_TITLE_02, TEST_NODE_TITLE_03))
+                        "Mos", "Nos", "Aos"))
                 .when()
                 .post(NODE_ENDPOINT)
                 .then()
@@ -300,7 +292,7 @@ abstract class AbstractITSpec extends Specification {
                 .given()
                 .contentType(ContentType.JSON)
                 .accept(ContentType.JSON)
-                .body(String.format(payload(REALTE_NODE_JSON),
+                .body(String.format(payload("relate-node.json"),
                         getNodeEntityResponse.jsonPath().get("data.nodes[0].startNode.uuid"),
                         getNodeEntityResponse.jsonPath().get("data.nodes[1].startNode.uuid"),
                         getNodeEntityResponse.jsonPath().get("data.nodes[0].startNode.uuid"),
@@ -308,7 +300,7 @@ abstract class AbstractITSpec extends Specification {
                         getNodeEntityResponse.jsonPath().get("data.nodes[1].startNode.uuid"),
                         getNodeEntityResponse.jsonPath().get("data.nodes[2].startNode.uuid")))
                 .when()
-                .post(NODE_BIND_ENDPOINT)
+                .post("/node/bind")
                 .then()
                 .extract()
                 .response()
@@ -329,7 +321,9 @@ abstract class AbstractITSpec extends Specification {
                 .given()
                 .contentType(ContentType.JSON)
                 .accept(ContentType.JSON)
-                .body(Arrays.asList(getNodeEntityResponse.jsonPath().get("data.nodes[1].startNode.uuid")))
+                .body(String.format(payload("delete-node.json"),
+                        getGraphEntityResponse.jsonPath().get("data.graphs[0].uuid"),
+                        getNodeEntityResponse.jsonPath().get("data.nodes[1].startNode.uuid")))
                 .when()
                 .delete(NODE_ENDPOINT)
         deleteNodeResponse.then()
@@ -343,14 +337,15 @@ abstract class AbstractITSpec extends Specification {
         getResponse4.then()
                 .statusCode(OK_CODE)
 
-        Assert.assertEquals(null, getResponse4.jsonPath().getList("data"))
+        Assert.assertEquals(null, getResponse4.jsonPath().get("data"))
 
         when: "the Graph entity is deleted"
         final Response deleteGraphResponse = RestAssured
                 .given()
                 .contentType(ContentType.JSON)
                 .accept(ContentType.JSON)
-                .body(Arrays.asList(getGraphEntityResponse.jsonPath().get("data.graphs[0].uuid")))
+                .body(String.format(payload(("delete-graph.json")), TEST_UIDCID,
+                        getGraphEntityResponse.jsonPath().get("data.graphs[0].uuid")))
                 .when()
                 .delete(GRAPH_ENDPOINT)
         deleteGraphResponse.then()

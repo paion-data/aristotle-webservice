@@ -20,18 +20,19 @@ import static org.junit.jupiter.api.Assertions.assertThrows;
 import static org.mockito.ArgumentMatchers.any;
 import static org.mockito.ArgumentMatchers.anyString;
 import static org.mockito.ArgumentMatchers.eq;
-import static org.mockito.Mockito.never;
 import static org.mockito.Mockito.times;
 import static org.mockito.Mockito.verify;
 import static org.mockito.Mockito.when;
 
 import com.paiondata.aristotle.base.TestConstants;
+import com.paiondata.aristotle.common.exception.DeleteException;
 import com.paiondata.aristotle.common.exception.NodeNullException;
 import com.paiondata.aristotle.common.exception.NodeRelationException;
 import com.paiondata.aristotle.common.exception.GraphNullException;
 import com.paiondata.aristotle.model.dto.GraphAndNodeCreateDTO;
 import com.paiondata.aristotle.model.dto.NodeCreateDTO;
 import com.paiondata.aristotle.model.dto.NodeDTO;
+import com.paiondata.aristotle.model.dto.NodeDeleteDTO;
 import com.paiondata.aristotle.model.dto.NodeRelationDTO;
 import com.paiondata.aristotle.model.dto.BindNodeDTO;
 import com.paiondata.aristotle.model.dto.GraphCreateDTO;
@@ -259,39 +260,73 @@ public class GraphNodeServiceSpec {
     }
 
     /**
-     * Tests that deleting nodes by UUIDs succeeds when all nodes exist.
+     * Tests that deleting nodes succeeds when the node exists and belongs to the graph.
      */
     @Test
-    void deleteByUuidsNodesExistShouldDeleteNodes() {
-        // Given
-        final List<String> uuids = List.of(TestConstants.TEST_ID1, TestConstants.TEST_ID2);
+    public void deleteByUuidsNodeExistsAndBelongsToGraph_Success() {
+        // Arrange
+        final String graphUuid = TestConstants.TEST_ID1;
+        final String nodeUuid = TestConstants.TEST_ID2;
+        NodeDeleteDTO dto = NodeDeleteDTO.builder()
+                .uuid(graphUuid)
+                .uuids(Collections.singletonList(nodeUuid))
+                .build();
 
-        when(graphNodeRepository.getGraphNodeByUuid(TestConstants.TEST_ID1)).thenReturn(new GraphNode());
-        when(graphNodeRepository.getGraphNodeByUuid(TestConstants.TEST_ID2)).thenReturn(new GraphNode());
+        GraphNode graphNode = GraphNode.builder()
+                .uuid(nodeUuid)
+                .build();
 
-        // When
-        assertDoesNotThrow(() -> graphNodeService.deleteByUuids(uuids));
+        when(graphNodeRepository.getGraphNodeByUuid(nodeUuid)).thenReturn(graphNode);
+        when(graphNodeRepository.getNodeByGraphUuidAndNodeUuid(graphUuid, nodeUuid)).thenReturn(nodeUuid);
 
-        // Then
-        verify(graphNodeRepository, times(1)).deleteByUuids(uuids);
+        // Act
+        graphNodeService.deleteByUuids(dto);
+
+        // Assert
+        verify(graphNodeRepository, times(1)).deleteByUuids(Collections.singletonList(nodeUuid));
     }
 
     /**
-     * Tests that deleting nodes by UUIDs throws a NodeNullException when one of the nodes does not exist.
+     * Tests that deleting nodes throws a NodeNullException when the node does not exist.
      */
     @Test
-    void deleteByUuidsGraphNodeDoesNotExistShouldThrowException() {
-        // Given
-        final List<String> uuids = List.of(TestConstants.TEST_ID1, TestConstants.TEST_ID2);
+    public void deleteByUuidsNodeDoesNotExistThrowsException() {
+        // Arrange
+        String graphUuid = TestConstants.TEST_ID1;
+        final String nodeUuid = TestConstants.TEST_ID2;
+        NodeDeleteDTO dto = NodeDeleteDTO.builder()
+                .uuid(graphUuid)
+                .uuids(Collections.singletonList(nodeUuid))
+                .build();
 
-        when(graphNodeRepository.getGraphNodeByUuid(TestConstants.TEST_ID1)).thenReturn(null);
+        when(graphNodeRepository.getGraphNodeByUuid(nodeUuid)).thenReturn(null);
 
-        // When & Then
-        assertThrows(NodeNullException.class, () -> graphNodeService.deleteByUuids(uuids));
+        // Assert handled by expected exception
+        assertThrows(NodeNullException.class, () -> graphNodeService.deleteByUuids(dto));
+    }
 
-        // Then
-        verify(graphNodeRepository, times(1)).getGraphNodeByUuid(TestConstants.TEST_ID1);
-        verify(graphNodeRepository, never()).getGraphNodeByUuid(TestConstants.TEST_ID2);
+    /**
+     * Tests that deleting nodes throws a DeleteException when the node belongs to another graph.
+     */
+    @Test
+    public void deleteByUuidsNodeBelongsToAnotherGraphThrowsException() {
+        // Arrange
+        final String graphUuid = TestConstants.TEST_ID1;
+        final String nodeUuid = TestConstants.TEST_ID2;
+        NodeDeleteDTO dto = NodeDeleteDTO.builder()
+                .uuid(graphUuid)
+                .uuids(Collections.singletonList(nodeUuid))
+                .build();
+
+        GraphNode graphNode = GraphNode.builder()
+                .uuid(nodeUuid)
+                .build();
+
+        when(graphNodeRepository.getGraphNodeByUuid(nodeUuid)).thenReturn(graphNode);
+        when(graphNodeRepository.getNodeByGraphUuidAndNodeUuid(graphUuid, nodeUuid)).thenReturn(null);
+
+        // Assert handled by expected exception
+        assertThrows(DeleteException.class, () -> graphNodeService.deleteByUuids(dto));
     }
 
     /**

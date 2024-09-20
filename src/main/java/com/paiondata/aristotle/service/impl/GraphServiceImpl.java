@@ -17,9 +17,11 @@ package com.paiondata.aristotle.service.impl;
 
 import cn.hutool.core.lang.UUID;
 import com.paiondata.aristotle.common.base.Message;
+import com.paiondata.aristotle.common.exception.DeleteException;
 import com.paiondata.aristotle.common.exception.GraphNullException;
 import com.paiondata.aristotle.common.exception.UserNullException;
 import com.paiondata.aristotle.model.dto.GraphCreateDTO;
+import com.paiondata.aristotle.model.dto.GraphDeleteDTO;
 import com.paiondata.aristotle.model.dto.GraphUpdateDTO;
 import com.paiondata.aristotle.model.entity.Graph;
 import com.paiondata.aristotle.model.entity.User;
@@ -123,14 +125,20 @@ public class GraphServiceImpl implements GraphService {
     /**
      * Deletes graphs by their UUIDs.
      *
-     * @param uuids the list of UUIDs of graphs to be deleted
+     * @param graphDeleteDTO the DTO containing the UUIDs of the graphs to delete
      */
     @Transactional
     @Override
-    public void deleteByUuids(final List<String> uuids) {
+    public void deleteByUuids(final GraphDeleteDTO graphDeleteDTO) {
+        final String uidcid = graphDeleteDTO.getUidcid();
+        final List<String> uuids = graphDeleteDTO.getUuids();
+
         for (final String uuid : uuids) {
             if (getGraphByUuid(uuid).isEmpty()) {
                 throw new GraphNullException(Message.GRAPH_NULL + uuid);
+            }
+            if (graphRepository.getGraphByGraphUuidAndUidcid(uuid, uidcid) == null) {
+                throw new DeleteException(Message.GRAPH_BIND_ANOTHER_USER + uuid);
             }
         }
 

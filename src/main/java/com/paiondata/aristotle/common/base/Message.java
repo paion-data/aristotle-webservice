@@ -119,4 +119,14 @@ public class Message {
      * The relation does not exist.
      */
     public static final String GRAPH_NODE_RELATION_NULL = "The relation does not exist: ";
+
+    /**
+     * The graph is already bound to another user.
+     */
+    public static final String GRAPH_BIND_ANOTHER_USER = "The graph is already bound to another user: ";
+
+    /**
+     * The node is already bound to another graph.
+     */
+    public static final String NODE_BIND_ANOTHER_USER = "The node is already bound to another graph: ";
 }

@@ -19,6 +19,7 @@ import com.paiondata.aristotle.common.base.Message;
 import com.paiondata.aristotle.common.base.Result;
 import com.paiondata.aristotle.model.dto.NodeCreateDTO;
 import com.paiondata.aristotle.model.dto.GraphAndNodeCreateDTO;
+import com.paiondata.aristotle.model.dto.NodeDeleteDTO;
 import com.paiondata.aristotle.model.dto.RelationUpdateDTO;
 import com.paiondata.aristotle.model.dto.GraphUpdateDTO;
 import com.paiondata.aristotle.model.dto.BindNodeDTO;
@@ -138,14 +139,13 @@ public class NodeController {
     /**
      * Deletes graph nodes by their UUIDs.
      *
-     * @param uuids the list of UUIDs of the graph nodes to be deleted
+     * @param nodeDeleteDTO the list of UUIDs of the graph nodes to be deleted
      * @return the result indicating the success of the deletion
      */
     @ApiOperation(value = "Deletes nodes by their UUIDs")
     @DeleteMapping
-    public Result<String> deleteNode(@RequestBody @NotEmpty(message = Message.UUID_MUST_NOT_BE_BLANK)
-                                         final List<String> uuids) {
-        graphNodeService.deleteByUuids(uuids);
+    public Result<String> deleteNode(@RequestBody @Valid NodeDeleteDTO nodeDeleteDTO) {
+        graphNodeService.deleteByUuids(nodeDeleteDTO);
         return Result.ok(Message.DELETE_SUCCESS);
     }
 }
