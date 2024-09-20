@@ -14,7 +14,7 @@ docker compose up
 
 ### Accessing the API Documentation <sup>[![Swagger badge][Swagger badge]](https://swagger.io/) [![Knife4j badge][Knife4j badge]](https://doc.xiaominfo.com/)</sup>
 
-After starting the API, you can access the API documentation at `doc.html` on your local server.
+After starting the API, you can access the API documentation at `http://localhost:8080/doc.html`.
 
 Documentation
 -------------
@@ -24,7 +24,7 @@ Comprehensive documentation is viewable on our [website][Aristotle]
 License
 -------
 
-The use and distribution terms for [Astraios] are covered by the [Apache License, Version 2.0].
+The use and distribution terms for [Aristotle] are covered by the [Apache License, Version 2.0].
 
 [Apache License Badge]: https://img.shields.io/badge/Apache%202.0-F25910.svg?style=for-the-badge&logo=Apache&logoColor=white
 [Apache License, Version 2.0]: http://www.apache.org/licenses/LICENSE-2.0.html
