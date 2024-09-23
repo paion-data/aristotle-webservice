@@ -26,6 +26,18 @@ type FeatureItem = {
 
 const FeatureList: FeatureItem[] = [
     {
+        title: 'Immutable Infrastructure',
+        Svg: require('@site/static/img/hashicorp-logo.svg').default,
+        scale: 1,
+        id: 'hashicorp-logo',
+        description: (
+            <>
+                Astraios has first-class support for HashiCorp as CI/CD deployment and was designed to be easily deployed and
+                maintained to get our webservice up and running quickly.
+            </>
+        ),
+    },
+    {
         title: 'Open API',
         Svg: require('@site/static/img/openapi-logo.svg').default,
         scale: 0.7,
