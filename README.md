@@ -19,7 +19,7 @@ After starting the API, you can access the API documentation at `http://localhos
 Documentation
 -------------
 
-Comprehensive documentation is viewable on our [website][Aristotle]
+Comprehensive documentation is viewable on our [website][Documentation]
 
 License
 -------
@@ -31,6 +31,7 @@ The use and distribution terms for [Aristotle] are covered by the [Apache Licens
 [Docker Compose badge]: https://img.shields.io/badge/Docker%20Compose-2596EC?style=for-the-badge&logo=docker&logoColor=white
 
 [Aristotle]: https://github.com/paion-data/aristotle
+[Documentation]: https://paion-data.github.io/aristotle/
 
 [Neo4j]: https://neo4j.com
 
