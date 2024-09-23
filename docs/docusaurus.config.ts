@@ -24,7 +24,7 @@ const config: Config = {
   favicon: 'img/favicon.ico',
 
   url: 'https://aristotle.io',
-  baseUrl: '/',
+  baseUrl: '/aristotle/',
 
   organizationName: 'paion-data',
   projectName: 'aristotle',
