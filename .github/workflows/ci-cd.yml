@@ -34,3 +34,37 @@ jobs:
         uses: paion-data/immutable-infrastructure-as-a-service/.github/actions/jdk-setup@master
       - name: Run unit & integration tests
         run: mvn -B clean verify
+
+  deploy-docs:
+    runs-on: ubuntu-latest
+    steps:
+      - name: Checkout Repository
+        uses: actions/checkout@v3
+
+      - name: Test Environment Setup
+        uses: ./.github/actions/ci-setup
+        with:
+          data-models-repo-org: paion-data
+          data-models-repo-name: astraios-data-models-example
+
+      - name: Install Dependencies
+        working-directory: docs
+        run: yarn
+
+      - name: Build Documentation
+        working-directory: docs
+        run: yarn build
+
+      - name: Deploy Documentation to GitHub Pages
+        if: github.ref == 'refs/heads/master'
+        uses: peaceiris/actions-gh-pages@v3
+        with:
+          github_token: ${{ secrets.GITHUB_TOKEN }}
+          publish_dir: docs/build
+          enable_jekyll: false
+          user_name: ${{ env.USER }}
+          user_email: ${{ env.EMAIL }}
+
+      - name: Load CNAME File
+        if: github.ref == 'refs/heads/master'
+        run: cp docs/CNAME docs/build
