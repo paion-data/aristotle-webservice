@@ -41,12 +41,6 @@ jobs:
       - name: Checkout Repository
         uses: actions/checkout@v3
 
-      - name: Test Environment Setup
-        uses: ./.github/actions/ci-setup
-        with:
-          data-models-repo-org: paion-data
-          data-models-repo-name: astraios-data-models-example
-
       - name: Install Dependencies
         working-directory: docs
         run: yarn
