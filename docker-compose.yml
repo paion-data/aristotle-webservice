@@ -8,6 +8,9 @@ services:
       NEO4J_USERNAME: neo4j
       NEO4J_PASSWORD: 12345678
       NEO4J_DATABASE: neo4j
+    depends_on:
+      db:
+        condition: service_healthy
   db:
     image: neo4j:latest
     environment:
@@ -19,9 +22,9 @@ services:
       - "7474:7474"
       - "7687:7687"
     healthcheck:
-      test: ["CMD-SHELL", "curl", "--fail", "http://db:7474/db/data"]
-      interval: 30s
-      timeout: 10s
+      test: wget --quiet --spider http://db:7474/db/data && echo 'Health check passed' || echo 'Health check failed'
+      interval: 10s
+      timeout: 3s
       retries: 5
 
 volumes:
