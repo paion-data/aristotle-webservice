@@ -27,22 +27,13 @@ So You Want An API?
 
 :::
 
-Instantiating the Template
---------------------------
-
-Please visit [Aristotle GitHub] and either
-
-clone the repo with `git clone git@github.com:paion-data/aristotle.git`
-
-Running
--------
+The easiest way to start with Aristotle is using its Docker:
 
 ```bash
+git clone git@github.com:paion-data/aristotle.git
 cd aristotle
 mvn clean package
 docker compose up --build --force-recreate
 ```
 
-You can access the API documentation at `doc.html` on your local server.
-
-[Aristotle GitHub]: https://github.com/paion-data/aristotle
+We can then access the API documentation at `http://localhost:8080/doc.html` on our local server.
