@@ -241,10 +241,10 @@ public class GraphServiceSpec {
     @Test
     public void deleteByUuidsGraphNotExistThrowsGraphNullException() {
         // Arrange
-        String uidcid = TestConstants.TEST_ID1;
-        String uuid = TestConstants.TEST_ID2;
+        final String uidcid = TestConstants.TEST_ID1;
+        final String uuid = TestConstants.TEST_ID2;
 
-        GraphDeleteDTO graphDeleteDTO = GraphDeleteDTO.builder()
+        final GraphDeleteDTO graphDeleteDTO = GraphDeleteDTO.builder()
                 .uidcid(uidcid)
                 .uuids(Collections.singletonList(uuid))
                 .build();
@@ -261,14 +261,14 @@ public class GraphServiceSpec {
     @Test
     public void deleteByUuidsGraphBoundToAnotherUserThrowsDeleteException() {
         // Arrange
-        String uidcid = TestConstants.TEST_ID1;
-        String uuid = TestConstants.TEST_ID2;
+        final String uidcid = TestConstants.TEST_ID1;
+        final String uuid = TestConstants.TEST_ID2;
 
-        Graph graph = Graph.builder()
+        final Graph graph = Graph.builder()
                 .uuid(uuid)
                 .build();
 
-        GraphDeleteDTO graphDeleteDTO = GraphDeleteDTO.builder()
+        final GraphDeleteDTO graphDeleteDTO = GraphDeleteDTO.builder()
                 .uidcid(uidcid)
                 .uuids(Collections.singletonList(uuid))
                 .build();
@@ -280,18 +280,21 @@ public class GraphServiceSpec {
         assertThrows(DeleteException.class, () -> graphService.deleteByUuids(graphDeleteDTO));
     }
 
+    /**
+     * Tests that deleting a graph successfully deletes the graph and related graph nodes.
+     */
     @Test
     public void deleteByUuidsValidRequestDeletesGraphsAndRelatedGraphNodes() {
         // Arrange
-        String uidcid = TestConstants.TEST_ID1;
-        String graphUuid = TestConstants.TEST_ID2;
-        String nodeUuid = TestConstants.TEST_ID3;
+        final String uidcid = TestConstants.TEST_ID1;
+        final String graphUuid = TestConstants.TEST_ID2;
+        final String nodeUuid = TestConstants.TEST_ID3;
 
-        Graph graph = Graph.builder()
+        final Graph graph = Graph.builder()
                 .uuid(uidcid)
                 .build();
 
-        GraphDeleteDTO graphDeleteDTO = GraphDeleteDTO.builder()
+        final GraphDeleteDTO graphDeleteDTO = GraphDeleteDTO.builder()
                 .uidcid(uidcid)
                 .uuids(Collections.singletonList(graphUuid))
                 .build();
