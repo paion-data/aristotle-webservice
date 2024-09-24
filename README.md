@@ -1,7 +1,8 @@
 Aristotle <sup>![Java Version badge][Java Version badge]</sup> <sup>![Neo4j badge][Neo4j badge]</sup>
 ========
 
-[Aristotle] is a [Neo4j] graph database web service that allows you to _create_, _read_, _update_, and _delete_ nodes and relationships in a graph database
+[Aristotle] is a [Neo4j] graph database web service that allows you to _create_, _read_, _update_, and _delete_ nodes
+and relationships in a graph database via [JSON API](https://jsonapi.org/format/)
 
 Spinning Up the API in 1 Minute
 -------------------------------
