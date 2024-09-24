@@ -58,7 +58,3 @@ jobs:
           enable_jekyll: false
           user_name: ${{ env.USER }}
           user_email: ${{ env.EMAIL }}
-
-      - name: Load CNAME File
-        if: github.ref == 'refs/heads/master'
-        run: cp docs/CNAME docs/build
