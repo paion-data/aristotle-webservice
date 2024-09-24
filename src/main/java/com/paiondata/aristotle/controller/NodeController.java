@@ -39,7 +39,6 @@ import org.springframework.web.bind.annotation.RequestBody;
 
 import javax.validation.Valid;
 import javax.validation.constraints.NotBlank;
-import javax.validation.constraints.NotEmpty;
 import java.util.List;
 import java.util.Optional;
 
@@ -144,7 +143,7 @@ public class NodeController {
      */
     @ApiOperation(value = "Deletes nodes by their UUIDs")
     @DeleteMapping
-    public Result<String> deleteNode(@RequestBody @Valid NodeDeleteDTO nodeDeleteDTO) {
+    public Result<String> deleteNode(@RequestBody @Valid final NodeDeleteDTO nodeDeleteDTO) {
         graphNodeService.deleteByUuids(nodeDeleteDTO);
         return Result.ok(Message.DELETE_SUCCESS);
     }

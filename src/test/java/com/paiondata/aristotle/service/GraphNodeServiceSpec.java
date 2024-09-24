@@ -263,16 +263,16 @@ public class GraphNodeServiceSpec {
      * Tests that deleting nodes succeeds when the node exists and belongs to the graph.
      */
     @Test
-    public void deleteByUuidsNodeExistsAndBelongsToGraph_Success() {
+    public void deleteByUuidsNodeExistsAndBelongsToGraphSuccess() {
         // Arrange
         final String graphUuid = TestConstants.TEST_ID1;
         final String nodeUuid = TestConstants.TEST_ID2;
-        NodeDeleteDTO dto = NodeDeleteDTO.builder()
+        final NodeDeleteDTO dto = NodeDeleteDTO.builder()
                 .uuid(graphUuid)
                 .uuids(Collections.singletonList(nodeUuid))
                 .build();
 
-        GraphNode graphNode = GraphNode.builder()
+        final GraphNode graphNode = GraphNode.builder()
                 .uuid(nodeUuid)
                 .build();
 
@@ -292,9 +292,9 @@ public class GraphNodeServiceSpec {
     @Test
     public void deleteByUuidsNodeDoesNotExistThrowsException() {
         // Arrange
-        String graphUuid = TestConstants.TEST_ID1;
+        final String graphUuid = TestConstants.TEST_ID1;
         final String nodeUuid = TestConstants.TEST_ID2;
-        NodeDeleteDTO dto = NodeDeleteDTO.builder()
+        final NodeDeleteDTO dto = NodeDeleteDTO.builder()
                 .uuid(graphUuid)
                 .uuids(Collections.singletonList(nodeUuid))
                 .build();
@@ -313,12 +313,12 @@ public class GraphNodeServiceSpec {
         // Arrange
         final String graphUuid = TestConstants.TEST_ID1;
         final String nodeUuid = TestConstants.TEST_ID2;
-        NodeDeleteDTO dto = NodeDeleteDTO.builder()
+        final NodeDeleteDTO dto = NodeDeleteDTO.builder()
                 .uuid(graphUuid)
                 .uuids(Collections.singletonList(nodeUuid))
                 .build();
 
-        GraphNode graphNode = GraphNode.builder()
+        final GraphNode graphNode = GraphNode.builder()
                 .uuid(nodeUuid)
                 .build();
 
