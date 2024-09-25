@@ -91,4 +91,4 @@ The web service will run on port **8080**.
 
 You can access the OpenAPI documentation at **http://localhost:8080/doc.html**. This documentation is built using **Swagger 2** and enhanced with **Knife4J**.
 
-[Aristotle]: https://paion-data.github.io/aristotle/
+[Aristotle]: https://aristotle-ws.com

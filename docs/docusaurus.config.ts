@@ -20,11 +20,11 @@ import type * as Preset from '@docusaurus/preset-classic';
 
 const config: Config = {
   title: 'Aristotle',
-  tagline: 'Build your knowledge graph',
+  tagline: 'A webservice for Graph Database',
   favicon: 'img/favicon.ico',
 
-  url: 'https://aristotle.io',
-  baseUrl: '/aristotle/',
+  url: 'https://aristotle-ws.com',
+  baseUrl: '/',
 
   organizationName: 'paion-data',
   projectName: 'aristotle',
