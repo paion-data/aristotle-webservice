@@ -28,16 +28,16 @@ import lombok.NoArgsConstructor;
 import javax.validation.constraints.NotBlank;
 
 /**
- * Data Transfer Object (DTO) for updating a user.
+ * Data Transfer Object (DTO) for the user.
  *
- * This DTO is used to encapsulate the data required for updating an existing user.
+ * This DTO is used to encapsulate the data required for the user.
  */
 @Data
 @Builder
 @AllArgsConstructor
 @NoArgsConstructor
-@ApiModel(description = "Data Transfer Object (DTO) for updating a user.")
-public class UserUpdateDTO extends BaseEntity {
+@ApiModel(description = "Data Transfer Object for the user.")
+public class UserDTO extends BaseEntity {
 
     /**
      * The unique identifier (UID/CID) of the user.

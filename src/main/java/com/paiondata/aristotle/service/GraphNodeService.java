@@ -15,7 +15,9 @@
  */
 package com.paiondata.aristotle.service;
 
+import com.paiondata.aristotle.model.dto.GraphNodeDTO;
 import com.paiondata.aristotle.model.dto.NodeDeleteDTO;
+import com.paiondata.aristotle.model.dto.NodeReturnDTO;
 import com.paiondata.aristotle.model.entity.GraphNode;
 import com.paiondata.aristotle.model.dto.BindNodeDTO;
 import com.paiondata.aristotle.model.dto.GraphAndNodeCreateDTO;
@@ -45,15 +47,16 @@ public interface GraphNodeService {
      * Creates and binds a graph and a node based on the provided DTO.
      *
      * @param nodeCreateDTO the DTO containing information for creating the graph and node
+     * @return the list of created nodes
      */
-    void createAndBindGraphAndNode(NodeCreateDTO nodeCreateDTO);
+    List<NodeReturnDTO> createAndBindGraphAndNode(NodeCreateDTO nodeCreateDTO);
 
     /**
      * Creates a graph and binds it with a node based on the provided DTO.
-     *
      * @param graphNodeCreateDTO the DTO containing information for creating the graph and node
+     * @return the created graph node
      */
-    void createGraphAndBindGraphAndNode(GraphAndNodeCreateDTO graphNodeCreateDTO);
+    GraphNodeDTO createGraphAndBindGraphAndNode(GraphAndNodeCreateDTO graphNodeCreateDTO);
 
     /**
      * Binds nodes based on the provided DTOs.

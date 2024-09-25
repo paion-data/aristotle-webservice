@@ -30,12 +30,14 @@ import com.paiondata.aristotle.common.exception.NodeNullException;
 import com.paiondata.aristotle.common.exception.NodeRelationException;
 import com.paiondata.aristotle.common.exception.GraphNullException;
 import com.paiondata.aristotle.model.dto.GraphAndNodeCreateDTO;
+import com.paiondata.aristotle.model.dto.GraphNodeDTO;
 import com.paiondata.aristotle.model.dto.NodeCreateDTO;
 import com.paiondata.aristotle.model.dto.NodeDTO;
 import com.paiondata.aristotle.model.dto.NodeDeleteDTO;
 import com.paiondata.aristotle.model.dto.NodeRelationDTO;
 import com.paiondata.aristotle.model.dto.BindNodeDTO;
 import com.paiondata.aristotle.model.dto.GraphCreateDTO;
+import com.paiondata.aristotle.model.dto.NodeReturnDTO;
 import com.paiondata.aristotle.model.dto.RelationUpdateDTO;
 import com.paiondata.aristotle.model.dto.GraphUpdateDTO;
 import com.paiondata.aristotle.model.entity.Graph;
@@ -62,6 +64,7 @@ import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
 import java.util.Optional;
+import java.util.Set;
 
 /**
  * Test class for the Graph Node Service.
@@ -152,14 +155,16 @@ public class GraphNodeServiceSpec {
                         TestConstants.TEST_DESCRIPTION1, currentTime, currentTime)));
 
         // When
-        assertDoesNotThrow(() -> graphNodeService.createAndBindGraphAndNode(nodeCreateDTO));
+        final List<NodeReturnDTO> dtos = graphNodeService.createAndBindGraphAndNode(nodeCreateDTO);
 
         // Then
         verify(graphService, times(1)).getGraphByUuid(TestConstants.TEST_ID1);
-        verify(graphNodeRepository, times(1)).getGraphUuidByGraphNodeUuid(List.of(TestConstants.TEST_ID1,
-                TestConstants.TEST_ID2, TestConstants.TEST_ID2, TestConstants.TEST_ID1));
+        verify(graphNodeRepository, times(1)).getGraphUuidByGraphNodeUuid(Set.of(TestConstants.TEST_ID1,
+                TestConstants.TEST_ID2));
         verify(graphNodeRepository, times(2)).createAndBindGraphNode(anyString(), anyString(), anyString(), anyString(),
                 anyString(), anyString());
+        Assertions.assertNotNull(dtos);
+        Assertions.assertFalse(dtos.isEmpty());
     }
 
     /**
@@ -198,7 +203,11 @@ public class GraphNodeServiceSpec {
         ));
 
         when(graphService.createAndBindGraph(graphNodeCreateDTO.getGraphCreateDTO()))
-                .thenReturn(Graph.builder().uuid(TestConstants.TEST_ID1).build());
+                .thenReturn(Graph.builder()
+                        .uuid(TestConstants.TEST_ID1)
+                        .title(TestConstants.TEST_TILE1)
+                        .description(TestConstants.TEST_DESCRIPTION1)
+                        .build());
 
         // Mock createGraphAndBindGraphAndNode to return a non-null GraphNode
         final String graphNodeUuid = UUID.fastUUID().toString(true);
@@ -209,14 +218,19 @@ public class GraphNodeServiceSpec {
                         TestConstants.TEST_DESCRIPTION1, currentTime, currentTime)));
 
         // When
-        assertDoesNotThrow(() -> graphNodeService.createGraphAndBindGraphAndNode(graphNodeCreateDTO));
+        final GraphNodeDTO dto = graphNodeService.createGraphAndBindGraphAndNode(graphNodeCreateDTO);
 
         // Then
         verify(graphService, times(1)).createAndBindGraph(graphNodeCreateDTO.getGraphCreateDTO());
-        verify(graphNodeRepository, times(1)).getGraphUuidByGraphNodeUuid(List.of(TestConstants.TEST_ID1,
-                TestConstants.TEST_ID2, TestConstants.TEST_ID2, TestConstants.TEST_ID1));
+        verify(graphNodeRepository, times(1)).getGraphUuidByGraphNodeUuid(Set.of(TestConstants.TEST_ID1,
+                TestConstants.TEST_ID2));
         verify(graphNodeRepository, times(2)).createAndBindGraphNode(anyString(), anyString(), anyString(), anyString(),
                 anyString(), anyString());
+        Assertions.assertNotNull(dto);
+        Assertions.assertNotNull(dto.getUuid());
+        Assertions.assertEquals(dto.getTitle(), TestConstants.TEST_TILE1);
+        Assertions.assertEquals(dto.getDescription(), TestConstants.TEST_DESCRIPTION1);
+        Assertions.assertNotNull(dto.getNodes());
     }
 
     /**

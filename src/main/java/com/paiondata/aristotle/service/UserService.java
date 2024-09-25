@@ -15,8 +15,7 @@
  */
 package com.paiondata.aristotle.service;
 
-import com.paiondata.aristotle.model.dto.UserCreateDTO;
-import com.paiondata.aristotle.model.dto.UserUpdateDTO;
+import com.paiondata.aristotle.model.dto.UserDTO;
 import com.paiondata.aristotle.model.entity.User;
 import com.paiondata.aristotle.model.vo.UserVO;
 
@@ -54,17 +53,18 @@ public interface UserService {
 
     /**
      * Creates a new user.
-     *
      * @param user the UserCreateDTO containing user details
+     *
+     * @return the UserDTO containing the created user details
      */
-    void createUser(UserCreateDTO user);
+    UserDTO createUser(UserDTO user);
 
     /**
      * Updates an existing user.
      *
-     * @param user the UserUpdateDTO containing updated user details
+     * @param userDTO the UserDTO containing updated user details
      */
-    void updateUser(UserUpdateDTO user);
+    void updateUser(UserDTO userDTO);
 
     /**
      * Deletes multiple users along with their related graphs and graph nodes.

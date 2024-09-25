@@ -15,9 +15,6 @@
  */
 package com.paiondata.aristotle.model.dto;
 
-import com.paiondata.aristotle.common.base.Message;
-import com.paiondata.aristotle.model.BaseEntity;
-
 import io.swagger.annotations.ApiModel;
 import io.swagger.annotations.ApiModelProperty;
 import lombok.AllArgsConstructor;
@@ -25,35 +22,39 @@ import lombok.Builder;
 import lombok.Data;
 import lombok.NoArgsConstructor;
 
-import javax.validation.constraints.NotBlank;
+import java.util.List;
 
 /**
- * Data Transfer Object (DTO) for creating a user.
- *
- * This DTO is used to encapsulate the data required for creating a new user.
+ * Data Transfer Object (DTO) for creating graph and node.
  */
 @Data
 @Builder
 @AllArgsConstructor
 @NoArgsConstructor
-@ApiModel(description = "Data Transfer Object for creating a user")
-public class UserCreateDTO extends BaseEntity {
+@ApiModel(description = "Data Transfer Object (DTO) for creating graph and node.")
+public class GraphNodeDTO {
 
     /**
-     * The unique identifier (UID/CID) of the user.
-     *
-     * @see Message#UIDCID_MUST_NOT_BE_BLANK
+     * The uuid of the graph.
      */
-    @ApiModelProperty(value = "The unique identifier (UID/CID) of the user", required = true)
-    @NotBlank(message = Message.UIDCID_MUST_NOT_BE_BLANK)
-    private String uidcid;
+    @ApiModelProperty(value = "The uuid of the graph.")
+    private String uuid;
 
     /**
-     * The nickname of the user.
-     *
-     * @see Message#NICK_NAME_MUST_NOT_BE_BLANK
+     * The title of the graph.
      */
-    @ApiModelProperty(value = "The nickname of the user", required = true)
-    @NotBlank(message = Message.NICK_NAME_MUST_NOT_BE_BLANK)
-    private String nickName;
+    @ApiModelProperty(value = "The title of the graph.")
+    private String title;
+
+    /**
+     * The description of the graph.
+     */
+    @ApiModelProperty(value = "The description of the graph.")
+    private String description;
+
+    /**
+     * The list of nodes in the graph.
+     */
+    @ApiModelProperty(value = "The list of nodes in the graph.")
+    private List<NodeReturnDTO> nodes;
 }

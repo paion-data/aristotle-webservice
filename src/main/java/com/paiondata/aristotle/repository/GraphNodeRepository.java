@@ -22,6 +22,7 @@ import org.springframework.data.repository.query.Param;
 import org.springframework.stereotype.Repository;
 
 import java.util.List;
+import java.util.Set;
 
 /**
  * Repository interface for managing graph nodes using Neo4j.
@@ -100,7 +101,7 @@ public interface GraphNodeRepository extends Neo4jRepository<GraphNode, Long> {
      * @return the list of UUIDs of the graphs
      */
     @Query("MATCH (g:Graph)-[r:RELATION]->(gn:GraphNode) WHERE gn.uuid in $uuids RETURN g.uuid")
-    List<String> getGraphUuidByGraphNodeUuid(List<String> uuids);
+    List<String> getGraphUuidByGraphNodeUuid(Set<String> uuids);
 
     /**
      * Updates the name of a relationship between a graph and a graph node.

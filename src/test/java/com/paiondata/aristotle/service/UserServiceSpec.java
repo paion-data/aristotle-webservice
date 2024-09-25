@@ -27,7 +27,7 @@ import static org.mockito.Mockito.when;
 import com.paiondata.aristotle.base.TestConstants;
 import com.paiondata.aristotle.common.exception.UserExistsException;
 import com.paiondata.aristotle.common.exception.UserNullException;
-import com.paiondata.aristotle.model.dto.UserCreateDTO;
+import com.paiondata.aristotle.model.dto.UserDTO;
 import com.paiondata.aristotle.model.entity.User;
 import com.paiondata.aristotle.model.vo.UserVO;
 import com.paiondata.aristotle.repository.GraphNodeRepository;
@@ -223,16 +223,23 @@ public class UserServiceSpec {
         // Arrange
         final String uidcid = TestConstants.TEST_ID1;
         final String nickName = TestConstants.TEST_NAME1;
-        final UserCreateDTO user = UserCreateDTO.builder()
+        final UserDTO user = UserDTO.builder()
                 .uidcid(uidcid)
                 .nickName(nickName)
                 .build();
 
+        // Mock the repository call
+        when(userRepository.createUser(uidcid, nickName)).thenReturn(User.builder()
+                .uidcid(uidcid).nickName(nickName).build());
+
         // Act
-        userService.createUser(user);
+        final UserDTO createdUser = userService.createUser(user);
 
         // Assert
         verify(userRepository).createUser(uidcid, nickName);
+        Assertions.assertNotNull(createdUser);
+        Assertions.assertEquals(createdUser.getUidcid(), uidcid);
+        Assertions.assertEquals(createdUser.getNickName(), nickName);
     }
 
     /**
@@ -243,7 +250,7 @@ public class UserServiceSpec {
         // Arrange
         final String uidcid = TestConstants.TEST_ID1;
         final String nickName = TestConstants.TEST_NAME1;
-        final UserCreateDTO user = UserCreateDTO.builder()
+        final UserDTO user = UserDTO.builder()
                 .uidcid(uidcid)
                 .nickName(nickName)
                 .build();

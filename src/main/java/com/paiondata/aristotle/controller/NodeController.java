@@ -17,9 +17,11 @@ package com.paiondata.aristotle.controller;
 
 import com.paiondata.aristotle.common.base.Message;
 import com.paiondata.aristotle.common.base.Result;
+import com.paiondata.aristotle.model.dto.GraphNodeDTO;
 import com.paiondata.aristotle.model.dto.NodeCreateDTO;
 import com.paiondata.aristotle.model.dto.GraphAndNodeCreateDTO;
 import com.paiondata.aristotle.model.dto.NodeDeleteDTO;
+import com.paiondata.aristotle.model.dto.NodeReturnDTO;
 import com.paiondata.aristotle.model.dto.RelationUpdateDTO;
 import com.paiondata.aristotle.model.dto.GraphUpdateDTO;
 import com.paiondata.aristotle.model.dto.BindNodeDTO;
@@ -76,9 +78,8 @@ public class NodeController {
     @ApiOperation(value = "Creates and binds nodes",
             notes = "The nodes could be created without binding any relations")
     @PostMapping
-    public Result<String> createAndBindNode(@RequestBody @Valid final NodeCreateDTO graphNodeCreateDTO) {
-        graphNodeService.createAndBindGraphAndNode(graphNodeCreateDTO);
-        return Result.ok(Message.CREATE_SUCCESS);
+    public Result<List<NodeReturnDTO>> createAndBindNode(@RequestBody @Valid final NodeCreateDTO graphNodeCreateDTO) {
+        return Result.ok(Message.CREATE_SUCCESS, graphNodeService.createAndBindGraphAndNode(graphNodeCreateDTO));
     }
 
     /**
@@ -90,10 +91,9 @@ public class NodeController {
     @ApiOperation(value = "Creates a graph and binds it with nodes",
             notes = "You can create just graphs, or just graphs and nodes without binding any relations between nodes")
     @PostMapping("/graph")
-    public Result<String> createGraphAndBindGraphAndNode(
+    public Result<GraphNodeDTO> createGraphAndBindGraphAndNode(
             @RequestBody @Valid final GraphAndNodeCreateDTO graphNodeCreateDTO) {
-        graphNodeService.createGraphAndBindGraphAndNode(graphNodeCreateDTO);
-        return Result.ok(Message.CREATE_SUCCESS);
+        return Result.ok(graphNodeService.createGraphAndBindGraphAndNode(graphNodeCreateDTO));
     }
 
     /**
