@@ -20,7 +20,7 @@ import type * as Preset from '@docusaurus/preset-classic';
 
 const config: Config = {
   title: 'Aristotle',
-  tagline: 'A webservice for Graph Database',
+  tagline: 'Webservice with first-class support for Graph Database',
   favicon: 'img/favicon.ico',
 
   url: 'https://aristotle-ws.com',
