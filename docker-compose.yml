@@ -12,7 +12,7 @@ services:
       db:
         condition: service_healthy
   db:
-    image: neo4j:latest
+    image: neo4j:5.23
     environment:
       NEO4J_AUTH: neo4j/12345678
       NEO4JLABS_PLUGINS: "[\"apoc\"]"
@@ -22,7 +22,7 @@ services:
       - "7474:7474"
       - "7687:7687"
     healthcheck:
-      test: wget --quiet --spider http://db:7474/db/data && echo 'Health check passed' || echo 'Health check failed'
+      test: wget http://db:7474 || exit 1
       interval: 10s
       timeout: 3s
       retries: 5
