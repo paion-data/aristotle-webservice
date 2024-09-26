@@ -17,8 +17,7 @@ package com.paiondata.aristotle.controller;
 
 import com.paiondata.aristotle.common.base.Message;
 import com.paiondata.aristotle.common.base.Result;
-import com.paiondata.aristotle.model.dto.UserCreateDTO;
-import com.paiondata.aristotle.model.dto.UserUpdateDTO;
+import com.paiondata.aristotle.model.dto.UserDTO;
 import com.paiondata.aristotle.model.vo.UserVO;
 import com.paiondata.aristotle.service.Neo4jService;
 import com.paiondata.aristotle.service.UserService;
@@ -96,26 +95,25 @@ public class UserController {
     /**
      * Creates a new user.
      *
-     * @param userCreateDTO the DTO containing the user creation information
+     * @param userDTO the DTO containing the user creation information
      * @return the result indicating the success of the creation
      */
     @ApiOperation(value = "Creates a new user")
     @PostMapping
-    public Result<String> createUser(@RequestBody @Valid final UserCreateDTO userCreateDTO) {
-        userService.createUser(userCreateDTO);
-        return Result.ok(Message.CREATE_SUCCESS);
+    public Result<UserDTO> createUser(@RequestBody @Valid final UserDTO userDTO) {
+        return Result.ok(Message.CREATE_SUCCESS, userService.createUser(userDTO));
     }
 
     /**
      * Updates an existing user.
      *
-     * @param userUpdateDTO the DTO containing the updated user information
+     * @param userDTO the DTO containing the updated user information
      * @return the result indicating the success of the update
      */
     @ApiOperation(value = "Updates an existing user")
     @PutMapping
-    public Result<String> updateUser(@RequestBody final @Valid UserUpdateDTO userUpdateDTO) {
-        userService.updateUser(userUpdateDTO);
+    public Result<String> updateUser(@RequestBody final @Valid UserDTO userDTO) {
+        userService.updateUser(userDTO);
         return Result.ok(Message.UPDATE_SUCCESS);
     }
 

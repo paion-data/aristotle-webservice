@@ -16,6 +16,8 @@
 package com.paiondata.aristotle
 
 import io.restassured.http.ContentType
+import org.junit.jupiter.api.Assertions
+
 import javax.validation.constraints.NotNull
 import org.junit.Assert
 import io.restassured.RestAssured
@@ -128,6 +130,9 @@ abstract class AbstractITSpec extends Specification {
         postUserResponse.then()
                 .statusCode(OK_CODE)
 
+        Assertions.assertEquals(postUserResponse.jsonPath().get("data.uidcid"), TEST_UIDCID)
+        Assertions.assertEquals(postUserResponse.jsonPath().get("data.nickName"), TEST_NICK_NAME)
+
         then: "we can GET that User entity next"
         Response getUserEntityResponse = RestAssured
                 .given()
@@ -183,6 +188,9 @@ abstract class AbstractITSpec extends Specification {
 
         postGraphResponse.then()
                 .statusCode(OK_CODE)
+
+        Assertions.assertNotNull(postGraphResponse.jsonPath().get("data.uuid"))
+        Assertions.assertEquals(postGraphResponse.jsonPath().get("data.title"), TEST_GRAPH_TITLE)
 
         then: "we can GET that Graph entity next"
         Response getGraphEntityResponse = RestAssured

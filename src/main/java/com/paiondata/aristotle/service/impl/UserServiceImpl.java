@@ -18,8 +18,7 @@ package com.paiondata.aristotle.service.impl;
 import com.paiondata.aristotle.common.base.Message;
 import com.paiondata.aristotle.common.exception.UserNullException;
 import com.paiondata.aristotle.common.exception.UserExistsException;
-import com.paiondata.aristotle.model.dto.UserCreateDTO;
-import com.paiondata.aristotle.model.dto.UserUpdateDTO;
+import com.paiondata.aristotle.model.dto.UserDTO;
 import com.paiondata.aristotle.model.entity.User;
 import com.paiondata.aristotle.model.vo.UserVO;
 import com.paiondata.aristotle.repository.GraphNodeRepository;
@@ -114,16 +113,18 @@ public class UserServiceImpl implements UserService {
 
     /**
      * Creates a new user.
-     *
      * @param user the UserCreateDTO containing user details
+     *
+     * @return the UserDTO containing the created user details
      */
     @Transactional
     @Override
-    public void createUser(final UserCreateDTO user) {
+    public UserDTO createUser(final UserDTO user) {
         final String uidcid = user.getUidcid();
 
         try {
-            userRepository.createUser(uidcid, user.getNickName());
+            final User returnUser = userRepository.createUser(uidcid, user.getNickName());
+            return new UserDTO(returnUser.getUidcid(), returnUser.getNickName());
         } catch (final DataIntegrityViolationException e) {
             throw new UserExistsException(Message.UIDCID_EXISTS + uidcid);
         }
@@ -132,15 +133,15 @@ public class UserServiceImpl implements UserService {
     /**
      * Updates an existing user.
      *
-     * @param user the UserUpdateDTO containing updated user details
+     * @param userDTO the UserDTO containing updated user details
      */
     @Transactional
     @Override
-    public void updateUser(final UserUpdateDTO user) {
-        final String uidcid = user.getUidcid();
+    public void updateUser(final UserDTO userDTO) {
+        final String uidcid = userDTO.getUidcid();
 
         if (userRepository.checkUidcidExists(uidcid) != 0) {
-            userRepository.updateUser(uidcid, user.getNickName());
+            userRepository.updateUser(uidcid, userDTO.getNickName());
         } else {
             throw new UserNullException(Message.USER_NULL + uidcid);
         }

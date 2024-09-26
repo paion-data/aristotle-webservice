@@ -23,11 +23,13 @@ import com.paiondata.aristotle.common.exception.NodeRelationException;
 import com.paiondata.aristotle.common.exception.GraphNullException;
 import com.paiondata.aristotle.common.exception.TemporaryKeyException;
 import com.paiondata.aristotle.model.dto.BindNodeDTO;
+import com.paiondata.aristotle.model.dto.GraphNodeDTO;
 import com.paiondata.aristotle.model.dto.NodeDTO;
 import com.paiondata.aristotle.model.dto.NodeDeleteDTO;
 import com.paiondata.aristotle.model.dto.NodeRelationDTO;
 import com.paiondata.aristotle.model.dto.GraphAndNodeCreateDTO;
 import com.paiondata.aristotle.model.dto.GraphUpdateDTO;
+import com.paiondata.aristotle.model.dto.NodeReturnDTO;
 import com.paiondata.aristotle.model.dto.RelationUpdateDTO;
 import com.paiondata.aristotle.model.dto.NodeCreateDTO;
 import com.paiondata.aristotle.model.entity.Graph;
@@ -47,9 +49,12 @@ import java.time.ZoneId;
 import java.util.ArrayList;
 import java.util.Date;
 import java.util.HashMap;
+import java.util.HashSet;
 import java.util.List;
 import java.util.Map;
 import java.util.Optional;
+import java.util.Set;
+import java.util.concurrent.ConcurrentHashMap;
 
 /**
  * Service implementation for managing graph nodes.
@@ -86,10 +91,11 @@ public class GraphNodeServiceImpl implements GraphNodeService {
      * Creates and binds a graph and a node based on the provided DTO.
      *
      * @param nodeCreateDTO the DTO containing information for creating the graph and node
+     * @return the list of created nodes
      */
     @Transactional
     @Override
-    public void createAndBindGraphAndNode(final NodeCreateDTO nodeCreateDTO) {
+    public List<NodeReturnDTO> createAndBindGraphAndNode(final NodeCreateDTO nodeCreateDTO) {
         final String graphUuid = nodeCreateDTO.getGraphUuid();
 
         final Optional<Graph> optionalGraph = graphService.getGraphByUuid(graphUuid);
@@ -97,7 +103,7 @@ public class GraphNodeServiceImpl implements GraphNodeService {
             throw new GraphNullException(Message.GRAPH_NULL + graphUuid);
         }
 
-        checkInputRelationsAndBindGraphAndNode(nodeCreateDTO.getGraphNodeDTO(),
+        return checkInputRelationsAndBindGraphAndNode(nodeCreateDTO.getGraphNodeDTO(),
                 nodeCreateDTO.getGraphNodeRelationDTO(), graphUuid);
     }
 
@@ -105,20 +111,32 @@ public class GraphNodeServiceImpl implements GraphNodeService {
      * Creates a graph and binds it with a node based on the provided DTO.
      *
      * @param graphNodeCreateDTO the DTO containing information for creating the graph and node
+     * @return the created graph node
      */
     @Transactional
     @Override
-    public void createGraphAndBindGraphAndNode(final GraphAndNodeCreateDTO graphNodeCreateDTO) {
+    public GraphNodeDTO createGraphAndBindGraphAndNode(final GraphAndNodeCreateDTO graphNodeCreateDTO) {
         final Graph graph = graphService.createAndBindGraph(graphNodeCreateDTO.getGraphCreateDTO());
 
+        final GraphNodeDTO dto = GraphNodeDTO.builder()
+                .uuid(graph.getUuid())
+                .title(graph.getTitle())
+                .description(graph.getDescription())
+                .build();
+
         if (graphNodeCreateDTO.getGraphNodeDTO() == null) {
-            return;
+            return dto;
         }
 
         final String graphUuid = graph.getUuid();
 
-        checkInputRelationsAndBindGraphAndNode(graphNodeCreateDTO.getGraphNodeDTO(),
-                graphNodeCreateDTO.getGraphNodeRelationDTO(), graphUuid);
+        final List<NodeReturnDTO> nodes = checkInputRelationsAndBindGraphAndNode(
+                graphNodeCreateDTO.getGraphNodeDTO(),
+                graphNodeCreateDTO.getGraphNodeRelationDTO(),
+                graphUuid);
+
+        dto.setNodes(nodes);
+        return dto;
     }
 
     /**
@@ -127,24 +145,27 @@ public class GraphNodeServiceImpl implements GraphNodeService {
      * @param nodeDTOs             the list of DTOs for creating nodes
      * @param nodeRelationDTOs     the list of DTOs for creating node relations
      * @param graphUuid            the UUID of the graph
+     *
+     * @return the list of created nodes
      */
-    private void checkInputRelationsAndBindGraphAndNode(final List<NodeDTO> nodeDTOs,
+    private List<NodeReturnDTO> checkInputRelationsAndBindGraphAndNode(final List<NodeDTO> nodeDTOs,
                                                         final List<NodeRelationDTO> nodeRelationDTOs,
                                                         final String graphUuid) {
-        final String now = getCurrentTime();
+        final String currentTime = getCurrentTime();
         final Map<String, String> uuidMap = new HashMap<>();
 
-        createNodes(nodeDTOs, uuidMap, now, graphUuid);
+        final List<NodeReturnDTO> nodes = createNodes(nodeDTOs, uuidMap, currentTime, graphUuid);
 
         if (nodeRelationDTOs == null) {
-            return;
+            return nodes;
         }
 
-        final List<String> checkIds = new ArrayList<>();
+        final Set<String> checkIds = new HashSet<>();
         for (final NodeRelationDTO dto : nodeRelationDTOs) {
             checkIds.add(dto.getFromId());
             checkIds.add(dto.getToId());
         }
+
         final List<String> graphUuidByGraphNodeUuid = graphNodeRepository.getGraphUuidByGraphNodeUuid(checkIds);
         for (final String s : graphUuidByGraphNodeUuid) {
             if (!s.equals(graphUuid)) {
@@ -152,7 +173,9 @@ public class GraphNodeServiceImpl implements GraphNodeService {
             }
         }
 
-        bindNodeRelations(nodeRelationDTOs, uuidMap, now);
+        bindNodeRelations(nodeRelationDTOs, uuidMap, currentTime);
+
+        return nodes;
     }
 
     /**
@@ -163,24 +186,44 @@ public class GraphNodeServiceImpl implements GraphNodeService {
      * @param now                  the current timestamp
      * @param graphUuid            the UUID of the graph
      *
+     * @return the created nodes
+     *
      * @throws TemporaryKeyException if the temporary ID is duplicated
      */
-    private void createNodes(final List<NodeDTO> nodeDTOs, final Map<String, String> uuidMap,
-                             final String now, final String graphUuid) {
+    private List<NodeReturnDTO> createNodes(final List<NodeDTO> nodeDTOs, final Map<String, String> uuidMap,
+                                      final String now, final String graphUuid) {
+        final List<NodeReturnDTO> nodes = new ArrayList<>();
+
+        // Thread-safe map
+        final Map<String, String> threadSafeUuidMap = new ConcurrentHashMap<>(uuidMap);
+
         for (final NodeDTO dto : nodeDTOs) {
             final String graphNodeUuid = UUID.fastUUID().toString(true);
             final String relationUuid = UUID.fastUUID().toString(true);
 
-            final GraphNode createdNode = graphNodeRepository.createAndBindGraphNode(dto.getTitle(),
+            final GraphNode createdNode = graphNodeRepository.createAndBindGraphNode(
+                    dto.getTitle(),
                     dto.getDescription(),
-                    graphUuid, graphNodeUuid, relationUuid, now);
+                    graphUuid,
+                    graphNodeUuid,
+                    relationUuid,
+                    now);
 
-            if (uuidMap.containsKey(dto.getTemporaryId())) {
+            // check duplicate temporaryId
+            if (threadSafeUuidMap.containsKey(dto.getTemporaryId())) {
                 throw new TemporaryKeyException(Message.DUPLICATE_KEY + dto.getTemporaryId());
             } else {
-                uuidMap.put(dto.getTemporaryId(), createdNode.getUuid());
+                threadSafeUuidMap.put(dto.getTemporaryId(), createdNode.getUuid());
             }
+
+            nodes.add(NodeReturnDTO.builder()
+                    .uuid(createdNode.getUuid())
+                    .title(createdNode.getTitle())
+                    .description(createdNode.getDescription())
+                    .build());
         }
+
+        return nodes;
     }
 
     /**
