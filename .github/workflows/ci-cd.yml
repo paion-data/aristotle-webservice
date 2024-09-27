@@ -41,6 +41,9 @@ jobs:
       - name: Checkout Repository
         uses: actions/checkout@v3
 
+      - name: Set up JDK
+        uses: paion-data/immutable-infrastructure-as-a-service/.github/actions/jdk-setup@master
+
       - name: Install Dependencies
         working-directory: docs
         run: yarn
@@ -49,11 +52,18 @@ jobs:
         working-directory: docs
         run: yarn build
 
+      - name: Generate Javadoc
+        run: mvn -B clean javadoc:javadoc
+
+      - name: Move Javadoc into documentation directory
+        if: github.ref == 'refs/heads/master'
+        run: mv target/site/apidocs/ docs/build/apidocs/
+
       - name: Load CNAME file
         if: github.ref == 'refs/heads/master'
         run: cp docs/CNAME docs/build
 
-      - name: Deploy Documentation to GitHub Pages
+      - name: Deploy Documentation (including Javadoc) to GitHub Pages
         if: github.ref == 'refs/heads/master'
         uses: peaceiris/actions-gh-pages@v3
         with:

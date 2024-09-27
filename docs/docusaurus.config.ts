@@ -69,6 +69,11 @@ const config: Config = {
                 label: 'Documentation',
             },
             {
+                href: "https://aristotle-ws.com/apidocs",
+                label: "API",
+                position: "left",
+            },
+            {
                 href: 'https://github.com/paion-data/aristotle',
                 label: ' ',
                 position: 'right',
