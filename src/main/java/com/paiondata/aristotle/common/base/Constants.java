@@ -56,9 +56,34 @@ public interface Constants {
     Integer FAIL = HttpStatus.ERROR;
 
     /**
+     * Represents the ID field in the database.
+     */
+    String ID = "id";
+
+    /**
+     * Represents the UIDCID field in the database.
+     */
+    String UIDCID = "uidcid";
+
+    /**
      * Represents the UUID field in the database.
      */
     String UUID = "uuid";
+
+    /**
+     * Represents the graph UUID field in the database.
+     */
+    String GRAPH_UUID = "graphUuid";
+
+    /**
+     * Represents the node UUID field in the database.
+     */
+    String NODE_UUID = "nodeUuid";
+
+    /**
+     * Represents the relation UUID field in the database.
+     */
+    String RELATION_UUID = "relationUuid";
 
     /**
      * Represents the start node field in the database.
@@ -99,6 +124,11 @@ public interface Constants {
      * Represents the create time field in the database without hump.
      */
     String CREATE_TIME_WITHOUT_HUMP = "create_time";
+
+    /**
+     * Represents the current time field in the database.
+     */
+    String CURRENT_TIME = "currentTime";
 
     /**
      * Represents the properties field in the database.

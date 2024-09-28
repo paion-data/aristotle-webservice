@@ -1,5 +1,21 @@
+/*
+ * Copyright 2024 Paion Data
+ *
+ * Licensed under the Apache License, Version 2.0 (the "License");
+ * you may not use this file except in compliance with the License.
+ * You may obtain a copy of the License at
+ *
+ *     http://www.apache.org/licenses/LICENSE-2.0
+ *
+ * Unless required by applicable law or agreed to in writing, software
+ * distributed under the License is distributed on an "AS IS" BASIS,
+ * WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
+ * See the License for the specific language governing permissions and
+ * limitations under the License.
+ */
 package com.paiondata.aristotle.session;
 
+import com.paiondata.aristotle.common.base.Constants;
 import com.paiondata.aristotle.common.utils.Neo4jUtil;
 import com.paiondata.aristotle.model.entity.Graph;
 import org.neo4j.driver.Driver;
@@ -13,6 +29,9 @@ import org.springframework.transaction.annotation.Transactional;
 
 import java.util.Map;
 
+/**
+ * GraphCypherRepository class provides methods for interacting with the Neo4j database using Cypher queries.
+ */
 @Repository
 @Transactional
 public class GraphCypherRepository {
@@ -28,9 +47,19 @@ public class GraphCypherRepository {
         this.driver = driver;
     }
 
-    public Graph createGraph(String title, String description, String userUidcid,
-                                           String graphUuid, String relationUuid, String currentTime) {
-        final String cypherQuery = "MATCH (u:User) WHERE u.uidcid = $userUidcid "
+    /**
+     * Creates a new graph with the specified properties.
+     * @param title the title of the graph
+     * @param description the description of the graph
+     * @param userUidcid the UIDCID of the user
+     * @param graphUuid the UUID of the graph
+     * @param relationUuid the UUID of the relation
+     * @param currentTime the current time
+     * @return the created Graph object
+     */
+    public Graph createGraph(final String title, final String description, final String userUidcid,
+                             final String graphUuid, final String relationUuid, final String currentTime) {
+        final String cypherQuery = "MATCH (u:User) WHERE u.uidcid = $uidcid "
                 + "CREATE (g:Graph {uuid: $graphUuid, title: $title, description: $description, "
                 + "create_time: $currentTime, update_time: $currentTime}) "
                 + "WITH u, g "
@@ -40,26 +69,26 @@ public class GraphCypherRepository {
 
         try (Session session = driver.session(SessionConfig.builder().build())) {
             return session.writeTransaction(tx -> {
-                var result = tx.run(cypherQuery, Values.parameters(
-                                "title", title,
-                                "description", description,
-                                "userUidcid", userUidcid,
-                                "graphUuid", graphUuid,
-                                "currentTime", currentTime,
-                                "relationUuid", relationUuid
+                final var result = tx.run(cypherQuery, Values.parameters(
+                        Constants.TITLE, title,
+                                Constants.DESCRIPTION, description,
+                                Constants.UIDCID, userUidcid,
+                                Constants.GRAPH_UUID, graphUuid,
+                                Constants.CURRENT_TIME, currentTime,
+                                Constants.RELATION_UUID, relationUuid
                         )
                 );
 
                 final Record record = result.next();
-                Map<String, Object> objectMap = Neo4jUtil.extractGraph(record.get("g"));
+                final Map<String, Object> objectMap = Neo4jUtil.extractGraph(record.get("g"));
 
                 return Graph.builder()
-                        .id((Long) objectMap.get("id"))
-                        .uuid((String) objectMap.get("uuid"))
-                        .title((String) objectMap.get("title"))
-                        .description((String) objectMap.get("description"))
-                        .createTime((String) objectMap.get("createTime"))
-                        .updateTime((String) objectMap.get("updateTime"))
+                        .id((Long) objectMap.get(Constants.ID))
+                        .uuid((String) objectMap.get(Constants.UUID))
+                        .title((String) objectMap.get(Constants.TITLE))
+                        .description((String) objectMap.get(Constants.DESCRIPTION))
+                        .createTime((String) objectMap.get(Constants.CREATE_TIME))
+                        .updateTime((String) objectMap.get(Constants.UPDATE_TIME))
                         .build();
             });
         }

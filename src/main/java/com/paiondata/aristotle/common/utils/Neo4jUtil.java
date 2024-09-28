@@ -87,8 +87,8 @@ public class Neo4jUtil {
             nodeInfo.put(Constants.UPDATE_TIME, nodeMap.get(Constants.UPDATE_TIME_WITHOUT_HUMP));
             nodeInfo.put(Constants.CREATE_TIME, nodeMap.get(Constants.CREATE_TIME_WITHOUT_HUMP));
 
-            Map<String, Object> properties = new HashMap<>();
-            for (Map.Entry<String, Object> entry : nodeMap.entrySet()) {
+            final Map<String, Object> properties = new HashMap<>();
+            for (final Map.Entry<String, Object> entry : nodeMap.entrySet()) {
                 if (!Constants.UUID.equals(entry.getKey())
                         && !Constants.UPDATE_TIME_WITHOUT_HUMP.equals(entry.getKey())
                         && !Constants.CREATE_TIME_WITHOUT_HUMP.equals(entry.getKey())) {

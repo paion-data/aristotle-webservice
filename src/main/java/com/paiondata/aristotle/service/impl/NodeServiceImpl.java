@@ -17,7 +17,6 @@ package com.paiondata.aristotle.service.impl;
 
 import cn.hutool.core.lang.UUID;
 
-import com.paiondata.aristotle.common.base.Constants;
 import com.paiondata.aristotle.common.base.Message;
 import com.paiondata.aristotle.common.exception.DeleteException;
 import com.paiondata.aristotle.common.exception.NodeNullException;
@@ -207,9 +206,9 @@ public class NodeServiceImpl implements NodeService {
             final String nodeUuid = UUID.fastUUID().toString(true);
             final String relationUuid = UUID.fastUUID().toString(true);
 
-            GraphNode node = nodeCypherRepository.createNode(graphUuid, nodeUuid, relationUuid, currentTime, dto);
+            final GraphNode node = nodeCypherRepository.createNode(graphUuid, nodeUuid, relationUuid, currentTime, dto);
 
-            String resultUuid = node.getUuid();
+            final String resultUuid = node.getUuid();
 
             // check duplicate temporaryId
             if (threadSafeUuidMap.containsKey(dto.getTemporaryId())) {
@@ -218,7 +217,7 @@ public class NodeServiceImpl implements NodeService {
                 threadSafeUuidMap.put(dto.getTemporaryId(), resultUuid);
             }
 
-            nodes.add( NodeReturnDTO.builder()
+            nodes.add(NodeReturnDTO.builder()
                     .uuid(resultUuid)
                     .createTime(node.getCreateTime())
                     .updateTime(node.getUpdateTime())

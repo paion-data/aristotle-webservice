@@ -17,8 +17,6 @@ package com.paiondata.aristotle.model.dto;
 
 import com.paiondata.aristotle.model.BaseEntity;
 
-import org.springframework.data.neo4j.core.schema.Property;
-
 import io.swagger.annotations.ApiModel;
 import io.swagger.annotations.ApiModelProperty;
 import lombok.AllArgsConstructor;
