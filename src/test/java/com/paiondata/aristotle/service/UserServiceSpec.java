@@ -30,7 +30,7 @@ import com.paiondata.aristotle.common.exception.UserNullException;
 import com.paiondata.aristotle.model.dto.UserDTO;
 import com.paiondata.aristotle.model.entity.User;
 import com.paiondata.aristotle.model.vo.UserVO;
-import com.paiondata.aristotle.repository.GraphNodeRepository;
+import com.paiondata.aristotle.repository.NodeRepository;
 import com.paiondata.aristotle.repository.GraphRepository;
 import com.paiondata.aristotle.repository.UserRepository;
 import com.paiondata.aristotle.service.impl.UserServiceImpl;
@@ -67,7 +67,7 @@ public class UserServiceSpec {
     private GraphRepository graphRepository;
 
     @Mock
-    private GraphNodeRepository graphNodeRepository;
+    private NodeRepository nodeRepository;
 
     @Mock
     private Neo4jService neo4jService;
@@ -292,7 +292,7 @@ public class UserServiceSpec {
         verify(userRepository, times(2)).getUserByUidcid(anyString());
         verify(userRepository).deleteByUidcids(uidcids);
         verify(graphRepository).deleteByUuids(graphUuids);
-        verify(graphNodeRepository).deleteByUuids(graphNodeUuids);
+        verify(nodeRepository).deleteByUuids(graphNodeUuids);
     }
 
     /**
@@ -312,6 +312,6 @@ public class UserServiceSpec {
         verify(userRepository, times(1)).getUserByUidcid(TestConstants.TEST_ID1);
         verify(userRepository, never()).deleteByUidcids(any());
         verify(graphRepository, never()).deleteByUuids(any());
-        verify(graphNodeRepository, never()).deleteByUuids(any());
+        verify(nodeRepository, never()).deleteByUuids(any());
     }
 }

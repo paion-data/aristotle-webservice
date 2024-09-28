@@ -30,7 +30,7 @@ import java.util.Set;
  * This interface provides methods for CRUD operations on graph nodes and relationships.
  */
 @Repository
-public interface GraphNodeRepository extends Neo4jRepository<GraphNode, Long> {
+public interface NodeRepository extends Neo4jRepository<GraphNode, Long> {
 
     /**
      * Retrieves a graph node by its UUID.

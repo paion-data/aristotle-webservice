@@ -18,6 +18,7 @@ package com.paiondata.aristotle.service.impl;
 import com.paiondata.aristotle.common.base.Constants;
 import com.paiondata.aristotle.common.base.Message;
 import com.paiondata.aristotle.common.exception.UserNullException;
+import com.paiondata.aristotle.common.utils.Neo4jUtil;
 import com.paiondata.aristotle.repository.GraphRepository;
 import com.paiondata.aristotle.repository.UserRepository;
 import com.paiondata.aristotle.service.Neo4jService;
@@ -26,8 +27,6 @@ import org.neo4j.driver.Record;
 import org.neo4j.driver.Session;
 import org.neo4j.driver.SessionConfig;
 import org.neo4j.driver.Values;
-import org.neo4j.driver.internal.value.NodeValue;
-import org.neo4j.driver.internal.value.RelationshipValue;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
@@ -83,7 +82,7 @@ public class Neo4jServiceImpl implements Neo4jService {
                 final List<Map<String, Object>> resultList = new ArrayList<>();
                 while (result.hasNext()) {
                     final Record record = result.next();
-                    final Map<String, Object> graphNode = extractGraph(record.get("g"));
+                    final Map<String, Object> graphNode = Neo4jUtil.extractGraph(record.get("g"));
 
                     resultList.add(graphNode);
                 }
@@ -117,9 +116,9 @@ public class Neo4jServiceImpl implements Neo4jService {
 
                 while (result.hasNext()) {
                     final Record record = result.next();
-                    final Map<String, Object> n1 = extractGraphNode(record.get("n1"));
-                    final Map<String, Object> n2 = extractGraphNode(record.get("n2"));
-                    final Map<String, Object> relation = extractRelationship(record.get("r"));
+                    final Map<String, Object> n1 = Neo4jUtil.extractNode(record.get("n1"));
+                    final Map<String, Object> n2 = Neo4jUtil.extractNode(record.get("n2"));
+                    final Map<String, Object> relation = Neo4jUtil.extractRelationship(record.get("r"));
 
                     final Map<String, Map<String, Object>> combinedResult = new HashMap<>();
                     combinedResult.put(Constants.START_NODE, n1);
@@ -222,70 +221,5 @@ public class Neo4jServiceImpl implements Neo4jService {
         try (Session session = driver.session()) {
             session.run(cypherQuery.toString(), parameters);
         }
-    }
-
-    /**
-     * Extracts information from a graph node.
-     *
-     * @param node the graph node object
-     *
-     * @return a map containing the extracted information
-     */
-    private Map<String, Object> extractGraph(final Object node) {
-        final Map<String, Object> nodeInfo = new HashMap<>();
-        if (node instanceof NodeValue) {
-            final NodeValue nodeValue = (NodeValue) node;
-            final Map<String, Object> nodeMap = nodeValue.asNode().asMap();
-
-            nodeInfo.put(Constants.DESCRIPTION, nodeMap.get(Constants.DESCRIPTION));
-            nodeInfo.put(Constants.UPDATE_TIME, nodeMap.get(Constants.UPDATE_TIME_WITHOUT_HUMP));
-            nodeInfo.put(Constants.CREATE_TIME, nodeMap.get(Constants.CREATE_TIME_WITHOUT_HUMP));
-            nodeInfo.put(Constants.TITLE, nodeMap.get(Constants.TITLE));
-            nodeInfo.put(Constants.UUID, nodeMap.get(Constants.UUID));
-        }
-        return nodeInfo;
-    }
-
-    /**
-     * Extracts information from a relationship.
-     *
-     * @param relationship the relationship object
-     *
-     * @return a map containing the extracted information
-     */
-    private Map<String, Object> extractRelationship(final Object relationship) {
-        final Map<String, Object> relationshipInfo = new HashMap<>();
-        if (relationship instanceof RelationshipValue) {
-            final RelationshipValue relationshipValue = (RelationshipValue) relationship;
-            final Map<String, Object> relMap = relationshipValue.asRelationship().asMap();
-
-            relationshipInfo.put(Constants.NAME, relMap.get(Constants.NAME));
-            relationshipInfo.put(Constants.CREATE_TIME, relMap.get(Constants.CREATE_TIME_WITHOUT_HUMP));
-            relationshipInfo.put(Constants.UPDATE_TIME, relMap.get(Constants.UPDATE_TIME_WITHOUT_HUMP));
-            relationshipInfo.put(Constants.UUID, relMap.get(Constants.UUID));
-        }
-        return relationshipInfo;
-    }
-
-    /**
-     * Extracts information from a graph node.
-     *
-     * @param node the graph node object
-     *
-     * @return a map containing the extracted information
-     */
-    private Map<String, Object> extractGraphNode(final Object node) {
-        final Map<String, Object> nodeInfo = new HashMap<>();
-        if (node instanceof NodeValue) {
-            final NodeValue nodeValue = (NodeValue) node;
-            final Map<String, Object> nodeMap = nodeValue.asNode().asMap();
-
-            nodeInfo.put(Constants.DESCRIPTION, nodeMap.get(Constants.DESCRIPTION));
-            nodeInfo.put(Constants.UPDATE_TIME, nodeMap.get(Constants.UPDATE_TIME_WITHOUT_HUMP));
-            nodeInfo.put(Constants.CREATE_TIME, nodeMap.get(Constants.CREATE_TIME_WITHOUT_HUMP));
-            nodeInfo.put(Constants.TITLE, nodeMap.get(Constants.TITLE));
-            nodeInfo.put(Constants.UUID, nodeMap.get(Constants.UUID));
-        }
-        return nodeInfo;
     }
 }

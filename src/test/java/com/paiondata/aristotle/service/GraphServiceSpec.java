@@ -36,7 +36,7 @@ import com.paiondata.aristotle.model.dto.GraphUpdateDTO;
 import com.paiondata.aristotle.model.entity.Graph;
 import com.paiondata.aristotle.model.entity.User;
 import com.paiondata.aristotle.model.vo.GraphVO;
-import com.paiondata.aristotle.repository.GraphNodeRepository;
+import com.paiondata.aristotle.repository.NodeRepository;
 import com.paiondata.aristotle.repository.GraphRepository;
 import com.paiondata.aristotle.service.impl.GraphServiceImpl;
 
@@ -74,7 +74,7 @@ public class GraphServiceSpec {
     private GraphRepository graphRepository;
 
     @Mock
-    private GraphNodeRepository graphNodeRepository;
+    private NodeRepository nodeRepository;
 
     @Mock
     private Neo4jService neo4jService;
@@ -303,13 +303,13 @@ public class GraphServiceSpec {
         when(graphRepository.getGraphByGraphUuidAndUidcid(graphUuid, uidcid)).thenReturn(graphUuid);
         when(graphRepository.getGraphNodeUuidsByGraphUuids(anyList())).thenReturn(Collections.singletonList(nodeUuid));
 
-        doNothing().when(graphNodeRepository).deleteByUuids(anyList());
+        doNothing().when(nodeRepository).deleteByUuids(anyList());
         doNothing().when(graphRepository).deleteByUuids(anyList());
 
         graphService.deleteByUuids(graphDeleteDTO);
 
         // Act & Assert
-        verify(graphNodeRepository, times(1)).deleteByUuids(Collections.singletonList(nodeUuid));
+        verify(nodeRepository, times(1)).deleteByUuids(Collections.singletonList(nodeUuid));
         verify(graphRepository, times(1)).deleteByUuids(Collections.singletonList(graphUuid));
     }
 

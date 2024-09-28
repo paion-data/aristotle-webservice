@@ -42,8 +42,8 @@ import com.paiondata.aristotle.model.dto.RelationUpdateDTO;
 import com.paiondata.aristotle.model.dto.GraphUpdateDTO;
 import com.paiondata.aristotle.model.entity.Graph;
 import com.paiondata.aristotle.model.entity.GraphNode;
-import com.paiondata.aristotle.repository.GraphNodeRepository;
-import com.paiondata.aristotle.service.impl.GraphNodeServiceImpl;
+import com.paiondata.aristotle.repository.NodeRepository;
+import com.paiondata.aristotle.service.impl.NodeServiceImpl;
 
 import org.junit.jupiter.api.Assertions;
 import org.junit.jupiter.api.BeforeEach;
@@ -71,13 +71,13 @@ import java.util.Set;
  * Uses Mockito to mock dependencies and validate graph node service operations.
  */
 @ExtendWith(MockitoExtension.class)
-public class GraphNodeServiceSpec {
+public class NodeServiceSpec {
 
     @InjectMocks
-    private GraphNodeServiceImpl graphNodeService;
+    private NodeServiceImpl graphNodeService;
 
     @Mock
-    private GraphNodeRepository graphNodeRepository;
+    private NodeRepository nodeRepository;
 
     @Mock
     private GraphService graphService;
@@ -100,7 +100,7 @@ public class GraphNodeServiceSpec {
         // Given
         final String uuid = TestConstants.TEST_ID1;
         final GraphNode graphNode = new GraphNode();
-        when(graphNodeRepository.getGraphNodeByUuid(uuid)).thenReturn(graphNode);
+        when(nodeRepository.getGraphNodeByUuid(uuid)).thenReturn(graphNode);
 
         // When
         final Optional<GraphNode> result = graphNodeService.getNodeByUuid(uuid);
@@ -108,7 +108,7 @@ public class GraphNodeServiceSpec {
         // Then
         Assertions.assertTrue(result.isPresent());
         Assertions.assertEquals(graphNode, result.get());
-        verify(graphNodeRepository).getGraphNodeByUuid(uuid);
+        verify(nodeRepository).getGraphNodeByUuid(uuid);
     }
 
     /**
@@ -118,14 +118,14 @@ public class GraphNodeServiceSpec {
     void getGraphNodeByUuidNodeDoesNotExistShouldReturnEmpty() {
         // Given
         final String uuid = TestConstants.TEST_ID1;
-        when(graphNodeRepository.getGraphNodeByUuid(uuid)).thenReturn(null);
+        when(nodeRepository.getGraphNodeByUuid(uuid)).thenReturn(null);
 
         // When
         final Optional<GraphNode> result = graphNodeService.getNodeByUuid(uuid);
 
         // Then
         Assertions.assertFalse(result.isPresent());
-        verify(graphNodeRepository).getGraphNodeByUuid(uuid);
+        verify(nodeRepository).getGraphNodeByUuid(uuid);
     }
 
     /**
@@ -149,7 +149,7 @@ public class GraphNodeServiceSpec {
         // Mock createGraphAndBindGraphAndNode to return a non-null GraphNode
         final String graphNodeUuid = UUID.fastUUID().toString(true);
         final String currentTime = getCurrentTime();
-        when(graphNodeRepository.createAndBindGraphNode(anyString(), anyString(), anyString(), anyString(),
+        when(nodeRepository.createAndBindGraphNode(anyString(), anyString(), anyString(), anyString(),
                 anyString(), anyString()))
                 .thenReturn((new GraphNode(0L, graphNodeUuid, TestConstants.TEST_TILE1,
                         TestConstants.TEST_DESCRIPTION1, currentTime, currentTime)));
@@ -159,9 +159,9 @@ public class GraphNodeServiceSpec {
 
         // Then
         verify(graphService, times(1)).getGraphByUuid(TestConstants.TEST_ID1);
-        verify(graphNodeRepository, times(1)).getGraphUuidByGraphNodeUuid(Set.of(TestConstants.TEST_ID1,
+        verify(nodeRepository, times(1)).getGraphUuidByGraphNodeUuid(Set.of(TestConstants.TEST_ID1,
                 TestConstants.TEST_ID2));
-        verify(graphNodeRepository, times(2)).createAndBindGraphNode(anyString(), anyString(), anyString(), anyString(),
+        verify(nodeRepository, times(2)).createAndBindGraphNode(anyString(), anyString(), anyString(), anyString(),
                 anyString(), anyString());
         Assertions.assertNotNull(dtos);
         Assertions.assertFalse(dtos.isEmpty());
@@ -212,7 +212,7 @@ public class GraphNodeServiceSpec {
         // Mock createGraphAndBindGraphAndNode to return a non-null GraphNode
         final String graphNodeUuid = UUID.fastUUID().toString(true);
         final String currentTime = getCurrentTime();
-        when(graphNodeRepository.createAndBindGraphNode(anyString(), anyString(), anyString(), anyString(),
+        when(nodeRepository.createAndBindGraphNode(anyString(), anyString(), anyString(), anyString(),
                 anyString(), anyString()))
                 .thenReturn((new GraphNode(0L, graphNodeUuid, TestConstants.TEST_TILE1,
                         TestConstants.TEST_DESCRIPTION1, currentTime, currentTime)));
@@ -222,9 +222,9 @@ public class GraphNodeServiceSpec {
 
         // Then
         verify(graphService, times(1)).createAndBindGraph(graphNodeCreateDTO.getGraphCreateDTO());
-        verify(graphNodeRepository, times(1)).getGraphUuidByGraphNodeUuid(Set.of(TestConstants.TEST_ID1,
+        verify(nodeRepository, times(1)).getGraphUuidByGraphNodeUuid(Set.of(TestConstants.TEST_ID1,
                 TestConstants.TEST_ID2));
-        verify(graphNodeRepository, times(2)).createAndBindGraphNode(anyString(), anyString(), anyString(), anyString(),
+        verify(nodeRepository, times(2)).createAndBindGraphNode(anyString(), anyString(), anyString(), anyString(),
                 anyString(), anyString());
         Assertions.assertNotNull(dto);
         Assertions.assertNotNull(dto.getUuid());
@@ -242,16 +242,16 @@ public class GraphNodeServiceSpec {
         final List<BindNodeDTO> dtos = Collections.singletonList(new BindNodeDTO(TestConstants.TEST_ID1,
                 TestConstants.TEST_ID2, TestConstants.TEST_RELATION1));
 
-        when(graphNodeRepository.getGraphNodeByUuid(TestConstants.TEST_ID1)).thenReturn(new GraphNode());
-        when(graphNodeRepository.getGraphNodeByUuid(TestConstants.TEST_ID2)).thenReturn(new GraphNode());
+        when(nodeRepository.getGraphNodeByUuid(TestConstants.TEST_ID1)).thenReturn(new GraphNode());
+        when(nodeRepository.getGraphNodeByUuid(TestConstants.TEST_ID2)).thenReturn(new GraphNode());
 
         // When & Then
         assertDoesNotThrow(() -> graphNodeService.bindNodes(dtos));
 
         // Then
-        verify(graphNodeRepository, times(1)).getGraphNodeByUuid(TestConstants.TEST_ID1);
-        verify(graphNodeRepository, times(1)).getGraphNodeByUuid(TestConstants.TEST_ID2);
-        verify(graphNodeRepository, times(1))
+        verify(nodeRepository, times(1)).getGraphNodeByUuid(TestConstants.TEST_ID1);
+        verify(nodeRepository, times(1)).getGraphNodeByUuid(TestConstants.TEST_ID2);
+        verify(nodeRepository, times(1))
                 .bindGraphNodeToGraphNode(anyString(), anyString(), anyString(), anyString(), anyString());
     }
 
@@ -264,13 +264,13 @@ public class GraphNodeServiceSpec {
         final List<BindNodeDTO> dtos = Collections.singletonList(new BindNodeDTO(TestConstants.TEST_ID1,
                 TestConstants.TEST_ID2, TestConstants.TEST_RELATION1));
 
-        when(graphNodeRepository.getGraphNodeByUuid(TestConstants.TEST_ID1)).thenReturn(null);
+        when(nodeRepository.getGraphNodeByUuid(TestConstants.TEST_ID1)).thenReturn(null);
 
         // When & Then
         assertThrows(NodeNullException.class, () -> graphNodeService.bindNodes(dtos));
 
         // Then
-        verify(graphNodeRepository, times(2)).getGraphNodeByUuid(anyString());
+        verify(nodeRepository, times(2)).getGraphNodeByUuid(anyString());
     }
 
     /**
@@ -290,14 +290,14 @@ public class GraphNodeServiceSpec {
                 .uuid(nodeUuid)
                 .build();
 
-        when(graphNodeRepository.getGraphNodeByUuid(nodeUuid)).thenReturn(graphNode);
-        when(graphNodeRepository.getNodeByGraphUuidAndNodeUuid(graphUuid, nodeUuid)).thenReturn(nodeUuid);
+        when(nodeRepository.getGraphNodeByUuid(nodeUuid)).thenReturn(graphNode);
+        when(nodeRepository.getNodeByGraphUuidAndNodeUuid(graphUuid, nodeUuid)).thenReturn(nodeUuid);
 
         // Act
         graphNodeService.deleteByUuids(dto);
 
         // Assert
-        verify(graphNodeRepository, times(1)).deleteByUuids(Collections.singletonList(nodeUuid));
+        verify(nodeRepository, times(1)).deleteByUuids(Collections.singletonList(nodeUuid));
     }
 
     /**
@@ -313,7 +313,7 @@ public class GraphNodeServiceSpec {
                 .uuids(Collections.singletonList(nodeUuid))
                 .build();
 
-        when(graphNodeRepository.getGraphNodeByUuid(nodeUuid)).thenReturn(null);
+        when(nodeRepository.getGraphNodeByUuid(nodeUuid)).thenReturn(null);
 
         // Assert handled by expected exception
         assertThrows(NodeNullException.class, () -> graphNodeService.deleteByUuids(dto));
@@ -336,8 +336,8 @@ public class GraphNodeServiceSpec {
                 .uuid(nodeUuid)
                 .build();
 
-        when(graphNodeRepository.getGraphNodeByUuid(nodeUuid)).thenReturn(graphNode);
-        when(graphNodeRepository.getNodeByGraphUuidAndNodeUuid(graphUuid, nodeUuid)).thenReturn(null);
+        when(nodeRepository.getGraphNodeByUuid(nodeUuid)).thenReturn(graphNode);
+        when(nodeRepository.getNodeByGraphUuidAndNodeUuid(graphUuid, nodeUuid)).thenReturn(null);
 
         // Assert handled by expected exception
         assertThrows(DeleteException.class, () -> graphNodeService.deleteByUuids(dto));
@@ -355,7 +355,7 @@ public class GraphNodeServiceSpec {
         graphUpdateDTO.setTitle(TestConstants.TEST_TILE2);
         graphUpdateDTO.setDescription(TestConstants.TEST_DESCRIPTION2);
 
-        when(graphNodeRepository.getGraphNodeByUuid(uuid)).thenReturn(new GraphNode());
+        when(nodeRepository.getGraphNodeByUuid(uuid)).thenReturn(new GraphNode());
 
         // When
         assertDoesNotThrow(() -> graphNodeService.updateNode(graphUpdateDTO));
@@ -378,13 +378,13 @@ public class GraphNodeServiceSpec {
         final GraphUpdateDTO graphUpdateDTO = new GraphUpdateDTO();
         graphUpdateDTO.setUuid(TestConstants.TEST_ID1);
 
-        when(graphNodeRepository.getGraphNodeByUuid(TestConstants.TEST_ID1)).thenReturn(null);
+        when(nodeRepository.getGraphNodeByUuid(TestConstants.TEST_ID1)).thenReturn(null);
 
         // When & Then
         assertThrows(NodeNullException.class, () -> graphNodeService.updateNode(graphUpdateDTO));
 
         // Then
-        verify(graphNodeRepository).getGraphNodeByUuid(TestConstants.TEST_ID1);
+        verify(nodeRepository).getGraphNodeByUuid(TestConstants.TEST_ID1);
     }
 
     /**
@@ -398,8 +398,8 @@ public class GraphNodeServiceSpec {
         updateMap.put(TestConstants.TEST_ID1, TestConstants.TEST_NAME1);
         updateMap.put(TestConstants.TEST_ID2, TestConstants.TEST_NAME1);
 
-        when(graphNodeRepository.getRelationByUuid(TestConstants.TEST_ID1)).thenReturn(TestConstants.TEST_ID1);
-        when(graphNodeRepository.getRelationByUuid(TestConstants.TEST_ID2)).thenReturn(TestConstants.TEST_ID2);
+        when(nodeRepository.getRelationByUuid(TestConstants.TEST_ID1)).thenReturn(TestConstants.TEST_ID1);
+        when(nodeRepository.getRelationByUuid(TestConstants.TEST_ID2)).thenReturn(TestConstants.TEST_ID2);
 
         final RelationUpdateDTO relationUpdateDTO = new RelationUpdateDTO(graphUuid, updateMap,
                 Collections.emptyList());
@@ -408,9 +408,9 @@ public class GraphNodeServiceSpec {
         graphNodeService.updateRelation(relationUpdateDTO);
 
         // Then
-        verify(graphNodeRepository, times(1)).updateRelationByUuid(TestConstants.TEST_ID1,
+        verify(nodeRepository, times(1)).updateRelationByUuid(TestConstants.TEST_ID1,
                 TestConstants.TEST_NAME1, graphUuid);
-        verify(graphNodeRepository, times(1)).updateRelationByUuid(TestConstants.TEST_ID2,
+        verify(nodeRepository, times(1)).updateRelationByUuid(TestConstants.TEST_ID2,
                 TestConstants.TEST_NAME1, graphUuid);
     }
 
@@ -423,8 +423,8 @@ public class GraphNodeServiceSpec {
         final String graphUuid = TestConstants.TEST_ID1;
         final List<String> deleteList = List.of(TestConstants.TEST_ID1, TestConstants.TEST_ID2);
 
-        when(graphNodeRepository.getRelationByUuid(TestConstants.TEST_ID1)).thenReturn(TestConstants.TEST_ID1);
-        when(graphNodeRepository.getRelationByUuid(TestConstants.TEST_ID2)).thenReturn(TestConstants.TEST_ID2);
+        when(nodeRepository.getRelationByUuid(TestConstants.TEST_ID1)).thenReturn(TestConstants.TEST_ID1);
+        when(nodeRepository.getRelationByUuid(TestConstants.TEST_ID2)).thenReturn(TestConstants.TEST_ID2);
 
         final RelationUpdateDTO relationUpdateDTO = new RelationUpdateDTO(graphUuid,
                 Collections.emptyMap(), deleteList);
@@ -433,8 +433,8 @@ public class GraphNodeServiceSpec {
         graphNodeService.updateRelation(relationUpdateDTO);
 
         // Then
-        verify(graphNodeRepository, times(1)).deleteRelationByUuid(TestConstants.TEST_ID1, graphUuid);
-        verify(graphNodeRepository, times(1)).deleteRelationByUuid(TestConstants.TEST_ID2, graphUuid);
+        verify(nodeRepository, times(1)).deleteRelationByUuid(TestConstants.TEST_ID1, graphUuid);
+        verify(nodeRepository, times(1)).deleteRelationByUuid(TestConstants.TEST_ID2, graphUuid);
     }
 
     /**
@@ -450,10 +450,10 @@ public class GraphNodeServiceSpec {
 
         final List<String> deleteList = List.of(TestConstants.TEST_ID3, TestConstants.TEST_ID4);
 
-        when(graphNodeRepository.getRelationByUuid(TestConstants.TEST_ID1)).thenReturn(TestConstants.TEST_ID1);
-        when(graphNodeRepository.getRelationByUuid(TestConstants.TEST_ID2)).thenReturn(TestConstants.TEST_ID2);
-        when(graphNodeRepository.getRelationByUuid(TestConstants.TEST_ID3)).thenReturn(TestConstants.TEST_ID3);
-        when(graphNodeRepository.getRelationByUuid(TestConstants.TEST_ID4)).thenReturn(TestConstants.TEST_ID4);
+        when(nodeRepository.getRelationByUuid(TestConstants.TEST_ID1)).thenReturn(TestConstants.TEST_ID1);
+        when(nodeRepository.getRelationByUuid(TestConstants.TEST_ID2)).thenReturn(TestConstants.TEST_ID2);
+        when(nodeRepository.getRelationByUuid(TestConstants.TEST_ID3)).thenReturn(TestConstants.TEST_ID3);
+        when(nodeRepository.getRelationByUuid(TestConstants.TEST_ID4)).thenReturn(TestConstants.TEST_ID4);
 
         final RelationUpdateDTO relationUpdateDTO = new RelationUpdateDTO(graphUuid, updateMap, deleteList);
 
@@ -461,10 +461,10 @@ public class GraphNodeServiceSpec {
         graphNodeService.updateRelation(relationUpdateDTO);
 
         // Then
-        verify(graphNodeRepository).updateRelationByUuid(TestConstants.TEST_ID1, TestConstants.TEST_NAME1, graphUuid);
-        verify(graphNodeRepository).updateRelationByUuid(TestConstants.TEST_ID2, TestConstants.TEST_NAME1, graphUuid);
-        verify(graphNodeRepository).deleteRelationByUuid(TestConstants.TEST_ID3, graphUuid);
-        verify(graphNodeRepository).deleteRelationByUuid(TestConstants.TEST_ID4, graphUuid);
+        verify(nodeRepository).updateRelationByUuid(TestConstants.TEST_ID1, TestConstants.TEST_NAME1, graphUuid);
+        verify(nodeRepository).updateRelationByUuid(TestConstants.TEST_ID2, TestConstants.TEST_NAME1, graphUuid);
+        verify(nodeRepository).deleteRelationByUuid(TestConstants.TEST_ID3, graphUuid);
+        verify(nodeRepository).deleteRelationByUuid(TestConstants.TEST_ID4, graphUuid);
     }
 
     /**
@@ -477,7 +477,7 @@ public class GraphNodeServiceSpec {
         final Map<String, String> updateMap = new HashMap<>();
         updateMap.put(TestConstants.TEST_ID1, TestConstants.TEST_NAME1);
 
-        when(graphNodeRepository.getRelationByUuid(TestConstants.TEST_ID1)).thenReturn(null);
+        when(nodeRepository.getRelationByUuid(TestConstants.TEST_ID1)).thenReturn(null);
 
         final RelationUpdateDTO relationUpdateDTO = new RelationUpdateDTO(graphUuid,
                 updateMap, Collections.emptyList());
@@ -496,7 +496,7 @@ public class GraphNodeServiceSpec {
         final String graphUuid = TestConstants.TEST_ID1;
         final List<String> deleteList = List.of(TestConstants.TEST_ID1);
 
-        when(graphNodeRepository.getRelationByUuid(TestConstants.TEST_ID1)).thenReturn(null);
+        when(nodeRepository.getRelationByUuid(TestConstants.TEST_ID1)).thenReturn(null);
 
         final RelationUpdateDTO relationUpdateDTO = new RelationUpdateDTO(graphUuid,
                 Collections.emptyMap(), deleteList);

@@ -27,6 +27,8 @@ import org.springframework.data.neo4j.core.schema.Id;
 import org.springframework.data.neo4j.core.schema.Node;
 import org.springframework.data.neo4j.core.schema.Property;
 
+import java.util.Map;
+
 /**
  * Represents a node entity within a graph.
  *
@@ -55,20 +57,12 @@ public class GraphNode extends BaseEntity {
     private String uuid;
 
     /**
-     * The title of the graph node.
+     * The properties of the graph node.
      *
-     * @see Property#title
+     * @see Property#properties
      */
-    @Property("title")
-    private String title;
-
-    /**
-     * The description of the graph node.
-     *
-     * @see Property#description
-     */
-    @Property("description")
-    private String description;
+    @Property("properties")
+    private Map<String, String> properties;
 
     /**
      * The creation time of the graph node.

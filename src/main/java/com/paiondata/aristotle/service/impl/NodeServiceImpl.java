@@ -16,12 +16,15 @@
 package com.paiondata.aristotle.service.impl;
 
 import cn.hutool.core.lang.UUID;
+
+import com.paiondata.aristotle.common.base.Constants;
 import com.paiondata.aristotle.common.base.Message;
 import com.paiondata.aristotle.common.exception.DeleteException;
 import com.paiondata.aristotle.common.exception.NodeNullException;
 import com.paiondata.aristotle.common.exception.NodeRelationException;
 import com.paiondata.aristotle.common.exception.GraphNullException;
 import com.paiondata.aristotle.common.exception.TemporaryKeyException;
+import com.paiondata.aristotle.common.utils.Neo4jUtil;
 import com.paiondata.aristotle.model.dto.BindNodeDTO;
 import com.paiondata.aristotle.model.dto.GraphNodeDTO;
 import com.paiondata.aristotle.model.dto.NodeDTO;
@@ -34,11 +37,16 @@ import com.paiondata.aristotle.model.dto.RelationUpdateDTO;
 import com.paiondata.aristotle.model.dto.NodeCreateDTO;
 import com.paiondata.aristotle.model.entity.Graph;
 import com.paiondata.aristotle.model.entity.GraphNode;
-import com.paiondata.aristotle.repository.GraphNodeRepository;
-import com.paiondata.aristotle.service.GraphNodeService;
+import com.paiondata.aristotle.repository.NodeRepository;
+import com.paiondata.aristotle.service.NodeService;
 import com.paiondata.aristotle.service.GraphService;
 import com.paiondata.aristotle.service.Neo4jService;
 import lombok.AllArgsConstructor;
+import org.neo4j.driver.Driver;
+import org.neo4j.driver.Record;
+import org.neo4j.driver.Session;
+import org.neo4j.driver.SessionConfig;
+import org.neo4j.driver.Values;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
@@ -63,16 +71,27 @@ import java.util.concurrent.ConcurrentHashMap;
  */
 @Service
 @AllArgsConstructor
-public class GraphNodeServiceImpl implements GraphNodeService {
+public class NodeServiceImpl implements NodeService {
 
     @Autowired
-    private GraphNodeRepository graphNodeRepository;
+    private NodeRepository nodeRepository;
 
     @Autowired
     private GraphService graphService;
 
     @Autowired
     private Neo4jService neo4jService;
+
+    private final Driver driver;
+
+    /**
+     * Constructs a Neo4jServiceImpl object with the specified Driver.
+     * @param driver the Driver instance
+     */
+    @Autowired
+    public NodeServiceImpl(final Driver driver) {
+        this.driver = driver;
+    }
 
     /**
      * Retrieves a graph node by its UUID.
@@ -83,7 +102,7 @@ public class GraphNodeServiceImpl implements GraphNodeService {
     @Transactional(readOnly = true)
     @Override
     public Optional<GraphNode> getNodeByUuid(final String uuid) {
-        final GraphNode graphNode = graphNodeRepository.getGraphNodeByUuid(uuid);
+        final GraphNode graphNode = nodeRepository.getGraphNodeByUuid(uuid);
         return Optional.ofNullable(graphNode);
     }
 
@@ -166,7 +185,7 @@ public class GraphNodeServiceImpl implements GraphNodeService {
             checkIds.add(dto.getToId());
         }
 
-        final List<String> graphUuidByGraphNodeUuid = graphNodeRepository.getGraphUuidByGraphNodeUuid(checkIds);
+        final List<String> graphUuidByGraphNodeUuid = nodeRepository.getGraphUuidByGraphNodeUuid(checkIds);
         for (final String s : graphUuidByGraphNodeUuid) {
             if (!s.equals(graphUuid)) {
                 throw new NodeRelationException(Message.BOUND_ANOTHER_GRAPH + s);
@@ -183,7 +202,7 @@ public class GraphNodeServiceImpl implements GraphNodeService {
      *
      * @param nodeDTOs             the list of DTOs for creating nodes
      * @param uuidMap              the map for storing UUID mappings
-     * @param now                  the current timestamp
+     * @param currentTime                  the current timestamp
      * @param graphUuid            the UUID of the graph
      *
      * @return the created nodes
@@ -191,39 +210,77 @@ public class GraphNodeServiceImpl implements GraphNodeService {
      * @throws TemporaryKeyException if the temporary ID is duplicated
      */
     private List<NodeReturnDTO> createNodes(final List<NodeDTO> nodeDTOs, final Map<String, String> uuidMap,
-                                      final String now, final String graphUuid) {
+                                      final String currentTime, final String graphUuid) {
         final List<NodeReturnDTO> nodes = new ArrayList<>();
 
         // Thread-safe map
         final Map<String, String> threadSafeUuidMap = new ConcurrentHashMap<>(uuidMap);
 
         for (final NodeDTO dto : nodeDTOs) {
-            final String graphNodeUuid = UUID.fastUUID().toString(true);
+            final String nodeUuid = UUID.fastUUID().toString(true);
             final String relationUuid = UUID.fastUUID().toString(true);
 
-            final GraphNode createdNode = graphNodeRepository.createAndBindGraphNode(
-                    dto.getTitle(),
-                    dto.getDescription(),
-                    graphUuid,
-                    graphNodeUuid,
-                    relationUuid,
-                    now);
+            Map<String, Object> result = cypherQueryCreateNode(graphUuid, nodeUuid, relationUuid, currentTime, dto);
+
+            String resultUuid = result.get(Constants.UUID).toString();
 
             // check duplicate temporaryId
             if (threadSafeUuidMap.containsKey(dto.getTemporaryId())) {
                 throw new TemporaryKeyException(Message.DUPLICATE_KEY + dto.getTemporaryId());
             } else {
-                threadSafeUuidMap.put(dto.getTemporaryId(), createdNode.getUuid());
+                threadSafeUuidMap.put(dto.getTemporaryId(), resultUuid);
             }
 
-            nodes.add(NodeReturnDTO.builder()
-                    .uuid(createdNode.getUuid())
-                    .title(createdNode.getTitle())
-                    .description(createdNode.getDescription())
+            nodes.add( NodeReturnDTO.builder()
+                    .uuid(resultUuid)
+                    .createTime((String) result.get(Constants.CREATE_TIME))
+                    .updateTime((String) result.get(Constants.UPDATE_TIME))
+                    .properties((Map<String, String>) result.get(Constants.PROPERTIES))
                     .build());
         }
 
         return nodes;
+    }
+
+    private Map<String, Object> cypherQueryCreateNode(String graphUuid, String nodeUuid, String relationUuid,
+                                            String currentTime, NodeDTO nodeDTO) {
+        final String cypherQuery = "MATCH (g:Graph) WHERE g.uuid = $graphUuid "
+                + "SET g.update_time = $currentTime "
+                + "CREATE (gn:GraphNode { "
+                + "    uuid: $nodeUuid, "
+                + "    create_time: $currentTime, "
+                + "    update_time: $currentTime "
+                + "}) "
+                + "SET gn += $props "
+                + "WITH g, gn "
+                + "CREATE (g)-[:RELATION { "
+                + "    name: 'HAVE', "
+                + "    uuid: $relationUuid, "
+                + "    create_time: $currentTime, "
+                + "    update_time: $currentTime "
+                + "}]->(gn) "
+                + "RETURN gn";
+
+        try (Session session = driver.session(SessionConfig.builder().build())) {
+            return session.writeTransaction(tx -> {
+                var result = tx.run(cypherQuery, Values.parameters(
+                                "graphUuid", graphUuid,
+                                "nodeUuid", nodeUuid,
+                                "currentTime", currentTime,
+                                "relationUuid", relationUuid,
+                                "props", nodeDTO.getProperties()
+                        )
+                );
+
+                Map<String, Object> node = null;
+                while (result.hasNext()) {
+                    final Record record = result.next();
+                    node = Neo4jUtil.extractNode(record.get("gn"));
+                }
+
+                return node;
+            });
+        }
     }
 
     /**
@@ -246,7 +303,7 @@ public class GraphNodeServiceImpl implements GraphNodeService {
             final String fromId = getNodeId(dto.getFromId(), uuidMap);
             final String toId = getNodeId(dto.getToId(), uuidMap);
 
-            graphNodeRepository.bindGraphNodeToGraphNode(fromId, toId, relation, relationUuid, now);
+            nodeRepository.bindGraphNodeToGraphNode(fromId, toId, relation, relationUuid, now);
         }
     }
 
@@ -285,7 +342,7 @@ public class GraphNodeServiceImpl implements GraphNodeService {
                 }
             }
 
-            graphNodeRepository.bindGraphNodeToGraphNode(startNode, endNode, dto.getRelationName(), relationUuid, now);
+            nodeRepository.bindGraphNodeToGraphNode(startNode, endNode, dto.getRelationName(), relationUuid, now);
         }
     }
 
@@ -304,12 +361,12 @@ public class GraphNodeServiceImpl implements GraphNodeService {
             if (getNodeByUuid(uuid).isEmpty()) {
                 throw new NodeNullException(Message.GRAPH_NODE_NULL + uuid);
             }
-            if (graphNodeRepository.getNodeByGraphUuidAndNodeUuid(graphUuid, uuid) == null) {
+            if (nodeRepository.getNodeByGraphUuidAndNodeUuid(graphUuid, uuid) == null) {
                 throw new DeleteException(Message.NODE_BIND_ANOTHER_USER + uuid);
             }
         }
 
-        graphNodeRepository.deleteByUuids(uuids);
+        nodeRepository.deleteByUuids(uuids);
     }
 
     /**
@@ -362,10 +419,10 @@ public class GraphNodeServiceImpl implements GraphNodeService {
      */
     private void validateAndUpdateRelations(final Map<String, String> updateMap, final String graphUuid) {
         updateMap.forEach((uuid, newName) -> {
-            if (graphNodeRepository.getRelationByUuid(uuid) == null) {
+            if (nodeRepository.getRelationByUuid(uuid) == null) {
                 throw new NodeRelationException(Message.GRAPH_NODE_RELATION_NULL + uuid);
             }
-            graphNodeRepository.updateRelationByUuid(uuid, newName, graphUuid);
+            nodeRepository.updateRelationByUuid(uuid, newName, graphUuid);
         });
     }
 
@@ -379,10 +436,10 @@ public class GraphNodeServiceImpl implements GraphNodeService {
      */
     private void validateAndDeleteRelations(final List<String> deleteList, final String graphUuid) {
         deleteList.forEach(uuid -> {
-            if (graphNodeRepository.getRelationByUuid(uuid) == null) {
+            if (nodeRepository.getRelationByUuid(uuid) == null) {
                 throw new NodeRelationException(Message.GRAPH_NODE_RELATION_NULL + uuid);
             }
-            graphNodeRepository.deleteRelationByUuid(uuid, graphUuid);
+            nodeRepository.deleteRelationByUuid(uuid, graphUuid);
         });
     }
 

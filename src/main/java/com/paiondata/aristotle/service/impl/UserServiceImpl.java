@@ -21,7 +21,7 @@ import com.paiondata.aristotle.common.exception.UserExistsException;
 import com.paiondata.aristotle.model.dto.UserDTO;
 import com.paiondata.aristotle.model.entity.User;
 import com.paiondata.aristotle.model.vo.UserVO;
-import com.paiondata.aristotle.repository.GraphNodeRepository;
+import com.paiondata.aristotle.repository.NodeRepository;
 import com.paiondata.aristotle.repository.GraphRepository;
 import com.paiondata.aristotle.repository.UserRepository;
 import com.paiondata.aristotle.service.Neo4jService;
@@ -52,7 +52,7 @@ public class UserServiceImpl implements UserService {
     private GraphRepository graphRepository;
 
     @Autowired
-    private GraphNodeRepository graphNodeRepository;
+    private NodeRepository nodeRepository;
 
     @Autowired
     private Neo4jService neo4jService;
@@ -166,7 +166,7 @@ public class UserServiceImpl implements UserService {
 
         userRepository.deleteByUidcids((uidcids));
         graphRepository.deleteByUuids(graphUuids);
-        graphNodeRepository.deleteByUuids(graphNodeUuids);
+        nodeRepository.deleteByUuids(graphNodeUuids);
     }
 
     /**

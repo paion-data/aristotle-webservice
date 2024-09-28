@@ -101,6 +101,11 @@ public interface Constants {
     String CREATE_TIME_WITHOUT_HUMP = "create_time";
 
     /**
+     * Represents the properties field in the database.
+     */
+    String PROPERTIES = "properties";
+
+    /**
      * Represents the name field in the database.
      */
     String NAME = "name";

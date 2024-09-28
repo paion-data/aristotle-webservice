@@ -17,12 +17,16 @@ package com.paiondata.aristotle.model.dto;
 
 import com.paiondata.aristotle.model.BaseEntity;
 
+import org.springframework.data.neo4j.core.schema.Property;
+
 import io.swagger.annotations.ApiModel;
 import io.swagger.annotations.ApiModelProperty;
 import lombok.AllArgsConstructor;
 import lombok.Builder;
 import lombok.Data;
 import lombok.NoArgsConstructor;
+
+import java.util.Map;
 
 /**
  * Data Transfer Object (DTO) for representing a node.
@@ -43,14 +47,20 @@ public class NodeReturnDTO extends BaseEntity {
     private String uuid;
 
     /**
-     * The title of the node.
+     * The create time of the node.
      */
-    @ApiModelProperty(value = "The title of the node.")
-    private String title;
+    @ApiModelProperty(value = "The create time of the node.")
+    private String createTime;
 
     /**
-     * The description of the node.
+     * The update time of the node.
      */
-    @ApiModelProperty(value = "The description of the node.")
-    private String description;
+    @ApiModelProperty(value = "The update time of the node.")
+    private String updateTime;
+
+    /**
+     * The properties of the node.
+     */
+    @ApiModelProperty(value = "properties")
+    private Map<String, String> properties;
 }

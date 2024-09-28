@@ -33,7 +33,7 @@ import java.util.Optional;
  *
  * This class provides methods for CRUD operations on graph nodes and their relationships.
  */
-public interface GraphNodeService {
+public interface NodeService {
 
     /**
      * Retrieves a graph node by its UUID.
