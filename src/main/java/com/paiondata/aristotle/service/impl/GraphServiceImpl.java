@@ -31,6 +31,7 @@ import com.paiondata.aristotle.repository.GraphRepository;
 import com.paiondata.aristotle.service.GraphService;
 import com.paiondata.aristotle.service.Neo4jService;
 import com.paiondata.aristotle.service.UserService;
+import com.paiondata.aristotle.session.GraphCypherRepository;
 import lombok.AllArgsConstructor;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
@@ -53,6 +54,9 @@ public class GraphServiceImpl implements GraphService {
 
     @Autowired
     private GraphRepository graphRepository;
+
+    @Autowired
+    private GraphCypherRepository graphCypherRepository;
 
     @Autowired
     private UserService userService;
@@ -112,14 +116,14 @@ public class GraphServiceImpl implements GraphService {
         final String uidcid = graphCreateDTO.getUserUidcid();
         final String graphUuid = UUID.fastUUID().toString(true);
         final String relationUuid = UUID.fastUUID().toString(true);
-        final String now = getCurrentTime();
+        final String currentTime = getCurrentTime();
 
         final Optional<User> optionalUser = userService.getUserByUidcid(uidcid);
         if (optionalUser.isEmpty()) {
             throw new UserNullException(Message.USER_NULL + uidcid);
         }
 
-        return graphRepository.createAndBindGraph(title, description, uidcid, graphUuid, relationUuid, now);
+        return graphCypherRepository.createGraph(title, description, uidcid, graphUuid, relationUuid, currentTime);
     }
 
     /**

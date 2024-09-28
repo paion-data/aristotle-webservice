@@ -24,7 +24,6 @@ import com.paiondata.aristotle.common.exception.NodeNullException;
 import com.paiondata.aristotle.common.exception.NodeRelationException;
 import com.paiondata.aristotle.common.exception.GraphNullException;
 import com.paiondata.aristotle.common.exception.TemporaryKeyException;
-import com.paiondata.aristotle.common.utils.Neo4jUtil;
 import com.paiondata.aristotle.model.dto.BindNodeDTO;
 import com.paiondata.aristotle.model.dto.GraphNodeDTO;
 import com.paiondata.aristotle.model.dto.NodeDTO;
@@ -41,12 +40,8 @@ import com.paiondata.aristotle.repository.NodeRepository;
 import com.paiondata.aristotle.service.NodeService;
 import com.paiondata.aristotle.service.GraphService;
 import com.paiondata.aristotle.service.Neo4jService;
+import com.paiondata.aristotle.session.NodeCypherRepository;
 import lombok.AllArgsConstructor;
-import org.neo4j.driver.Driver;
-import org.neo4j.driver.Record;
-import org.neo4j.driver.Session;
-import org.neo4j.driver.SessionConfig;
-import org.neo4j.driver.Values;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
@@ -82,16 +77,8 @@ public class NodeServiceImpl implements NodeService {
     @Autowired
     private Neo4jService neo4jService;
 
-    private final Driver driver;
-
-    /**
-     * Constructs a Neo4jServiceImpl object with the specified Driver.
-     * @param driver the Driver instance
-     */
     @Autowired
-    public NodeServiceImpl(final Driver driver) {
-        this.driver = driver;
-    }
+    private NodeCypherRepository nodeCypherRepository;
 
     /**
      * Retrieves a graph node by its UUID.
@@ -220,9 +207,9 @@ public class NodeServiceImpl implements NodeService {
             final String nodeUuid = UUID.fastUUID().toString(true);
             final String relationUuid = UUID.fastUUID().toString(true);
 
-            Map<String, Object> result = cypherQueryCreateNode(graphUuid, nodeUuid, relationUuid, currentTime, dto);
+            GraphNode node = nodeCypherRepository.createNode(graphUuid, nodeUuid, relationUuid, currentTime, dto);
 
-            String resultUuid = result.get(Constants.UUID).toString();
+            String resultUuid = node.getUuid();
 
             // check duplicate temporaryId
             if (threadSafeUuidMap.containsKey(dto.getTemporaryId())) {
@@ -233,54 +220,13 @@ public class NodeServiceImpl implements NodeService {
 
             nodes.add( NodeReturnDTO.builder()
                     .uuid(resultUuid)
-                    .createTime((String) result.get(Constants.CREATE_TIME))
-                    .updateTime((String) result.get(Constants.UPDATE_TIME))
-                    .properties((Map<String, String>) result.get(Constants.PROPERTIES))
+                    .createTime(node.getCreateTime())
+                    .updateTime(node.getUpdateTime())
+                    .properties(node.getProperties())
                     .build());
         }
 
         return nodes;
-    }
-
-    private Map<String, Object> cypherQueryCreateNode(String graphUuid, String nodeUuid, String relationUuid,
-                                            String currentTime, NodeDTO nodeDTO) {
-        final String cypherQuery = "MATCH (g:Graph) WHERE g.uuid = $graphUuid "
-                + "SET g.update_time = $currentTime "
-                + "CREATE (gn:GraphNode { "
-                + "    uuid: $nodeUuid, "
-                + "    create_time: $currentTime, "
-                + "    update_time: $currentTime "
-                + "}) "
-                + "SET gn += $props "
-                + "WITH g, gn "
-                + "CREATE (g)-[:RELATION { "
-                + "    name: 'HAVE', "
-                + "    uuid: $relationUuid, "
-                + "    create_time: $currentTime, "
-                + "    update_time: $currentTime "
-                + "}]->(gn) "
-                + "RETURN gn";
-
-        try (Session session = driver.session(SessionConfig.builder().build())) {
-            return session.writeTransaction(tx -> {
-                var result = tx.run(cypherQuery, Values.parameters(
-                                "graphUuid", graphUuid,
-                                "nodeUuid", nodeUuid,
-                                "currentTime", currentTime,
-                                "relationUuid", relationUuid,
-                                "props", nodeDTO.getProperties()
-                        )
-                );
-
-                Map<String, Object> node = null;
-                while (result.hasNext()) {
-                    final Record record = result.next();
-                    node = Neo4jUtil.extractNode(record.get("gn"));
-                }
-
-                return node;
-            });
-        }
     }
 
     /**
