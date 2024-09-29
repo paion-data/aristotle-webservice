@@ -13,7 +13,7 @@
  * See the License for the specific language governing permissions and
  * limitations under the License.
  */
-package com.paiondata.aristotle.common.utils;
+package com.paiondata.aristotle.common.util;
 
 import com.paiondata.aristotle.common.base.Constants;
 import org.neo4j.driver.internal.value.NodeValue;

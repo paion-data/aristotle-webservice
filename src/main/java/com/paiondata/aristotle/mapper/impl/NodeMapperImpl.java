@@ -13,10 +13,11 @@
  * See the License for the specific language governing permissions and
  * limitations under the License.
  */
-package com.paiondata.aristotle.session;
+package com.paiondata.aristotle.mapper.impl;
 
 import com.paiondata.aristotle.common.base.Constants;
-import com.paiondata.aristotle.common.utils.Neo4jUtil;
+import com.paiondata.aristotle.common.util.Neo4jUtil;
+import com.paiondata.aristotle.mapper.NodeMapper;
 import com.paiondata.aristotle.model.dto.NodeDTO;
 import com.paiondata.aristotle.model.entity.GraphNode;
 import org.neo4j.driver.Driver;
@@ -35,7 +36,7 @@ import java.util.Map;
  */
 @Repository
 @Transactional
-public class NodeCypherRepository {
+public class NodeMapperImpl implements NodeMapper {
 
     private final Driver driver;
 
@@ -44,7 +45,7 @@ public class NodeCypherRepository {
      * @param driver the Driver instance
      */
     @Autowired
-    public NodeCypherRepository(final Driver driver) {
+    public NodeMapperImpl(final Driver driver) {
         this.driver = driver;
     }
 

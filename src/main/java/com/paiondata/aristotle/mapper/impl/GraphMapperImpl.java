@@ -13,10 +13,11 @@
  * See the License for the specific language governing permissions and
  * limitations under the License.
  */
-package com.paiondata.aristotle.session;
+package com.paiondata.aristotle.mapper.impl;
 
 import com.paiondata.aristotle.common.base.Constants;
-import com.paiondata.aristotle.common.utils.Neo4jUtil;
+import com.paiondata.aristotle.common.util.Neo4jUtil;
+import com.paiondata.aristotle.mapper.GraphMapper;
 import com.paiondata.aristotle.model.entity.Graph;
 import org.neo4j.driver.Driver;
 import org.neo4j.driver.Record;
@@ -30,11 +31,11 @@ import org.springframework.transaction.annotation.Transactional;
 import java.util.Map;
 
 /**
- * GraphCypherRepository class provides methods for interacting with the Neo4j database using Cypher queries.
+ * GraphMapperImpl class provides methods for interacting with the Neo4j database using Cypher queries.
  */
 @Repository
 @Transactional
-public class GraphCypherRepository {
+public class GraphMapperImpl implements GraphMapper {
 
     private final Driver driver;
 
@@ -43,7 +44,7 @@ public class GraphCypherRepository {
      * @param driver the Driver instance
      */
     @Autowired
-    public GraphCypherRepository(final Driver driver) {
+    public GraphMapperImpl(final Driver driver) {
         this.driver = driver;
     }
 

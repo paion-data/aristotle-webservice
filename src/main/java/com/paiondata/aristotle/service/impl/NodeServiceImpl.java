@@ -23,6 +23,7 @@ import com.paiondata.aristotle.common.exception.NodeNullException;
 import com.paiondata.aristotle.common.exception.NodeRelationException;
 import com.paiondata.aristotle.common.exception.GraphNullException;
 import com.paiondata.aristotle.common.exception.TemporaryKeyException;
+import com.paiondata.aristotle.mapper.NodeMapper;
 import com.paiondata.aristotle.model.dto.BindNodeDTO;
 import com.paiondata.aristotle.model.dto.GraphNodeDTO;
 import com.paiondata.aristotle.model.dto.NodeDTO;
@@ -39,7 +40,6 @@ import com.paiondata.aristotle.repository.NodeRepository;
 import com.paiondata.aristotle.service.NodeService;
 import com.paiondata.aristotle.service.GraphService;
 import com.paiondata.aristotle.service.Neo4jService;
-import com.paiondata.aristotle.session.NodeCypherRepository;
 import lombok.AllArgsConstructor;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
@@ -77,7 +77,7 @@ public class NodeServiceImpl implements NodeService {
     private Neo4jService neo4jService;
 
     @Autowired
-    private NodeCypherRepository nodeCypherRepository;
+    private NodeMapper nodeMapper;
 
     /**
      * Retrieves a graph node by its UUID.
@@ -206,7 +206,7 @@ public class NodeServiceImpl implements NodeService {
             final String nodeUuid = UUID.fastUUID().toString(true);
             final String relationUuid = UUID.fastUUID().toString(true);
 
-            final GraphNode node = nodeCypherRepository.createNode(graphUuid, nodeUuid, relationUuid, currentTime, dto);
+            final GraphNode node = nodeMapper.createNode(graphUuid, nodeUuid, relationUuid, currentTime, dto);
 
             final String resultUuid = node.getUuid();
 

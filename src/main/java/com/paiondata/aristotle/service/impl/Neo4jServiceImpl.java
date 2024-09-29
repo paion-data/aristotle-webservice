@@ -18,7 +18,7 @@ package com.paiondata.aristotle.service.impl;
 import com.paiondata.aristotle.common.base.Constants;
 import com.paiondata.aristotle.common.base.Message;
 import com.paiondata.aristotle.common.exception.UserNullException;
-import com.paiondata.aristotle.common.utils.Neo4jUtil;
+import com.paiondata.aristotle.common.util.Neo4jUtil;
 import com.paiondata.aristotle.repository.GraphRepository;
 import com.paiondata.aristotle.repository.UserRepository;
 import com.paiondata.aristotle.service.Neo4jService;

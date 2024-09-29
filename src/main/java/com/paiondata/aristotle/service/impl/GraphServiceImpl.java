@@ -20,6 +20,7 @@ import com.paiondata.aristotle.common.base.Message;
 import com.paiondata.aristotle.common.exception.DeleteException;
 import com.paiondata.aristotle.common.exception.GraphNullException;
 import com.paiondata.aristotle.common.exception.UserNullException;
+import com.paiondata.aristotle.mapper.GraphMapper;
 import com.paiondata.aristotle.model.dto.GraphCreateDTO;
 import com.paiondata.aristotle.model.dto.GraphDeleteDTO;
 import com.paiondata.aristotle.model.dto.GraphUpdateDTO;
@@ -31,7 +32,6 @@ import com.paiondata.aristotle.repository.GraphRepository;
 import com.paiondata.aristotle.service.GraphService;
 import com.paiondata.aristotle.service.Neo4jService;
 import com.paiondata.aristotle.service.UserService;
-import com.paiondata.aristotle.session.GraphCypherRepository;
 import lombok.AllArgsConstructor;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
@@ -56,7 +56,7 @@ public class GraphServiceImpl implements GraphService {
     private GraphRepository graphRepository;
 
     @Autowired
-    private GraphCypherRepository graphCypherRepository;
+    private GraphMapper graphMapper;
 
     @Autowired
     private UserService userService;
@@ -123,7 +123,7 @@ public class GraphServiceImpl implements GraphService {
             throw new UserNullException(Message.USER_NULL + uidcid);
         }
 
-        return graphCypherRepository.createGraph(title, description, uidcid, graphUuid, relationUuid, currentTime);
+        return graphMapper.createGraph(title, description, uidcid, graphUuid, relationUuid, currentTime);
     }
 
     /**
