@@ -15,35 +15,35 @@
  */
 package com.paiondata.aristotle.common.util;
 
-import org.neo4j.driver.Session;
+import org.neo4j.driver.Transaction;
 
 /**
- * Session context for Neo4j.
+ * Transaction context for Neo4j.
  */
-public class SessionContext {
+public class TransactionContext {
 
-    private static final ThreadLocal<Session> SESSION_HOLDER = new ThreadLocal<>();
+    private static final ThreadLocal<Transaction> TRANSACTION_HOLDER = new ThreadLocal<>();
 
     /**
-     * Set session.
-     * @param session Session to be set.
+     * Set transaction.
+     * @param transaction Session to be set.
      */
-    public static void setSession(final Session session) {
-        SESSION_HOLDER.set(session);
+    public static void setTransaction(final Transaction transaction) {
+        TRANSACTION_HOLDER.set(transaction);
     }
 
     /**
-     * Get session.
-     * @return Session.
+     * Get transaction.
+     * @return Transaction.
      */
-    public static Session getSession() {
-        return SESSION_HOLDER.get();
+    public static Transaction getTransaction() {
+        return TRANSACTION_HOLDER.get();
     }
 
     /**
-     * Remove session.
+     * Remove transaction.
      */
-    public static void removeSession() {
-        SESSION_HOLDER.remove();
+    public static void removeTransaction() {
+        TRANSACTION_HOLDER.remove();
     }
 }

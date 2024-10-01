@@ -17,12 +17,12 @@ package com.paiondata.aristotle.mapper.impl;
 
 import com.paiondata.aristotle.common.base.Constants;
 import com.paiondata.aristotle.common.util.Neo4jUtil;
-import com.paiondata.aristotle.common.util.SessionContext;
+import com.paiondata.aristotle.common.util.TransactionContext;
 import com.paiondata.aristotle.mapper.NodeMapper;
 import com.paiondata.aristotle.model.dto.NodeDTO;
 import com.paiondata.aristotle.model.entity.GraphNode;
 import org.neo4j.driver.Record;
-import org.neo4j.driver.Session;
+import org.neo4j.driver.Transaction;
 import org.neo4j.driver.Values;
 import org.springframework.stereotype.Repository;
 
@@ -59,27 +59,25 @@ public class NodeMapperImpl implements NodeMapper {
                 + "create_time: $currentTime, update_time: $currentTime}]->(gn) "
                 + "RETURN gn";
 
-        final Session session = SessionContext.getSession();
+        final Transaction tx = TransactionContext.getTransaction();
 
-        return session.writeTransaction(tx -> {
-            final var result = tx.run(cypherQuery, Values.parameters(
-                            Constants.GRAPH_UUID, graphUuid,
-                            Constants.NODE_UUID, nodeUuid,
-                            Constants.CURRENT_TIME, currentTime,
-                            Constants.RELATION_UUID, relationUuid
-                    )
-            );
+        final var result = tx.run(cypherQuery, Values.parameters(
+                        Constants.GRAPH_UUID, graphUuid,
+                        Constants.NODE_UUID, nodeUuid,
+                        Constants.CURRENT_TIME, currentTime,
+                        Constants.RELATION_UUID, relationUuid
+                )
+        );
 
-            final Record record = result.next();
-            final Map<String, Object> objectMap = Neo4jUtil.extractNode(record.get("gn"));
+        final Record record = result.next();
+        final Map<String, Object> objectMap = Neo4jUtil.extractNode(record.get("gn"));
 
-            return GraphNode.builder()
-                    .id((Long) objectMap.get(Constants.ID))
-                    .uuid((String) objectMap.get(Constants.UUID))
-                    .properties((Map<String, String>) objectMap.get(Constants.PROPERTIES))
-                    .createTime((String) objectMap.get(Constants.CREATE_TIME))
-                    .updateTime((String) objectMap.get(Constants.UPDATE_TIME))
-                    .build();
-        });
+        return GraphNode.builder()
+                .id((Long) objectMap.get(Constants.ID))
+                .uuid((String) objectMap.get(Constants.UUID))
+                .properties((Map<String, String>) objectMap.get(Constants.PROPERTIES))
+                .createTime((String) objectMap.get(Constants.CREATE_TIME))
+                .updateTime((String) objectMap.get(Constants.UPDATE_TIME))
+                .build();
     }
 }

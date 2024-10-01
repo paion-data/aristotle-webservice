@@ -122,31 +122,27 @@ public class NodeServiceImpl implements NodeService {
     @Override
     @Neo4jTransactional
     public GraphNodeDTO createGraphAndBindGraphAndNode(final GraphAndNodeCreateDTO graphNodeCreateDTO) {
-        try {
-            final Graph graph = graphService.createAndBindGraph(graphNodeCreateDTO.getGraphCreateDTO());
+        final Graph graph = graphService.createAndBindGraph(graphNodeCreateDTO.getGraphCreateDTO());
 
-            final GraphNodeDTO dto = GraphNodeDTO.builder()
-                    .uuid(graph.getUuid())
-                    .title(graph.getTitle())
-                    .description(graph.getDescription())
-                    .build();
+        final GraphNodeDTO dto = GraphNodeDTO.builder()
+                .uuid(graph.getUuid())
+                .title(graph.getTitle())
+                .description(graph.getDescription())
+                .build();
 
-            if (graphNodeCreateDTO.getGraphNodeDTO() == null) {
-                return dto;
-            }
-
-            final String graphUuid = graph.getUuid();
-
-            final List<NodeReturnDTO> nodes = checkInputRelationsAndBindGraphAndNode(
-                    graphNodeCreateDTO.getGraphNodeDTO(),
-                    graphNodeCreateDTO.getGraphNodeRelationDTO(),
-                    graphUuid);
-
-            dto.setNodes(nodes);
+        if (graphNodeCreateDTO.getGraphNodeDTO() == null) {
             return dto;
-        } catch (final Exception e) {
-            throw new RuntimeException("Failed to create and bind graph and node", e);
         }
+
+        final String graphUuid = graph.getUuid();
+
+        final List<NodeReturnDTO> nodes = checkInputRelationsAndBindGraphAndNode(
+                graphNodeCreateDTO.getGraphNodeDTO(),
+                graphNodeCreateDTO.getGraphNodeRelationDTO(),
+                graphUuid);
+
+        dto.setNodes(nodes);
+        return dto;
     }
 
     /**

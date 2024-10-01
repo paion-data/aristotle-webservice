@@ -17,11 +17,11 @@ package com.paiondata.aristotle.mapper.impl;
 
 import com.paiondata.aristotle.common.base.Constants;
 import com.paiondata.aristotle.common.util.Neo4jUtil;
-import com.paiondata.aristotle.common.util.SessionContext;
+import com.paiondata.aristotle.common.util.TransactionContext;
 import com.paiondata.aristotle.mapper.GraphMapper;
 import com.paiondata.aristotle.model.entity.Graph;
 import org.neo4j.driver.Record;
-import org.neo4j.driver.Session;
+import org.neo4j.driver.Transaction;
 import org.neo4j.driver.Values;
 import org.springframework.stereotype.Repository;
 
@@ -53,30 +53,28 @@ public class GraphMapperImpl implements GraphMapper {
                 + "update_time: $currentTime}]->(g) "
                 + "RETURN g";
 
-        final Session session = SessionContext.getSession();
+        final Transaction tx = TransactionContext.getTransaction();
 
-        return session.writeTransaction(tx -> {
-            final var result = tx.run(cypherQuery, Values.parameters(
-                            Constants.TITLE, title,
-                            Constants.DESCRIPTION, description,
-                            Constants.UIDCID, userUidcid,
-                            Constants.GRAPH_UUID, graphUuid,
-                            Constants.CURRENT_TIME, currentTime,
-                            Constants.RELATION_UUID, relationUuid
-                    )
-            );
+        final var result = tx.run(cypherQuery, Values.parameters(
+                        Constants.TITLE, title,
+                        Constants.DESCRIPTION, description,
+                        Constants.UIDCID, userUidcid,
+                        Constants.GRAPH_UUID, graphUuid,
+                        Constants.CURRENT_TIME, currentTime,
+                        Constants.RELATION_UUID, relationUuid
+                )
+        );
 
-            final Record record = result.next();
-            final Map<String, Object> objectMap = Neo4jUtil.extractGraph(record.get("g"));
+        final Record record = result.next();
+        final Map<String, Object> objectMap = Neo4jUtil.extractGraph(record.get("g"));
 
-            return Graph.builder()
-                    .id((Long) objectMap.get(Constants.ID))
-                    .uuid((String) objectMap.get(Constants.UUID))
-                    .title((String) objectMap.get(Constants.TITLE))
-                    .description((String) objectMap.get(Constants.DESCRIPTION))
-                    .createTime((String) objectMap.get(Constants.CREATE_TIME))
-                    .updateTime((String) objectMap.get(Constants.UPDATE_TIME))
-                    .build();
-        });
+        return Graph.builder()
+                .id((Long) objectMap.get(Constants.ID))
+                .uuid((String) objectMap.get(Constants.UUID))
+                .title((String) objectMap.get(Constants.TITLE))
+                .description((String) objectMap.get(Constants.DESCRIPTION))
+                .createTime((String) objectMap.get(Constants.CREATE_TIME))
+                .updateTime((String) objectMap.get(Constants.UPDATE_TIME))
+                .build();
     }
 }

@@ -32,6 +32,6 @@ public interface NodeMapper {
      * @param nodeDTO the NodeDTO object containing the node properties
      * @return the created Node object
      */
-    GraphNode createNode(final String graphUuid, final String nodeUuid, final String relationUuid,
-                                final String currentTime, final NodeDTO nodeDTO);
+    GraphNode createNode(String graphUuid, String nodeUuid, String relationUuid,
+                                String currentTime, NodeDTO nodeDTO);
 }

@@ -15,16 +15,15 @@
  */
 package com.paiondata.aristotle.aop;
 
-import com.paiondata.aristotle.common.util.SessionContext;
+import com.paiondata.aristotle.common.util.TransactionContext;
 import com.paiondata.aristotle.common.util.TransactionManager;
 
 import org.aspectj.lang.ProceedingJoinPoint;
 import org.aspectj.lang.annotation.Around;
 import org.aspectj.lang.annotation.Aspect;
-import org.neo4j.driver.Driver;
 import org.neo4j.driver.Session;
-import org.neo4j.driver.SessionConfig;
 import org.neo4j.driver.Transaction;
+import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.core.annotation.Order;
 import org.springframework.stereotype.Component;
 
@@ -41,15 +40,8 @@ public class Neo4jTransactionAspect {
     @Resource
     private TransactionManager neo4jTransactionManager;
 
-    private final Driver driver;
-
-    /**
-     * Constructor.
-     * @param driver Neo4j Driver
-     */
-    public Neo4jTransactionAspect(final Driver driver) {
-        this.driver = driver;
-    }
+    @Autowired
+    private Session neo4jSession;
 
     /**
      * Transaction manager.
@@ -60,13 +52,10 @@ public class Neo4jTransactionAspect {
     @Around("@annotation(com.paiondata.aristotle.common.annotion.Neo4jTransactional)")
     public Object manageTransaction(final ProceedingJoinPoint joinPoint) throws Throwable {
         Transaction tx = null;
-        Session session = null;
         try {
-            tx = neo4jTransactionManager.beginTransaction();
-            session = driver.session(SessionConfig.builder().build());
-
-            // Stores the Session to ThreadLocal
-            SessionContext.setSession(session);
+            tx = neo4jSession.beginTransaction();
+            // Stores the Transaction to ThreadLocal
+            TransactionContext.setTransaction(tx);
 
             final Object result = joinPoint.proceed(joinPoint.getArgs());
 
@@ -78,14 +67,11 @@ public class Neo4jTransactionAspect {
             }
             throw e;
         } finally {
+            // Clears a Session in ThreadLocal
+            TransactionContext.removeTransaction();
             if (tx != null && tx.isOpen()) {
                 tx.close();
             }
-            if (session != null) {
-                session.close();
-            }
-            // Clears a Session in ThreadLocal
-            SessionContext.removeSession();
         }
     }
 }
