@@ -17,17 +17,14 @@ package com.paiondata.aristotle.mapper.impl;
 
 import com.paiondata.aristotle.common.base.Constants;
 import com.paiondata.aristotle.common.util.Neo4jUtil;
+import com.paiondata.aristotle.common.util.SessionContext;
 import com.paiondata.aristotle.mapper.NodeMapper;
 import com.paiondata.aristotle.model.dto.NodeDTO;
 import com.paiondata.aristotle.model.entity.GraphNode;
-import org.neo4j.driver.Driver;
 import org.neo4j.driver.Record;
 import org.neo4j.driver.Session;
 import org.neo4j.driver.Values;
-import org.neo4j.driver.SessionConfig;
-import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Repository;
-import org.springframework.transaction.annotation.Transactional;
 
 import java.util.Map;
 
@@ -35,19 +32,7 @@ import java.util.Map;
  * Repository class for executing Cypher queries related to nodes in Neo4j.
  */
 @Repository
-@Transactional
 public class NodeMapperImpl implements NodeMapper {
-
-    private final Driver driver;
-
-    /**
-     * Constructs a Neo4jServiceImpl object with the specified Driver.
-     * @param driver the Driver instance
-     */
-    @Autowired
-    public NodeMapperImpl(final Driver driver) {
-        this.driver = driver;
-    }
 
     /**
      * Creates a node in the Neo4j database.
@@ -74,27 +59,27 @@ public class NodeMapperImpl implements NodeMapper {
                 + "create_time: $currentTime, update_time: $currentTime}]->(gn) "
                 + "RETURN gn";
 
-        try (Session session = driver.session(SessionConfig.builder().build())) {
-            return session.writeTransaction(tx -> {
-                final var result = tx.run(cypherQuery, Values.parameters(
-                                Constants.GRAPH_UUID, graphUuid,
-                                Constants.NODE_UUID, nodeUuid,
-                                Constants.CURRENT_TIME, currentTime,
-                                Constants.RELATION_UUID, relationUuid
-                        )
-                );
+        final Session session = SessionContext.getSession();
 
-                final Record record = result.next();
-                final Map<String, Object> objectMap = Neo4jUtil.extractNode(record.get("gn"));
+        return session.writeTransaction(tx -> {
+            final var result = tx.run(cypherQuery, Values.parameters(
+                            Constants.GRAPH_UUID, graphUuid,
+                            Constants.NODE_UUID, nodeUuid,
+                            Constants.CURRENT_TIME, currentTime,
+                            Constants.RELATION_UUID, relationUuid
+                    )
+            );
 
-                return GraphNode.builder()
-                        .id((Long) objectMap.get(Constants.ID))
-                        .uuid((String) objectMap.get(Constants.UUID))
-                        .properties((Map<String, String>) objectMap.get(Constants.PROPERTIES))
-                        .createTime((String) objectMap.get(Constants.CREATE_TIME))
-                        .updateTime((String) objectMap.get(Constants.UPDATE_TIME))
-                        .build();
-            });
-        }
+            final Record record = result.next();
+            final Map<String, Object> objectMap = Neo4jUtil.extractNode(record.get("gn"));
+
+            return GraphNode.builder()
+                    .id((Long) objectMap.get(Constants.ID))
+                    .uuid((String) objectMap.get(Constants.UUID))
+                    .properties((Map<String, String>) objectMap.get(Constants.PROPERTIES))
+                    .createTime((String) objectMap.get(Constants.CREATE_TIME))
+                    .updateTime((String) objectMap.get(Constants.UPDATE_TIME))
+                    .build();
+        });
     }
 }

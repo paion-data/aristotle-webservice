@@ -17,6 +17,7 @@ package com.paiondata.aristotle.service.impl;
 
 import cn.hutool.core.lang.UUID;
 
+import com.paiondata.aristotle.common.annotion.Neo4jTransactional;
 import com.paiondata.aristotle.common.base.Message;
 import com.paiondata.aristotle.common.exception.DeleteException;
 import com.paiondata.aristotle.common.exception.NodeNullException;
@@ -98,7 +99,7 @@ public class NodeServiceImpl implements NodeService {
      * @param nodeCreateDTO the DTO containing information for creating the graph and node
      * @return the list of created nodes
      */
-    @Transactional
+    @Neo4jTransactional
     @Override
     public List<NodeReturnDTO> createAndBindGraphAndNode(final NodeCreateDTO nodeCreateDTO) {
         final String graphUuid = nodeCreateDTO.getGraphUuid();
@@ -118,30 +119,34 @@ public class NodeServiceImpl implements NodeService {
      * @param graphNodeCreateDTO the DTO containing information for creating the graph and node
      * @return the created graph node
      */
-    @Transactional
     @Override
+    @Neo4jTransactional
     public GraphNodeDTO createGraphAndBindGraphAndNode(final GraphAndNodeCreateDTO graphNodeCreateDTO) {
-        final Graph graph = graphService.createAndBindGraph(graphNodeCreateDTO.getGraphCreateDTO());
+        try {
+            final Graph graph = graphService.createAndBindGraph(graphNodeCreateDTO.getGraphCreateDTO());
 
-        final GraphNodeDTO dto = GraphNodeDTO.builder()
-                .uuid(graph.getUuid())
-                .title(graph.getTitle())
-                .description(graph.getDescription())
-                .build();
+            final GraphNodeDTO dto = GraphNodeDTO.builder()
+                    .uuid(graph.getUuid())
+                    .title(graph.getTitle())
+                    .description(graph.getDescription())
+                    .build();
 
-        if (graphNodeCreateDTO.getGraphNodeDTO() == null) {
+            if (graphNodeCreateDTO.getGraphNodeDTO() == null) {
+                return dto;
+            }
+
+            final String graphUuid = graph.getUuid();
+
+            final List<NodeReturnDTO> nodes = checkInputRelationsAndBindGraphAndNode(
+                    graphNodeCreateDTO.getGraphNodeDTO(),
+                    graphNodeCreateDTO.getGraphNodeRelationDTO(),
+                    graphUuid);
+
+            dto.setNodes(nodes);
             return dto;
+        } catch (final Exception e) {
+            throw new RuntimeException("Failed to create and bind graph and node", e);
         }
-
-        final String graphUuid = graph.getUuid();
-
-        final List<NodeReturnDTO> nodes = checkInputRelationsAndBindGraphAndNode(
-                graphNodeCreateDTO.getGraphNodeDTO(),
-                graphNodeCreateDTO.getGraphNodeRelationDTO(),
-                graphUuid);
-
-        dto.setNodes(nodes);
-        return dto;
     }
 
     /**

@@ -17,6 +17,9 @@ package com.paiondata.aristotle.mapper;
 
 import com.paiondata.aristotle.model.entity.Graph;
 
+/**
+ * GraphMapper interface for mapping Graph objects.
+ */
 public interface GraphMapper {
 
     /**
@@ -29,6 +32,6 @@ public interface GraphMapper {
      * @param currentTime the current time
      * @return the created Graph object
      */
-    Graph createGraph(final String title, final String description, final String userUidcid,
-                      final String graphUuid, final String relationUuid, final String currentTime);
+    Graph createGraph(String title, String description, String userUidcid,
+                      String graphUuid, String relationUuid, String currentTime);
 }
