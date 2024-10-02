@@ -38,6 +38,7 @@
         <hutool.version>5.8.29</hutool.version>
         <spring-boot.version>3.3.2</spring-boot.version>
 
+        <version.maven.javadoc.plugin>3.5.0</version.maven.javadoc.plugin>
         <version.knife4j>3.0.3</version.knife4j>
         <version.springfox>3.0.0</version.springfox>
         <version.maven.checkstyle.plugin>3.1.2</version.maven.checkstyle.plugin>
@@ -230,6 +231,23 @@
                         <phase>initialize</phase>
                         <goals>
                             <goal>check</goal>
+                        </goals>
+                    </execution>
+                </executions>
+            </plugin>
+
+            <plugin>
+                <groupId>org.apache.maven.plugins</groupId>
+                <artifactId>maven-javadoc-plugin</artifactId>
+                <version>${version.maven.javadoc.plugin}</version>
+                <configuration>
+                    <doclint>none</doclint>  <!-- Turnoff all checks -->
+                </configuration>
+                <executions>
+                    <execution>
+                        <id>attach-javadocs</id>
+                        <goals>
+                            <goal>jar</goal>
                         </goals>
                     </execution>
                 </executions>
