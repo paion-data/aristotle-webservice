@@ -15,17 +15,22 @@
  */
 package com.paiondata.aristotle.aop;
 
-import com.paiondata.aristotle.common.util.TransactionContext;
+import com.paiondata.aristotle.common.base.Message;
+import com.paiondata.aristotle.common.exception.TransactionException;
 import com.paiondata.aristotle.common.util.TransactionManager;
 
 import org.aspectj.lang.ProceedingJoinPoint;
 import org.aspectj.lang.annotation.Around;
 import org.aspectj.lang.annotation.Aspect;
+import org.aspectj.lang.reflect.MethodSignature;
 import org.neo4j.driver.Session;
 import org.neo4j.driver.Transaction;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.core.annotation.Order;
 import org.springframework.stereotype.Component;
+
+import java.lang.reflect.Method;
+import java.lang.reflect.Parameter;
 
 import javax.annotation.Resource;
 
@@ -44,20 +49,26 @@ public class Neo4jTransactionAspect {
     private Session neo4jSession;
 
     /**
-     * Transaction manager.
+     * Handles Neo4j transactions.
      * @param joinPoint Join point
-     * @return the result of the method
-     * @throws Throwable if any error occurs
+     * @return The result of the method call
+     * @throws Throwable if an error occurs
      */
     @Around("@annotation(com.paiondata.aristotle.common.annotion.Neo4jTransactional)")
     public Object manageTransaction(final ProceedingJoinPoint joinPoint) throws Throwable {
         Transaction tx = null;
         try {
             tx = neo4jSession.beginTransaction();
-            // Stores the Transaction to ThreadLocal
-            TransactionContext.setTransaction(tx);
 
-            final Object result = joinPoint.proceed(joinPoint.getArgs());
+            final Object[] args = joinPoint.getArgs();
+            final MethodSignature signature = (MethodSignature) joinPoint.getSignature();
+            final Method method = signature.getMethod();
+            final Parameter[] parameters = method.getParameters();
+
+            // Inject the transaction
+            injectTransaction(tx, args, parameters);
+
+            final Object result = joinPoint.proceed(args);
 
             neo4jTransactionManager.commitTransaction(tx);
             return result;
@@ -67,11 +78,38 @@ public class Neo4jTransactionAspect {
             }
             throw e;
         } finally {
-            // Clears a Session in ThreadLocal
-            TransactionContext.removeTransaction();
-            if (tx != null && tx.isOpen()) {
-                tx.close();
+            closeTransaction(tx);
+        }
+    }
+
+    /**
+     * Inject the transaction into the method arguments.
+     * @param tx Transaction
+     * @param args the method arguments
+     * @param parameters the method parameters
+     */
+    private void injectTransaction(final Transaction tx, final Object[] args, final Parameter[] parameters) {
+        boolean transactionInjected = false;
+        for (int i = 0; i < parameters.length; i++) {
+            if (parameters[i].getType().equals(Transaction.class)) {
+                args[i] = tx;
+                transactionInjected = true;
+                break;
             }
+        }
+
+        if (!transactionInjected) {
+            throw new TransactionException(Message.METHOD_WITHOUT_TRANSACTION);
+        }
+    }
+
+    /**
+     * Close the transaction.
+     * @param tx Transaction
+     */
+    private void closeTransaction(final Transaction tx) {
+        if (tx != null && tx.isOpen()) {
+            tx.close();
         }
     }
 }

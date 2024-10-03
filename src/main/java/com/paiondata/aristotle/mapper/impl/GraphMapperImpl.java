@@ -17,7 +17,6 @@ package com.paiondata.aristotle.mapper.impl;
 
 import com.paiondata.aristotle.common.base.Constants;
 import com.paiondata.aristotle.common.util.Neo4jUtil;
-import com.paiondata.aristotle.common.util.TransactionContext;
 import com.paiondata.aristotle.mapper.GraphMapper;
 import com.paiondata.aristotle.model.entity.Graph;
 import org.neo4j.driver.Record;
@@ -41,10 +40,12 @@ public class GraphMapperImpl implements GraphMapper {
      * @param graphUuid the UUID of the graph
      * @param relationUuid the UUID of the relation
      * @param currentTime the current time
+     * @param tx the Neo4j transaction
      * @return the created Graph object
      */
     public Graph createGraph(final String title, final String description, final String userUidcid,
-                             final String graphUuid, final String relationUuid, final String currentTime) {
+                             final String graphUuid, final String relationUuid, final String currentTime,
+                             final Transaction tx) {
         final String cypherQuery = "MATCH (u:User) WHERE u.uidcid = $uidcid "
                 + "CREATE (g:Graph {uuid: $graphUuid, title: $title, description: $description, "
                 + "create_time: $currentTime, update_time: $currentTime}) "
@@ -52,8 +53,6 @@ public class GraphMapperImpl implements GraphMapper {
                 + "CREATE (u)-[r:RELATION {name: 'HAVE', uuid: $relationUuid, create_time: $currentTime, "
                 + "update_time: $currentTime}]->(g) "
                 + "RETURN g";
-
-        final Transaction tx = TransactionContext.getTransaction();
 
         final var result = tx.run(cypherQuery, Values.parameters(
                         Constants.TITLE, title,

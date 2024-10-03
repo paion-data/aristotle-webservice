@@ -17,6 +17,8 @@ package com.paiondata.aristotle.mapper;
 
 import com.paiondata.aristotle.model.entity.Graph;
 
+import org.neo4j.driver.Transaction;
+
 /**
  * GraphMapper interface for mapping Graph objects.
  */
@@ -30,8 +32,9 @@ public interface GraphMapper {
      * @param graphUuid the UUID of the graph
      * @param relationUuid the UUID of the relation
      * @param currentTime the current time
+     * @param tx the Neo4j transaction
      * @return the created Graph object
      */
     Graph createGraph(String title, String description, String userUidcid,
-                      String graphUuid, String relationUuid, String currentTime);
+                      String graphUuid, String relationUuid, String currentTime, Transaction tx);
 }

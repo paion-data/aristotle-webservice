@@ -25,6 +25,8 @@ import com.paiondata.aristotle.model.dto.NodeCreateDTO;
 import com.paiondata.aristotle.model.dto.RelationUpdateDTO;
 import com.paiondata.aristotle.model.dto.GraphUpdateDTO;
 
+import org.neo4j.driver.Transaction;
+
 import java.util.List;
 import java.util.Optional;
 
@@ -47,16 +49,18 @@ public interface NodeService {
      * Creates and binds a graph and a node based on the provided DTO.
      *
      * @param nodeCreateDTO the DTO containing information for creating the graph and node
+     * @param tx the Neo4j transaction
      * @return the list of created nodes
      */
-    List<NodeReturnDTO> createAndBindGraphAndNode(NodeCreateDTO nodeCreateDTO);
+    List<NodeReturnDTO> createAndBindGraphAndNode(NodeCreateDTO nodeCreateDTO, Transaction tx);
 
     /**
      * Creates a graph and binds it with a node based on the provided DTO.
      * @param graphNodeCreateDTO the DTO containing information for creating the graph and node
+     * @param tx the Neo4j transaction
      * @return the created graph node
      */
-    GraphNodeDTO createGraphAndBindGraphAndNode(GraphAndNodeCreateDTO graphNodeCreateDTO);
+    GraphNodeDTO createGraphAndBindGraphAndNode(GraphAndNodeCreateDTO graphNodeCreateDTO, Transaction tx);
 
     /**
      * Binds nodes based on the provided DTOs.

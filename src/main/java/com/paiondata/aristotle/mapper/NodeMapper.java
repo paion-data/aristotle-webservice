@@ -18,6 +18,8 @@ package com.paiondata.aristotle.mapper;
 import com.paiondata.aristotle.model.dto.NodeDTO;
 import com.paiondata.aristotle.model.entity.GraphNode;
 
+import org.neo4j.driver.Transaction;
+
 /**
  * Mapper interface for NodeMapper.
  */
@@ -30,8 +32,9 @@ public interface NodeMapper {
      * @param relationUuid the UUID of the relation
      * @param currentTime the current time
      * @param nodeDTO the NodeDTO object containing the node properties
+     * @param tx the Neo4j transaction
      * @return the created Node object
      */
     GraphNode createNode(String graphUuid, String nodeUuid, String relationUuid,
-                                String currentTime, NodeDTO nodeDTO);
+                                String currentTime, NodeDTO nodeDTO, Transaction tx);
 }

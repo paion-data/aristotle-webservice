@@ -33,6 +33,8 @@ import com.paiondata.aristotle.service.GraphService;
 import com.paiondata.aristotle.service.Neo4jService;
 import com.paiondata.aristotle.service.UserService;
 import lombok.AllArgsConstructor;
+
+import org.neo4j.driver.Transaction;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
@@ -110,7 +112,7 @@ public class GraphServiceImpl implements GraphService {
      */
     @Transactional
     @Override
-    public Graph createAndBindGraph(final GraphCreateDTO graphCreateDTO) {
+    public Graph createAndBindGraph(final GraphCreateDTO graphCreateDTO, final Transaction tx) {
         final String title = graphCreateDTO.getTitle();
         final String description = graphCreateDTO.getDescription();
         final String uidcid = graphCreateDTO.getUserUidcid();
@@ -123,7 +125,7 @@ public class GraphServiceImpl implements GraphService {
             throw new UserNullException(Message.USER_NULL + uidcid);
         }
 
-        return graphMapper.createGraph(title, description, uidcid, graphUuid, relationUuid, currentTime);
+        return graphMapper.createGraph(title, description, uidcid, graphUuid, relationUuid, currentTime, tx);
     }
 
     /**

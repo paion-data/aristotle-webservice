@@ -79,7 +79,7 @@ public class NodeController {
             notes = "The nodes could be created without binding any relations")
     @PostMapping
     public Result<List<NodeReturnDTO>> createAndBindNode(@RequestBody @Valid final NodeCreateDTO graphNodeCreateDTO) {
-        return Result.ok(Message.CREATE_SUCCESS, nodeService.createAndBindGraphAndNode(graphNodeCreateDTO));
+        return Result.ok(Message.CREATE_SUCCESS, nodeService.createAndBindGraphAndNode(graphNodeCreateDTO, null));
     }
 
     /**
@@ -93,7 +93,7 @@ public class NodeController {
     @PostMapping("/graph")
     public Result<GraphNodeDTO> createGraphAndBindGraphAndNode(
             @RequestBody @Valid final GraphAndNodeCreateDTO graphNodeCreateDTO) {
-        return Result.ok(nodeService.createGraphAndBindGraphAndNode(graphNodeCreateDTO));
+        return Result.ok(nodeService.createGraphAndBindGraphAndNode(graphNodeCreateDTO, null));
     }
 
     /**

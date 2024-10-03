@@ -21,6 +21,8 @@ import com.paiondata.aristotle.model.dto.GraphUpdateDTO;
 import com.paiondata.aristotle.model.entity.Graph;
 import com.paiondata.aristotle.model.vo.GraphVO;
 
+import org.neo4j.driver.Transaction;
+
 import java.util.Optional;
 
 /**
@@ -51,10 +53,11 @@ public interface GraphService {
      * Creates and binds a new graph using the provided DTO.
      *
      * @param graphCreateDTO the DTO containing details to create a new graph
+     * @param tx the Neo4j transaction
      *
      * @return the created graph
      */
-    Graph createAndBindGraph(GraphCreateDTO graphCreateDTO);
+    Graph createAndBindGraph(GraphCreateDTO graphCreateDTO, Transaction tx);
 
     /**
      * Deletes graphs by their UUIDs.

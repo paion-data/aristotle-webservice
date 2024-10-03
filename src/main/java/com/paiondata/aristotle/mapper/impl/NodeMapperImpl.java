@@ -17,7 +17,6 @@ package com.paiondata.aristotle.mapper.impl;
 
 import com.paiondata.aristotle.common.base.Constants;
 import com.paiondata.aristotle.common.util.Neo4jUtil;
-import com.paiondata.aristotle.common.util.TransactionContext;
 import com.paiondata.aristotle.mapper.NodeMapper;
 import com.paiondata.aristotle.model.dto.NodeDTO;
 import com.paiondata.aristotle.model.entity.GraphNode;
@@ -41,10 +40,11 @@ public class NodeMapperImpl implements NodeMapper {
      * @param relationUuid the UUID of the relation
      * @param currentTime the current time
      * @param nodeDTO the NodeDTO object containing the node properties
+     * @param tx the Neo4j transaction
      * @return the created Node object
      */
     public GraphNode createNode(final String graphUuid, final String nodeUuid, final String relationUuid,
-                                final String currentTime, final NodeDTO nodeDTO) {
+                                final String currentTime, final NodeDTO nodeDTO, final Transaction tx) {
         final StringBuilder setProperties = new StringBuilder();
         for (final Map.Entry<String, String> entry : nodeDTO.getProperties().entrySet()) {
             setProperties.append(", ").append(entry.getKey()).append(": '").append(entry.getValue()).append("'");
@@ -58,8 +58,6 @@ public class NodeMapperImpl implements NodeMapper {
                 + "CREATE (g)-[r:RELATION {name: 'HAVE', uuid: $relationUuid, "
                 + "create_time: $currentTime, update_time: $currentTime}]->(gn) "
                 + "RETURN gn";
-
-        final Transaction tx = TransactionContext.getTransaction();
 
         final var result = tx.run(cypherQuery, Values.parameters(
                         Constants.GRAPH_UUID, graphUuid,
