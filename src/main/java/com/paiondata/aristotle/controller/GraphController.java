@@ -68,7 +68,7 @@ public class GraphController {
     @ApiOperation(value = "Updates a graph")
     @PutMapping
     public Result<String> updateGraph(@RequestBody final GraphUpdateDTO graphUpdateDTO) {
-        graphService.updateGraph(graphUpdateDTO);
+        graphService.updateGraph(graphUpdateDTO, null);
         return Result.ok(Message.UPDATE_SUCCESS);
     }
 

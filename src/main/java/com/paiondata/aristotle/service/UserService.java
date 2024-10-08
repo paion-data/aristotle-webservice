@@ -37,14 +37,6 @@ public interface UserService {
     UserVO getUserVOByUidcid(String uidcid);
 
     /**
-     * Retrieves an optional user by UIDCID.
-     *
-     * @param uidcid the UIDCID of the user
-     * @return an Optional containing the user if found, or empty otherwise
-     */
-    Optional<User> getUserByUidcid(String uidcid);
-
-    /**
      * Retrieves all users as UserVOs.
      *
      * @return a list of UserVOs containing user details and associated graphs

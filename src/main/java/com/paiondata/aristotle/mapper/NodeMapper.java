@@ -20,6 +20,9 @@ import com.paiondata.aristotle.model.entity.GraphNode;
 
 import org.neo4j.driver.Transaction;
 
+import java.util.List;
+import java.util.Map;
+
 /**
  * Mapper interface for NodeMapper.
  */
@@ -37,4 +40,6 @@ public interface NodeMapper {
      */
     GraphNode createNode(String graphUuid, String nodeUuid, String relationUuid,
                                 String currentTime, NodeDTO nodeDTO, Transaction tx);
+
+    List<Map<String, Map<String, Object>>> getNodesByGraphUuid(String uuid);
 }

@@ -19,6 +19,9 @@ import com.paiondata.aristotle.model.entity.Graph;
 
 import org.neo4j.driver.Transaction;
 
+import java.util.List;
+import java.util.Map;
+
 /**
  * GraphMapper interface for mapping Graph objects.
  */
@@ -37,4 +40,24 @@ public interface GraphMapper {
      */
     Graph createGraph(String title, String description, String userUidcid,
                       String graphUuid, String relationUuid, String currentTime, Transaction tx);
+
+    /**
+     * Retrieves users' associated graphs by UIDCID.
+     *
+     * @param uidcid the UIDCID of the user
+     *
+     * @return a list of maps containing user information and associated graphs
+     */
+    List<Map<String, Object>> getGraphsByUidcid(String uidcid);
+
+    /**
+     * Updates a graph by its UUID.
+     *
+     * @param uuid the UUID of the graph
+     * @param title the new title of the graph
+     * @param description the new description of the graph
+     * @param currentTime the current time for update
+     * @param tx the Neo4j transaction
+     */
+    void updateGraphByUuid(String uuid, String title, String description, String currentTime, final Transaction tx);
 }

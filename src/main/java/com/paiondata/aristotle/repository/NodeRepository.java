@@ -42,31 +42,6 @@ public interface NodeRepository extends Neo4jRepository<GraphNode, Long> {
     GraphNode getGraphNodeByUuid(String uuid);
 
     /**
-     * Creates and binds a new graph node to an existing graph.
-     *
-     * @param title           the title of the graph node
-     * @param description     the description of the graph node
-     * @param graphUuid       the UUID of the graph
-     * @param graphNodeUuid   the UUID of the new graph node
-     * @param relationUuid    the UUID of the relationship
-     * @param currentTime     the current timestamp
-     * @return the created graph node
-     */
-    @Query("MATCH (g:Graph) WHERE g.uuid = $graphUuid SET g.update_time = $currentTime "
-            + "CREATE (gn:GraphNode{uuid:$graphNodeUuid,title:$title,description:$description, "
-            + "create_time:$currentTime,update_time:$currentTime}) "
-            + "WITH g, gn "
-            + "CREATE (g)-[r:RELATION {name: 'HAVE', uuid: $relationUuid, "
-            + "create_time: $currentTime, update_time: $currentTime}]->(gn) "
-            + "RETURN gn")
-    GraphNode createAndBindGraphNode(@Param("title") String title,
-                                     @Param("description") String description,
-                                     @Param("graphUuid") String graphUuid,
-                                     @Param("graphNodeUuid") String graphNodeUuid,
-                                     @Param("relationUuid") String relationUuid,
-                                     @Param("currentTime") String currentTime);
-
-    /**
      * Binds two graph nodes with a specified relationship.
      *
      * @param uuid1           the UUID of the first graph node

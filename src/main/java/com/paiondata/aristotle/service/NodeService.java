@@ -28,6 +28,7 @@ import com.paiondata.aristotle.model.dto.GraphUpdateDTO;
 import org.neo4j.driver.Transaction;
 
 import java.util.List;
+import java.util.Map;
 import java.util.Optional;
 
 /**
@@ -44,6 +45,15 @@ public interface NodeService {
      * @return an {@code Optional} containing the graph node if found
      */
     Optional<GraphNode> getNodeByUuid(String uuid);
+
+    /**
+     * Retrieves nodes and their relationships by graph UUID.
+     *
+     * @param uuid the UUID of the graph
+     *
+     * @return a list of maps containing graph node information and relationships
+     */
+    List<Map<String, Map<String, Object>>> getNodesByGraphUuid(String uuid);
 
     /**
      * Creates and binds a graph and a node based on the provided DTO.

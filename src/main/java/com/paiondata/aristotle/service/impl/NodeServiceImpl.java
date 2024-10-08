@@ -25,6 +25,7 @@ import com.paiondata.aristotle.common.exception.NodeRelationException;
 import com.paiondata.aristotle.common.exception.GraphNullException;
 import com.paiondata.aristotle.common.exception.TemporaryKeyException;
 import com.paiondata.aristotle.common.exception.TransactionException;
+import com.paiondata.aristotle.common.exception.UserNullException;
 import com.paiondata.aristotle.mapper.NodeMapper;
 import com.paiondata.aristotle.model.dto.BindNodeDTO;
 import com.paiondata.aristotle.model.dto.GraphNodeDTO;
@@ -38,7 +39,9 @@ import com.paiondata.aristotle.model.dto.RelationUpdateDTO;
 import com.paiondata.aristotle.model.dto.NodeCreateDTO;
 import com.paiondata.aristotle.model.entity.Graph;
 import com.paiondata.aristotle.model.entity.GraphNode;
+import com.paiondata.aristotle.repository.GraphRepository;
 import com.paiondata.aristotle.repository.NodeRepository;
+import com.paiondata.aristotle.service.CommonService;
 import com.paiondata.aristotle.service.NodeService;
 import com.paiondata.aristotle.service.GraphService;
 import com.paiondata.aristotle.service.Neo4jService;
@@ -75,7 +78,10 @@ public class NodeServiceImpl implements NodeService {
     private NodeRepository nodeRepository;
 
     @Autowired
-    private GraphService graphService;
+    private GraphRepository graphRepository;
+
+    @Autowired
+    private CommonService commonService;
 
     @Autowired
     private Neo4jService neo4jService;
@@ -97,9 +103,25 @@ public class NodeServiceImpl implements NodeService {
     }
 
     /**
+     * Retrieves graph nodes and their relationships by graph UUID.
+     *
+     * @param uuid the UUID of the graph
+     */
+    @Override
+    public List<Map<String, Map<String, Object>>> getNodesByGraphUuid(final String uuid) {
+
+        if (graphRepository.getGraphByUuid(uuid) == null) {
+            throw new UserNullException(Message.GRAPH_NULL + uuid);
+        }
+
+        return nodeMapper.getNodesByGraphUuid(uuid);
+    }
+
+    /**
      * Creates and binds a graph and a node based on the provided DTO.
      *
      * @param nodeCreateDTO the DTO containing information for creating the graph and node
+     * @param tx the Neo4j transaction
      * @return the list of created nodes
      */
     @Neo4jTransactional
@@ -112,7 +134,7 @@ public class NodeServiceImpl implements NodeService {
 
         final String graphUuid = nodeCreateDTO.getGraphUuid();
 
-        final Optional<Graph> optionalGraph = graphService.getGraphByUuid(graphUuid);
+        final Optional<Graph> optionalGraph = commonService.getGraphByUuid(graphUuid);
         if (optionalGraph.isEmpty()) {
             throw new GraphNullException(Message.GRAPH_NULL + graphUuid);
         }
@@ -136,7 +158,7 @@ public class NodeServiceImpl implements NodeService {
             throw new TransactionException(Message.TRANSACTION_NULL);
         }
 
-        final Graph graph = graphService.createAndBindGraph(graphNodeCreateDTO.getGraphCreateDTO(), tx);
+        final Graph graph = commonService.createAndBindGraph(graphNodeCreateDTO.getGraphCreateDTO(), tx);
 
         final GraphNodeDTO dto = GraphNodeDTO.builder()
                 .uuid(graph.getUuid())
@@ -177,7 +199,7 @@ public class NodeServiceImpl implements NodeService {
 
         final List<NodeReturnDTO> nodes = createNodes(nodeDTOs, uuidMap, currentTime, graphUuid, tx);
 
-        if (nodeRelationDTOs == null) {
+        if (nodeRelationDTOs == null || nodeRelationDTOs.isEmpty()) {
             return nodes;
         }
 
@@ -257,6 +279,8 @@ public class NodeServiceImpl implements NodeService {
         if (graphNodeRelationDTO == null || graphNodeRelationDTO.isEmpty()) {
             return;
         }
+
+        System.out.println(uuidMap);
 
         for (final NodeRelationDTO dto : graphNodeRelationDTO) {
             final String relation = dto.getRelationName();

@@ -20,11 +20,19 @@ import com.paiondata.aristotle.common.util.Neo4jUtil;
 import com.paiondata.aristotle.mapper.NodeMapper;
 import com.paiondata.aristotle.model.dto.NodeDTO;
 import com.paiondata.aristotle.model.entity.GraphNode;
+
+import org.neo4j.driver.Driver;
 import org.neo4j.driver.Record;
+import org.neo4j.driver.Session;
+import org.neo4j.driver.SessionConfig;
 import org.neo4j.driver.Transaction;
 import org.neo4j.driver.Values;
 import org.springframework.stereotype.Repository;
 
+import java.util.ArrayList;
+import java.util.HashMap;
+import java.util.Iterator;
+import java.util.List;
 import java.util.Map;
 
 /**
@@ -32,6 +40,16 @@ import java.util.Map;
  */
 @Repository
 public class NodeMapperImpl implements NodeMapper {
+
+    private final Driver driver;
+
+    /**
+     * Constructs a NodeMapperImpl object with the specified Driver.
+     * @param driver the Driver instance
+     */
+    public NodeMapperImpl(Driver driver) {
+        this.driver = driver;
+    }
 
     /**
      * Creates a node in the Neo4j database.
@@ -77,5 +95,54 @@ public class NodeMapperImpl implements NodeMapper {
                 .createTime((String) objectMap.get(Constants.CREATE_TIME))
                 .updateTime((String) objectMap.get(Constants.UPDATE_TIME))
                 .build();
+    }
+
+    @Override
+    public List<Map<String, Map<String, Object>>> getNodesByGraphUuid(final String uuid) {
+        final String cypherQuery = "MATCH (g1:Graph { uuid: $uuid }) "
+                + "OPTIONAL MATCH (g1)-[:RELATION]->(n1:GraphNode) "
+                + "OPTIONAL MATCH (n1)-[r:RELATION]->(n2:GraphNode) "
+                + "RETURN DISTINCT n1, r, n2";
+
+        try (Session session = driver.session(SessionConfig.builder().build())) {
+            return session.readTransaction(tx -> {
+                final var result = tx.run(cypherQuery, Values.parameters(Constants.UUID, uuid));
+                final List<Map<String, Map<String, Object>>> resultList = new ArrayList<>();
+
+                while (result.hasNext()) {
+                    final Record record = result.next();
+                    final Map<String, Object> n1 = Neo4jUtil.extractNode(record.get("n1"));
+                    final Map<String, Object> n2 = Neo4jUtil.extractNode(record.get("n2"));
+                    final Map<String, Object> relation = Neo4jUtil.extractRelationship(record.get("r"));
+
+                    final Map<String, Map<String, Object>> combinedResult = new HashMap<>();
+                    combinedResult.put(Constants.START_NODE, n1);
+                    combinedResult.put("relation", relation);
+                    combinedResult.put(Constants.END_NODE, n2);
+
+                    resultList.add(combinedResult);
+                }
+
+                final Iterator<Map<String, Map<String, Object>>> iterator = resultList.iterator();
+                while (iterator.hasNext()) {
+                    final Map<String, Map<String, Object>> current = iterator.next();
+                    if (current.get(Constants.END_NODE).isEmpty()) {
+                        boolean removeFlag = false;
+                        for (final Map<String, Map<String, Object>> other : resultList) {
+                            if (current.get(Constants.START_NODE).equals(other.get(Constants.END_NODE))
+                                    && !other.get(Constants.START_NODE).equals(other.get(Constants.END_NODE))) {
+                                removeFlag = true;
+                                break;
+                            }
+                        }
+                        if (removeFlag) {
+                            iterator.remove();
+                        }
+                    }
+                }
+
+                return resultList;
+            });
+        }
     }
 }
