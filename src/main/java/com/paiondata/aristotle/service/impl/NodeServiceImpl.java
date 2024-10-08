@@ -18,6 +18,7 @@ package com.paiondata.aristotle.service.impl;
 import cn.hutool.core.lang.UUID;
 
 import com.paiondata.aristotle.common.annotion.Neo4jTransactional;
+import com.paiondata.aristotle.common.base.Constants;
 import com.paiondata.aristotle.common.base.Message;
 import com.paiondata.aristotle.common.exception.DeleteException;
 import com.paiondata.aristotle.common.exception.NodeNullException;
@@ -25,6 +26,7 @@ import com.paiondata.aristotle.common.exception.NodeRelationException;
 import com.paiondata.aristotle.common.exception.GraphNullException;
 import com.paiondata.aristotle.common.exception.TemporaryKeyException;
 import com.paiondata.aristotle.common.exception.TransactionException;
+import com.paiondata.aristotle.common.exception.InputParamException;
 import com.paiondata.aristotle.mapper.NodeMapper;
 import com.paiondata.aristotle.model.dto.BindNodeDTO;
 import com.paiondata.aristotle.model.dto.GraphNodeDTO;
@@ -59,6 +61,7 @@ import java.util.List;
 import java.util.Map;
 import java.util.Optional;
 import java.util.Set;
+
 /**
  * Service implementation for managing graph nodes.
  *
@@ -213,6 +216,14 @@ public class NodeServiceImpl implements NodeService {
         for (final NodeDTO dto : nodeDTOs) {
             final String nodeUuid = UUID.fastUUID().toString(true);
             final String relationUuid = UUID.fastUUID().toString(true);
+
+            for (final String key : dto.getProperties().keySet()) {
+                if (key.equals(Constants.UUID)
+                        || key.equals(Constants.CREATE_TIME)
+                        || key.equals(Constants.UPDATE_TIME)) {
+                    throw new InputParamException(Message.INPUT_PROPERTIES_ERROR + key);
+                }
+            }
 
             final GraphNode node = nodeMapper.createNode(graphUuid, nodeUuid, relationUuid, currentTime, dto, tx);
 

@@ -16,12 +16,9 @@
 package com.paiondata.aristotle.service;
 
 import com.paiondata.aristotle.model.dto.UserDTO;
-import com.paiondata.aristotle.model.entity.User;
 import com.paiondata.aristotle.model.vo.UserVO;
 
 import java.util.List;
-import java.util.Optional;
-
 /**
  * Service implementation for user-related operations.
  * This class provides methods for managing users, including creating, updating, and deleting users.

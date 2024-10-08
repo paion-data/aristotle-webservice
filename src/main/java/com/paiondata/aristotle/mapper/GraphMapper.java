@@ -59,5 +59,5 @@ public interface GraphMapper {
      * @param currentTime the current time for update
      * @param tx the Neo4j transaction
      */
-    void updateGraphByUuid(String uuid, String title, String description, String currentTime, final Transaction tx);
+    void updateGraphByUuid(String uuid, String title, String description, String currentTime, Transaction tx);
 }

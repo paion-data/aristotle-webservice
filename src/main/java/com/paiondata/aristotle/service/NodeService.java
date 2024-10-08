@@ -24,12 +24,10 @@ import com.paiondata.aristotle.model.dto.BindNodeDTO;
 import com.paiondata.aristotle.model.dto.GraphAndNodeCreateDTO;
 import com.paiondata.aristotle.model.dto.NodeCreateDTO;
 import com.paiondata.aristotle.model.dto.RelationUpdateDTO;
-import com.paiondata.aristotle.model.dto.GraphUpdateDTO;
 
 import org.neo4j.driver.Transaction;
 
 import java.util.List;
-import java.util.Map;
 import java.util.Optional;
 
 /**

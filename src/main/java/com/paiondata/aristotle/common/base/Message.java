@@ -139,4 +139,9 @@ public class Message {
      * Method does not have a Transaction parameter.
      */
     public static final String METHOD_WITHOUT_TRANSACTION = "Method does not have a Transaction parameter.";
+
+    /**
+     * Input properties error.
+     */
+    public static final String INPUT_PROPERTIES_ERROR = "This parameter cannot be passed: ";
 }

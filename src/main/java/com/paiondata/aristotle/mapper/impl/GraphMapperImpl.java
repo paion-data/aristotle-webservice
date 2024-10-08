@@ -45,7 +45,7 @@ public class GraphMapperImpl implements GraphMapper {
      * Constructs a GraphMapperImpl object with the specified Driver.
      * @param driver the Driver instance
      */
-    public GraphMapperImpl(Driver driver) {
+    public GraphMapperImpl(final Driver driver) {
         this.driver = driver;
     }
 
@@ -68,8 +68,7 @@ public class GraphMapperImpl implements GraphMapper {
                 + "create_time: $currentTime, update_time: $currentTime}) "
                 + "WITH u, g "
                 + "CREATE (u)-[r:RELATION {name: 'HAVE', uuid: $relationUuid, create_time: $currentTime, "
-                + "update_time: $currentTime}]->(g) "
-                + "RETURN g";
+                + "update_time: $currentTime}]->(g) RETURN g";
 
         final var result = tx.run(cypherQuery, Values.parameters(
                         Constants.TITLE, title,
@@ -82,7 +81,7 @@ public class GraphMapperImpl implements GraphMapper {
         );
 
         final Record record = result.next();
-        final Map<String, Object> objectMap = Neo4jUtil.extractGraph(record.get("g"));
+        final Map<String, Object> objectMap = Neo4jUtil.extractGraph(record.get(Constants.GRAPH_IN_CYPHER));
 
         return Graph.builder()
                 .id((Long) objectMap.get(Constants.ID))
@@ -111,7 +110,7 @@ public class GraphMapperImpl implements GraphMapper {
                 final List<Map<String, Object>> resultList = new ArrayList<>();
                 while (result.hasNext()) {
                     final Record record = result.next();
-                    final Map<String, Object> graphNode = Neo4jUtil.extractGraph(record.get("g"));
+                    final Map<String, Object> graphNode = Neo4jUtil.extractGraph(record.get(Constants.GRAPH_IN_CYPHER));
 
                     resultList.add(graphNode);
                 }

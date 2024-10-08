@@ -42,6 +42,11 @@ public interface NodeMapper {
     GraphNode createNode(String graphUuid, String nodeUuid, String relationUuid,
                                 String currentTime, NodeDTO nodeDTO, Transaction tx);
 
+    /**
+     * Retrieves all nodes associated with a specific graph.
+     * @param uuid the UUID of the graph
+     * @return the list of nodes associated with the specified graph
+     */
     List<Map<String, Map<String, Object>>> getNodesByGraphUuid(String uuid);
 
     /**

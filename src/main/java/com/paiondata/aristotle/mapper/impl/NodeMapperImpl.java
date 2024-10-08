@@ -32,9 +32,10 @@ import org.springframework.stereotype.Repository;
 
 import java.util.ArrayList;
 import java.util.HashMap;
-import java.util.Iterator;
 import java.util.List;
 import java.util.Map;
+import java.util.Set;
+import java.util.Iterator;
 
 /**
  * Repository class for executing Cypher queries related to nodes in Neo4j.
@@ -48,7 +49,7 @@ public class NodeMapperImpl implements NodeMapper {
      * Constructs a NodeMapperImpl object with the specified Driver.
      * @param driver the Driver instance
      */
-    public NodeMapperImpl(Driver driver) {
+    public NodeMapperImpl(final Driver driver) {
         this.driver = driver;
     }
 
@@ -65,10 +66,7 @@ public class NodeMapperImpl implements NodeMapper {
     @Override
     public GraphNode createNode(final String graphUuid, final String nodeUuid, final String relationUuid,
                                 final String currentTime, final NodeDTO nodeDTO, final Transaction tx) {
-        final StringBuilder setProperties = new StringBuilder();
-        for (final Map.Entry<String, String> entry : nodeDTO.getProperties().entrySet()) {
-            setProperties.append(", ").append(entry.getKey()).append(": '").append(entry.getValue()).append("'");
-        }
+        final StringBuilder setProperties = getSetProperties(nodeDTO.getProperties().entrySet());
 
         final String cypherQuery = "MATCH (g:Graph) WHERE g.uuid = $graphUuid SET g.update_time = $currentTime "
                 + "CREATE (gn:GraphNode{uuid:$nodeUuid "
@@ -186,11 +184,7 @@ public class NodeMapperImpl implements NodeMapper {
      */
     @Override
     public void updateNodeByUuid(final NodeUpdateDTO nodeUpdateDTO, final String currentTime, final Transaction tx) {
-
-        final StringBuilder setProperties = new StringBuilder();
-        for (final Map.Entry<String, String> entry : nodeUpdateDTO.getProperties().entrySet()) {
-            setProperties.append(", ").append(entry.getKey()).append(": '").append(entry.getValue()).append("'");
-        }
+        final StringBuilder setProperties = getSetProperties(nodeUpdateDTO.getProperties().entrySet());
 
         final String cypherQuery = "MATCH (gn:GraphNode {uuid: $nodeUuid}) "
                 + "SET gn = { uuid: gn.uuid, "
@@ -204,5 +198,19 @@ public class NodeMapperImpl implements NodeMapper {
         tx.run(cypherQuery, Values.parameters(
                 Constants.NODE_UUID, nodeUpdateDTO.getUuid(),
                 Constants.UPDATE_TIME, currentTime));
+    }
+
+    /**
+     * Gets the set properties.
+     * @param entries the entries
+     * @return the set properties
+     */
+    private StringBuilder getSetProperties(final Set<Map.Entry<String, String>> entries) {
+        final StringBuilder setProperties = new StringBuilder();
+        for (final Map.Entry<String, String> entry : entries) {
+            setProperties.append(", ").append(entry.getKey()).append(": '").append(entry.getValue()).append("'");
+        }
+
+        return setProperties;
     }
 }

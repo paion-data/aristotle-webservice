@@ -144,4 +144,9 @@ public interface Constants {
      * Represents the name field in the database.
      */
     String NAME = "name";
+
+    /**
+     * Represents the graph node in cypher.
+     */
+    String GRAPH_IN_CYPHER = "g";
 }
