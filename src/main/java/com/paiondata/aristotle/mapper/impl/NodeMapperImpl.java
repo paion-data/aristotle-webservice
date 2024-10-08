@@ -19,6 +19,7 @@ import com.paiondata.aristotle.common.base.Constants;
 import com.paiondata.aristotle.common.util.Neo4jUtil;
 import com.paiondata.aristotle.mapper.NodeMapper;
 import com.paiondata.aristotle.model.dto.NodeDTO;
+import com.paiondata.aristotle.model.dto.NodeUpdateDTO;
 import com.paiondata.aristotle.model.entity.GraphNode;
 
 import org.neo4j.driver.Driver;
@@ -61,6 +62,7 @@ public class NodeMapperImpl implements NodeMapper {
      * @param tx the Neo4j transaction
      * @return the created Node object
      */
+    @Override
     public GraphNode createNode(final String graphUuid, final String nodeUuid, final String relationUuid,
                                 final String currentTime, final NodeDTO nodeDTO, final Transaction tx) {
         final StringBuilder setProperties = new StringBuilder();
@@ -144,5 +146,63 @@ public class NodeMapperImpl implements NodeMapper {
                 return resultList;
             });
         }
+    }
+
+    /**
+     * Binds two graph nodes with a specified relationship.
+     *
+     * @param uuid1           the UUID of the first graph node
+     * @param uuid2           the UUID of the second graph node
+     * @param relation        the name of the relationship
+     * @param relationUuid    the UUID of the relationship
+     * @param currentTime     the current timestamp
+     * @param tx the Neo4j transaction
+     */
+    @Override
+    public void bindGraphNodeToGraphNode(final String uuid1, final String uuid2, final String relation,
+                                         final String relationUuid, final String currentTime, final Transaction tx) {
+        final String cypherQuery = "MATCH (gn1:GraphNode) WHERE gn1.uuid = $uuid1 SET gn1.update_time = $currentTime "
+                + "WITH gn1 "
+                + "MATCH (gn2:GraphNode) WHERE gn2.uuid = $uuid2 SET gn2.update_time = $currentTime "
+                + "WITH gn1,gn2 "
+                + "CREATE (gn1)-[r:RELATION{name: $relation, uuid: $relationUuid, "
+                + "create_time: $currentTime, update_time: $currentTime}]->(gn2)";
+
+        tx.run(cypherQuery, Values.parameters(
+                "uuid1", uuid1,
+                "uuid2", uuid2,
+                Constants.RELATION, relation,
+                Constants.CURRENT_TIME, currentTime,
+                Constants.RELATION_UUID, relationUuid
+        ));
+    }
+
+    /**
+     * Updates a graph node by its UUID.
+     *
+     * @param nodeUpdateDTO the NodeUpdateDTO object containing the updated node properties
+     * @param currentTime the current time for update
+     * @param tx the Neo4j transaction
+     */
+    @Override
+    public void updateNodeByUuid(final NodeUpdateDTO nodeUpdateDTO, final String currentTime, final Transaction tx) {
+
+        final StringBuilder setProperties = new StringBuilder();
+        for (final Map.Entry<String, String> entry : nodeUpdateDTO.getProperties().entrySet()) {
+            setProperties.append(", ").append(entry.getKey()).append(": '").append(entry.getValue()).append("'");
+        }
+
+        final String cypherQuery = "MATCH (gn:GraphNode {uuid: $nodeUuid}) "
+                + "SET gn = { uuid: gn.uuid, "
+                + "create_time: gn.create_time, "
+                + "update_time: $updateTime"
+                + setProperties
+                + " }";
+
+        System.out.println(cypherQuery);
+
+        tx.run(cypherQuery, Values.parameters(
+                Constants.NODE_UUID, nodeUpdateDTO.getUuid(),
+                Constants.UPDATE_TIME, currentTime));
     }
 }

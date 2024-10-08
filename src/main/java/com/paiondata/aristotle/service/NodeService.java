@@ -18,6 +18,7 @@ package com.paiondata.aristotle.service;
 import com.paiondata.aristotle.model.dto.GraphNodeDTO;
 import com.paiondata.aristotle.model.dto.NodeDeleteDTO;
 import com.paiondata.aristotle.model.dto.NodeReturnDTO;
+import com.paiondata.aristotle.model.dto.NodeUpdateDTO;
 import com.paiondata.aristotle.model.entity.GraphNode;
 import com.paiondata.aristotle.model.dto.BindNodeDTO;
 import com.paiondata.aristotle.model.dto.GraphAndNodeCreateDTO;
@@ -47,15 +48,6 @@ public interface NodeService {
     Optional<GraphNode> getNodeByUuid(String uuid);
 
     /**
-     * Retrieves nodes and their relationships by graph UUID.
-     *
-     * @param uuid the UUID of the graph
-     *
-     * @return a list of maps containing graph node information and relationships
-     */
-    List<Map<String, Map<String, Object>>> getNodesByGraphUuid(String uuid);
-
-    /**
      * Creates and binds a graph and a node based on the provided DTO.
      *
      * @param nodeCreateDTO the DTO containing information for creating the graph and node
@@ -76,8 +68,9 @@ public interface NodeService {
      * Binds nodes based on the provided DTOs.
      *
      * @param dtos the list of DTOs for binding nodes
+     * @param tx   the Neo4j transaction
      */
-    void bindNodes(List<BindNodeDTO> dtos);
+    void bindNodes(List<BindNodeDTO> dtos, Transaction tx);
 
     /**
      * Deletes graph nodes by their UUIDs.
@@ -89,9 +82,10 @@ public interface NodeService {
     /**
      * Updates a graph node based on the provided DTO.
      *
-     * @param graphUpdateDTO the DTO containing information for updating the graph node
+     * @param nodeUpdateDTO the DTO containing information for updating the node
+     * @param tx   the Neo4j transaction
      */
-    void updateNode(GraphUpdateDTO graphUpdateDTO);
+    void updateNode(NodeUpdateDTO nodeUpdateDTO, Transaction tx);
 
     /**
      * Updates graph node relations based on the provided DTO.

@@ -22,8 +22,8 @@ import com.paiondata.aristotle.model.dto.NodeCreateDTO;
 import com.paiondata.aristotle.model.dto.GraphAndNodeCreateDTO;
 import com.paiondata.aristotle.model.dto.NodeDeleteDTO;
 import com.paiondata.aristotle.model.dto.NodeReturnDTO;
+import com.paiondata.aristotle.model.dto.NodeUpdateDTO;
 import com.paiondata.aristotle.model.dto.RelationUpdateDTO;
-import com.paiondata.aristotle.model.dto.GraphUpdateDTO;
 import com.paiondata.aristotle.model.dto.BindNodeDTO;
 import com.paiondata.aristotle.model.entity.GraphNode;
 import com.paiondata.aristotle.service.NodeService;
@@ -105,20 +105,20 @@ public class NodeController {
     @ApiOperation(value = "Binds multiple nodes")
     @PostMapping("/bind")
     public Result<String> bindNodes(@RequestBody @Valid final List<BindNodeDTO> dtos) {
-        nodeService.bindNodes(dtos);
+        nodeService.bindNodes(dtos, null);
         return Result.ok(Message.BOUND_SUCCESS);
     }
 
     /**
      * Updates a graph node.
      *
-     * @param graphUpdateDTO the DTO containing the updated graph node information
+     * @param nodeUpdateDTO the DTO containing the updated node information
      * @return the result indicating the success of the update
      */
     @ApiOperation(value = "Updates a node")
     @PutMapping
-    public Result<String> updateNode(@RequestBody @Valid final GraphUpdateDTO graphUpdateDTO) {
-        nodeService.updateNode(graphUpdateDTO);
+    public Result<String> updateNode(@RequestBody @Valid final NodeUpdateDTO nodeUpdateDTO) {
+        nodeService.updateNode(nodeUpdateDTO, null);
         return Result.ok(Message.UPDATE_SUCCESS);
     }
 

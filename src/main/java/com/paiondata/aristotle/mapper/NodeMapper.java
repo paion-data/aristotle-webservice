@@ -16,6 +16,7 @@
 package com.paiondata.aristotle.mapper;
 
 import com.paiondata.aristotle.model.dto.NodeDTO;
+import com.paiondata.aristotle.model.dto.NodeUpdateDTO;
 import com.paiondata.aristotle.model.entity.GraphNode;
 
 import org.neo4j.driver.Transaction;
@@ -42,4 +43,26 @@ public interface NodeMapper {
                                 String currentTime, NodeDTO nodeDTO, Transaction tx);
 
     List<Map<String, Map<String, Object>>> getNodesByGraphUuid(String uuid);
+
+    /**
+     * Binds two graph nodes with a specified relationship.
+     *
+     * @param uuid1           the UUID of the first graph node
+     * @param uuid2           the UUID of the second graph node
+     * @param relation        the name of the relationship
+     * @param relationUuid    the UUID of the relationship
+     * @param currentTime     the current timestamp
+     * @param tx the Neo4j transaction
+     */
+    void bindGraphNodeToGraphNode(String uuid1, String uuid2, String relation,
+                                  String relationUuid, String currentTime, Transaction tx);
+
+    /**
+     * Updates a graph node by its UUID.
+     *
+     * @param nodeUpdateDTO the NodeUpdateDTO object containing the updated node properties
+     * @param currentTime the current time for update
+     * @param tx the Neo4j transaction
+     */
+    void updateNodeByUuid(NodeUpdateDTO nodeUpdateDTO, String currentTime, Transaction tx);
 }

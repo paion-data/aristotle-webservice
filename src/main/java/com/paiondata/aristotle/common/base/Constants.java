@@ -81,6 +81,11 @@ public interface Constants {
     String NODE_UUID = "nodeUuid";
 
     /**
+     * Represents hte relation field in the database.
+     */
+    String RELATION = "relation";
+
+    /**
      * Represents the relation UUID field in the database.
      */
     String RELATION_UUID = "relationUuid";

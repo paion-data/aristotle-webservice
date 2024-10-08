@@ -20,8 +20,6 @@ import com.paiondata.aristotle.common.base.Result;
 import com.paiondata.aristotle.model.dto.UserDTO;
 import com.paiondata.aristotle.model.vo.UserVO;
 import com.paiondata.aristotle.service.CommonService;
-import com.paiondata.aristotle.service.GraphService;
-import com.paiondata.aristotle.service.Neo4jService;
 import com.paiondata.aristotle.service.UserService;
 import io.swagger.annotations.Api;
 import io.swagger.annotations.ApiOperation;
