@@ -40,6 +40,7 @@ import com.paiondata.aristotle.model.dto.RelationUpdateDTO;
 import com.paiondata.aristotle.model.dto.NodeCreateDTO;
 import com.paiondata.aristotle.model.entity.Graph;
 import com.paiondata.aristotle.model.entity.GraphNode;
+import com.paiondata.aristotle.model.vo.NodeVO;
 import com.paiondata.aristotle.repository.NodeRepository;
 import com.paiondata.aristotle.service.CommonService;
 import com.paiondata.aristotle.service.NodeService;
@@ -87,8 +88,8 @@ public class NodeServiceImpl implements NodeService {
      * @return an {@code Optional} containing the graph node if found
      */
     @Override
-    public Optional<GraphNode> getNodeByUuid(final String uuid) {
-        final GraphNode graphNode = nodeRepository.getGraphNodeByUuid(uuid);
+    public Optional<NodeVO> getNodeByUuid(final String uuid) {
+        final NodeVO graphNode = nodeMapper.getNodeByUuid(uuid);
         return Optional.ofNullable(graphNode);
     }
 
@@ -295,8 +296,8 @@ public class NodeServiceImpl implements NodeService {
         for (final BindNodeDTO dto : dtos) {
             final String startNode = dto.getFromId();
             final String endNode = dto.getToId();
-            final Optional<GraphNode> graphNodeOptional1 = getNodeByUuid(startNode);
-            final Optional<GraphNode> graphNodeOptional2 = getNodeByUuid(endNode);
+            final Optional<NodeVO> graphNodeOptional1 = getNodeByUuid(startNode);
+            final Optional<NodeVO> graphNodeOptional2 = getNodeByUuid(endNode);
             final String relationUuid = UUID.fastUUID().toString(true);
             final String now = getCurrentTime();
 
@@ -344,7 +345,7 @@ public class NodeServiceImpl implements NodeService {
     @Override
     public void updateNode(final NodeUpdateDTO nodeUpdateDTO, final Transaction tx) {
         final String uuid = nodeUpdateDTO.getUuid();
-        final Optional<GraphNode> graphNodeByUuid = getNodeByUuid(uuid);
+        final Optional<NodeVO> graphNodeByUuid = getNodeByUuid(uuid);
         final String current = getCurrentTime();
 
         if (graphNodeByUuid.isPresent()) {

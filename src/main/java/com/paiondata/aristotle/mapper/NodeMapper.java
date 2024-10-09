@@ -18,6 +18,7 @@ package com.paiondata.aristotle.mapper;
 import com.paiondata.aristotle.model.dto.NodeDTO;
 import com.paiondata.aristotle.model.dto.NodeUpdateDTO;
 import com.paiondata.aristotle.model.entity.GraphNode;
+import com.paiondata.aristotle.model.vo.NodeVO;
 
 import org.neo4j.driver.Transaction;
 
@@ -28,6 +29,14 @@ import java.util.Map;
  * Mapper interface for NodeMapper.
  */
 public interface NodeMapper {
+
+    /**
+     * Retrieves a graph node by its UUID.
+     *
+     * @param uuid the UUID of the graph node
+     * @return the graph node
+     */
+    NodeVO getNodeByUuid(String uuid);
 
     /**
      * Creates a node in the Neo4j database.

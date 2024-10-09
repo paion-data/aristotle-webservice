@@ -21,6 +21,7 @@ import com.paiondata.aristotle.mapper.NodeMapper;
 import com.paiondata.aristotle.model.dto.NodeDTO;
 import com.paiondata.aristotle.model.dto.NodeUpdateDTO;
 import com.paiondata.aristotle.model.entity.GraphNode;
+import com.paiondata.aristotle.model.vo.NodeVO;
 
 import org.neo4j.driver.Driver;
 import org.neo4j.driver.Record;
@@ -51,6 +52,32 @@ public class NodeMapperImpl implements NodeMapper {
      */
     public NodeMapperImpl(final Driver driver) {
         this.driver = driver;
+    }
+
+    /**
+     * Retrieves a graph node by its UUID.
+     *
+     * @param uuid the UUID of the graph node
+     * @return the graph node
+     */
+    @Override
+    public NodeVO getNodeByUuid(final String uuid) {
+        final String cypherQuery = "MATCH (n:GraphNode { uuid: $uuid }) RETURN n";
+
+        try (Session session = driver.session(SessionConfig.builder().build())) {
+            return session.readTransaction(tx -> {
+                final var result = tx.run(cypherQuery, Values.parameters(Constants.UUID, uuid));
+
+                Map<String, Object> n = null;
+                while (result.hasNext()) {
+                    final Record record = result.next();
+                    n = Neo4jUtil.extractNode(record.get("n"));
+                }
+
+                return new NodeVO((String) n.get(Constants.UUID), (Map<String, String>) n.get(Constants.PROPERTIES),
+                        (String) n.get(Constants.CREATE_TIME), (String) n.get(Constants.UPDATE_TIME));
+            });
+        }
     }
 
     /**
@@ -192,8 +219,6 @@ public class NodeMapperImpl implements NodeMapper {
                 + "update_time: $updateTime"
                 + setProperties
                 + " }";
-
-        System.out.println(cypherQuery);
 
         tx.run(cypherQuery, Values.parameters(
                 Constants.NODE_UUID, nodeUpdateDTO.getUuid(),

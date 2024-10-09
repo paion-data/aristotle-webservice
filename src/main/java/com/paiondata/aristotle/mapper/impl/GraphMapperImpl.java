@@ -110,9 +110,9 @@ public class GraphMapperImpl implements GraphMapper {
                 final List<Map<String, Object>> resultList = new ArrayList<>();
                 while (result.hasNext()) {
                     final Record record = result.next();
-                    final Map<String, Object> graphNode = Neo4jUtil.extractGraph(record.get(Constants.GRAPH_IN_CYPHER));
+                    final Map<String, Object> graph = Neo4jUtil.extractGraph(record.get(Constants.GRAPH_IN_CYPHER));
 
-                    resultList.add(graphNode);
+                    resultList.add(graph);
                 }
                 return resultList;
             });

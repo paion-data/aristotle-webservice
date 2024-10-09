@@ -266,16 +266,19 @@ abstract class AbstractITSpec extends Specification {
 
         Assert.assertEquals(getGraphEntityResponse.jsonPath().get("data.graphs[0].uuid"),
                 getNodeEntityResponse.jsonPath().get("data.uuid"))
+        Assert.assertNotNull(getNodeEntityResponse.jsonPath().get("data.nodes.startNode[0].properties.title"))
+        Assert.assertNotNull(getNodeEntityResponse.jsonPath().get("data.nodes.startNode[1].properties.title"))
+        Assert.assertNotNull(getNodeEntityResponse.jsonPath().get("data.nodes.startNode[2].properties.title"))
 
         when: "we update that Node entity"
         RestAssured
                 .given()
                 .contentType(ContentType.JSON)
                 .accept(ContentType.JSON)
-                .body(String.format(payload(UPDATE_GRAPH_JSON),
+                .body(String.format(payload("update-node.json"),
                         getNodeEntityResponse.jsonPath().get("data.nodes[0].startNode.uuid"), UPDATE_NODE_TITLE))
                 .when()
-                .put(NODE_ENDPOINT)
+                .post(NODE_ENDPOINT + "/update")
                 .then()
                 .statusCode(OK_CODE)
 
@@ -293,7 +296,7 @@ abstract class AbstractITSpec extends Specification {
 
         Assert.assertEquals(getNodeEntityResponse.jsonPath().get("data.nodes[0].startNode.uuid"),
                 getUpdatedNodeEntityResponse.jsonPath().get("data.uuid"))
-        Assert.assertEquals(UPDATE_NODE_TITLE, getUpdatedNodeEntityResponse.jsonPath().get("data.title"))
+        Assert.assertEquals(UPDATE_NODE_TITLE, getUpdatedNodeEntityResponse.jsonPath().get("data.properties.title"))
 
         when: "the nodes are related"
         RestAssured

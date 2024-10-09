@@ -25,7 +25,7 @@ import com.paiondata.aristotle.model.dto.NodeReturnDTO;
 import com.paiondata.aristotle.model.dto.NodeUpdateDTO;
 import com.paiondata.aristotle.model.dto.RelationUpdateDTO;
 import com.paiondata.aristotle.model.dto.BindNodeDTO;
-import com.paiondata.aristotle.model.entity.GraphNode;
+import com.paiondata.aristotle.model.vo.NodeVO;
 import com.paiondata.aristotle.service.NodeService;
 import io.swagger.annotations.Api;
 import io.swagger.annotations.ApiOperation;
@@ -63,9 +63,9 @@ public class NodeController {
      */
     @ApiOperation(value = "Retrieves a node by UUID")
     @GetMapping("/{uuid}")
-    public Result<GraphNode> getNodeByUuid(
+    public Result<NodeVO> getNodeByUuid(
             @PathVariable @NotBlank(message = Message.UUID_MUST_NOT_BE_BLANK) final String uuid) {
-        final Optional<GraphNode> optionalGraphNode = nodeService.getNodeByUuid(uuid);
+        final Optional<NodeVO> optionalGraphNode = nodeService.getNodeByUuid(uuid);
         return optionalGraphNode.map(Result::ok).orElseGet(() -> Result.fail(Message.GRAPH_NODE_NULL + uuid));
     }
 
@@ -116,7 +116,7 @@ public class NodeController {
      * @return the result indicating the success of the update
      */
     @ApiOperation(value = "Updates a node")
-    @PutMapping
+    @PostMapping("/update")
     public Result<String> updateNode(@RequestBody @Valid final NodeUpdateDTO nodeUpdateDTO) {
         nodeService.updateNode(nodeUpdateDTO, null);
         return Result.ok(Message.UPDATE_SUCCESS);

@@ -19,11 +19,11 @@ import com.paiondata.aristotle.model.dto.GraphNodeDTO;
 import com.paiondata.aristotle.model.dto.NodeDeleteDTO;
 import com.paiondata.aristotle.model.dto.NodeReturnDTO;
 import com.paiondata.aristotle.model.dto.NodeUpdateDTO;
-import com.paiondata.aristotle.model.entity.GraphNode;
 import com.paiondata.aristotle.model.dto.BindNodeDTO;
 import com.paiondata.aristotle.model.dto.GraphAndNodeCreateDTO;
 import com.paiondata.aristotle.model.dto.NodeCreateDTO;
 import com.paiondata.aristotle.model.dto.RelationUpdateDTO;
+import com.paiondata.aristotle.model.vo.NodeVO;
 
 import org.neo4j.driver.Transaction;
 
@@ -43,7 +43,7 @@ public interface NodeService {
      * @param uuid the UUID of the graph node
      * @return an {@code Optional} containing the graph node if found
      */
-    Optional<GraphNode> getNodeByUuid(String uuid);
+    Optional<NodeVO> getNodeByUuid(String uuid);
 
     /**
      * Creates and binds a graph and a node based on the provided DTO.

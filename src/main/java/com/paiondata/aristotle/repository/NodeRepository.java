@@ -33,35 +33,6 @@ import java.util.Set;
 public interface NodeRepository extends Neo4jRepository<GraphNode, Long> {
 
     /**
-     * Retrieves a graph node by its UUID.
-     *
-     * @param uuid the UUID of the graph node
-     * @return the graph node
-     */
-    @Query("MATCH (gn:GraphNode { uuid: $uuid }) RETURN gn")
-    GraphNode getGraphNodeByUuid(String uuid);
-
-    /**
-     * Binds two graph nodes with a specified relationship.
-     *
-     * @param uuid1           the UUID of the first graph node
-     * @param uuid2           the UUID of the second graph node
-     * @param relation        the name of the relationship
-     * @param relationUuid    the UUID of the relationship
-     * @param currentTime     the current timestamp
-     */
-    @Query("MATCH (gn1:GraphNode) WHERE gn1.uuid = $uuid1 SET gn1.update_time = $currentTime WITH gn1 "
-            + "MATCH (gn2:GraphNode) WHERE gn2.uuid = $uuid2 SET gn2.update_time = $currentTime "
-            + "WITH gn1,gn2 "
-            + "CREATE (gn1)-[r:RELATION{name: $relation, uuid: $relationUuid, "
-            + "create_time: $currentTime, update_time: $currentTime}]->(gn2)")
-    void bindGraphNodeToGraphNode(@Param("uuid1") String uuid1,
-                                  @Param("uuid2") String uuid2,
-                                  @Param("relation") String relation,
-                                  @Param("relationUuid") String relationUuid,
-                                  @Param("currentTime") String currentTime);
-
-    /**
      * Deletes graph nodes by their UUIDs.
      *
      * @param uuids the list of UUIDs of the graph nodes to be deleted
