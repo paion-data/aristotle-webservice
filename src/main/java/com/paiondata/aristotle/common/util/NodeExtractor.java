@@ -18,14 +18,16 @@ package com.paiondata.aristotle.common.util;
 import com.paiondata.aristotle.common.base.Constants;
 import org.neo4j.driver.internal.value.NodeValue;
 import org.neo4j.driver.internal.value.RelationshipValue;
+import org.springframework.stereotype.Component;
 
 import java.util.HashMap;
 import java.util.Map;
 
 /**
- * Neo4j utility class.
+ * Extracts information from graph nodes, relationships, and nodes.
  */
-public class Neo4jUtil {
+@Component
+public class NodeExtractor {
 
     /**
      * Extracts information from a graph node.
@@ -33,8 +35,10 @@ public class Neo4jUtil {
      * @param node the graph node object
      *
      * @return a map containing the extracted information
+     *
+     * @throws IllegalArgumentException if the input node is not a valid NodeValue
      */
-    public static Map<String, Object> extractGraph(final Object node) {
+    public Map<String, Object> extractGraph(final Object node) {
         final Map<String, Object> nodeInfo = new HashMap<>();
         if (node instanceof NodeValue) {
             final NodeValue nodeValue = (NodeValue) node;
@@ -55,8 +59,10 @@ public class Neo4jUtil {
      * @param relationship the relationship object
      *
      * @return a map containing the extracted information
+     *
+     * @throws IllegalArgumentException if the input relationship is not a valid RelationshipValue
      */
-    public static Map<String, Object> extractRelationship(final Object relationship) {
+    public Map<String, Object> extractRelationship(final Object relationship) {
         final Map<String, Object> relationshipInfo = new HashMap<>();
         if (relationship instanceof RelationshipValue) {
             final RelationshipValue relationshipValue = (RelationshipValue) relationship;
@@ -76,8 +82,10 @@ public class Neo4jUtil {
      * @param node the node object
      *
      * @return a map containing the extracted information
+     *
+     * @throws IllegalArgumentException if the input node is not a valid NodeValue
      */
-    public static Map<String, Object> extractNode(final Object node) {
+    public Map<String, Object> extractNode(final Object node) {
         final Map<String, Object> nodeInfo = new HashMap<>();
         if (node instanceof NodeValue) {
             final NodeValue nodeValue = (NodeValue) node;

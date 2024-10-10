@@ -16,7 +16,7 @@
 package com.paiondata.aristotle.mapper.impl;
 
 import com.paiondata.aristotle.common.base.Constants;
-import com.paiondata.aristotle.common.util.Neo4jUtil;
+import com.paiondata.aristotle.common.util.NodeExtractor;
 import com.paiondata.aristotle.mapper.NodeMapper;
 import com.paiondata.aristotle.model.dto.NodeDTO;
 import com.paiondata.aristotle.model.dto.NodeUpdateDTO;
@@ -29,6 +29,7 @@ import org.neo4j.driver.Session;
 import org.neo4j.driver.SessionConfig;
 import org.neo4j.driver.Transaction;
 import org.neo4j.driver.Values;
+import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Repository;
 
 import java.util.ArrayList;
@@ -46,19 +47,26 @@ public class NodeMapperImpl implements NodeMapper {
 
     private final Driver driver;
 
+    private final NodeExtractor nodeExtractor;
+
     /**
-     * Constructs a NodeMapperImpl object with the specified Driver.
+     * Constructs a new NodeMapperImpl object with the specified Driver and NodeExtractor.
      * @param driver the Driver instance
+     * @param nodeExtractor the NodeExtractor instance
      */
-    public NodeMapperImpl(final Driver driver) {
+    @Autowired
+    public NodeMapperImpl(final Driver driver, final NodeExtractor nodeExtractor) {
         this.driver = driver;
+        this.nodeExtractor = nodeExtractor;
     }
 
     /**
-     * Retrieves a graph node by its UUID.
+     * Retrieves a node by its UUID.
      *
-     * @param uuid the UUID of the graph node
-     * @return the graph node
+     * @param uuid the UUID of the node to retrieve
+     *
+     * @return the NodeVO representing the retrieved node
+     *
      */
     @Override
     public NodeVO getNodeByUuid(final String uuid) {
@@ -71,7 +79,7 @@ public class NodeMapperImpl implements NodeMapper {
                 Map<String, Object> n = null;
                 while (result.hasNext()) {
                     final Record record = result.next();
-                    n = Neo4jUtil.extractNode(record.get("n"));
+                    n = nodeExtractor.extractNode(record.get("n"));
                 }
 
                 return new NodeVO((String) n.get(Constants.UUID), (Map<String, String>) n.get(Constants.PROPERTIES),
@@ -81,14 +89,17 @@ public class NodeMapperImpl implements NodeMapper {
     }
 
     /**
-     * Creates a node in the Neo4j database.
-     * @param graphUuid the UUID of the graph
-     * @param nodeUuid the UUID of the node
-     * @param relationUuid the UUID of the relation
-     * @param currentTime the current time
-     * @param nodeDTO the NodeDTO object containing the node properties
-     * @param tx the Neo4j transaction
-     * @return the created Node object
+     * Creates a new node within a graph.
+     *
+     * @param graphUuid the UUID of the graph where the node will be created
+     * @param nodeUuid the UUID of the new node
+     * @param relationUuid the UUID of the link between the created node and the graph this node belongs to
+     * @param currentTime the current time for creating the node
+     * @param nodeDTO the DTO containing node details
+     * @param tx the transaction in which the operation will be performed
+     *
+     * @return the created GraphNode
+     *
      */
     @Override
     public GraphNode createNode(final String graphUuid, final String nodeUuid, final String relationUuid,
@@ -113,7 +124,7 @@ public class NodeMapperImpl implements NodeMapper {
         );
 
         final Record record = result.next();
-        final Map<String, Object> objectMap = Neo4jUtil.extractNode(record.get("gn"));
+        final Map<String, Object> objectMap = nodeExtractor.extractNode(record.get("gn"));
 
         return GraphNode.builder()
                 .id((Long) objectMap.get(Constants.ID))
@@ -124,6 +135,14 @@ public class NodeMapperImpl implements NodeMapper {
                 .build();
     }
 
+    /**
+     * Retrieves nodes by the UUID of a graph.
+     *
+     * @param uuid the UUID of the graph
+     *
+     * @return a list of maps containing node and relationship information
+     *
+     */
     @Override
     public List<Map<String, Map<String, Object>>> getNodesByGraphUuid(final String uuid) {
         final String cypherQuery = "MATCH (g1:Graph { uuid: $uuid }) "
@@ -138,9 +157,9 @@ public class NodeMapperImpl implements NodeMapper {
 
                 while (result.hasNext()) {
                     final Record record = result.next();
-                    final Map<String, Object> n1 = Neo4jUtil.extractNode(record.get("n1"));
-                    final Map<String, Object> n2 = Neo4jUtil.extractNode(record.get("n2"));
-                    final Map<String, Object> relation = Neo4jUtil.extractRelationship(record.get("r"));
+                    final Map<String, Object> n1 = nodeExtractor.extractNode(record.get("n1"));
+                    final Map<String, Object> n2 = nodeExtractor.extractNode(record.get("n2"));
+                    final Map<String, Object> relation = nodeExtractor.extractRelationship(record.get("r"));
 
                     final Map<String, Map<String, Object>> combinedResult = new HashMap<>();
                     combinedResult.put(Constants.START_NODE, n1);
@@ -174,14 +193,14 @@ public class NodeMapperImpl implements NodeMapper {
     }
 
     /**
-     * Binds two graph nodes with a specified relationship.
+     * Binds two graph nodes together with a specified relation.
      *
-     * @param uuid1           the UUID of the first graph node
-     * @param uuid2           the UUID of the second graph node
-     * @param relation        the name of the relationship
-     * @param relationUuid    the UUID of the relationship
-     * @param currentTime     the current timestamp
-     * @param tx the Neo4j transaction
+     * @param uuid1 the UUID of the first graph node
+     * @param uuid2 the UUID of the second graph node
+     * @param relation the name of the relation
+     * @param relationUuid the UUID of the link between the created node and the graph this node belongs to
+     * @param currentTime the current time for updating the nodes and relation
+     * @param tx the transaction in which the operation will be performed
      */
     @Override
     public void bindGraphNodeToGraphNode(final String uuid1, final String uuid2, final String relation,
@@ -203,11 +222,12 @@ public class NodeMapperImpl implements NodeMapper {
     }
 
     /**
-     * Updates a graph node by its UUID.
+     * Updates a node by its UUID.
      *
-     * @param nodeUpdateDTO the NodeUpdateDTO object containing the updated node properties
-     * @param currentTime the current time for update
-     * @param tx the Neo4j transaction
+     * @param nodeUpdateDTO the DTO containing updated node properties
+     * @param currentTime the current time for updating the node
+     * @param tx the transaction in which the operation will be performed
+     *
      */
     @Override
     public void updateNodeByUuid(final NodeUpdateDTO nodeUpdateDTO, final String currentTime, final Transaction tx) {
@@ -226,9 +246,11 @@ public class NodeMapperImpl implements NodeMapper {
     }
 
     /**
-     * Gets the set properties.
-     * @param entries the entries
-     * @return the set properties
+     * Generates a StringBuilder with property assignments for Cypher queries.
+     *
+     * @param entries the set of property entries
+     *
+     * @return a StringBuilder with formatted property assignments
      */
     private StringBuilder getSetProperties(final Set<Map.Entry<String, String>> entries) {
         final StringBuilder setProperties = new StringBuilder();

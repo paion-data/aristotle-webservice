@@ -33,7 +33,7 @@ public interface GraphMapper {
      * @param description the description of the graph
      * @param userUidcid the UIDCID of the user
      * @param graphUuid the UUID of the graph
-     * @param relationUuid the UUID of the relation
+     * @param relationUuid the UUID of the link between the created node and the graph this node belongs to
      * @param currentTime the current time
      * @param tx the Neo4j transaction
      * @return the created Graph object

@@ -16,7 +16,7 @@
 package com.paiondata.aristotle.mapper.impl;
 
 import com.paiondata.aristotle.common.base.Constants;
-import com.paiondata.aristotle.common.util.Neo4jUtil;
+import com.paiondata.aristotle.common.util.NodeExtractor;
 import com.paiondata.aristotle.mapper.GraphMapper;
 import com.paiondata.aristotle.model.entity.Graph;
 
@@ -26,6 +26,7 @@ import org.neo4j.driver.Session;
 import org.neo4j.driver.SessionConfig;
 import org.neo4j.driver.Transaction;
 import org.neo4j.driver.Values;
+import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Repository;
 
 import java.util.ArrayList;
@@ -41,12 +42,17 @@ public class GraphMapperImpl implements GraphMapper {
 
     private final Driver driver;
 
+    private final NodeExtractor nodeExtractor;
+
     /**
-     * Constructs a GraphMapperImpl object with the specified Driver.
+     * Constructs a new GraphMapperImpl object with the specified Driver and NodeExtractor.
      * @param driver the Driver instance
+     * @param nodeExtractor the NodeExtractor instance
      */
-    public GraphMapperImpl(final Driver driver) {
+    @Autowired
+    public GraphMapperImpl(final Driver driver, final NodeExtractor nodeExtractor) {
         this.driver = driver;
+        this.nodeExtractor = nodeExtractor;
     }
 
     /**
@@ -55,7 +61,7 @@ public class GraphMapperImpl implements GraphMapper {
      * @param description the description of the graph
      * @param userUidcid the UIDCID of the user
      * @param graphUuid the UUID of the graph
-     * @param relationUuid the UUID of the relation
+     * @param relationUuid the UUID of the link between the created node and the graph this node belongs to
      * @param currentTime the current time
      * @param tx the Neo4j transaction
      * @return the created Graph object
@@ -81,7 +87,7 @@ public class GraphMapperImpl implements GraphMapper {
         );
 
         final Record record = result.next();
-        final Map<String, Object> objectMap = Neo4jUtil.extractGraph(record.get(Constants.GRAPH_IN_CYPHER));
+        final Map<String, Object> objectMap = nodeExtractor.extractGraph(record.get(Constants.GRAPH_IN_CYPHER));
 
         return Graph.builder()
                 .id((Long) objectMap.get(Constants.ID))
@@ -110,7 +116,7 @@ public class GraphMapperImpl implements GraphMapper {
                 final List<Map<String, Object>> resultList = new ArrayList<>();
                 while (result.hasNext()) {
                     final Record record = result.next();
-                    final Map<String, Object> graph = Neo4jUtil.extractGraph(record.get(Constants.GRAPH_IN_CYPHER));
+                    final Map<String, Object> graph = nodeExtractor.extractGraph(record.get(Constants.GRAPH_IN_CYPHER));
 
                     resultList.add(graph);
                 }

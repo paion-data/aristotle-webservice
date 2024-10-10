@@ -42,7 +42,7 @@ public interface NodeMapper {
      * Creates a node in the Neo4j database.
      * @param graphUuid the UUID of the graph
      * @param nodeUuid the UUID of the node
-     * @param relationUuid the UUID of the relation
+     * @param relationUuid the UUID of the link between the created node and the graph this node belongs to
      * @param currentTime the current time
      * @param nodeDTO the NodeDTO object containing the node properties
      * @param tx the Neo4j transaction
@@ -61,11 +61,11 @@ public interface NodeMapper {
     /**
      * Binds two graph nodes with a specified relationship.
      *
-     * @param uuid1           the UUID of the first graph node
-     * @param uuid2           the UUID of the second graph node
-     * @param relation        the name of the relationship
-     * @param relationUuid    the UUID of the relationship
-     * @param currentTime     the current timestamp
+     * @param uuid1        the UUID of the first graph node
+     * @param uuid2        the UUID of the second graph node
+     * @param relation     the name of the relationship
+     * @param relationUuid the UUID of the link between the created node and the graph this node belongs to
+     * @param currentTime  the current timestamp
      * @param tx the Neo4j transaction
      */
     void bindGraphNodeToGraphNode(String uuid1, String uuid2, String relation,
