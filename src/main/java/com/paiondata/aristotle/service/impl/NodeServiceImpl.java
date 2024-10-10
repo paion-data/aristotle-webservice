@@ -26,7 +26,6 @@ import com.paiondata.aristotle.common.exception.NodeRelationException;
 import com.paiondata.aristotle.common.exception.GraphNullException;
 import com.paiondata.aristotle.common.exception.TemporaryKeyException;
 import com.paiondata.aristotle.common.exception.TransactionException;
-import com.paiondata.aristotle.common.exception.InputParamException;
 import com.paiondata.aristotle.mapper.NodeMapper;
 import com.paiondata.aristotle.model.dto.BindNodeDTO;
 import com.paiondata.aristotle.model.dto.GraphNodeDTO;
@@ -222,7 +221,7 @@ public class NodeServiceImpl implements NodeService {
                 if (key.equals(Constants.UUID)
                         || key.equals(Constants.CREATE_TIME)
                         || key.equals(Constants.UPDATE_TIME)) {
-                    throw new InputParamException(Message.INPUT_PROPERTIES_ERROR + key);
+                    throw new IllegalArgumentException(Message.INPUT_PROPERTIES_ERROR + key);
                 }
             }
 
