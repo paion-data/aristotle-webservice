@@ -19,7 +19,7 @@ import com.paiondata.aristotle.common.base.Message;
 import com.paiondata.aristotle.common.base.Result;
 import com.paiondata.aristotle.model.dto.UserDTO;
 import com.paiondata.aristotle.model.vo.UserVO;
-import com.paiondata.aristotle.service.Neo4jService;
+import com.paiondata.aristotle.service.CommonService;
 import com.paiondata.aristotle.service.UserService;
 import io.swagger.annotations.Api;
 import io.swagger.annotations.ApiOperation;
@@ -51,7 +51,7 @@ public class UserController {
     private UserService userService;
 
     @Autowired
-    private Neo4jService neo4jService;
+    private CommonService commonService;
 
     /**
      * Retrieves a user by UID/CID.
@@ -88,7 +88,7 @@ public class UserController {
     @GetMapping("/graph/{uidcid}")
     public Result<List<Map<String, Object>>> getGraphByUserUidcid(
             @PathVariable @NotBlank(message = Message.UIDCID_MUST_NOT_BE_BLANK) final String uidcid) {
-        final List<Map<String, Object>> results = neo4jService.getUserAndGraphsByUidcid(uidcid);
+        final List<Map<String, Object>> results = commonService.getGraphsByUidcid(uidcid);
         return Result.ok(results);
     }
 

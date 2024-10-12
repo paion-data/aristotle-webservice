@@ -21,10 +21,10 @@ import com.paiondata.aristotle.common.exception.UserExistsException;
 import com.paiondata.aristotle.model.dto.UserDTO;
 import com.paiondata.aristotle.model.entity.User;
 import com.paiondata.aristotle.model.vo.UserVO;
-import com.paiondata.aristotle.repository.GraphNodeRepository;
+import com.paiondata.aristotle.repository.NodeRepository;
 import com.paiondata.aristotle.repository.GraphRepository;
 import com.paiondata.aristotle.repository.UserRepository;
-import com.paiondata.aristotle.service.Neo4jService;
+import com.paiondata.aristotle.service.CommonService;
 import com.paiondata.aristotle.service.UserService;
 
 import lombok.AllArgsConstructor;
@@ -35,7 +35,6 @@ import org.springframework.transaction.annotation.Transactional;
 
 import java.util.List;
 import java.util.stream.Collectors;
-import java.util.Optional;
 
 /**
  * Service implementation for user-related operations.
@@ -52,10 +51,10 @@ public class UserServiceImpl implements UserService {
     private GraphRepository graphRepository;
 
     @Autowired
-    private GraphNodeRepository graphNodeRepository;
+    private NodeRepository nodeRepository;
 
     @Autowired
-    private Neo4jService neo4jService;
+    private CommonService commonService;
 
     /**
      * Retrieves a UserVO by UIDCID.
@@ -75,21 +74,8 @@ public class UserServiceImpl implements UserService {
         return UserVO.builder()
                 .uidcid(user.getUidcid())
                 .nickName(user.getNickName())
-                .graphs(neo4jService.getUserAndGraphsByUidcid(user.getUidcid()))
+                .graphs(commonService.getGraphsByUidcid(user.getUidcid()))
                 .build();
-    }
-
-    /**
-     * Retrieves an optional user by UIDCID.
-     *
-     * @param uidcid the UIDCID of the user
-     * @return an Optional containing the user if found, or empty otherwise
-     */
-    @Transactional(readOnly = true)
-    @Override
-    public Optional<User> getUserByUidcid(final String uidcid) {
-        final User user = userRepository.getUserByUidcid(uidcid);
-        return Optional.ofNullable(user);
     }
 
     /**
@@ -106,7 +92,7 @@ public class UserServiceImpl implements UserService {
                 .map(user -> UserVO.builder()
                         .uidcid(user.getUidcid())
                         .nickName(user.getNickName())
-                        .graphs(neo4jService.getUserAndGraphsByUidcid(user.getUidcid()))
+                        .graphs(commonService.getGraphsByUidcid(user.getUidcid()))
                         .build())
                 .collect(Collectors.toList());
     }
@@ -156,7 +142,7 @@ public class UserServiceImpl implements UserService {
     @Override
     public void deleteUser(final List<String> uidcids) {
         for (final String uidcid : uidcids) {
-            if (getUserByUidcid(uidcid).isEmpty()) {
+            if (commonService.getUserByUidcid(uidcid).isEmpty()) {
                 throw new UserNullException(Message.USER_NULL + uidcid);
             }
         }
@@ -166,7 +152,7 @@ public class UserServiceImpl implements UserService {
 
         userRepository.deleteByUidcids((uidcids));
         graphRepository.deleteByUuids(graphUuids);
-        graphNodeRepository.deleteByUuids(graphNodeUuids);
+        nodeRepository.deleteByUuids(graphNodeUuids);
     }
 
     /**

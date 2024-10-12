@@ -22,11 +22,11 @@ import com.paiondata.aristotle.model.dto.NodeCreateDTO;
 import com.paiondata.aristotle.model.dto.GraphAndNodeCreateDTO;
 import com.paiondata.aristotle.model.dto.NodeDeleteDTO;
 import com.paiondata.aristotle.model.dto.NodeReturnDTO;
+import com.paiondata.aristotle.model.dto.NodeUpdateDTO;
 import com.paiondata.aristotle.model.dto.RelationUpdateDTO;
-import com.paiondata.aristotle.model.dto.GraphUpdateDTO;
 import com.paiondata.aristotle.model.dto.BindNodeDTO;
-import com.paiondata.aristotle.model.entity.GraphNode;
-import com.paiondata.aristotle.service.GraphNodeService;
+import com.paiondata.aristotle.model.vo.NodeVO;
+import com.paiondata.aristotle.service.NodeService;
 import io.swagger.annotations.Api;
 import io.swagger.annotations.ApiOperation;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -53,7 +53,7 @@ import java.util.Optional;
 public class NodeController {
 
     @Autowired
-    private GraphNodeService graphNodeService;
+    private NodeService nodeService;
 
     /**
      * Retrieves a graph node by UUID.
@@ -63,9 +63,9 @@ public class NodeController {
      */
     @ApiOperation(value = "Retrieves a node by UUID")
     @GetMapping("/{uuid}")
-    public Result<GraphNode> getNodeByUuid(
+    public Result<NodeVO> getNodeByUuid(
             @PathVariable @NotBlank(message = Message.UUID_MUST_NOT_BE_BLANK) final String uuid) {
-        final Optional<GraphNode> optionalGraphNode = graphNodeService.getNodeByUuid(uuid);
+        final Optional<NodeVO> optionalGraphNode = nodeService.getNodeByUuid(uuid);
         return optionalGraphNode.map(Result::ok).orElseGet(() -> Result.fail(Message.GRAPH_NODE_NULL + uuid));
     }
 
@@ -79,7 +79,7 @@ public class NodeController {
             notes = "The nodes could be created without binding any relations")
     @PostMapping
     public Result<List<NodeReturnDTO>> createAndBindNode(@RequestBody @Valid final NodeCreateDTO graphNodeCreateDTO) {
-        return Result.ok(Message.CREATE_SUCCESS, graphNodeService.createAndBindGraphAndNode(graphNodeCreateDTO));
+        return Result.ok(Message.CREATE_SUCCESS, nodeService.createAndBindGraphAndNode(graphNodeCreateDTO, null));
     }
 
     /**
@@ -93,7 +93,7 @@ public class NodeController {
     @PostMapping("/graph")
     public Result<GraphNodeDTO> createGraphAndBindGraphAndNode(
             @RequestBody @Valid final GraphAndNodeCreateDTO graphNodeCreateDTO) {
-        return Result.ok(graphNodeService.createGraphAndBindGraphAndNode(graphNodeCreateDTO));
+        return Result.ok(nodeService.createGraphAndBindGraphAndNode(graphNodeCreateDTO, null));
     }
 
     /**
@@ -105,20 +105,20 @@ public class NodeController {
     @ApiOperation(value = "Binds multiple nodes")
     @PostMapping("/bind")
     public Result<String> bindNodes(@RequestBody @Valid final List<BindNodeDTO> dtos) {
-        graphNodeService.bindNodes(dtos);
+        nodeService.bindNodes(dtos, null);
         return Result.ok(Message.BOUND_SUCCESS);
     }
 
     /**
      * Updates a graph node.
      *
-     * @param graphUpdateDTO the DTO containing the updated graph node information
+     * @param nodeUpdateDTO the DTO containing the updated node information
      * @return the result indicating the success of the update
      */
     @ApiOperation(value = "Updates a node")
-    @PutMapping
-    public Result<String> updateNode(@RequestBody @Valid final GraphUpdateDTO graphUpdateDTO) {
-        graphNodeService.updateNode(graphUpdateDTO);
+    @PostMapping("/update")
+    public Result<String> updateNode(@RequestBody @Valid final NodeUpdateDTO nodeUpdateDTO) {
+        nodeService.updateNode(nodeUpdateDTO, null);
         return Result.ok(Message.UPDATE_SUCCESS);
     }
 
@@ -131,7 +131,7 @@ public class NodeController {
     @ApiOperation(value = "Updates a relation between nodes")
     @PutMapping("/relate")
     public Result<String> updateNodeRelation(@RequestBody @Valid final RelationUpdateDTO relationUpdateDTO) {
-        graphNodeService.updateRelation(relationUpdateDTO);
+        nodeService.updateRelation(relationUpdateDTO);
         return Result.ok(Message.UPDATE_SUCCESS);
     }
 
@@ -144,7 +144,7 @@ public class NodeController {
     @ApiOperation(value = "Deletes nodes by their UUIDs")
     @DeleteMapping
     public Result<String> deleteNode(@RequestBody @Valid final NodeDeleteDTO nodeDeleteDTO) {
-        graphNodeService.deleteByUuids(nodeDeleteDTO);
+        nodeService.deleteByUuids(nodeDeleteDTO);
         return Result.ok(Message.DELETE_SUCCESS);
     }
 }

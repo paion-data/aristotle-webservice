@@ -15,23 +15,24 @@
  */
 package com.paiondata.aristotle.service.impl;
 
-import cn.hutool.core.lang.UUID;
+import com.paiondata.aristotle.common.annotion.Neo4jTransactional;
 import com.paiondata.aristotle.common.base.Message;
 import com.paiondata.aristotle.common.exception.DeleteException;
 import com.paiondata.aristotle.common.exception.GraphNullException;
-import com.paiondata.aristotle.common.exception.UserNullException;
-import com.paiondata.aristotle.model.dto.GraphCreateDTO;
+import com.paiondata.aristotle.common.exception.TransactionException;
+import com.paiondata.aristotle.mapper.GraphMapper;
+import com.paiondata.aristotle.mapper.NodeMapper;
 import com.paiondata.aristotle.model.dto.GraphDeleteDTO;
 import com.paiondata.aristotle.model.dto.GraphUpdateDTO;
 import com.paiondata.aristotle.model.entity.Graph;
-import com.paiondata.aristotle.model.entity.User;
 import com.paiondata.aristotle.model.vo.GraphVO;
-import com.paiondata.aristotle.repository.GraphNodeRepository;
+import com.paiondata.aristotle.repository.NodeRepository;
 import com.paiondata.aristotle.repository.GraphRepository;
+import com.paiondata.aristotle.service.CommonService;
 import com.paiondata.aristotle.service.GraphService;
-import com.paiondata.aristotle.service.Neo4jService;
-import com.paiondata.aristotle.service.UserService;
 import lombok.AllArgsConstructor;
+
+import org.neo4j.driver.Transaction;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
@@ -55,20 +56,22 @@ public class GraphServiceImpl implements GraphService {
     private GraphRepository graphRepository;
 
     @Autowired
-    private UserService userService;
+    private GraphMapper graphMapper;
 
     @Autowired
-    private GraphNodeRepository graphNodeRepository;
+    private NodeMapper nodeMapper;
 
     @Autowired
-    private Neo4jService neo4jService;
+    private NodeRepository nodeRepository;
+
+    @Autowired
+    private CommonService commonService;
 
     /**
      * Retrieves a graph view object (VO) by its UUID.
      *
      * @param uuid the UUID of the graph
      */
-    @Transactional(readOnly = true)
     @Override
     public GraphVO getGraphVOByUuid(final String uuid) {
         final Graph graphByUuid = graphRepository.getGraphByUuid(uuid);
@@ -83,43 +86,8 @@ public class GraphServiceImpl implements GraphService {
                 .description(graphByUuid.getDescription())
                 .createTime(graphByUuid.getCreateTime())
                 .updateTime(graphByUuid.getUpdateTime())
-                .nodes(neo4jService.getGraphNodeByGraphUuid(uuid))
+                .nodes(nodeMapper.getNodesByGraphUuid(uuid))
                 .build();
-    }
-
-    /**
-     * Retrieves a graph by its UUID.
-     *
-     * @param uuid the UUID of the graph
-     */
-    @Transactional(readOnly = true)
-    @Override
-    public Optional<Graph> getGraphByUuid(final String uuid) {
-        final Graph graph = graphRepository.getGraphByUuid(uuid);
-        return Optional.ofNullable(graph);
-    }
-
-    /**
-     * Creates and binds a new graph using the provided DTO.
-     *
-     * @param graphCreateDTO the DTO containing details to create a new graph
-     */
-    @Transactional
-    @Override
-    public Graph createAndBindGraph(final GraphCreateDTO graphCreateDTO) {
-        final String title = graphCreateDTO.getTitle();
-        final String description = graphCreateDTO.getDescription();
-        final String uidcid = graphCreateDTO.getUserUidcid();
-        final String graphUuid = UUID.fastUUID().toString(true);
-        final String relationUuid = UUID.fastUUID().toString(true);
-        final String now = getCurrentTime();
-
-        final Optional<User> optionalUser = userService.getUserByUidcid(uidcid);
-        if (optionalUser.isEmpty()) {
-            throw new UserNullException(Message.USER_NULL + uidcid);
-        }
-
-        return graphRepository.createAndBindGraph(title, description, uidcid, graphUuid, relationUuid, now);
     }
 
     /**
@@ -134,7 +102,7 @@ public class GraphServiceImpl implements GraphService {
         final List<String> uuids = graphDeleteDTO.getUuids();
 
         for (final String uuid : uuids) {
-            if (getGraphByUuid(uuid).isEmpty()) {
+            if (commonService.getGraphByUuid(uuid).isEmpty()) {
                 throw new GraphNullException(Message.GRAPH_NULL + uuid);
             }
             if (graphRepository.getGraphByGraphUuidAndUidcid(uuid, uidcid) == null) {
@@ -144,7 +112,7 @@ public class GraphServiceImpl implements GraphService {
 
         final List<String> relatedGraphNodeUuids = getRelatedGraphNodeUuids(uuids);
 
-        graphNodeRepository.deleteByUuids(relatedGraphNodeUuids);
+        nodeRepository.deleteByUuids(relatedGraphNodeUuids);
         graphRepository.deleteByUuids(uuids);
     }
 
@@ -152,16 +120,22 @@ public class GraphServiceImpl implements GraphService {
      * Updates a graph using the provided DTO.
      *
      * @param graphUpdateDTO the DTO containing details to update an existing graph
+     * @param tx the Neo4j transaction
      */
-    @Transactional
+    @Neo4jTransactional
     @Override
-    public void updateGraph(final GraphUpdateDTO graphUpdateDTO) {
+    public void updateGraph(final GraphUpdateDTO graphUpdateDTO, final Transaction tx) {
+
+        if (tx == null) {
+            throw new TransactionException(Message.TRANSACTION_NULL);
+        }
+
         final String uuid = graphUpdateDTO.getUuid();
-        final Optional<Graph> graphByUuid = getGraphByUuid(uuid);
+        final Optional<Graph> graphByUuid = commonService.getGraphByUuid(uuid);
         final String now = getCurrentTime();
 
         if (graphByUuid.isPresent()) {
-            neo4jService.updateGraphByUuid(uuid, graphUpdateDTO.getTitle(), graphUpdateDTO.getDescription(), now);
+            graphMapper.updateGraphByUuid(uuid, graphUpdateDTO.getTitle(), graphUpdateDTO.getDescription(), now, tx);
         } else {
             throw new GraphNullException(Message.GRAPH_NULL + uuid);
         }

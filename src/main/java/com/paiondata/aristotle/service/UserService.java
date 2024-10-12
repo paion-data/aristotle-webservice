@@ -16,12 +16,9 @@
 package com.paiondata.aristotle.service;
 
 import com.paiondata.aristotle.model.dto.UserDTO;
-import com.paiondata.aristotle.model.entity.User;
 import com.paiondata.aristotle.model.vo.UserVO;
 
 import java.util.List;
-import java.util.Optional;
-
 /**
  * Service implementation for user-related operations.
  * This class provides methods for managing users, including creating, updating, and deleting users.
@@ -35,14 +32,6 @@ public interface UserService {
      * @return the UserVO containing user details and associated graphs
      */
     UserVO getUserVOByUidcid(String uidcid);
-
-    /**
-     * Retrieves an optional user by UIDCID.
-     *
-     * @param uidcid the UIDCID of the user
-     * @return an Optional containing the user if found, or empty otherwise
-     */
-    Optional<User> getUserByUidcid(String uidcid);
 
     /**
      * Retrieves all users as UserVOs.

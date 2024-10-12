@@ -18,12 +18,14 @@ package com.paiondata.aristotle.service;
 import com.paiondata.aristotle.model.dto.GraphNodeDTO;
 import com.paiondata.aristotle.model.dto.NodeDeleteDTO;
 import com.paiondata.aristotle.model.dto.NodeReturnDTO;
-import com.paiondata.aristotle.model.entity.GraphNode;
+import com.paiondata.aristotle.model.dto.NodeUpdateDTO;
 import com.paiondata.aristotle.model.dto.BindNodeDTO;
 import com.paiondata.aristotle.model.dto.GraphAndNodeCreateDTO;
 import com.paiondata.aristotle.model.dto.NodeCreateDTO;
 import com.paiondata.aristotle.model.dto.RelationUpdateDTO;
-import com.paiondata.aristotle.model.dto.GraphUpdateDTO;
+import com.paiondata.aristotle.model.vo.NodeVO;
+
+import org.neo4j.driver.Transaction;
 
 import java.util.List;
 import java.util.Optional;
@@ -33,7 +35,7 @@ import java.util.Optional;
  *
  * This class provides methods for CRUD operations on graph nodes and their relationships.
  */
-public interface GraphNodeService {
+public interface NodeService {
 
     /**
      * Retrieves a graph node by its UUID.
@@ -41,29 +43,32 @@ public interface GraphNodeService {
      * @param uuid the UUID of the graph node
      * @return an {@code Optional} containing the graph node if found
      */
-    Optional<GraphNode> getNodeByUuid(String uuid);
+    Optional<NodeVO> getNodeByUuid(String uuid);
 
     /**
      * Creates and binds a graph and a node based on the provided DTO.
      *
      * @param nodeCreateDTO the DTO containing information for creating the graph and node
+     * @param tx the Neo4j transaction
      * @return the list of created nodes
      */
-    List<NodeReturnDTO> createAndBindGraphAndNode(NodeCreateDTO nodeCreateDTO);
+    List<NodeReturnDTO> createAndBindGraphAndNode(NodeCreateDTO nodeCreateDTO, Transaction tx);
 
     /**
      * Creates a graph and binds it with a node based on the provided DTO.
      * @param graphNodeCreateDTO the DTO containing information for creating the graph and node
+     * @param tx the Neo4j transaction
      * @return the created graph node
      */
-    GraphNodeDTO createGraphAndBindGraphAndNode(GraphAndNodeCreateDTO graphNodeCreateDTO);
+    GraphNodeDTO createGraphAndBindGraphAndNode(GraphAndNodeCreateDTO graphNodeCreateDTO, Transaction tx);
 
     /**
      * Binds nodes based on the provided DTOs.
      *
      * @param dtos the list of DTOs for binding nodes
+     * @param tx   the Neo4j transaction
      */
-    void bindNodes(List<BindNodeDTO> dtos);
+    void bindNodes(List<BindNodeDTO> dtos, Transaction tx);
 
     /**
      * Deletes graph nodes by their UUIDs.
@@ -75,9 +80,10 @@ public interface GraphNodeService {
     /**
      * Updates a graph node based on the provided DTO.
      *
-     * @param graphUpdateDTO the DTO containing information for updating the graph node
+     * @param nodeUpdateDTO the DTO containing information for updating the node
+     * @param tx   the Neo4j transaction
      */
-    void updateNode(GraphUpdateDTO graphUpdateDTO);
+    void updateNode(NodeUpdateDTO nodeUpdateDTO, Transaction tx);
 
     /**
      * Updates graph node relations based on the provided DTO.

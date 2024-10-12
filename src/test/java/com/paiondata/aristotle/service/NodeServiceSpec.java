@@ -16,19 +16,25 @@
 package com.paiondata.aristotle.service;
 
 import static org.junit.jupiter.api.Assertions.assertDoesNotThrow;
+import static org.junit.jupiter.api.Assertions.assertEquals;
 import static org.junit.jupiter.api.Assertions.assertThrows;
 import static org.mockito.ArgumentMatchers.any;
 import static org.mockito.ArgumentMatchers.anyString;
 import static org.mockito.ArgumentMatchers.eq;
+import static org.mockito.Mockito.doNothing;
+import static org.mockito.Mockito.mock;
 import static org.mockito.Mockito.times;
 import static org.mockito.Mockito.verify;
 import static org.mockito.Mockito.when;
 
 import com.paiondata.aristotle.base.TestConstants;
+import com.paiondata.aristotle.common.base.Constants;
 import com.paiondata.aristotle.common.exception.DeleteException;
 import com.paiondata.aristotle.common.exception.NodeNullException;
 import com.paiondata.aristotle.common.exception.NodeRelationException;
 import com.paiondata.aristotle.common.exception.GraphNullException;
+import com.paiondata.aristotle.common.exception.TransactionException;
+import com.paiondata.aristotle.mapper.NodeMapper;
 import com.paiondata.aristotle.model.dto.GraphAndNodeCreateDTO;
 import com.paiondata.aristotle.model.dto.GraphNodeDTO;
 import com.paiondata.aristotle.model.dto.NodeCreateDTO;
@@ -38,12 +44,13 @@ import com.paiondata.aristotle.model.dto.NodeRelationDTO;
 import com.paiondata.aristotle.model.dto.BindNodeDTO;
 import com.paiondata.aristotle.model.dto.GraphCreateDTO;
 import com.paiondata.aristotle.model.dto.NodeReturnDTO;
+import com.paiondata.aristotle.model.dto.NodeUpdateDTO;
 import com.paiondata.aristotle.model.dto.RelationUpdateDTO;
-import com.paiondata.aristotle.model.dto.GraphUpdateDTO;
 import com.paiondata.aristotle.model.entity.Graph;
 import com.paiondata.aristotle.model.entity.GraphNode;
-import com.paiondata.aristotle.repository.GraphNodeRepository;
-import com.paiondata.aristotle.service.impl.GraphNodeServiceImpl;
+import com.paiondata.aristotle.model.vo.NodeVO;
+import com.paiondata.aristotle.repository.NodeRepository;
+import com.paiondata.aristotle.service.impl.NodeServiceImpl;
 
 import org.junit.jupiter.api.Assertions;
 import org.junit.jupiter.api.BeforeEach;
@@ -54,6 +61,7 @@ import org.mockito.Mock;
 
 import cn.hutool.core.lang.UUID;
 import org.mockito.junit.jupiter.MockitoExtension;
+import org.neo4j.driver.Transaction;
 
 import java.text.SimpleDateFormat;
 import java.time.LocalDateTime;
@@ -71,19 +79,19 @@ import java.util.Set;
  * Uses Mockito to mock dependencies and validate graph node service operations.
  */
 @ExtendWith(MockitoExtension.class)
-public class GraphNodeServiceSpec {
+public class NodeServiceSpec {
 
     @InjectMocks
-    private GraphNodeServiceImpl graphNodeService;
+    private NodeServiceImpl nodeService;
 
     @Mock
-    private GraphNodeRepository graphNodeRepository;
+    private NodeRepository nodeRepository;
 
     @Mock
-    private GraphService graphService;
+    private NodeMapper nodeMapper;
 
     @Mock
-    private Neo4jService neo4jService;
+    private CommonService commonService;
 
     /**
      * Setup method to initialize mocks and test data.
@@ -96,36 +104,69 @@ public class GraphNodeServiceSpec {
      * Tests that getting a GraphNode by UUID returns the node when it exists.
      */
     @Test
-    void getGraphNodeByUuidGraphNodeExistsShouldReturnNode() {
+    void getNodeByUuidNodeExistsShouldReturnNode() {
         // Given
         final String uuid = TestConstants.TEST_ID1;
-        final GraphNode graphNode = new GraphNode();
-        when(graphNodeRepository.getGraphNodeByUuid(uuid)).thenReturn(graphNode);
+        final NodeVO node = new NodeVO();
+        when(nodeMapper.getNodeByUuid(uuid)).thenReturn(node);
 
         // When
-        final Optional<GraphNode> result = graphNodeService.getNodeByUuid(uuid);
+        final Optional<NodeVO> result = nodeService.getNodeByUuid(uuid);
 
         // Then
         Assertions.assertTrue(result.isPresent());
-        Assertions.assertEquals(graphNode, result.get());
-        verify(graphNodeRepository).getGraphNodeByUuid(uuid);
+        assertEquals(node, result.get());
+        verify(nodeMapper).getNodeByUuid(uuid);
     }
 
     /**
      * Tests that getting a GraphNode by UUID returns an empty Optional when the node does not exist.
      */
     @Test
-    void getGraphNodeByUuidNodeDoesNotExistShouldReturnEmpty() {
+    void getNodeByUuidNodeDoesNotExistShouldReturnEmpty() {
         // Given
         final String uuid = TestConstants.TEST_ID1;
-        when(graphNodeRepository.getGraphNodeByUuid(uuid)).thenReturn(null);
+        when(nodeMapper.getNodeByUuid(uuid)).thenReturn(null);
 
         // When
-        final Optional<GraphNode> result = graphNodeService.getNodeByUuid(uuid);
+        final Optional<NodeVO> result = nodeService.getNodeByUuid(uuid);
 
         // Then
         Assertions.assertFalse(result.isPresent());
-        verify(graphNodeRepository).getGraphNodeByUuid(uuid);
+        verify(nodeMapper).getNodeByUuid(uuid);
+    }
+
+    /**
+     * Tests that creating and binding a Graph and Node throws a TransactionException when the transaction is null.
+     */
+    @Test
+    public void createAndBindGraphAndNodeTransactionNullThrowsTransactionException() {
+        // Given
+        final NodeCreateDTO nodeCreateDTO = new NodeCreateDTO();
+
+        // Then
+        assertThrows(TransactionException.class, () -> {
+            nodeService.createAndBindGraphAndNode(nodeCreateDTO, null);
+        });
+    }
+
+    /**
+     * Tests that creating and binding a Graph and Node throws a GraphNullException when the graph UUID is not found.
+     */
+    @Test
+    public void createAndBindGraphAndNodeGraphUuidNotFoundThrowsGraphNullException() {
+        // Given
+        final Transaction tx = mock(Transaction.class);
+        final NodeCreateDTO nodeCreateDTO = new NodeCreateDTO();
+        nodeCreateDTO.setGraphUuid(TestConstants.TEST_ID1);
+
+        // When
+        when(commonService.getGraphByUuid(anyString())).thenReturn(Optional.empty());
+
+        // Then
+        assertThrows(GraphNullException.class, () -> {
+            nodeService.createAndBindGraphAndNode(nodeCreateDTO, tx);
+        });
     }
 
     /**
@@ -134,35 +175,39 @@ public class GraphNodeServiceSpec {
     @Test
     void createAndBindGraphAndNodeGraphExistsShouldCreateAndBindNodes() {
         // Given
+        final Transaction tx = mock(Transaction.class);
         final NodeCreateDTO nodeCreateDTO = new NodeCreateDTO();
         nodeCreateDTO.setGraphUuid(TestConstants.TEST_ID1);
-        nodeCreateDTO.setGraphNodeDTO(List.of(new NodeDTO(TestConstants.TEST_ID1, TestConstants.TEST_TILE1,
-                        TestConstants.TEST_DESCRIPTION1),
-                new NodeDTO(TestConstants.TEST_ID2, TestConstants.TEST_TILE2, TestConstants.TEST_DESCRIPTION2)));
+        nodeCreateDTO.setGraphNodeDTO(List.of(
+                new NodeDTO(TestConstants.TEST_ID1, Map.of(Constants.TITLE, TestConstants.TEST_TILE1,
+                        Constants.DESCRIPTION, TestConstants.TEST_DESCRIPTION1)),
+                new NodeDTO(TestConstants.TEST_ID2, Map.of(Constants.TITLE, TestConstants.TEST_TILE2,
+                        Constants.DESCRIPTION, TestConstants.TEST_DESCRIPTION2))));
         nodeCreateDTO.setGraphNodeRelationDTO(List.of(
                 new NodeRelationDTO(TestConstants.TEST_ID1, TestConstants.TEST_ID2, TestConstants.TEST_RELATION1),
                 new NodeRelationDTO(TestConstants.TEST_ID2, TestConstants.TEST_ID1, TestConstants.TEST_RELATION2)
         ));
 
-        when(graphService.getGraphByUuid(TestConstants.TEST_ID1)).thenReturn(Optional.of(new Graph()));
+        when(commonService.getGraphByUuid(TestConstants.TEST_ID1)).thenReturn(Optional.of(new Graph()));
 
         // Mock createGraphAndBindGraphAndNode to return a non-null GraphNode
         final String graphNodeUuid = UUID.fastUUID().toString(true);
         final String currentTime = getCurrentTime();
-        when(graphNodeRepository.createAndBindGraphNode(anyString(), anyString(), anyString(), anyString(),
-                anyString(), anyString()))
-                .thenReturn((new GraphNode(0L, graphNodeUuid, TestConstants.TEST_TILE1,
-                        TestConstants.TEST_DESCRIPTION1, currentTime, currentTime)));
+
+        when(nodeMapper.createNode(anyString(), anyString(), anyString(), anyString(), any(NodeDTO.class),
+                any(Transaction.class)))
+                .thenReturn((new GraphNode(0L, graphNodeUuid, Map.of(Constants.TITLE, TestConstants.TEST_TILE1,
+                        Constants.DESCRIPTION, TestConstants.TEST_DESCRIPTION1), currentTime, currentTime)));
+        doNothing().when(nodeMapper).bindGraphNodeToGraphNode(anyString(), anyString(), anyString(), anyString(),
+                anyString(), any(Transaction.class));
 
         // When
-        final List<NodeReturnDTO> dtos = graphNodeService.createAndBindGraphAndNode(nodeCreateDTO);
+        final List<NodeReturnDTO> dtos = nodeService.createAndBindGraphAndNode(nodeCreateDTO, tx);
 
         // Then
-        verify(graphService, times(1)).getGraphByUuid(TestConstants.TEST_ID1);
-        verify(graphNodeRepository, times(1)).getGraphUuidByGraphNodeUuid(Set.of(TestConstants.TEST_ID1,
+        verify(commonService, times(1)).getGraphByUuid(TestConstants.TEST_ID1);
+        verify(nodeRepository, times(1)).getGraphUuidByGraphNodeUuid(Set.of(TestConstants.TEST_ID1,
                 TestConstants.TEST_ID2));
-        verify(graphNodeRepository, times(2)).createAndBindGraphNode(anyString(), anyString(), anyString(), anyString(),
-                anyString(), anyString());
         Assertions.assertNotNull(dtos);
         Assertions.assertFalse(dtos.isEmpty());
     }
@@ -173,16 +218,17 @@ public class GraphNodeServiceSpec {
     @Test
     void createAndBindGraphAndNodeGraphDoesNotExistShouldThrowException() {
         // Given
+        final Transaction tx = mock(Transaction.class);
         final NodeCreateDTO graphNodeCreateDTO = new NodeCreateDTO();
         graphNodeCreateDTO.setGraphUuid(TestConstants.TEST_ID1);
 
-        when(graphService.getGraphByUuid(TestConstants.TEST_ID1)).thenReturn(Optional.empty());
+        when(commonService.getGraphByUuid(TestConstants.TEST_ID1)).thenReturn(Optional.empty());
 
         // When & Then
-        assertThrows(GraphNullException.class, () -> graphNodeService.createAndBindGraphAndNode(graphNodeCreateDTO));
+        assertThrows(GraphNullException.class, () -> nodeService.createAndBindGraphAndNode(graphNodeCreateDTO, tx));
 
         // Then
-        verify(graphService, times(1)).getGraphByUuid(TestConstants.TEST_ID1);
+        verify(commonService, times(1)).getGraphByUuid(TestConstants.TEST_ID1);
     }
 
     /**
@@ -191,18 +237,21 @@ public class GraphNodeServiceSpec {
     @Test
     void createGraphAndBindGraphAndNodeGraphCreatedShouldCreateGraphAndBindGraphAndNode() {
         // Given
+        final Transaction tx = mock(Transaction.class);
         final GraphAndNodeCreateDTO graphNodeCreateDTO = new GraphAndNodeCreateDTO();
         graphNodeCreateDTO.setGraphCreateDTO(new GraphCreateDTO(TestConstants.TEST_TILE1,
                 TestConstants.TEST_DESCRIPTION1, TestConstants.TEST_ID1));
-        graphNodeCreateDTO.setGraphNodeDTO(List.of(new NodeDTO(TestConstants.TEST_ID1, TestConstants.TEST_TILE1,
-                        TestConstants.TEST_DESCRIPTION1), new NodeDTO(TestConstants.TEST_ID2,
-                TestConstants.TEST_TILE2, TestConstants.TEST_DESCRIPTION2)));
+        graphNodeCreateDTO.setGraphNodeDTO(List.of(
+                new NodeDTO(TestConstants.TEST_ID1, Map.of(Constants.TITLE, TestConstants.TEST_TILE1,
+                        Constants.DESCRIPTION, TestConstants.TEST_DESCRIPTION1)),
+                new NodeDTO(TestConstants.TEST_ID2, Map.of(Constants.TITLE, TestConstants.TEST_TILE2,
+                        Constants.DESCRIPTION, TestConstants.TEST_DESCRIPTION2))));
         graphNodeCreateDTO.setGraphNodeRelationDTO(List.of(
                 new NodeRelationDTO(TestConstants.TEST_ID1, TestConstants.TEST_ID2, TestConstants.TEST_RELATION1),
                 new NodeRelationDTO(TestConstants.TEST_ID2, TestConstants.TEST_ID1, TestConstants.TEST_RELATION2)
         ));
 
-        when(graphService.createAndBindGraph(graphNodeCreateDTO.getGraphCreateDTO()))
+        when(commonService.createAndBindGraph(graphNodeCreateDTO.getGraphCreateDTO(), tx))
                 .thenReturn(Graph.builder()
                         .uuid(TestConstants.TEST_ID1)
                         .title(TestConstants.TEST_TILE1)
@@ -212,20 +261,21 @@ public class GraphNodeServiceSpec {
         // Mock createGraphAndBindGraphAndNode to return a non-null GraphNode
         final String graphNodeUuid = UUID.fastUUID().toString(true);
         final String currentTime = getCurrentTime();
-        when(graphNodeRepository.createAndBindGraphNode(anyString(), anyString(), anyString(), anyString(),
-                anyString(), anyString()))
-                .thenReturn((new GraphNode(0L, graphNodeUuid, TestConstants.TEST_TILE1,
-                        TestConstants.TEST_DESCRIPTION1, currentTime, currentTime)));
+
+        when(nodeMapper.createNode(anyString(), anyString(), anyString(), anyString(), any(NodeDTO.class),
+                any(Transaction.class)))
+                .thenReturn((new GraphNode(0L, graphNodeUuid, Map.of(Constants.TITLE, TestConstants.TEST_TILE1,
+                        Constants.DESCRIPTION, TestConstants.TEST_DESCRIPTION1), currentTime, currentTime)));
+        doNothing().when(nodeMapper).bindGraphNodeToGraphNode(anyString(), anyString(), anyString(), anyString(),
+                anyString(), any(Transaction.class));
 
         // When
-        final GraphNodeDTO dto = graphNodeService.createGraphAndBindGraphAndNode(graphNodeCreateDTO);
+        final GraphNodeDTO dto = nodeService.createGraphAndBindGraphAndNode(graphNodeCreateDTO, tx);
 
         // Then
-        verify(graphService, times(1)).createAndBindGraph(graphNodeCreateDTO.getGraphCreateDTO());
-        verify(graphNodeRepository, times(1)).getGraphUuidByGraphNodeUuid(Set.of(TestConstants.TEST_ID1,
+        verify(commonService, times(1)).createAndBindGraph(graphNodeCreateDTO.getGraphCreateDTO(), tx);
+        verify(nodeRepository, times(1)).getGraphUuidByGraphNodeUuid(Set.of(TestConstants.TEST_ID1,
                 TestConstants.TEST_ID2));
-        verify(graphNodeRepository, times(2)).createAndBindGraphNode(anyString(), anyString(), anyString(), anyString(),
-                anyString(), anyString());
         Assertions.assertNotNull(dto);
         Assertions.assertNotNull(dto.getUuid());
         Assertions.assertEquals(dto.getTitle(), TestConstants.TEST_TILE1);
@@ -239,20 +289,21 @@ public class GraphNodeServiceSpec {
     @Test
     void bindNodesNodesExistShouldBindNodes() {
         // Given
+        final Transaction tx = mock(Transaction.class);
         final List<BindNodeDTO> dtos = Collections.singletonList(new BindNodeDTO(TestConstants.TEST_ID1,
                 TestConstants.TEST_ID2, TestConstants.TEST_RELATION1));
 
-        when(graphNodeRepository.getGraphNodeByUuid(TestConstants.TEST_ID1)).thenReturn(new GraphNode());
-        when(graphNodeRepository.getGraphNodeByUuid(TestConstants.TEST_ID2)).thenReturn(new GraphNode());
+        when(nodeMapper.getNodeByUuid(TestConstants.TEST_ID1)).thenReturn(new NodeVO());
+        when(nodeMapper.getNodeByUuid(TestConstants.TEST_ID2)).thenReturn(new NodeVO());
 
         // When & Then
-        assertDoesNotThrow(() -> graphNodeService.bindNodes(dtos));
+        assertDoesNotThrow(() -> nodeService.bindNodes(dtos, tx));
 
         // Then
-        verify(graphNodeRepository, times(1)).getGraphNodeByUuid(TestConstants.TEST_ID1);
-        verify(graphNodeRepository, times(1)).getGraphNodeByUuid(TestConstants.TEST_ID2);
-        verify(graphNodeRepository, times(1))
-                .bindGraphNodeToGraphNode(anyString(), anyString(), anyString(), anyString(), anyString());
+        verify(nodeMapper, times(1)).getNodeByUuid(TestConstants.TEST_ID1);
+        verify(nodeMapper, times(1)).getNodeByUuid(TestConstants.TEST_ID2);
+        verify(nodeMapper, times(1))
+                .bindGraphNodeToGraphNode(anyString(), anyString(), anyString(), anyString(), anyString(), eq(tx));
     }
 
     /**
@@ -261,16 +312,17 @@ public class GraphNodeServiceSpec {
     @Test
     void bindNodesNodesDoesNotExistShouldThrowException() {
         // Given
+        final Transaction tx = mock(Transaction.class);
         final List<BindNodeDTO> dtos = Collections.singletonList(new BindNodeDTO(TestConstants.TEST_ID1,
                 TestConstants.TEST_ID2, TestConstants.TEST_RELATION1));
 
-        when(graphNodeRepository.getGraphNodeByUuid(TestConstants.TEST_ID1)).thenReturn(null);
+        when(nodeMapper.getNodeByUuid(TestConstants.TEST_ID1)).thenReturn(null);
 
         // When & Then
-        assertThrows(NodeNullException.class, () -> graphNodeService.bindNodes(dtos));
+        assertThrows(NodeNullException.class, () -> nodeService.bindNodes(dtos, tx));
 
         // Then
-        verify(graphNodeRepository, times(2)).getGraphNodeByUuid(anyString());
+        verify(nodeMapper, times(2)).getNodeByUuid(anyString());
     }
 
     /**
@@ -286,18 +338,18 @@ public class GraphNodeServiceSpec {
                 .uuids(Collections.singletonList(nodeUuid))
                 .build();
 
-        final GraphNode graphNode = GraphNode.builder()
+        final NodeVO node = NodeVO.builder()
                 .uuid(nodeUuid)
                 .build();
 
-        when(graphNodeRepository.getGraphNodeByUuid(nodeUuid)).thenReturn(graphNode);
-        when(graphNodeRepository.getNodeByGraphUuidAndNodeUuid(graphUuid, nodeUuid)).thenReturn(nodeUuid);
+        when(nodeMapper.getNodeByUuid(nodeUuid)).thenReturn(node);
+        when(nodeRepository.getNodeByGraphUuidAndNodeUuid(graphUuid, nodeUuid)).thenReturn(nodeUuid);
 
         // Act
-        graphNodeService.deleteByUuids(dto);
+        nodeService.deleteByUuids(dto);
 
         // Assert
-        verify(graphNodeRepository, times(1)).deleteByUuids(Collections.singletonList(nodeUuid));
+        verify(nodeRepository, times(1)).deleteByUuids(Collections.singletonList(nodeUuid));
     }
 
     /**
@@ -313,10 +365,10 @@ public class GraphNodeServiceSpec {
                 .uuids(Collections.singletonList(nodeUuid))
                 .build();
 
-        when(graphNodeRepository.getGraphNodeByUuid(nodeUuid)).thenReturn(null);
+        when(nodeMapper.getNodeByUuid(nodeUuid)).thenReturn(null);
 
         // Assert handled by expected exception
-        assertThrows(NodeNullException.class, () -> graphNodeService.deleteByUuids(dto));
+        assertThrows(NodeNullException.class, () -> nodeService.deleteByUuids(dto));
     }
 
     /**
@@ -332,15 +384,15 @@ public class GraphNodeServiceSpec {
                 .uuids(Collections.singletonList(nodeUuid))
                 .build();
 
-        final GraphNode graphNode = GraphNode.builder()
+        final NodeVO node = NodeVO.builder()
                 .uuid(nodeUuid)
                 .build();
 
-        when(graphNodeRepository.getGraphNodeByUuid(nodeUuid)).thenReturn(graphNode);
-        when(graphNodeRepository.getNodeByGraphUuidAndNodeUuid(graphUuid, nodeUuid)).thenReturn(null);
+        when(nodeMapper.getNodeByUuid(nodeUuid)).thenReturn(node);
+        when(nodeRepository.getNodeByGraphUuidAndNodeUuid(graphUuid, nodeUuid)).thenReturn(null);
 
         // Assert handled by expected exception
-        assertThrows(DeleteException.class, () -> graphNodeService.deleteByUuids(dto));
+        assertThrows(DeleteException.class, () -> nodeService.deleteByUuids(dto));
     }
 
     /**
@@ -349,24 +401,21 @@ public class GraphNodeServiceSpec {
     @Test
     void updateGraphNodeGraphNodeExistsShouldUpdateNode() {
         // Given
+        final Transaction tx = mock(Transaction.class);
         final String uuid = TestConstants.TEST_ID1;
-        final GraphUpdateDTO graphUpdateDTO = new GraphUpdateDTO();
-        graphUpdateDTO.setUuid(uuid);
-        graphUpdateDTO.setTitle(TestConstants.TEST_TILE2);
-        graphUpdateDTO.setDescription(TestConstants.TEST_DESCRIPTION2);
+        final NodeUpdateDTO nodeUpdateDTO = NodeUpdateDTO.builder()
+                .uuid(uuid)
+                .properties(Map.of(Constants.TITLE, TestConstants.TEST_TILE2,
+                        Constants.DESCRIPTION, TestConstants.TEST_DESCRIPTION2))
+                .build();
 
-        when(graphNodeRepository.getGraphNodeByUuid(uuid)).thenReturn(new GraphNode());
+        when(nodeMapper.getNodeByUuid(uuid)).thenReturn(new NodeVO());
 
         // When
-        assertDoesNotThrow(() -> graphNodeService.updateNode(graphUpdateDTO));
+        assertDoesNotThrow(() -> nodeService.updateNode(nodeUpdateDTO, tx));
 
         // Then
-        verify(neo4jService, times(1)).updateNodeByUuid(
-                eq(uuid),
-                eq(TestConstants.TEST_TILE2),
-                eq(TestConstants.TEST_DESCRIPTION2),
-                any(String.class)
-        );
+        verify(nodeMapper, times(1)).updateNodeByUuid(eq(nodeUpdateDTO), anyString(), eq(tx));
     }
 
     /**
@@ -375,16 +424,21 @@ public class GraphNodeServiceSpec {
     @Test
     void updateGraphNodeNodeDoesNotExistShouldThrowException() {
         // Given
-        final GraphUpdateDTO graphUpdateDTO = new GraphUpdateDTO();
-        graphUpdateDTO.setUuid(TestConstants.TEST_ID1);
+        final Transaction tx = mock(Transaction.class);
+        final String uuid = TestConstants.TEST_ID1;
+        final NodeUpdateDTO nodeUpdateDTO = NodeUpdateDTO.builder()
+                .uuid(uuid)
+                .properties(Map.of(Constants.TITLE, TestConstants.TEST_TILE2,
+                        Constants.DESCRIPTION, TestConstants.TEST_DESCRIPTION2))
+                .build();
 
-        when(graphNodeRepository.getGraphNodeByUuid(TestConstants.TEST_ID1)).thenReturn(null);
+        when(nodeMapper.getNodeByUuid(TestConstants.TEST_ID1)).thenReturn(null);
 
         // When & Then
-        assertThrows(NodeNullException.class, () -> graphNodeService.updateNode(graphUpdateDTO));
+        assertThrows(NodeNullException.class, () -> nodeService.updateNode(nodeUpdateDTO, tx));
 
         // Then
-        verify(graphNodeRepository).getGraphNodeByUuid(TestConstants.TEST_ID1);
+        verify(nodeMapper).getNodeByUuid(TestConstants.TEST_ID1);
     }
 
     /**
@@ -398,19 +452,19 @@ public class GraphNodeServiceSpec {
         updateMap.put(TestConstants.TEST_ID1, TestConstants.TEST_NAME1);
         updateMap.put(TestConstants.TEST_ID2, TestConstants.TEST_NAME1);
 
-        when(graphNodeRepository.getRelationByUuid(TestConstants.TEST_ID1)).thenReturn(TestConstants.TEST_ID1);
-        when(graphNodeRepository.getRelationByUuid(TestConstants.TEST_ID2)).thenReturn(TestConstants.TEST_ID2);
+        when(nodeRepository.getRelationByUuid(TestConstants.TEST_ID1)).thenReturn(TestConstants.TEST_ID1);
+        when(nodeRepository.getRelationByUuid(TestConstants.TEST_ID2)).thenReturn(TestConstants.TEST_ID2);
 
         final RelationUpdateDTO relationUpdateDTO = new RelationUpdateDTO(graphUuid, updateMap,
                 Collections.emptyList());
 
         // When
-        graphNodeService.updateRelation(relationUpdateDTO);
+        nodeService.updateRelation(relationUpdateDTO);
 
         // Then
-        verify(graphNodeRepository, times(1)).updateRelationByUuid(TestConstants.TEST_ID1,
+        verify(nodeRepository, times(1)).updateRelationByUuid(TestConstants.TEST_ID1,
                 TestConstants.TEST_NAME1, graphUuid);
-        verify(graphNodeRepository, times(1)).updateRelationByUuid(TestConstants.TEST_ID2,
+        verify(nodeRepository, times(1)).updateRelationByUuid(TestConstants.TEST_ID2,
                 TestConstants.TEST_NAME1, graphUuid);
     }
 
@@ -423,18 +477,18 @@ public class GraphNodeServiceSpec {
         final String graphUuid = TestConstants.TEST_ID1;
         final List<String> deleteList = List.of(TestConstants.TEST_ID1, TestConstants.TEST_ID2);
 
-        when(graphNodeRepository.getRelationByUuid(TestConstants.TEST_ID1)).thenReturn(TestConstants.TEST_ID1);
-        when(graphNodeRepository.getRelationByUuid(TestConstants.TEST_ID2)).thenReturn(TestConstants.TEST_ID2);
+        when(nodeRepository.getRelationByUuid(TestConstants.TEST_ID1)).thenReturn(TestConstants.TEST_ID1);
+        when(nodeRepository.getRelationByUuid(TestConstants.TEST_ID2)).thenReturn(TestConstants.TEST_ID2);
 
         final RelationUpdateDTO relationUpdateDTO = new RelationUpdateDTO(graphUuid,
                 Collections.emptyMap(), deleteList);
 
         // When
-        graphNodeService.updateRelation(relationUpdateDTO);
+        nodeService.updateRelation(relationUpdateDTO);
 
         // Then
-        verify(graphNodeRepository, times(1)).deleteRelationByUuid(TestConstants.TEST_ID1, graphUuid);
-        verify(graphNodeRepository, times(1)).deleteRelationByUuid(TestConstants.TEST_ID2, graphUuid);
+        verify(nodeRepository, times(1)).deleteRelationByUuid(TestConstants.TEST_ID1, graphUuid);
+        verify(nodeRepository, times(1)).deleteRelationByUuid(TestConstants.TEST_ID2, graphUuid);
     }
 
     /**
@@ -450,21 +504,21 @@ public class GraphNodeServiceSpec {
 
         final List<String> deleteList = List.of(TestConstants.TEST_ID3, TestConstants.TEST_ID4);
 
-        when(graphNodeRepository.getRelationByUuid(TestConstants.TEST_ID1)).thenReturn(TestConstants.TEST_ID1);
-        when(graphNodeRepository.getRelationByUuid(TestConstants.TEST_ID2)).thenReturn(TestConstants.TEST_ID2);
-        when(graphNodeRepository.getRelationByUuid(TestConstants.TEST_ID3)).thenReturn(TestConstants.TEST_ID3);
-        when(graphNodeRepository.getRelationByUuid(TestConstants.TEST_ID4)).thenReturn(TestConstants.TEST_ID4);
+        when(nodeRepository.getRelationByUuid(TestConstants.TEST_ID1)).thenReturn(TestConstants.TEST_ID1);
+        when(nodeRepository.getRelationByUuid(TestConstants.TEST_ID2)).thenReturn(TestConstants.TEST_ID2);
+        when(nodeRepository.getRelationByUuid(TestConstants.TEST_ID3)).thenReturn(TestConstants.TEST_ID3);
+        when(nodeRepository.getRelationByUuid(TestConstants.TEST_ID4)).thenReturn(TestConstants.TEST_ID4);
 
         final RelationUpdateDTO relationUpdateDTO = new RelationUpdateDTO(graphUuid, updateMap, deleteList);
 
         // When
-        graphNodeService.updateRelation(relationUpdateDTO);
+        nodeService.updateRelation(relationUpdateDTO);
 
         // Then
-        verify(graphNodeRepository).updateRelationByUuid(TestConstants.TEST_ID1, TestConstants.TEST_NAME1, graphUuid);
-        verify(graphNodeRepository).updateRelationByUuid(TestConstants.TEST_ID2, TestConstants.TEST_NAME1, graphUuid);
-        verify(graphNodeRepository).deleteRelationByUuid(TestConstants.TEST_ID3, graphUuid);
-        verify(graphNodeRepository).deleteRelationByUuid(TestConstants.TEST_ID4, graphUuid);
+        verify(nodeRepository).updateRelationByUuid(TestConstants.TEST_ID1, TestConstants.TEST_NAME1, graphUuid);
+        verify(nodeRepository).updateRelationByUuid(TestConstants.TEST_ID2, TestConstants.TEST_NAME1, graphUuid);
+        verify(nodeRepository).deleteRelationByUuid(TestConstants.TEST_ID3, graphUuid);
+        verify(nodeRepository).deleteRelationByUuid(TestConstants.TEST_ID4, graphUuid);
     }
 
     /**
@@ -477,14 +531,14 @@ public class GraphNodeServiceSpec {
         final Map<String, String> updateMap = new HashMap<>();
         updateMap.put(TestConstants.TEST_ID1, TestConstants.TEST_NAME1);
 
-        when(graphNodeRepository.getRelationByUuid(TestConstants.TEST_ID1)).thenReturn(null);
+        when(nodeRepository.getRelationByUuid(TestConstants.TEST_ID1)).thenReturn(null);
 
         final RelationUpdateDTO relationUpdateDTO = new RelationUpdateDTO(graphUuid,
                 updateMap, Collections.emptyList());
 
         // When & Then
         assertThrows(NodeRelationException.class,
-                () -> graphNodeService.updateRelation(relationUpdateDTO));
+                () -> nodeService.updateRelation(relationUpdateDTO));
     }
 
     /**
@@ -496,14 +550,14 @@ public class GraphNodeServiceSpec {
         final String graphUuid = TestConstants.TEST_ID1;
         final List<String> deleteList = List.of(TestConstants.TEST_ID1);
 
-        when(graphNodeRepository.getRelationByUuid(TestConstants.TEST_ID1)).thenReturn(null);
+        when(nodeRepository.getRelationByUuid(TestConstants.TEST_ID1)).thenReturn(null);
 
         final RelationUpdateDTO relationUpdateDTO = new RelationUpdateDTO(graphUuid,
                 Collections.emptyMap(), deleteList);
 
         // When & Then
         assertThrows(NodeRelationException.class,
-                () -> graphNodeService.updateRelation(relationUpdateDTO));
+                () -> nodeService.updateRelation(relationUpdateDTO));
     }
 
     /**

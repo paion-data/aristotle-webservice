@@ -15,38 +15,40 @@
  */
 package com.paiondata.aristotle.service;
 
-import static org.junit.jupiter.api.Assertions.assertDoesNotThrow;
+import static org.junit.jupiter.api.Assertions.assertEquals;
 import static org.junit.jupiter.api.Assertions.assertThrows;
-import static org.mockito.ArgumentMatchers.any;
 import static org.mockito.ArgumentMatchers.anyList;
+import static org.mockito.ArgumentMatchers.anyString;
 import static org.mockito.ArgumentMatchers.eq;
 import static org.mockito.Mockito.doNothing;
+import static org.mockito.Mockito.mock;
 import static org.mockito.Mockito.never;
 import static org.mockito.Mockito.times;
 import static org.mockito.Mockito.verify;
 import static org.mockito.Mockito.when;
 
 import com.paiondata.aristotle.base.TestConstants;
+import com.paiondata.aristotle.common.base.Message;
 import com.paiondata.aristotle.common.exception.DeleteException;
 import com.paiondata.aristotle.common.exception.GraphNullException;
-import com.paiondata.aristotle.common.exception.UserNullException;
-import com.paiondata.aristotle.model.dto.GraphCreateDTO;
+import com.paiondata.aristotle.common.exception.TransactionException;
+import com.paiondata.aristotle.mapper.GraphMapper;
+import com.paiondata.aristotle.mapper.NodeMapper;
 import com.paiondata.aristotle.model.dto.GraphDeleteDTO;
 import com.paiondata.aristotle.model.dto.GraphUpdateDTO;
 import com.paiondata.aristotle.model.entity.Graph;
-import com.paiondata.aristotle.model.entity.User;
 import com.paiondata.aristotle.model.vo.GraphVO;
-import com.paiondata.aristotle.repository.GraphNodeRepository;
+import com.paiondata.aristotle.repository.NodeRepository;
 import com.paiondata.aristotle.repository.GraphRepository;
 import com.paiondata.aristotle.service.impl.GraphServiceImpl;
 
-import org.junit.jupiter.api.Assertions;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
 import org.junit.jupiter.api.extension.ExtendWith;
 import org.mockito.InjectMocks;
 import org.mockito.Mock;
 import org.mockito.junit.jupiter.MockitoExtension;
+import org.neo4j.driver.Transaction;
 
 import java.text.SimpleDateFormat;
 import java.time.LocalDateTime;
@@ -68,16 +70,19 @@ public class GraphServiceSpec {
     private GraphServiceImpl graphService;
 
     @Mock
-    private UserService userService;
-
-    @Mock
     private GraphRepository graphRepository;
 
     @Mock
-    private GraphNodeRepository graphNodeRepository;
+    private NodeRepository nodeRepository;
 
     @Mock
-    private Neo4jService neo4jService;
+    private GraphMapper graphMapper;
+
+    @Mock
+    private NodeMapper nodeMapper;
+
+    @Mock
+    private CommonService commonService;
 
     /**
      * Setup method to initialize mocks and test data.
@@ -109,21 +114,21 @@ public class GraphServiceSpec {
                         Collections.singletonMap("id", "test-node-id")));
 
         when(graphRepository.getGraphByUuid(uuid)).thenReturn(graph);
-        when(neo4jService.getGraphNodeByGraphUuid(uuid)).thenReturn(nodes);
+        when(nodeMapper.getNodesByGraphUuid(uuid)).thenReturn(nodes);
 
         // Act
         final GraphVO graphVO = graphService.getGraphVOByUuid(uuid);
 
         // Assert
-        Assertions.assertEquals(uuid, graphVO.getUuid());
-        Assertions.assertEquals(title, graphVO.getTitle());
-        Assertions.assertEquals(description, graphVO.getDescription());
-        Assertions.assertEquals(currentTime, graphVO.getCreateTime());
-        Assertions.assertEquals(currentTime, graphVO.getUpdateTime());
-        Assertions.assertEquals(nodes, graphVO.getNodes());
+        assertEquals(uuid, graphVO.getUuid());
+        assertEquals(title, graphVO.getTitle());
+        assertEquals(description, graphVO.getDescription());
+        assertEquals(currentTime, graphVO.getCreateTime());
+        assertEquals(currentTime, graphVO.getUpdateTime());
+        assertEquals(nodes, graphVO.getNodes());
 
         verify(graphRepository, times(1)).getGraphByUuid(uuid);
-        verify(neo4jService, times(1)).getGraphNodeByGraphUuid(uuid);
+        verify(nodeMapper, times(1)).getNodesByGraphUuid(uuid);
     }
 
     /**
@@ -139,100 +144,7 @@ public class GraphServiceSpec {
         assertThrows(GraphNullException.class, () -> graphService.getGraphVOByUuid(uuid));
 
         verify(graphRepository, times(1)).getGraphByUuid(uuid);
-        verify(neo4jService, never()).getGraphNodeByGraphUuid(uuid);
-    }
-
-    /**
-     * Tests that getting a Graph by UUID returns the correct Graph when it exists.
-     */
-    @Test
-    void getGraphByUuidGraphExistsReturnGraph() {
-        // Arrange
-        final String uuid = TestConstants.TEST_ID1;
-        final String currentTime = getCurrentTime();
-        final Graph graph = Graph.builder()
-                .uuid(uuid)
-                .title(TestConstants.TEST_TILE1)
-                .description(TestConstants.TEST_DESCRIPTION1)
-                .createTime(currentTime)
-                .updateTime(currentTime)
-                .build();
-
-        when(graphRepository.getGraphByUuid(uuid)).thenReturn(graph);
-
-        // Act
-        final Optional<Graph> graphOptional = graphService.getGraphByUuid(uuid);
-
-        // Assert
-        Assertions.assertTrue(graphOptional.isPresent());
-        Assertions.assertEquals(graph, graphOptional.get());
-    }
-
-    /**
-     * Tests that getting a Graph by UUID returns an empty Optional when the graph does not exist.
-     */
-    @Test
-    void getGraphByUuidGraphDoesNotExistReturnsEmptyOptional() {
-        // Arrange
-        final String uuid = TestConstants.TEST_ID1;
-
-        when(graphRepository.getGraphByUuid(uuid)).thenReturn(null);
-
-        // Act
-        final Optional<Graph> graphOptional = graphService.getGraphByUuid(uuid);
-
-        // Assert
-        Assertions.assertFalse(graphOptional.isPresent());
-    }
-
-    /**
-     * Tests that creating and binding a graph with valid input results in successful creation.
-     */
-    @Test
-    void createAndBindGraphValidInputGraphCreatedSuccessfully() {
-        // Arrange
-        final String uidcid = TestConstants.TEST_ID1;
-        final String title = TestConstants.TEST_TILE1;
-        final String description = TestConstants.TEST_DESCRIPTION1;
-        final GraphCreateDTO graphCreateDTO = GraphCreateDTO.builder()
-                .userUidcid(uidcid)
-                .title(title)
-                .description(description)
-                .build();
-
-        final User user = User.builder()
-                .uidcid(uidcid)
-                .build();
-        when(userService.getUserByUidcid(uidcid)).thenReturn(Optional.of(user));
-
-        // Act
-        graphService.createAndBindGraph(graphCreateDTO);
-
-        // Assert
-        verify(graphRepository).createAndBindGraph(
-                eq(title),
-                eq(description),
-                eq(uidcid),
-                any(String.class), // graphUuid
-                any(String.class), // relationUuid
-                any(String.class)  // currentTime
-        );
-    }
-
-    /**
-     * Tests that creating and binding a graph throws a UserNullException when the user is not found.
-     */
-    @Test
-    void createAndBindGraphUserNotFoundThrowsUserNullException() {
-        // Arrange
-        final GraphCreateDTO graphCreateDTO = GraphCreateDTO.builder()
-                .title(TestConstants.TEST_TILE1)
-                .description(TestConstants.TEST_DESCRIPTION1)
-                .userUidcid(TestConstants.TEST_ID1)
-                .build();
-
-        // Act & Assert
-        assertThrows(UserNullException.class, () -> graphService.createAndBindGraph(graphCreateDTO));
+        verify(nodeMapper, never()).getNodesByGraphUuid(uuid);
     }
 
     /**
@@ -249,10 +161,13 @@ public class GraphServiceSpec {
                 .uuids(Collections.singletonList(uuid))
                 .build();
 
-        when(graphRepository.getGraphByUuid(uuid)).thenReturn(null);
+        when(commonService.getGraphByUuid(uuid)).thenReturn(Optional.empty());
 
         // Act & Assert
         assertThrows(GraphNullException.class, () -> graphService.deleteByUuids(graphDeleteDTO));
+        verify(commonService, times(1)).getGraphByUuid(uuid);
+        verify(graphRepository, never()).deleteByUuids(anyList());
+        verify(nodeRepository, never()).deleteByUuids(anyList());
     }
 
     /**
@@ -273,11 +188,15 @@ public class GraphServiceSpec {
                 .uuids(Collections.singletonList(uuid))
                 .build();
 
-        when(graphRepository.getGraphByUuid(uuid)).thenReturn(graph);
+        when(commonService.getGraphByUuid(uuid)).thenReturn(Optional.ofNullable(graph));
         when(graphRepository.getGraphByGraphUuidAndUidcid(uuid, uidcid)).thenReturn(null);
 
         // Act & Assert
         assertThrows(DeleteException.class, () -> graphService.deleteByUuids(graphDeleteDTO));
+        verify(commonService, times(1)).getGraphByUuid(uuid);
+        verify(graphRepository, times(1)).getGraphByGraphUuidAndUidcid(uuid, uidcid);
+        verify(graphRepository, never()).deleteByUuids(anyList());
+        verify(nodeRepository, never()).deleteByUuids(anyList());
     }
 
     /**
@@ -299,18 +218,35 @@ public class GraphServiceSpec {
                 .uuids(Collections.singletonList(graphUuid))
                 .build();
 
-        when(graphRepository.getGraphByUuid(graphUuid)).thenReturn(graph);
+        when(commonService.getGraphByUuid(graphUuid)).thenReturn(Optional.ofNullable(graph));
         when(graphRepository.getGraphByGraphUuidAndUidcid(graphUuid, uidcid)).thenReturn(graphUuid);
         when(graphRepository.getGraphNodeUuidsByGraphUuids(anyList())).thenReturn(Collections.singletonList(nodeUuid));
 
-        doNothing().when(graphNodeRepository).deleteByUuids(anyList());
+        doNothing().when(nodeRepository).deleteByUuids(anyList());
         doNothing().when(graphRepository).deleteByUuids(anyList());
 
         graphService.deleteByUuids(graphDeleteDTO);
 
         // Act & Assert
-        verify(graphNodeRepository, times(1)).deleteByUuids(Collections.singletonList(nodeUuid));
+        verify(nodeRepository, times(1)).deleteByUuids(Collections.singletonList(nodeUuid));
         verify(graphRepository, times(1)).deleteByUuids(Collections.singletonList(graphUuid));
+    }
+
+    /**
+     * Tests that updating a graph throws a TransactionException when the transaction is null.
+     */
+    @Test
+    public void updateGraphTransactionIsNullShouldThrowTransactionException() {
+        // Arrange
+        final GraphUpdateDTO graphUpdateDTO = new GraphUpdateDTO(TestConstants.TEST_ID1, TestConstants.TEST_TILE1,
+                TestConstants.TEST_DESCRIPTION1);
+
+        final TransactionException exception = assertThrows(TransactionException.class, () -> {
+            graphService.updateGraph(graphUpdateDTO, null);
+        });
+
+        // Act & Assert
+        assertEquals(Message.TRANSACTION_NULL, exception.getMessage());
     }
 
     /**
@@ -319,24 +255,18 @@ public class GraphServiceSpec {
     @Test
     void updateGraphWhenGraphExistsShouldUpdateGraph() {
         // Arrange
-        final String uuid = TestConstants.TEST_ID1;
-        final GraphUpdateDTO graphUpdateDTO = new GraphUpdateDTO();
-        graphUpdateDTO.setUuid(uuid);
-        graphUpdateDTO.setTitle(TestConstants.TEST_TILE2);
-        graphUpdateDTO.setDescription(TestConstants.TEST_DESCRIPTION2);
+        final Transaction tx = mock(Transaction.class);
+        final GraphUpdateDTO graphUpdateDTO = new GraphUpdateDTO(TestConstants.TEST_ID1, TestConstants.TEST_TILE1,
+                TestConstants.TEST_DESCRIPTION1);
+        final Optional<Graph> graph = Optional.of(new Graph());
 
-        when(graphRepository.getGraphByUuid(uuid)).thenReturn(new Graph());
+        when(commonService.getGraphByUuid(anyString())).thenReturn(graph);
+
+        graphService.updateGraph(graphUpdateDTO, tx);
 
         // Act & Assert
-        assertDoesNotThrow(() -> graphService.updateGraph(graphUpdateDTO));
-
-        // Verify
-        verify(neo4jService, times(1)).updateGraphByUuid(
-                eq(uuid),
-                eq(TestConstants.TEST_TILE2),
-                eq(TestConstants.TEST_DESCRIPTION2),
-                any(String.class)
-        );
+        verify(graphMapper, times(1)).updateGraphByUuid(eq(graphUpdateDTO.getUuid()), eq(graphUpdateDTO.getTitle()),
+                eq(graphUpdateDTO.getDescription()), anyString(), eq(tx));
     }
 
     /**
@@ -345,15 +275,18 @@ public class GraphServiceSpec {
     @Test
     void updateGraphGraphNotExistsThrowsGraphNullException() {
         // Arrange
-        final GraphUpdateDTO graphUpdateDTO = GraphUpdateDTO.builder()
-                .uuid(TestConstants.TEST_ID1)
-                .build();
-        final String uuid = graphUpdateDTO.getUuid();
+        final Transaction tx = mock(Transaction.class);
+        final GraphUpdateDTO graphUpdateDTO = new GraphUpdateDTO(TestConstants.TEST_ID1, TestConstants.TEST_TILE1,
+                TestConstants.TEST_DESCRIPTION1);
 
-        when(graphRepository.getGraphByUuid(uuid)).thenReturn(null);
+        when(commonService.getGraphByUuid(anyString())).thenReturn(Optional.empty());
+
+        final GraphNullException exception = assertThrows(GraphNullException.class, () -> {
+            graphService.updateGraph(graphUpdateDTO, tx);
+        });
 
         // Act & Assert
-        assertThrows(GraphNullException.class, () -> graphService.updateGraph(graphUpdateDTO));
+        assertEquals(Message.GRAPH_NULL + graphUpdateDTO.getUuid(), exception.getMessage());
     }
 
     /**

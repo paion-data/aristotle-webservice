@@ -24,6 +24,8 @@ import lombok.Builder;
 import lombok.Data;
 import lombok.NoArgsConstructor;
 
+import java.util.Map;
+
 import javax.validation.constraints.NotBlank;
 
 /**
@@ -48,20 +50,8 @@ public class NodeDTO extends BaseEntity {
     private String temporaryId;
 
     /**
-     * The title of the node.
-     *
-     * @see Message#TITLE_MUST_NOT_BE_BLANK
+     * The properties of the node.
      */
-    @ApiModelProperty(value = "The title of the node.", required = true)
-    @NotBlank(message = Message.TITLE_MUST_NOT_BE_BLANK)
-    private String title;
-
-    /**
-     * The description of the node.
-     *
-     * @see Message#DESCRIPTION_MUST_NOT_BE_BLANK
-     */
-    @ApiModelProperty(value = "The description of the node.", required = true)
-    @NotBlank(message = Message.DESCRIPTION_MUST_NOT_BE_BLANK)
-    private String description;
+    @ApiModelProperty(value = "properties")
+    private Map<String, String> properties;
 }

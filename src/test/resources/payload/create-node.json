@@ -2,19 +2,25 @@
   "graphUuid": "%s",
   "graphNodeDTO": [
     {
-      "description": "-",
       "temporaryId": "1",
-      "title": "%s"
+      "properties": {
+        "description": "-",
+        "title": "%s"
+      }
     },
     {
-      "description": "-",
       "temporaryId": "2",
-      "title": "%s"
+      "properties": {
+        "description": "-",
+        "title": "%s"
+      }
     },
     {
-      "description": "-",
       "temporaryId": "3",
-      "title": "%s"
+      "properties": {
+        "description": "-",
+        "title": "%s"
+      }
     }
   ]
 }

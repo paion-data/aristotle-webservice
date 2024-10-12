@@ -13,7 +13,7 @@
  * See the License for the specific language governing permissions and
  * limitations under the License.
  */
-package com.paiondata.aristotle.model.dto;
+package com.paiondata.aristotle.model.vo;
 
 import com.paiondata.aristotle.model.BaseEntity;
 
@@ -27,38 +27,38 @@ import lombok.NoArgsConstructor;
 import java.util.Map;
 
 /**
- * Data Transfer Object (DTO) for representing a node.
+ * Represents a node entity within a graph.
  *
- * This DTO is used to encapsulate the data required for a node in a graph.
+ * This class encapsulates the properties and metadata of a graph node.
  */
 @Data
 @Builder
 @AllArgsConstructor
 @NoArgsConstructor
-@ApiModel(description = "Represents a node in a graph.")
-public class NodeReturnDTO extends BaseEntity {
+@ApiModel(description = "Represents a node")
+public class NodeVO extends BaseEntity {
 
     /**
-     * The uuid of the node.
+     * The UUID of the graph node.
      */
-    @ApiModelProperty(value = "The temporary identifier of the node.")
+    @ApiModelProperty(value = "The UUID of the graph")
     private String uuid;
 
     /**
-     * The create time of the node.
+     * The properties of the graph node.
      */
-    @ApiModelProperty(value = "The create time of the node.")
+    @ApiModelProperty(value = "The properties of the graph node")
+    private Map<String, String> properties;
+
+    /**
+     * The creation time of the graph node.
+     */
+    @ApiModelProperty(value = "The creation time of the graph node")
     private String createTime;
 
     /**
-     * The update time of the node.
+     * The last update time of the graph node.
      */
-    @ApiModelProperty(value = "The update time of the node.")
+    @ApiModelProperty(value = "The last update time of the graph node")
     private String updateTime;
-
-    /**
-     * The properties of the node.
-     */
-    @ApiModelProperty(value = "properties")
-    private Map<String, String> properties;
 }

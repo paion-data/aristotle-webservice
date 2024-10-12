@@ -30,7 +30,7 @@ import com.paiondata.aristotle.common.exception.UserNullException;
 import com.paiondata.aristotle.model.dto.UserDTO;
 import com.paiondata.aristotle.model.entity.User;
 import com.paiondata.aristotle.model.vo.UserVO;
-import com.paiondata.aristotle.repository.GraphNodeRepository;
+import com.paiondata.aristotle.repository.NodeRepository;
 import com.paiondata.aristotle.repository.GraphRepository;
 import com.paiondata.aristotle.repository.UserRepository;
 import com.paiondata.aristotle.service.impl.UserServiceImpl;
@@ -67,10 +67,10 @@ public class UserServiceSpec {
     private GraphRepository graphRepository;
 
     @Mock
-    private GraphNodeRepository graphNodeRepository;
+    private NodeRepository nodeRepository;
 
     @Mock
-    private Neo4jService neo4jService;
+    private CommonService commonService;
 
     /**
      * Sets up the test environment before each test.
@@ -96,7 +96,7 @@ public class UserServiceSpec {
                 TestConstants.TEST_KEY1, TestConstants.TEST_VALUE1));
 
         when(userRepository.getUserByUidcid(uidcid)).thenReturn(user);
-        when(neo4jService.getUserAndGraphsByUidcid(uidcid)).thenReturn(graphs);
+        when(commonService.getGraphsByUidcid(uidcid)).thenReturn(graphs);
 
         // Act
         final UserVO userVO = userService.getUserVOByUidcid(uidcid);
@@ -107,7 +107,7 @@ public class UserServiceSpec {
         Assertions.assertEquals(graphs, userVO.getGraphs());
 
         verify(userRepository, times(1)).getUserByUidcid(uidcid);
-        verify(neo4jService, times(1)).getUserAndGraphsByUidcid(uidcid);
+        verify(commonService, times(1)).getGraphsByUidcid(uidcid);
     }
 
     /**
@@ -123,46 +123,7 @@ public class UserServiceSpec {
         assertThrows(UserNullException.class, () -> userService.getUserVOByUidcid(uidcid));
 
         verify(userRepository, times(1)).getUserByUidcid(uidcid);
-        verify(neo4jService, never()).getUserAndGraphsByUidcid(anyString());
-    }
-
-    /**
-     * Tests that getting a user by UIDCID returns the correct user when the user exists.
-     */
-    @Test
-    public void getUserByUidcidUserExistsReturnsUser() {
-        // Arrange
-        final String uidcid = TestConstants.TEST_ID1;
-        final User expectedUser = User.builder()
-                .uidcid(uidcid)
-                .nickName(TestConstants.TEST_NAME1)
-                .build();
-
-        when(userRepository.getUserByUidcid(uidcid)).thenReturn(expectedUser);
-
-        // Act
-        final Optional<User> userOptional = userService.getUserByUidcid(uidcid);
-
-        // Assert
-        Assertions.assertTrue(userOptional.isPresent());
-        Assertions.assertEquals(expectedUser, userOptional.get());
-    }
-
-    /**
-     * Tests that getting a user by UIDCID returns an empty Optional when the user does not exist.
-     */
-    @Test
-    public void getUserByUidcidUserDoesNotExistReturnsEmptyOptional() {
-        // Arrange
-        final String uidcid = TestConstants.TEST_ID1;
-
-        when(userRepository.getUserByUidcid(uidcid)).thenReturn(null);
-
-        // Act
-        final Optional<User> userOptional = userService.getUserByUidcid(uidcid);
-
-        // Assert
-        Assertions.assertFalse(userOptional.isPresent());
+        verify(commonService, never()).getGraphsByUidcid(anyString());
     }
 
     /**
@@ -181,8 +142,8 @@ public class UserServiceSpec {
                 TestConstants.TEST_KEY2, TestConstants.TEST_VALUE1));
 
         when(userRepository.findAll()).thenReturn(users);
-        when(neo4jService.getUserAndGraphsByUidcid(TestConstants.TEST_ID1)).thenReturn(graphs1);
-        when(neo4jService.getUserAndGraphsByUidcid(TestConstants.TEST_ID2)).thenReturn(graphs2);
+        when(commonService.getGraphsByUidcid(TestConstants.TEST_ID1)).thenReturn(graphs1);
+        when(commonService.getGraphsByUidcid(TestConstants.TEST_ID2)).thenReturn(graphs2);
 
         // Act
         final List<UserVO> userVOS = userService.getAllUsers();
@@ -273,15 +234,14 @@ public class UserServiceSpec {
     public void deleteUserUsersExistDeletesUsersAndRelatedData() {
         // Arrange
         final List<String> uidcids = Arrays.asList(TestConstants.TEST_ID1, TestConstants.TEST_ID2);
-        final List<User> users = new ArrayList<>();
-        users.add(User.builder().uidcid(TestConstants.TEST_ID1).build());
-        users.add(User.builder().uidcid(TestConstants.TEST_ID2).build());
+        final List<User> users = Arrays.asList(User.builder().uidcid(TestConstants.TEST_ID1).build(),
+                User.builder().uidcid(TestConstants.TEST_ID2).build());
 
         final List<String> graphUuids = Arrays.asList("graph1", "graph2");
         final List<String> graphNodeUuids = Arrays.asList("node1", "node2");
 
-        when(userRepository.getUserByUidcid(TestConstants.TEST_ID1)).thenReturn(users.get(0));
-        when(userRepository.getUserByUidcid(TestConstants.TEST_ID2)).thenReturn(users.get(1));
+        when(commonService.getUserByUidcid(TestConstants.TEST_ID1)).thenReturn(Optional.ofNullable(users.get(0)));
+        when(commonService.getUserByUidcid(TestConstants.TEST_ID2)).thenReturn(Optional.ofNullable(users.get(1)));
         when(userRepository.getGraphUuidsByUserUidcid(uidcids)).thenReturn(graphUuids);
         when(graphRepository.getGraphNodeUuidsByGraphUuids(graphUuids)).thenReturn(graphNodeUuids);
 
@@ -289,10 +249,10 @@ public class UserServiceSpec {
         userService.deleteUser(uidcids);
 
         // Assert
-        verify(userRepository, times(2)).getUserByUidcid(anyString());
+        verify(commonService, times(2)).getUserByUidcid(anyString());
         verify(userRepository).deleteByUidcids(uidcids);
         verify(graphRepository).deleteByUuids(graphUuids);
-        verify(graphNodeRepository).deleteByUuids(graphNodeUuids);
+        verify(nodeRepository).deleteByUuids(graphNodeUuids);
     }
 
     /**
@@ -303,15 +263,17 @@ public class UserServiceSpec {
         // Arrange
         final List<String> uidcids = Arrays.asList(TestConstants.TEST_ID1, TestConstants.TEST_ID2);
 
-        when(userRepository.getUserByUidcid(TestConstants.TEST_ID1)).thenReturn(null);
+        // Mocking commonService.getUserByUidcid to return empty Optional<User> for one user
+        when(commonService.getUserByUidcid(TestConstants.TEST_ID1)).thenReturn(Optional.of(new User()));
+        when(commonService.getUserByUidcid(TestConstants.TEST_ID2)).thenReturn(Optional.empty());
 
         // Act & Assert
         assertThrows(UserNullException.class, () -> userService.deleteUser(uidcids));
 
         // Verify
-        verify(userRepository, times(1)).getUserByUidcid(TestConstants.TEST_ID1);
+        verify(commonService, times(2)).getUserByUidcid(anyString());
         verify(userRepository, never()).deleteByUidcids(any());
         verify(graphRepository, never()).deleteByUuids(any());
-        verify(graphNodeRepository, never()).deleteByUuids(any());
+        verify(nodeRepository, never()).deleteByUuids(any());
     }
 }

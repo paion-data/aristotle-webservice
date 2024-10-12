@@ -15,6 +15,7 @@
  */
 package com.paiondata.aristotle.model.dto;
 
+import com.paiondata.aristotle.common.base.Message;
 import com.paiondata.aristotle.model.BaseEntity;
 
 import io.swagger.annotations.ApiModel;
@@ -26,8 +27,10 @@ import lombok.NoArgsConstructor;
 
 import java.util.Map;
 
+import javax.validation.constraints.NotBlank;
+
 /**
- * Data Transfer Object (DTO) for representing a node.
+ * Data Transfer Object (DTO) for updating a node.
  *
  * This DTO is used to encapsulate the data required for a node in a graph.
  */
@@ -35,26 +38,17 @@ import java.util.Map;
 @Builder
 @AllArgsConstructor
 @NoArgsConstructor
-@ApiModel(description = "Represents a node in a graph.")
-public class NodeReturnDTO extends BaseEntity {
+@ApiModel(description = "Updates a node in a graph.")
+public class NodeUpdateDTO extends BaseEntity {
 
     /**
      * The uuid of the node.
+     *
+     * @see Message#UUID_MUST_NOT_BE_BLANK
      */
-    @ApiModelProperty(value = "The temporary identifier of the node.")
+    @ApiModelProperty(value = "The uuid of the node.", required = true)
+    @NotBlank(message = Message.UUID_MUST_NOT_BE_BLANK)
     private String uuid;
-
-    /**
-     * The create time of the node.
-     */
-    @ApiModelProperty(value = "The create time of the node.")
-    private String createTime;
-
-    /**
-     * The update time of the node.
-     */
-    @ApiModelProperty(value = "The update time of the node.")
-    private String updateTime;
 
     /**
      * The properties of the node.

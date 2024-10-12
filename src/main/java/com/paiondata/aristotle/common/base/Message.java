@@ -129,4 +129,19 @@ public class Message {
      * The node is already bound to another graph.
      */
     public static final String NODE_BIND_ANOTHER_USER = "The node is already bound to another graph: ";
+
+    /**
+     * Transaction is null.
+     */
+    public static final String TRANSACTION_NULL = "Transaction is null.";
+
+    /**
+     * Method does not have a Transaction parameter.
+     */
+    public static final String METHOD_WITHOUT_TRANSACTION = "Method does not have a Transaction parameter.";
+
+    /**
+     * Input properties error.
+     */
+    public static final String INPUT_PROPERTIES_ERROR = "This parameter cannot be passed: ";
 }
