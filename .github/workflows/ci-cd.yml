@@ -72,3 +72,17 @@ jobs:
           enable_jekyll: false
           user_name: ${{ env.USER }}
           user_email: ${{ env.EMAIL }}
+
+  triggering:
+    name: Triggering Aristotle Acceptance Tests CI/CD
+    needs: [ tests, deploy-docs ]
+    if: github.ref == 'refs/heads/master'
+    runs-on: ubuntu-latest
+    steps:
+      - name: Trigger downstream CI/CD
+        uses: peter-evans/repository-dispatch@v2
+        with:
+          token: ${{ secrets.ARISTOTLE_DOWNSTREAM_CICD_TRIGGER_TOKEN }}
+          repository: paion-data/aristotle-acceptance-tests
+          event-type: aristotle-changes
+          client-payload: '{"ref": "${{ github.ref }}"}'
