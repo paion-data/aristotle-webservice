@@ -20,8 +20,8 @@ import com.paiondata.aristotle.common.util.NodeExtractor;
 import com.paiondata.aristotle.mapper.NodeMapper;
 import com.paiondata.aristotle.model.dto.NodeDTO;
 import com.paiondata.aristotle.model.dto.NodeUpdateDTO;
-import com.paiondata.aristotle.model.entity.GraphNode;
 import com.paiondata.aristotle.model.vo.NodeVO;
+import com.paiondata.aristotle.model.vo.RelationVO;
 
 import org.neo4j.driver.Driver;
 import org.neo4j.driver.Record;
@@ -33,7 +33,6 @@ import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Repository;
 
 import java.util.ArrayList;
-import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
 import java.util.Set;
@@ -76,14 +75,13 @@ public class NodeMapperImpl implements NodeMapper {
             return session.readTransaction(tx -> {
                 final var result = tx.run(cypherQuery, Values.parameters(Constants.UUID, uuid));
 
-                Map<String, Object> n = null;
+                NodeVO n = null;
                 while (result.hasNext()) {
                     final Record record = result.next();
                     n = nodeExtractor.extractNode(record.get("n"));
                 }
 
-                return new NodeVO((String) n.get(Constants.UUID), (Map<String, String>) n.get(Constants.PROPERTIES),
-                        (String) n.get(Constants.CREATE_TIME), (String) n.get(Constants.UPDATE_TIME));
+                return n;
             });
         }
     }
@@ -98,11 +96,11 @@ public class NodeMapperImpl implements NodeMapper {
      * @param nodeDTO the DTO containing node details
      * @param tx the transaction in which the operation will be performed
      *
-     * @return the created GraphNode
+     * @return the created Node
      *
      */
     @Override
-    public GraphNode createNode(final String graphUuid, final String nodeUuid, final String relationUuid,
+    public NodeVO createNode(final String graphUuid, final String nodeUuid, final String relationUuid,
                                 final String currentTime, final NodeDTO nodeDTO, final Transaction tx) {
         final StringBuilder setProperties = getSetProperties(nodeDTO.getProperties().entrySet());
 
@@ -124,27 +122,17 @@ public class NodeMapperImpl implements NodeMapper {
         );
 
         final Record record = result.next();
-        final Map<String, Object> objectMap = nodeExtractor.extractNode(record.get("gn"));
 
-        return GraphNode.builder()
-                .id((Long) objectMap.get(Constants.ID))
-                .uuid((String) objectMap.get(Constants.UUID))
-                .properties((Map<String, String>) objectMap.get(Constants.PROPERTIES))
-                .createTime((String) objectMap.get(Constants.CREATE_TIME))
-                .updateTime((String) objectMap.get(Constants.UPDATE_TIME))
-                .build();
+        return nodeExtractor.extractNode(record.get("gn"));
     }
 
     /**
-     * Retrieves nodes by the UUID of a graph.
-     *
+     * Retrieves all relationships by graph uuid.
      * @param uuid the UUID of the graph
-     *
-     * @return a list of maps containing node and relationship information
-     *
+     * @return the list of relationships
      */
     @Override
-    public List<Map<String, Map<String, Object>>> getNodesByGraphUuid(final String uuid) {
+    public List<RelationVO> getRelationByGraphUuid(final String uuid) {
         final String cypherQuery = "MATCH (g1:Graph { uuid: $uuid }) "
                 + "OPTIONAL MATCH (g1)-[:RELATION]->(n1:GraphNode) "
                 + "OPTIONAL MATCH (n1)-[r:RELATION]->(n2:GraphNode) "
@@ -153,30 +141,33 @@ public class NodeMapperImpl implements NodeMapper {
         try (Session session = driver.session(SessionConfig.builder().build())) {
             return session.readTransaction(tx -> {
                 final var result = tx.run(cypherQuery, Values.parameters(Constants.UUID, uuid));
-                final List<Map<String, Map<String, Object>>> resultList = new ArrayList<>();
+                final List<RelationVO> resultList = new ArrayList<>();
 
                 while (result.hasNext()) {
                     final Record record = result.next();
-                    final Map<String, Object> n1 = nodeExtractor.extractNode(record.get("n1"));
-                    final Map<String, Object> n2 = nodeExtractor.extractNode(record.get("n2"));
+                    final NodeVO n1 = nodeExtractor.extractNode(record.get("n1"));
+                    final NodeVO n2 = nodeExtractor.extractNode(record.get("n2"));
                     final Map<String, Object> relation = nodeExtractor.extractRelationship(record.get("r"));
 
-                    final Map<String, Map<String, Object>> combinedResult = new HashMap<>();
-                    combinedResult.put(Constants.START_NODE, n1);
-                    combinedResult.put("relation", relation);
-                    combinedResult.put(Constants.END_NODE, n2);
+                    final RelationVO relationVO = new RelationVO();
+                    relationVO.setSourceNode(n1);
+                    relationVO.setTargetNode(n2);
+                    relationVO.setUuid((String) relation.get(Constants.UUID));
+                    relationVO.setName((String) relation.get(Constants.NAME));
+                    relationVO.setCreateTime((String) relation.get(Constants.CREATE_TIME));
+                    relationVO.setUpdateTime((String) relation.get(Constants.UPDATE_TIME));
 
-                    resultList.add(combinedResult);
+                    resultList.add(relationVO);
                 }
 
-                final Iterator<Map<String, Map<String, Object>>> iterator = resultList.iterator();
+                final Iterator<RelationVO> iterator = resultList.iterator();
                 while (iterator.hasNext()) {
-                    final Map<String, Map<String, Object>> current = iterator.next();
-                    if (current.get(Constants.END_NODE).isEmpty()) {
+                    final RelationVO current = iterator.next();
+                    if (current.getTargetNode() == null) {
                         boolean removeFlag = false;
-                        for (final Map<String, Map<String, Object>> other : resultList) {
-                            if (current.get(Constants.START_NODE).equals(other.get(Constants.END_NODE))
-                                    && !other.get(Constants.START_NODE).equals(other.get(Constants.END_NODE))) {
+                        for (final RelationVO other : resultList) {
+                            if (current.getSourceNode().equals(other.getTargetNode())
+                                    && !other.getSourceNode().equals(other.getTargetNode())) {
                                 removeFlag = true;
                                 break;
                             }

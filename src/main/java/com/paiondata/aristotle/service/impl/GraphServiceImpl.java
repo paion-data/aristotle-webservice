@@ -73,21 +73,14 @@ public class GraphServiceImpl implements GraphService {
      * @param uuid the UUID of the graph
      */
     @Override
-    public RelationVO getGraphVOByUuid(final String uuid) {
+    public List<RelationVO> getGraphVOByUuid(final String uuid) {
         final Graph graphByUuid = graphRepository.getGraphByUuid(uuid);
 
         if (graphByUuid == null) {
             throw new GraphNullException(Message.GRAPH_NULL + uuid);
         }
 
-        return RelationVO.builder()
-                .uuid(graphByUuid.getUuid())
-                .title(graphByUuid.getTitle())
-                .description(graphByUuid.getDescription())
-                .createTime(graphByUuid.getCreateTime())
-                .updateTime(graphByUuid.getUpdateTime())
-                .nodes(nodeMapper.getNodesByGraphUuid(uuid))
-                .build();
+        return nodeMapper.getRelationByGraphUuid(uuid);
     }
 
     /**

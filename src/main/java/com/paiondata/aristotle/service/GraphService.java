@@ -21,6 +21,8 @@ import com.paiondata.aristotle.model.vo.RelationVO;
 
 import org.neo4j.driver.Transaction;
 
+import java.util.List;
+
 /**
  * Service implementation for managing graphs.
  * This class provides methods for CRUD operations on graphs and their relationships.
@@ -34,7 +36,7 @@ public interface GraphService {
      *
      * @return the graph view object
      */
-    RelationVO getGraphVOByUuid(String uuid);
+    List<RelationVO> getGraphVOByUuid(String uuid);
 
     /**
      * Deletes graphs by their UUIDs.

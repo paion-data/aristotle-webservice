@@ -38,7 +38,6 @@ import com.paiondata.aristotle.model.dto.NodeUpdateDTO;
 import com.paiondata.aristotle.model.dto.RelationUpdateDTO;
 import com.paiondata.aristotle.model.dto.NodeCreateDTO;
 import com.paiondata.aristotle.model.entity.Graph;
-import com.paiondata.aristotle.model.entity.GraphNode;
 import com.paiondata.aristotle.model.vo.NodeVO;
 import com.paiondata.aristotle.repository.NodeRepository;
 import com.paiondata.aristotle.service.CommonService;
@@ -225,7 +224,7 @@ public class NodeServiceImpl implements NodeService {
                 }
             }
 
-            final GraphNode node = nodeMapper.createNode(graphUuid, nodeUuid, relationUuid, currentTime, dto, tx);
+            final NodeVO node = nodeMapper.createNode(graphUuid, nodeUuid, relationUuid, currentTime, dto, tx);
 
             final String resultUuid = node.getUuid();
 

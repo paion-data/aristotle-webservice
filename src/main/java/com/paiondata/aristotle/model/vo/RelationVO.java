@@ -24,53 +24,50 @@ import lombok.Builder;
 import lombok.Data;
 import lombok.NoArgsConstructor;
 
-import java.util.List;
-import java.util.Map;
-
 /**
- * Represents a graph and its relationships.
+ * Represents relationships.
  */
 @Data
 @Builder
 @AllArgsConstructor
 @NoArgsConstructor
-@ApiModel(description = "Include graph data and all relationships. "
-        + "The orphan node in the relationship's data will only contain the startNode data")
+@ApiModel(description = "Include all relationships. "
+        + "The independent node in the relationship's data will only contain the sourceNode data")
 public class RelationVO extends BaseEntity {
 
     /**
-     * The UUID of the graph.
+     * The UUID of the relationship.
      */
-    @ApiModelProperty(value = "The UUID of the graph")
+    @ApiModelProperty(value = "The UUID of the relationship")
     private String uuid;
 
     /**
-     * The title of the graph.
+     * The name of the relationship.
      */
-    @ApiModelProperty(value = "The title of the graph")
-    private String title;
+    @ApiModelProperty(value = "The name of the relationship")
+    private String name;
 
     /**
-     * The description of the graph.
+     * The creation time of the relationship.
      */
-    @ApiModelProperty(value = "The description of the graph")
-    private String description;
-
-    /**
-     * The creation time of the graph.
-     */
-    @ApiModelProperty(value = "The creation time of the graph")
+    @ApiModelProperty(value = "The creation time of the relationship")
     private String createTime;
 
     /**
-     * The last update time of the graph.
+     * The last update time of the relationship.
      */
-    @ApiModelProperty(value = "The last update time of the graph")
+    @ApiModelProperty(value = "The last update time of the relationship")
     private String updateTime;
 
     /**
-     * The relationships.
+     * The source node of the relationship.
      */
-    @ApiModelProperty(value = "The relationships")
-    private List<Map<String, Map<String, Object>>> nodes;
+    @ApiModelProperty(value = "The source node of the relationship")
+    private NodeVO sourceNode;
+
+    /**
+     * The target node of the relationship.
+     */
+    @ApiModelProperty(value = "The target node of the relationship")
+    private NodeVO targetNode;
 }

@@ -223,7 +223,7 @@ abstract class AbstractITSpec extends Specification {
         Response getUpdatedGraphEntityResponse = RestAssured
                 .given()
                 .when()
-                .get(GRAPH_ENDPOINT + "/" + getGraphEntityResponse.jsonPath().get("data.graphs[0].uuid"))
+                .get(USER_ENDPOINT + "/" + TEST_UIDCID)
                 .then()
                 .extract()
                 .response()
@@ -232,8 +232,8 @@ abstract class AbstractITSpec extends Specification {
                 .statusCode(200)
 
         Assert.assertEquals(getGraphEntityResponse.jsonPath().get("data.graphs[0].uuid"),
-                getUpdatedGraphEntityResponse.jsonPath().get("data.uuid"))
-        Assert.assertEquals(UPDATE_GRAPH_TITLE, getUpdatedGraphEntityResponse.jsonPath().get("data.title"))
+                getUpdatedGraphEntityResponse.jsonPath().get("data.graphs[0].uuid"))
+        Assert.assertEquals(UPDATE_GRAPH_TITLE, getUpdatedGraphEntityResponse.jsonPath().get("data.graphs[0].title"))
 
         when: "the Nodes entity is POSTed via JSON API"
         Response postNodeResponse = RestAssured
@@ -264,11 +264,9 @@ abstract class AbstractITSpec extends Specification {
         getNodeEntityResponse.then()
                 .statusCode(200)
 
-        Assert.assertEquals(getGraphEntityResponse.jsonPath().get("data.graphs[0].uuid"),
-                getNodeEntityResponse.jsonPath().get("data.uuid"))
-        Assert.assertNotNull(getNodeEntityResponse.jsonPath().get("data.nodes.startNode[0].properties.title"))
-        Assert.assertNotNull(getNodeEntityResponse.jsonPath().get("data.nodes.startNode[1].properties.title"))
-        Assert.assertNotNull(getNodeEntityResponse.jsonPath().get("data.nodes.startNode[2].properties.title"))
+        Assert.assertNotNull(getNodeEntityResponse.jsonPath().get("data[0].sourceNode.properties.title"))
+        Assert.assertNotNull(getNodeEntityResponse.jsonPath().get("data[1].sourceNode.properties.title"))
+        Assert.assertNotNull(getNodeEntityResponse.jsonPath().get("data[2].sourceNode.properties.title"))
 
         when: "we update that Node entity"
         RestAssured
@@ -276,7 +274,7 @@ abstract class AbstractITSpec extends Specification {
                 .contentType(ContentType.JSON)
                 .accept(ContentType.JSON)
                 .body(String.format(payload("update-node.json"),
-                        getNodeEntityResponse.jsonPath().get("data.nodes[0].startNode.uuid"), UPDATE_NODE_TITLE))
+                        getNodeEntityResponse.jsonPath().get("data[0].sourceNode.uuid"), UPDATE_NODE_TITLE))
                 .when()
                 .post(NODE_ENDPOINT + "/update")
                 .then()
@@ -286,7 +284,7 @@ abstract class AbstractITSpec extends Specification {
         Response getUpdatedNodeEntityResponse = RestAssured
                 .given()
                 .when()
-                .get(NODE_ENDPOINT + "/" + getNodeEntityResponse.jsonPath().get("data.nodes[0].startNode.uuid"))
+                .get(NODE_ENDPOINT + "/" + getNodeEntityResponse.jsonPath().get("data[0].sourceNode.uuid"))
                 .then()
                 .extract()
                 .response()
@@ -294,7 +292,7 @@ abstract class AbstractITSpec extends Specification {
         getUpdatedNodeEntityResponse.then()
                 .statusCode(200)
 
-        Assert.assertEquals(getNodeEntityResponse.jsonPath().get("data.nodes[0].startNode.uuid"),
+        Assert.assertEquals(getNodeEntityResponse.jsonPath().get("data[0].sourceNode.uuid"),
                 getUpdatedNodeEntityResponse.jsonPath().get("data.uuid"))
         Assert.assertEquals(UPDATE_NODE_TITLE, getUpdatedNodeEntityResponse.jsonPath().get("data.properties.title"))
 
@@ -304,12 +302,12 @@ abstract class AbstractITSpec extends Specification {
                 .contentType(ContentType.JSON)
                 .accept(ContentType.JSON)
                 .body(String.format(payload("relate-node.json"),
-                        getNodeEntityResponse.jsonPath().get("data.nodes[0].startNode.uuid"),
-                        getNodeEntityResponse.jsonPath().get("data.nodes[1].startNode.uuid"),
-                        getNodeEntityResponse.jsonPath().get("data.nodes[0].startNode.uuid"),
-                        getNodeEntityResponse.jsonPath().get("data.nodes[2].startNode.uuid"),
-                        getNodeEntityResponse.jsonPath().get("data.nodes[1].startNode.uuid"),
-                        getNodeEntityResponse.jsonPath().get("data.nodes[2].startNode.uuid")))
+                        getNodeEntityResponse.jsonPath().get("data[0].sourceNode.uuid"),
+                        getNodeEntityResponse.jsonPath().get("data[1].sourceNode.uuid"),
+                        getNodeEntityResponse.jsonPath().get("data[0].sourceNode.uuid"),
+                        getNodeEntityResponse.jsonPath().get("data[2].sourceNode.uuid"),
+                        getNodeEntityResponse.jsonPath().get("data[1].sourceNode.uuid"),
+                        getNodeEntityResponse.jsonPath().get("data[2].sourceNode.uuid")))
                 .when()
                 .post("/node/bind")
                 .then()
@@ -324,7 +322,7 @@ abstract class AbstractITSpec extends Specification {
         getRelationResponse.then()
                 .statusCode(OK_CODE)
 
-        Assert.assertEquals("-", getRelationResponse.jsonPath().get("data.nodes[0].relation.name"))
+        Assert.assertEquals("-", getRelationResponse.jsonPath().get("data[0].name"))
 
 
         when: "the Node entity is deleted"

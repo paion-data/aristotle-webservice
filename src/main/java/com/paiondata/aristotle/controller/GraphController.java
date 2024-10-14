@@ -32,6 +32,8 @@ import org.springframework.web.bind.annotation.DeleteMapping;
 import org.springframework.web.bind.annotation.PutMapping;
 import org.springframework.web.bind.annotation.RequestBody;
 
+import java.util.List;
+
 import javax.validation.Valid;
 import javax.validation.constraints.NotBlank;
 
@@ -50,12 +52,12 @@ public class GraphController {
      * Retrieve all relationships by the graph's UUID.
      *
      * @param uuid the UUID of the graph
-     * @return the result Include graph data and all relationships.
-     * The orphan node in the relationship's data will only contain the startNode data.
+     * @return the result Include all relationships.
+     * The independent node in the relationship's data will only contain the sourceNode data.
      */
     @ApiOperation(value = "Retrieve all relationships by the graph's UUID")
     @GetMapping("/{uuid}")
-    public Result<RelationVO> getGraphAndNodesByGraphUuid(
+    public Result<List<RelationVO>> getGraphAndNodesByGraphUuid(
             @PathVariable @NotBlank(message = Message.UUID_MUST_NOT_BE_BLANK) final String uuid) {
         return Result.ok(graphService.getGraphVOByUuid(uuid));
     }

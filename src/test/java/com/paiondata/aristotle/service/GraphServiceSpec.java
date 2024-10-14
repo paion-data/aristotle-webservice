@@ -37,6 +37,7 @@ import com.paiondata.aristotle.mapper.NodeMapper;
 import com.paiondata.aristotle.model.dto.GraphDeleteDTO;
 import com.paiondata.aristotle.model.dto.GraphUpdateDTO;
 import com.paiondata.aristotle.model.entity.Graph;
+import com.paiondata.aristotle.model.vo.NodeVO;
 import com.paiondata.aristotle.model.vo.RelationVO;
 import com.paiondata.aristotle.repository.NodeRepository;
 import com.paiondata.aristotle.repository.GraphRepository;
@@ -97,38 +98,51 @@ public class GraphServiceSpec {
     @Test
     void getGraphVOByUuidGraphExistReturnGraphVO() {
         // Arrange
-        final String uuid = TestConstants.TEST_ID1;
+        final String uuid1 = TestConstants.TEST_ID1;
+        final String uuid2 = TestConstants.TEST_ID2;
         final String title = TestConstants.TEST_TILE1;
         final String description = TestConstants.TEST_DESCRIPTION1;
+        final String name = TestConstants.TEST_NAME1;
         final String currentTime = getCurrentTime();
         final Graph graph = Graph.builder()
-                .uuid(uuid)
+                .uuid(uuid1)
                 .title(title)
                 .description(description)
                 .createTime(currentTime)
                 .updateTime(currentTime)
                 .build();
 
+        final RelationVO relationVO = RelationVO.builder()
+                .uuid(uuid1)
+                .name(name)
+                .createTime(currentTime)
+                .updateTime(currentTime)
+                .sourceNode(new NodeVO(uuid1, Collections.emptyMap(), currentTime, currentTime))
+                .targetNode(new NodeVO(uuid2, Collections.emptyMap(), currentTime, currentTime))
+                .build();
+
+        final List<RelationVO> relationVOList = Collections.singletonList(relationVO);
+
         final List<Map<String, Map<String, Object>>> nodes =
                 Collections.singletonList(Collections.singletonMap("node",
                         Collections.singletonMap("id", "test-node-id")));
 
-        when(graphRepository.getGraphByUuid(uuid)).thenReturn(graph);
-        when(nodeMapper.getNodesByGraphUuid(uuid)).thenReturn(nodes);
+        when(graphRepository.getGraphByUuid(uuid1)).thenReturn(graph);
+        when(nodeMapper.getRelationByGraphUuid(uuid1)).thenReturn(relationVOList);
 
         // Act
-        final RelationVO relationVO = graphService.getGraphVOByUuid(uuid);
+        final List<RelationVO> relationVOS = graphService.getGraphVOByUuid(uuid1);
 
         // Assert
-        assertEquals(uuid, relationVO.getUuid());
-        assertEquals(title, relationVO.getTitle());
-        assertEquals(description, relationVO.getDescription());
-        assertEquals(currentTime, relationVO.getCreateTime());
-        assertEquals(currentTime, relationVO.getUpdateTime());
-        assertEquals(nodes, relationVO.getNodes());
+        assertEquals(uuid1, relationVOS.get(0).getUuid());
+        assertEquals(name, relationVOS.get(0).getName());
+        assertEquals(currentTime, relationVOS.get(0).getCreateTime());
+        assertEquals(currentTime, relationVOS.get(0).getUpdateTime());
+        assertEquals(uuid1, relationVOS.get(0).getSourceNode().getUuid());
+        assertEquals(uuid2, relationVOS.get(0).getTargetNode().getUuid());
 
-        verify(graphRepository, times(1)).getGraphByUuid(uuid);
-        verify(nodeMapper, times(1)).getNodesByGraphUuid(uuid);
+        verify(graphRepository, times(1)).getGraphByUuid(uuid1);
+        verify(nodeMapper, times(1)).getRelationByGraphUuid(uuid1);
     }
 
     /**
@@ -144,7 +158,7 @@ public class GraphServiceSpec {
         assertThrows(GraphNullException.class, () -> graphService.getGraphVOByUuid(uuid));
 
         verify(graphRepository, times(1)).getGraphByUuid(uuid);
-        verify(nodeMapper, never()).getNodesByGraphUuid(uuid);
+        verify(nodeMapper, never()).getRelationByGraphUuid(uuid);
     }
 
     /**
