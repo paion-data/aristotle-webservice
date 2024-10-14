@@ -17,7 +17,7 @@ package com.paiondata.aristotle.service;
 
 import com.paiondata.aristotle.model.dto.GraphDeleteDTO;
 import com.paiondata.aristotle.model.dto.GraphUpdateDTO;
-import com.paiondata.aristotle.model.vo.GraphVO;
+import com.paiondata.aristotle.model.vo.RelationVO;
 
 import org.neo4j.driver.Transaction;
 
@@ -34,7 +34,7 @@ public interface GraphService {
      *
      * @return the graph view object
      */
-    GraphVO getGraphVOByUuid(String uuid);
+    RelationVO getGraphVOByUuid(String uuid);
 
     /**
      * Deletes graphs by their UUIDs.

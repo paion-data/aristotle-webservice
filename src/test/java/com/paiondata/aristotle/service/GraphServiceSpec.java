@@ -37,7 +37,7 @@ import com.paiondata.aristotle.mapper.NodeMapper;
 import com.paiondata.aristotle.model.dto.GraphDeleteDTO;
 import com.paiondata.aristotle.model.dto.GraphUpdateDTO;
 import com.paiondata.aristotle.model.entity.Graph;
-import com.paiondata.aristotle.model.vo.GraphVO;
+import com.paiondata.aristotle.model.vo.RelationVO;
 import com.paiondata.aristotle.repository.NodeRepository;
 import com.paiondata.aristotle.repository.GraphRepository;
 import com.paiondata.aristotle.service.impl.GraphServiceImpl;
@@ -92,7 +92,7 @@ public class GraphServiceSpec {
     }
 
     /**
-     * Tests that getting a GraphVO by UUID returns the correct GraphVO when the graph exists.
+     * Tests that getting a RelationVO by UUID returns the correct RelationVO when the graph exists.
      */
     @Test
     void getGraphVOByUuidGraphExistReturnGraphVO() {
@@ -117,22 +117,22 @@ public class GraphServiceSpec {
         when(nodeMapper.getNodesByGraphUuid(uuid)).thenReturn(nodes);
 
         // Act
-        final GraphVO graphVO = graphService.getGraphVOByUuid(uuid);
+        final RelationVO relationVO = graphService.getGraphVOByUuid(uuid);
 
         // Assert
-        assertEquals(uuid, graphVO.getUuid());
-        assertEquals(title, graphVO.getTitle());
-        assertEquals(description, graphVO.getDescription());
-        assertEquals(currentTime, graphVO.getCreateTime());
-        assertEquals(currentTime, graphVO.getUpdateTime());
-        assertEquals(nodes, graphVO.getNodes());
+        assertEquals(uuid, relationVO.getUuid());
+        assertEquals(title, relationVO.getTitle());
+        assertEquals(description, relationVO.getDescription());
+        assertEquals(currentTime, relationVO.getCreateTime());
+        assertEquals(currentTime, relationVO.getUpdateTime());
+        assertEquals(nodes, relationVO.getNodes());
 
         verify(graphRepository, times(1)).getGraphByUuid(uuid);
         verify(nodeMapper, times(1)).getNodesByGraphUuid(uuid);
     }
 
     /**
-     * Tests that getting a GraphVO by UUID throws a GraphNullException when the graph does not exist.
+     * Tests that getting a RelationVO by UUID throws a GraphNullException when the graph does not exist.
      */
     @Test
     void getGraphVOByUuidGraphDoesNotExistThrowsGraphNullException() {

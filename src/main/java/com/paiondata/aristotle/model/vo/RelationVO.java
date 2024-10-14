@@ -28,16 +28,15 @@ import java.util.List;
 import java.util.Map;
 
 /**
- * Represents a value object (VO) for a graph.
- *
- * This class encapsulates the properties and metadata of a graph.
+ * Represents a graph and its relationships.
  */
 @Data
 @Builder
 @AllArgsConstructor
 @NoArgsConstructor
-@ApiModel(description = "Represents a graph")
-public class GraphVO extends BaseEntity {
+@ApiModel(description = "Include graph data and all relationships. "
+        + "The orphan node in the relationship's data will only contain the startNode data")
+public class RelationVO extends BaseEntity {
 
     /**
      * The UUID of the graph.
@@ -70,10 +69,8 @@ public class GraphVO extends BaseEntity {
     private String updateTime;
 
     /**
-     * The list of nodes in the graph.
-     *
-     * Each node is represented as a map containing node-specific information.
+     * The relationships.
      */
-    @ApiModelProperty(value = "The list of nodes in the graph")
+    @ApiModelProperty(value = "The relationships")
     private List<Map<String, Map<String, Object>>> nodes;
 }

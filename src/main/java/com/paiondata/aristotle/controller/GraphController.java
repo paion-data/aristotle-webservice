@@ -19,7 +19,7 @@ import com.paiondata.aristotle.common.base.Message;
 import com.paiondata.aristotle.common.base.Result;
 import com.paiondata.aristotle.model.dto.GraphDeleteDTO;
 import com.paiondata.aristotle.model.dto.GraphUpdateDTO;
-import com.paiondata.aristotle.model.vo.GraphVO;
+import com.paiondata.aristotle.model.vo.RelationVO;
 import com.paiondata.aristotle.service.GraphService;
 import io.swagger.annotations.Api;
 import io.swagger.annotations.ApiOperation;
@@ -47,14 +47,15 @@ public class GraphController {
     private GraphService graphService;
 
     /**
-     * Retrieves a graph and its nodes by UUID.
+     * Retrieve all relationships by the graph's UUID.
      *
      * @param uuid the UUID of the graph
-     * @return the result containing the graph and its nodes
+     * @return the result Include graph data and all relationships.
+     * The orphan node in the relationship's data will only contain the startNode data.
      */
-    @ApiOperation(value = "Retrieves a graph and its nodes by UUID")
+    @ApiOperation(value = "Retrieve all relationships by the graph's UUID")
     @GetMapping("/{uuid}")
-    public Result<GraphVO> getGraphAndNodesByGraphUuid(
+    public Result<RelationVO> getGraphAndNodesByGraphUuid(
             @PathVariable @NotBlank(message = Message.UUID_MUST_NOT_BE_BLANK) final String uuid) {
         return Result.ok(graphService.getGraphVOByUuid(uuid));
     }

@@ -25,7 +25,7 @@ import com.paiondata.aristotle.mapper.NodeMapper;
 import com.paiondata.aristotle.model.dto.GraphDeleteDTO;
 import com.paiondata.aristotle.model.dto.GraphUpdateDTO;
 import com.paiondata.aristotle.model.entity.Graph;
-import com.paiondata.aristotle.model.vo.GraphVO;
+import com.paiondata.aristotle.model.vo.RelationVO;
 import com.paiondata.aristotle.repository.NodeRepository;
 import com.paiondata.aristotle.repository.GraphRepository;
 import com.paiondata.aristotle.service.CommonService;
@@ -73,14 +73,14 @@ public class GraphServiceImpl implements GraphService {
      * @param uuid the UUID of the graph
      */
     @Override
-    public GraphVO getGraphVOByUuid(final String uuid) {
+    public RelationVO getGraphVOByUuid(final String uuid) {
         final Graph graphByUuid = graphRepository.getGraphByUuid(uuid);
 
         if (graphByUuid == null) {
             throw new GraphNullException(Message.GRAPH_NULL + uuid);
         }
 
-        return GraphVO.builder()
+        return RelationVO.builder()
                 .uuid(graphByUuid.getUuid())
                 .title(graphByUuid.getTitle())
                 .description(graphByUuid.getDescription())

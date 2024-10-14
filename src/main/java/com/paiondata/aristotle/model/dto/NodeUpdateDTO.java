@@ -51,8 +51,10 @@ public class NodeUpdateDTO extends BaseEntity {
     private String uuid;
 
     /**
-     * The properties of the node.
+     * The properties of the node, please note that this is an overwrite operation,
+     * and the properties passed in will overwrite the existing ones.
      */
-    @ApiModelProperty(value = "properties")
+    @ApiModelProperty(value = "The properties of the node, please note that this is an overwrite operation,"
+            + " and the properties passed in will overwrite the existing ones.")
     private Map<String, String> properties;
 }
