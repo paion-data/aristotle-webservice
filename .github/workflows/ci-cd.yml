@@ -76,7 +76,7 @@ jobs:
   triggering:
     name: Triggering Aristotle Acceptance Tests CI/CD
     needs: [ tests, deploy-docs ]
-#    if: github.ref == 'refs/heads/master'
+    if: github.ref == 'refs/heads/master'
     runs-on: ubuntu-latest
     steps:
       - name: Trigger downstream CI/CD
