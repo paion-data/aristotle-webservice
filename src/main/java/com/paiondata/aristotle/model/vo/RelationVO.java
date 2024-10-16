@@ -63,11 +63,11 @@ public class RelationVO extends BaseEntity {
      * The source node of the relationship.
      */
     @ApiModelProperty(value = "The source node of the relationship")
-    private NodeVO sourceNode;
+    private String sourceNode;
 
     /**
      * The target node of the relationship.
      */
     @ApiModelProperty(value = "The target node of the relationship")
-    private NodeVO targetNode;
+    private String targetNode;
 }

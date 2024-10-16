@@ -15,6 +15,7 @@
  */
 package com.paiondata.aristotle.mapper;
 
+import com.paiondata.aristotle.model.dto.GetRelationDTO;
 import com.paiondata.aristotle.model.dto.NodeDTO;
 import com.paiondata.aristotle.model.dto.NodeUpdateDTO;
 import com.paiondata.aristotle.model.vo.NodeVO;
@@ -23,6 +24,7 @@ import com.paiondata.aristotle.model.vo.RelationVO;
 import org.neo4j.driver.Transaction;
 
 import java.util.List;
+import java.util.Map;
 
 /**
  * Mapper interface for NodeMapper.
@@ -55,7 +57,7 @@ public interface NodeMapper {
      * @param uuid the UUID of the graph
      * @return the list of relationships
      */
-    List<RelationVO> getRelationByGraphUuid(String uuid);
+    GetRelationDTO getRelationByGraphUuid(final String uuid, final Map<String, String> properties);
 
     /**
      * Binds two graph nodes with a specified relationship.

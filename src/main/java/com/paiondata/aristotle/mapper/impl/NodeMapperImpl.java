@@ -18,6 +18,7 @@ package com.paiondata.aristotle.mapper.impl;
 import com.paiondata.aristotle.common.base.Constants;
 import com.paiondata.aristotle.common.util.NodeExtractor;
 import com.paiondata.aristotle.mapper.NodeMapper;
+import com.paiondata.aristotle.model.dto.GetRelationDTO;
 import com.paiondata.aristotle.model.dto.NodeDTO;
 import com.paiondata.aristotle.model.dto.NodeUpdateDTO;
 import com.paiondata.aristotle.model.vo.NodeVO;
@@ -129,13 +130,16 @@ public class NodeMapperImpl implements NodeMapper {
     /**
      * Retrieves all relationships by graph uuid.
      * @param uuid the UUID of the graph
+     * @param properties the properties of the node
      * @return the list of relationships
      */
     @Override
-    public List<RelationVO> getRelationByGraphUuid(final String uuid) {
+    public GetRelationDTO getRelationByGraphUuid(final String uuid, final Map<String, String> properties) {
         final String cypherQuery = "MATCH (g1:Graph { uuid: $uuid }) "
                 + "OPTIONAL MATCH (g1)-[:RELATION]->(n1:GraphNode) "
+                + "WHERE n1.name = $name1 "
                 + "OPTIONAL MATCH (n1)-[r:RELATION]->(n2:GraphNode) "
+                + "WHERE n2.name = $name2 "
                 + "RETURN DISTINCT n1, r, n2";
 
         try (Session session = driver.session(SessionConfig.builder().build())) {
@@ -150,8 +154,8 @@ public class NodeMapperImpl implements NodeMapper {
                     final Map<String, Object> relation = nodeExtractor.extractRelationship(record.get("r"));
 
                     final RelationVO relationVO = new RelationVO();
-                    relationVO.setSourceNode(n1);
-                    relationVO.setTargetNode(n2);
+                    relationVO.setSourceNode(n1.getUuid());
+                    relationVO.setTargetNode(n2.getUuid());
                     relationVO.setUuid((String) relation.get(Constants.UUID));
                     relationVO.setName((String) relation.get(Constants.NAME));
                     relationVO.setCreateTime((String) relation.get(Constants.CREATE_TIME));
