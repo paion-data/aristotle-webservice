@@ -26,14 +26,13 @@ type FeatureItem = {
 
 const FeatureList: FeatureItem[] = [
     {
-        title: 'Immutable Infrastructure',
-        Svg: require('@site/static/img/hashicorp-logo.svg').default,
+        title: 'Graph Data',
+        Svg: require('@site/static/img/graph.svg').default,
         scale: 1,
-        id: 'hashicorp-logo',
+        id: 'graph-icon',
         description: (
             <>
-                Astraios has first-class support for HashiCorp as CI/CD deployment and was designed to be easily deployed and
-                maintained to get our webservice up and running quickly.
+                Designed for Knowledge Graph and connection inference, Aristotle has first-class support for Neo4J database as a back-end and flexible pipeline-style architecture which handles nearly any graph database for data storage
             </>
         ),
     },
