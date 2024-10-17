@@ -17,25 +17,22 @@ package com.paiondata.aristotle.controller;
 
 import com.paiondata.aristotle.common.base.Message;
 import com.paiondata.aristotle.common.base.Result;
+import com.paiondata.aristotle.model.dto.FilterQueryGraphDTO;
 import com.paiondata.aristotle.model.dto.GraphDeleteDTO;
 import com.paiondata.aristotle.model.dto.GraphUpdateDTO;
-import com.paiondata.aristotle.model.vo.RelationVO;
+import com.paiondata.aristotle.model.vo.GraphVO;
 import com.paiondata.aristotle.service.GraphService;
 import io.swagger.annotations.Api;
 import io.swagger.annotations.ApiOperation;
 import org.springframework.beans.factory.annotation.Autowired;
-import org.springframework.web.bind.annotation.GetMapping;
-import org.springframework.web.bind.annotation.PathVariable;
+import org.springframework.web.bind.annotation.PostMapping;
 import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RestController;
 import org.springframework.web.bind.annotation.DeleteMapping;
 import org.springframework.web.bind.annotation.PutMapping;
 import org.springframework.web.bind.annotation.RequestBody;
 
-import java.util.List;
-
 import javax.validation.Valid;
-import javax.validation.constraints.NotBlank;
 
 /**
  * Controller for handling graph-related operations.
@@ -49,17 +46,16 @@ public class GraphController {
     private GraphService graphService;
 
     /**
-     * Retrieve all relationships by the graph's UUID.
+     * Retrieve the graph by uuid and filter parameters.
      *
-     * @param uuid the UUID of the graph
-     * @return the result Include all relationships.
-     * The independent node in the relationship's data will only contain the sourceNode data.
+     * @param dto includes the uuid and filter parameters
+     * Query all data when the filter parameters is empty
+     * @return the result includes the graph and all its nodes and relations
      */
-    @ApiOperation(value = "Retrieve all relationships by the graph's UUID")
-    @GetMapping("/{uuid}")
-    public Result<List<RelationVO>> getGraphAndNodesByGraphUuid(
-            @PathVariable @NotBlank(message = Message.UUID_MUST_NOT_BE_BLANK) final String uuid) {
-        return Result.ok(graphService.getGraphVOByUuid(uuid));
+    @ApiOperation(value = "Retrieve the graph by uuid and filter parameters")
+    @PostMapping
+    public Result<GraphVO> getGraphByUuidAndFilterParams(@RequestBody @Valid final FilterQueryGraphDTO dto) {
+        return Result.ok(graphService.getGraphVOByUuid(dto));
     }
 
     /**
@@ -70,7 +66,7 @@ public class GraphController {
      */
     @ApiOperation(value = "Updates a graph")
     @PutMapping
-    public Result<String> updateGraph(@RequestBody final GraphUpdateDTO graphUpdateDTO) {
+    public Result<String> updateGraph(@RequestBody @Valid final GraphUpdateDTO graphUpdateDTO) {
         graphService.updateGraph(graphUpdateDTO, null);
         return Result.ok(Message.UPDATE_SUCCESS);
     }
@@ -83,8 +79,7 @@ public class GraphController {
      */
     @ApiOperation(value = "Deletes graphs by their UUIDs")
     @DeleteMapping
-    public Result<String> deleteGraph(@RequestBody @Valid
-                                          final GraphDeleteDTO graphDeleteDTO) {
+    public Result<String> deleteGraph(@RequestBody @Valid final GraphDeleteDTO graphDeleteDTO) {
         graphService.deleteByUuids(graphDeleteDTO);
         return Result.ok(Message.DELETE_SUCCESS);
     }

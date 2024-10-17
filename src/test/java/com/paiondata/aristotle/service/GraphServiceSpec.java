@@ -34,9 +34,12 @@ import com.paiondata.aristotle.common.exception.GraphNullException;
 import com.paiondata.aristotle.common.exception.TransactionException;
 import com.paiondata.aristotle.mapper.GraphMapper;
 import com.paiondata.aristotle.mapper.NodeMapper;
+import com.paiondata.aristotle.model.dto.FilterQueryGraphDTO;
+import com.paiondata.aristotle.model.dto.GetRelationDTO;
 import com.paiondata.aristotle.model.dto.GraphDeleteDTO;
 import com.paiondata.aristotle.model.dto.GraphUpdateDTO;
 import com.paiondata.aristotle.model.entity.Graph;
+import com.paiondata.aristotle.model.vo.GraphVO;
 import com.paiondata.aristotle.model.vo.NodeVO;
 import com.paiondata.aristotle.model.vo.RelationVO;
 import com.paiondata.aristotle.repository.NodeRepository;
@@ -56,7 +59,6 @@ import java.time.LocalDateTime;
 import java.time.ZoneId;
 import java.util.Collections;
 import java.util.Date;
-import java.util.List;
 import java.util.Map;
 import java.util.Optional;
 
@@ -93,7 +95,7 @@ public class GraphServiceSpec {
     }
 
     /**
-     * Tests that getting a RelationVO by UUID returns the correct RelationVO when the graph exists.
+     * Tests that getting a GraphVO by UUID returns the correct GraphVO when the graph exists.
      */
     @Test
     void getGraphVOByUuidGraphExistReturnGraphVO() {
@@ -104,61 +106,93 @@ public class GraphServiceSpec {
         final String description = TestConstants.TEST_DESCRIPTION1;
         final String name = TestConstants.TEST_NAME1;
         final String currentTime = getCurrentTime();
-        final Graph graph = Graph.builder()
+        final Map<String, String> properties = Collections.singletonMap("key", "value");
+
+        when(graphRepository.getGraphByUuid(uuid1)).thenReturn(Graph.builder()
                 .uuid(uuid1)
                 .title(title)
                 .description(description)
                 .createTime(currentTime)
                 .updateTime(currentTime)
-                .build();
+                .build());
 
-        final RelationVO relationVO = RelationVO.builder()
-                .uuid(uuid1)
-                .name(name)
-                .createTime(currentTime)
-                .updateTime(currentTime)
-                .sourceNode(new NodeVO(uuid1, Collections.emptyMap(), currentTime, currentTime))
-                .targetNode(new NodeVO(uuid2, Collections.emptyMap(), currentTime, currentTime))
-                .build();
-
-        final List<RelationVO> relationVOList = Collections.singletonList(relationVO);
-
-        final List<Map<String, Map<String, Object>>> nodes =
-                Collections.singletonList(Collections.singletonMap("node",
-                        Collections.singletonMap("id", "test-node-id")));
-
-        when(graphRepository.getGraphByUuid(uuid1)).thenReturn(graph);
-        when(nodeMapper.getRelationByGraphUuid(uuid1)).thenReturn(relationVOList);
+        when(nodeMapper.getRelationByGraphUuid(uuid1, properties))
+                .thenReturn(new GetRelationDTO(
+                        Collections.singletonList(RelationVO.builder()
+                        .uuid(uuid1)
+                        .name(name)
+                        .createTime(currentTime)
+                        .updateTime(currentTime)
+                        .sourceNode(uuid1)
+                        .targetNode(uuid2)
+                        .build()),
+                        Collections.singletonList(NodeVO.builder()
+                                .uuid(uuid2)
+                                .properties(properties)
+                                .createTime(currentTime)
+                                .updateTime(currentTime)
+                                .build())));
 
         // Act
-        final List<RelationVO> relationVOS = graphService.getGraphVOByUuid(uuid1);
+        final GraphVO graphVO = graphService.getGraphVOByUuid(new FilterQueryGraphDTO(uuid1, properties));
 
         // Assert
-        assertEquals(uuid1, relationVOS.get(0).getUuid());
-        assertEquals(name, relationVOS.get(0).getName());
-        assertEquals(currentTime, relationVOS.get(0).getCreateTime());
-        assertEquals(currentTime, relationVOS.get(0).getUpdateTime());
-        assertEquals(uuid1, relationVOS.get(0).getSourceNode().getUuid());
-        assertEquals(uuid2, relationVOS.get(0).getTargetNode().getUuid());
+        assertEquals(uuid1, graphVO.getUuid());
+        assertEquals(title, graphVO.getTitle());
+        assertEquals(description, graphVO.getDescription());
+        assertEquals(currentTime, graphVO.getCreateTime());
+        assertEquals(currentTime, graphVO.getUpdateTime());
+        assertEquals(uuid1, graphVO.getRelations().get(0).getUuid());
+        assertEquals(uuid2, graphVO.getNodes().get(0).getUuid());
 
         verify(graphRepository, times(1)).getGraphByUuid(uuid1);
-        verify(nodeMapper, times(1)).getRelationByGraphUuid(uuid1);
+        verify(nodeMapper, times(1)).getRelationByGraphUuid(uuid1, properties);
     }
 
     /**
-     * Tests that getting a RelationVO by UUID throws a GraphNullException when the graph does not exist.
+     * Tests that getting a GraphVO By Uuid throws a GraphNullException when the graph does not exist.
      */
     @Test
     void getGraphVOByUuidGraphDoesNotExistThrowsGraphNullException() {
         // Arrange
         final String uuid = TestConstants.TEST_ID1;
+        final Map<String, String> properties = Collections.singletonMap("key1", "value1");
         when(graphRepository.getGraphByUuid(uuid)).thenReturn(null);
 
         // Act & Assert
-        assertThrows(GraphNullException.class, () -> graphService.getGraphVOByUuid(uuid));
+        assertThrows(GraphNullException.class, () -> graphService.getGraphVOByUuid(
+                new FilterQueryGraphDTO(uuid, properties)));
 
         verify(graphRepository, times(1)).getGraphByUuid(uuid);
-        verify(nodeMapper, never()).getRelationByGraphUuid(uuid);
+        verify(nodeMapper, never()).getRelationByGraphUuid(uuid, properties);
+    }
+
+    /**
+     * Tests that getting a GraphVO By Uuid throws a IllegalArgumentException when the input params are invalid.
+     */
+    @Test
+    void getGraphVOByUuidInputParamsInvalidThrowsIllegalArgumentException() {
+        // Arrange
+        final String uuid = TestConstants.TEST_ID1;
+        final String title = TestConstants.TEST_TILE1;
+        final String description = TestConstants.TEST_DESCRIPTION1;
+        final String currentTime = getCurrentTime();
+        final Map<String, String> properties = Collections.singletonMap("uuid", "value2");
+
+        when(graphRepository.getGraphByUuid(uuid)).thenReturn(Graph.builder()
+                .uuid(uuid)
+                .title(title)
+                .description(description)
+                .createTime(currentTime)
+                .updateTime(currentTime)
+                .build());
+
+        // Act & Assert
+        assertThrows(IllegalArgumentException.class, () -> graphService.getGraphVOByUuid(
+                new FilterQueryGraphDTO(uuid, properties)));
+
+        verify(graphRepository, times(1)).getGraphByUuid(uuid);
+        verify(nodeMapper, never()).getRelationByGraphUuid(uuid, properties);
     }
 
     /**

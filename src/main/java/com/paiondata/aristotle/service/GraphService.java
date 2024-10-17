@@ -15,13 +15,11 @@
  */
 package com.paiondata.aristotle.service;
 
+import com.paiondata.aristotle.model.dto.FilterQueryGraphDTO;
 import com.paiondata.aristotle.model.dto.GraphDeleteDTO;
 import com.paiondata.aristotle.model.dto.GraphUpdateDTO;
-import com.paiondata.aristotle.model.vo.RelationVO;
-
+import com.paiondata.aristotle.model.vo.GraphVO;
 import org.neo4j.driver.Transaction;
-
-import java.util.List;
 
 /**
  * Service implementation for managing graphs.
@@ -30,13 +28,11 @@ import java.util.List;
 public interface GraphService {
 
     /**
-     * Retrieves a graph view object (VO) by its UUID.
-     *
-     * @param uuid the UUID of the graph
-     *
-     * @return the graph view object
+     * Retrieves a graph by its UUID and filter parameters.
+     * @param filterQueryGraphDTO the filter query DTO
+     * @return the graph VO contains the graph details and nodes and relations
      */
-    List<RelationVO> getGraphVOByUuid(String uuid);
+    GraphVO getGraphVOByUuid(FilterQueryGraphDTO filterQueryGraphDTO);
 
     /**
      * Deletes graphs by their UUIDs.

@@ -34,10 +34,10 @@ import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Repository;
 
 import java.util.ArrayList;
+import java.util.HashSet;
 import java.util.List;
 import java.util.Map;
 import java.util.Set;
-import java.util.Iterator;
 
 /**
  * Repository class for executing Cypher queries related to nodes in Neo4j.
@@ -130,27 +130,41 @@ public class NodeMapperImpl implements NodeMapper {
     /**
      * Retrieves all relationships by graph uuid.
      * @param uuid the UUID of the graph
-     * @param properties the properties of the node
-     * @return the list of relationships
+     * @param properties the filter properties of the node
+     * @return Data Transfer Object (DTO) contains relations and nodes
      */
     @Override
     public GetRelationDTO getRelationByGraphUuid(final String uuid, final Map<String, String> properties) {
         final String cypherQuery = "MATCH (g1:Graph { uuid: $uuid }) "
                 + "OPTIONAL MATCH (g1)-[:RELATION]->(n1:GraphNode) "
-                + "WHERE n1.name = $name1 "
-                + "OPTIONAL MATCH (n1)-[r:RELATION]->(n2:GraphNode) "
-                + "WHERE n2.name = $name2 "
-                + "RETURN DISTINCT n1, r, n2";
+                + (properties != null && !properties.isEmpty() ?
+                getFilterProperties(Constants.NODE_ALIAS_N1, properties.entrySet()) : "")
+                + " OPTIONAL MATCH (n1)-[r:RELATION]->(n2:GraphNode) "
+                + (properties != null && !properties.isEmpty() ?
+                getFilterProperties(Constants.NODE_ALIAS_N2, properties.entrySet()) : "")
+                + " RETURN DISTINCT n1, r, n2";
+
+        System.out.println(properties);
+        System.out.println(cypherQuery);
 
         try (Session session = driver.session(SessionConfig.builder().build())) {
             return session.readTransaction(tx -> {
                 final var result = tx.run(cypherQuery, Values.parameters(Constants.UUID, uuid));
-                final List<RelationVO> resultList = new ArrayList<>();
+                final List<RelationVO> relations = new ArrayList<>();
+                final Set<NodeVO> nodes = new HashSet<>();
 
                 while (result.hasNext()) {
                     final Record record = result.next();
-                    final NodeVO n1 = nodeExtractor.extractNode(record.get("n1"));
-                    final NodeVO n2 = nodeExtractor.extractNode(record.get("n2"));
+                    final NodeVO n1 = nodeExtractor.extractNode(record.get(Constants.NODE_ALIAS_N1));
+                    nodes.add(n1);
+
+                    if (record.get(Constants.NODE_ALIAS_N2) == null ||
+                            "NULL".equals(record.get(Constants.NODE_ALIAS_N2).toString())) {
+                        continue;
+                    }
+
+                    final NodeVO n2 = nodeExtractor.extractNode(record.get(Constants.NODE_ALIAS_N2));
+                    nodes.add(n2);
                     final Map<String, Object> relation = nodeExtractor.extractRelationship(record.get("r"));
 
                     final RelationVO relationVO = new RelationVO();
@@ -161,28 +175,10 @@ public class NodeMapperImpl implements NodeMapper {
                     relationVO.setCreateTime((String) relation.get(Constants.CREATE_TIME));
                     relationVO.setUpdateTime((String) relation.get(Constants.UPDATE_TIME));
 
-                    resultList.add(relationVO);
+                    relations.add(relationVO);
                 }
 
-                final Iterator<RelationVO> iterator = resultList.iterator();
-                while (iterator.hasNext()) {
-                    final RelationVO current = iterator.next();
-                    if (current.getTargetNode() == null) {
-                        boolean removeFlag = false;
-                        for (final RelationVO other : resultList) {
-                            if (current.getSourceNode().equals(other.getTargetNode())
-                                    && !other.getSourceNode().equals(other.getTargetNode())) {
-                                removeFlag = true;
-                                break;
-                            }
-                        }
-                        if (removeFlag) {
-                            iterator.remove();
-                        }
-                    }
-                }
-
-                return resultList;
+                return new GetRelationDTO(relations, new ArrayList<>(nodes));
             });
         }
     }
@@ -250,9 +246,33 @@ public class NodeMapperImpl implements NodeMapper {
     private StringBuilder getSetProperties(final Set<Map.Entry<String, String>> entries) {
         final StringBuilder setProperties = new StringBuilder();
         for (final Map.Entry<String, String> entry : entries) {
-            setProperties.append(", ").append(entry.getKey()).append(": '").append(entry.getValue()).append("'");
+            setProperties.append(", ").append(entry.getKey()).append(": '").append(entry.getValue())
+                    .append(Constants.QUOTE);
         }
 
         return setProperties;
+    }
+
+    /**
+     * Generates a StringBuilder with filter conditions for Cypher queries.
+     * @param node the node name
+     * @param entries the set of property entries
+     * @return a StringBuilder with formatted filter conditions
+     */
+    private StringBuilder getFilterProperties(final String node, final Set<Map.Entry<String, String>> entries) {
+        final StringBuilder filterProperties = new StringBuilder();
+        filterProperties.append("WHERE ");
+
+        boolean isFirstEntry = true;
+        for (final Map.Entry<String, String> entry : entries) {
+            if (!isFirstEntry) {
+                filterProperties.append(" AND ");
+            }
+            filterProperties.append(node).append(".").append(entry.getKey()).append(" = '")
+                    .append(entry.getValue()).append(Constants.QUOTE);
+            isFirstEntry = false;
+        }
+
+        return filterProperties;
     }
 }
