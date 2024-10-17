@@ -39,7 +39,7 @@ const config: Config = {
         docs: {
           sidebarPath: './sidebars.ts',
           editUrl:
-            'https://github.com/paion-data/aristotle/tree/master/docs',
+              'https://github.com/paion-data/aristotle/tree/master/docs',
         },
         theme: {
           customCss: './src/css/custom.css',
@@ -57,29 +57,29 @@ const config: Config = {
         alt: 'Aristotle Logo',
         src: 'img/logo.svg',
       },
-        items: [
-            {
-                type: "localeDropdown",
-                position: "left",
-            },
-            {
-                type: 'docSidebar',
-                sidebarId: 'tutorialSidebar',
-                position: 'left',
-                label: 'Documentation',
-            },
-            {
-                href: "https://aristotle-ws.com/apidocs",
-                label: "API",
-                position: "left",
-            },
-            {
-                href: 'https://github.com/paion-data/aristotle',
-                label: ' ',
-                position: 'right',
-                className: 'header-icon-link header-github-link',
-            },
-        ],
+      items: [
+        {
+          type: "localeDropdown",
+          position: "left",
+        },
+        {
+          type: 'docSidebar',
+          sidebarId: 'tutorialSidebar',
+          position: 'left',
+          label: 'Documentation',
+        },
+        {
+          href: "https://aristotle-ws.com/apidocs",
+          label: "API",
+          position: "left",
+        },
+        {
+          href: 'https://github.com/paion-data/aristotle',
+          label: ' ',
+          position: 'right',
+          className: 'header-icon-link header-github-link',
+        },
+      ],
     },
     footer: {
       style: 'dark',
@@ -93,15 +93,15 @@ const config: Config = {
             },
           ],
         },
-          {
-              title: 'More',
-              items: [
-                  {
-                      label: 'GitHub',
-                      href: 'https://github.com/paion-data/aristotle',
-                  },
-              ],
-          },
+        {
+          title: 'More',
+          items: [
+            {
+              label: 'GitHub',
+              href: 'https://github.com/paion-data/aristotle',
+            },
+          ],
+        },
       ],
       copyright: `Copyright © ${new Date().getFullYear()} Paion Data. Built with Docusaurus.`,
     },
