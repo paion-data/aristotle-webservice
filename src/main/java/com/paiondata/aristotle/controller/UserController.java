@@ -51,8 +51,13 @@ public class UserController {
     /**
      * Retrieves a user and its graphs by UID/CID.
      *
-     * @param uidcid the UID/CID of the user
-     * @return the result containing the user and its graphs or an error message if not found
+     * <p>
+     * This method handles a GET request to retrieve a user and its associated graphs based on the provided UID/CID.
+     * It validates the UID/CID and calls the user service to fetch the user data.
+     * The result is wrapped in a {@link Result} object and returned.
+     *
+     * @param uidcid the UID/CID of the user to retrieve
+     * @return a {@link Result} object containing the user data as a {@link UserVO}
      */
     @ApiOperation(value = "Retrieves a user and its graphs by UID/CID")
     @GetMapping("/{uidcid}")
@@ -64,7 +69,12 @@ public class UserController {
     /**
      * Retrieves all users and their graphs.
      *
-     * @return the result containing a list of all users and their graphs
+     * <p>
+     * This method handles a GET request to retrieve a list of all users and their associated graphs.
+     * It calls the user service to fetch the user data.
+     * The result is wrapped in a {@link Result} object and returned.
+     *
+     * @return a {@link Result} object containing a list of all users as {@link UserVO}
      */
     @ApiOperation(value = "Retrieves all users and their graphs")
     @GetMapping
@@ -76,8 +86,13 @@ public class UserController {
     /**
      * Creates a new user.
      *
-     * @param userDTO the DTO containing the user creation information
-     * @return the result indicating the success of the creation
+     * <p>
+     * This method handles a POST request to create a new user based on the provided user DTO.
+     * It validates the input DTO and calls the user service to perform the creation.
+     * The result is wrapped in a {@link Result} object with a success message and the created user data.
+     *
+     * @param userDTO the {@link UserDTO} containing the user information to create
+     * @return a {@link Result} object containing a success message and the created user data as {@link UserDTO}
      */
     @ApiOperation(value = "Creates a new user")
     @PostMapping
@@ -88,8 +103,13 @@ public class UserController {
     /**
      * Updates an existing user.
      *
-     * @param userDTO the DTO containing the updated user information
-     * @return the result indicating the success of the update
+     * <p>
+     * This method handles a PUT request to update an existing user based on the provided user DTO.
+     * It validates the input DTO and calls the user service to perform the update.
+     * The result is wrapped in a {@link Result} object with a success message.
+     *
+     * @param userDTO the {@link UserDTO} containing the updated user information
+     * @return a {@link Result} object containing a success message
      */
     @ApiOperation(value = "Updates an existing user")
     @PutMapping
@@ -101,8 +121,13 @@ public class UserController {
     /**
      * Deletes users by their UID/CIDs.
      *
-     * @param uidcids the list of UID/CIDs of the users to be deleted
-     * @return the result indicating the success of the deletion
+     * <p>
+     * This method handles a DELETE request to delete users based on the provided list of UID/CIDs.
+     * It validates the input list and calls the user service to perform the deletion.
+     * The result is wrapped in a {@link Result} object with a success message.
+     *
+     * @param uidcids the list of UID/CIDs of the users to delete
+     * @return a {@link Result} object containing a success message
      */
     @ApiOperation(value = "Deletes users by their UID/CIDs")
     @DeleteMapping

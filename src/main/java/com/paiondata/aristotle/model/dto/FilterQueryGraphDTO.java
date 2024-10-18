@@ -25,6 +25,7 @@ import lombok.Data;
 import lombok.NoArgsConstructor;
 
 import java.util.Map;
+import java.util.Optional;
 
 import javax.validation.constraints.NotBlank;
 
@@ -46,8 +47,34 @@ public class FilterQueryGraphDTO {
     private String uuid;
 
     /**
-     * The filter properties of the graph. Query all data when the filter parameters is empty.
+     * The filtering criteria on the requested graph. The criteria is a JSON object with non-nested key-value pairs.
+     * Each key represents an attribute name, and each value represents the attribute value to filter by.
+     * For example, to filter nodes by name and graduation status, you can use:
+     * {
+     *   "name": "Peter",
+     *   "graduated": "false"
+     * }
+     * If the filter parameters are empty, all data will be queried.
+     *
+     * @see <a href="https://aristotle-ws.com/docs/intro">Aristotle WS Documentation</a> for more details.
      */
-    @ApiModelProperty(value = "The filter properties of the graph. Query all data when the filter parameters is empty.")
+    @ApiModelProperty(
+            value = "The filtering criteria on the requested graph. The criteria is a JSON object with non-nested "
+                    + "key-value pairs. Each key represents an attribute name, and each value represents the attribute "
+                    + "value to filter by. For example, to filter nodes by name and graduation status, you can use: "
+                    + "{ \"name\": \"Peter\", \"graduated\": \"false\" }. If the filter parameters are empty, all data "
+                    + "will be queried.",
+            example = "{\"name\": \"Peter\", \"graduated\": \"false\"}"
+    )
     private Map<String, String> properties;
+
+    /**
+     * Returns an Optional containing the filter properties of the graph.
+     * If the properties map is null, returns an empty Optional.
+     *
+     * @return an Optional containing the filter properties of the graph
+     */
+    public Optional<Map<String, String>> getProperties() {
+        return Optional.ofNullable(properties);
+    }
 }

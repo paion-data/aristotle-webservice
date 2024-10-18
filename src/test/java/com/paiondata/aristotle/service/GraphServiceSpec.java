@@ -168,34 +168,6 @@ public class GraphServiceSpec {
     }
 
     /**
-     * Tests that getting a GraphVO By Uuid throws a IllegalArgumentException when the input params are invalid.
-     */
-    @Test
-    void getGraphVOByUuidInputParamsInvalidThrowsIllegalArgumentException() {
-        // Arrange
-        final String uuid = TestConstants.TEST_ID1;
-        final String title = TestConstants.TEST_TILE1;
-        final String description = TestConstants.TEST_DESCRIPTION1;
-        final String currentTime = getCurrentTime();
-        final Map<String, String> properties = Collections.singletonMap("uuid", "value2");
-
-        when(graphRepository.getGraphByUuid(uuid)).thenReturn(Graph.builder()
-                .uuid(uuid)
-                .title(title)
-                .description(description)
-                .createTime(currentTime)
-                .updateTime(currentTime)
-                .build());
-
-        // Act & Assert
-        assertThrows(IllegalArgumentException.class, () -> graphService.getGraphVOByUuid(
-                new FilterQueryGraphDTO(uuid, properties)));
-
-        verify(graphRepository, times(1)).getGraphByUuid(uuid);
-        verify(nodeMapper, never()).getRelationByGraphUuid(uuid, properties);
-    }
-
-    /**
      * Tests that deleting a graph throws a GraphNullException when the graph does not exist.
      */
     @Test

@@ -27,6 +27,10 @@ import java.util.List;
 
 /**
  * Data Transfer Object (DTO) for getting relations.
+ *
+ * <p>
+ * This DTO is used to encapsulate the data required for retrieving relationships and nodes in the system.
+ * It includes a list of relationships and a list of nodes.
  */
 @Data
 @Builder
@@ -36,11 +40,20 @@ public class GetRelationDTO {
 
     /**
      * The relations between nodes.
+     *
+     * <p>
+     * This field contains a list of {@link RelationVO} objects, each representing a relationship between two nodes.
+     * Each {@link RelationVO} object includes details such as the source node ID, target node ID,
+     * and the name of the relationship.
      */
-    List<RelationVO> relations;
+    private List<RelationVO> relations;
 
     /**
      * The nodes.
+     *
+     * <p>
+     * This field contains a list of {@link NodeVO} objects, each representing a node in the system.
+     * Each {@link NodeVO} object includes details such as the node ID, labels, and attributes.
      */
-    List<NodeVO> nodes;
+    private List<NodeVO> nodes;
 }

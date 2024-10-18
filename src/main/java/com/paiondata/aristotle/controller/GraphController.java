@@ -46,11 +46,14 @@ public class GraphController {
     private GraphService graphService;
 
     /**
-     * Retrieve the graph by uuid and filter parameters.
+     * Retrieves a graph by its UUID and filter parameters.
+     * <p>
+     * This method handles a POST request to retrieve a graph based on the provided UUID and filter parameters.
+     * It validates the input DTO and calls the graph service to fetch the graph data.
+     * The result is wrapped in a {@link Result} object and returned.
      *
-     * @param dto includes the uuid and filter parameters
-     * Query all data when the filter parameters is empty
-     * @return the result includes the graph and all its nodes and relations
+     * @param dto the {@link FilterQueryGraphDTO} containing the UUID and filter parameters
+     * @return a {@link Result} object containing the graph data as a {@link GraphVO}
      */
     @ApiOperation(value = "Retrieve the graph by uuid and filter parameters")
     @PostMapping
@@ -61,8 +64,13 @@ public class GraphController {
     /**
      * Updates a graph.
      *
-     * @param graphUpdateDTO the DTO containing the updated graph information
-     * @return the result indicating the success of the update
+     * <p>
+     * This method handles a PUT request to update a graph based on the provided update DTO.
+     * It validates the input DTO and calls the graph service to perform the update.
+     * The result is wrapped in a {@link Result} object with a success message.
+     *
+     * @param graphUpdateDTO the {@link GraphUpdateDTO} containing the updated graph information
+     * @return a {@link Result} object containing a success message
      */
     @ApiOperation(value = "Updates a graph")
     @PutMapping
@@ -74,8 +82,13 @@ public class GraphController {
     /**
      * Deletes graphs by their UUIDs.
      *
-     * @param graphDeleteDTO the list of UUIDs of the graphs to be deleted
-     * @return the result indicating the success of the deletion
+     * <p>
+     * This method handles a DELETE request to delete graphs based on the provided UUIDs.
+     * It validates the input DTO and calls the graph service to perform the deletion.
+     * The result is wrapped in a {@link Result} object with a success message.
+     *
+     * @param graphDeleteDTO the {@link GraphDeleteDTO} containing the UUIDs of the graphs to delete
+     * @return a {@link Result} object containing a success message
      */
     @ApiOperation(value = "Deletes graphs by their UUIDs")
     @DeleteMapping
