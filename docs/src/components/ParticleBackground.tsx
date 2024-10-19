@@ -109,6 +109,5 @@ export default function ParticleBackground(props) {
       [],
   );
 
-
   return <Particles id={props.id} init={particlesLoaded} options={options}/>;
 }

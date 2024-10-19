@@ -41,8 +41,6 @@
   position: absolute;
 }
 
-
-
 @media screen and (max-width: 996px) {
   .heroBanner {
     padding: 2rem;
@@ -54,4 +52,3 @@
   align-items: center;
   justify-content: center;
 }
-
