@@ -53,12 +53,12 @@ public class NodeUpdateDTO extends BaseEntity {
      * <strong>Note:</strong> This field is required and must not be blank.
      * </p>
      *
-     * @example "123e4567-e89b-12d3-a456-426614174001"
+     * @example "123e4567e89b12d3a456426614174001"
      * @see Message#UUID_MUST_NOT_BE_BLANK
      */
     @ApiModelProperty(value = "The unique identifier (UUID) of the node. This field is the unique identifier for the "
             + "node. It is typically a UUID and is used to reference the node in other parts of the system. This field"
-            + "is required and must not be blank.", required = true, example = "123e4567-e89b-12d3-a456-426614174001")
+            + "is required and must not be blank.", required = true, example = "123e4567e89b12d3a456426614174001")
     @NotBlank(message = Message.UUID_MUST_NOT_BE_BLANK)
     private String uuid;
 
