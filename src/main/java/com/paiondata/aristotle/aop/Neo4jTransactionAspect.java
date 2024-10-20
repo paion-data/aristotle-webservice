@@ -59,6 +59,7 @@ public class Neo4jTransactionAspect {
      * @throws Throwable if an error occurs
      */
     @Around("@annotation(com.paiondata.aristotle.common.annotion.Neo4jTransactional)")
+    @SuppressWarnings({"checkstyle:IllegalThrows", "checkstyle:IllegalCatch"})
     public Object manageTransaction(final ProceedingJoinPoint joinPoint) throws Throwable {
         Transaction tx = null;
         try {
@@ -81,9 +82,10 @@ public class Neo4jTransactionAspect {
                 neo4jTransactionManager.rollbackTransaction(tx);
             }
 
-            final String message = e.getMessage();
-            LOG.error(message);
-            throw e;
+            LOG.error(String.format("Transaction error: %s", e.getMessage()), e);
+            throw new IllegalStateException("Something went wrong inside Aristotle webservice. "
+                    + "Please file an issue at https://github.com/paion-data/aristotle/issues to report this incident. "
+                    + "We apologize for the inconvenience", e);
         } finally {
             closeTransaction(tx);
         }

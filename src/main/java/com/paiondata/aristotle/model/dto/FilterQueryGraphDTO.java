@@ -56,7 +56,7 @@ public class FilterQueryGraphDTO {
      * }
      * If the filter parameters are empty, all data will be queried.
      *
-     * @see <a href="https://aristotle-ws.com/docs/intro">Aristotle WS Documentation</a> for more details.
+     * @see <a href="https://aristotle-ws.com/docs/filtering">Aristotle WS Documentation</a> for more details.
      */
     @ApiModelProperty(
             value = "The filtering criteria on the requested graph. The criteria is a JSON object with non-nested "
