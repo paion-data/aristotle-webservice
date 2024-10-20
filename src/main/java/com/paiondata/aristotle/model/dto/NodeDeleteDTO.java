@@ -15,6 +15,8 @@
  */
 package com.paiondata.aristotle.model.dto;
 
+import com.paiondata.aristotle.model.BaseEntity;
+
 import io.swagger.annotations.ApiModel;
 import io.swagger.annotations.ApiModelProperty;
 import lombok.AllArgsConstructor;
@@ -37,7 +39,7 @@ import javax.validation.constraints.NotEmpty;
 @AllArgsConstructor
 @NoArgsConstructor
 @ApiModel(description = "Data Transfer Object (DTO) for deleting nodes.")
-public class NodeDeleteDTO {
+public class NodeDeleteDTO extends BaseEntity {
 
     /**
      * The unique identifier (UUID) of the graph.

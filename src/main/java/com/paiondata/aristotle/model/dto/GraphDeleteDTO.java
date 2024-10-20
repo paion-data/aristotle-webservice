@@ -16,6 +16,7 @@
 package com.paiondata.aristotle.model.dto;
 
 import com.paiondata.aristotle.common.base.Message;
+import com.paiondata.aristotle.model.BaseEntity;
 
 import io.swagger.annotations.ApiModel;
 import io.swagger.annotations.ApiModelProperty;
@@ -43,7 +44,7 @@ import javax.validation.constraints.NotEmpty;
 @ApiModel(description = "Data Transfer Object (DTO) for deleting graphs."
         + "This DTO is used to encapsulate the data required for deleting graphs. It includes the user's unique "
         + "identifier (uidcid) and a list of unique identifiers (uuids) for the graphs to be deleted.")
-public class GraphDeleteDTO {
+public class GraphDeleteDTO extends BaseEntity {
 
     /**
      * The unique identifier (uidcid) of the user.

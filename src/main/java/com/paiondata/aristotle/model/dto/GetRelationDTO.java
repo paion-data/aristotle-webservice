@@ -15,6 +15,7 @@
  */
 package com.paiondata.aristotle.model.dto;
 
+import com.paiondata.aristotle.model.BaseEntity;
 import com.paiondata.aristotle.model.vo.NodeVO;
 import com.paiondata.aristotle.model.vo.RelationVO;
 
@@ -36,7 +37,7 @@ import java.util.List;
 @Builder
 @AllArgsConstructor
 @NoArgsConstructor
-public class GetRelationDTO {
+public class GetRelationDTO extends BaseEntity {
 
     /**
      * The relations between nodes.

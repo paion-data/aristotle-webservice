@@ -46,11 +46,9 @@ public class RelationUpdateDTO extends BaseEntity {
      * <p>
      * This field is the unique identifier for the graph.
      * It is typically a UUID and is used to reference the graph in other parts of the system.
-     * </p>
      *
      * <p>
      * <strong>Note:</strong> This field is required and must not be blank.
-     * </p>
      *
      * @example "123e4567-e89b-12d3-a456-426614174001"
      * @see Message#UUID_MUST_NOT_BE_BLANK
@@ -69,21 +67,17 @@ public class RelationUpdateDTO extends BaseEntity {
      * This field is a map where each key represents the identifier of a relation, and the corresponding value
      * represents the updated value of the relation. The updates provided will overwrite the existing values
      * of the relations.
-     * </p>
      *
      * <p>
      * <strong>Note:</strong> This is an overwrite operation. The values provided will overwrite the existing values
      * of the relations. If you want to update only specific attributes, you must provide all the attributes you
      * want to keep, including the ones you are not changing.
-     * </p>
      *
      * <p>
      * <strong>Key:</strong> The identifier of the relation ("relation1", "relation2").
-     * </p>
      *
      * <p>
      * <strong>Value:</strong> The updated value of the relation ("new_value1", "new_value2").
-     * </p>
      *
      * @example {
      *   "relation1": "new_value1",
@@ -107,11 +101,9 @@ public class RelationUpdateDTO extends BaseEntity {
      * <p>
      * This field is a list of identifiers of the relations that need to be deleted from the graph.
      * Each identifier in the list corresponds to a specific relation.
-     * </p>
      *
      * <p>
      * <strong>Note:</strong> This field is optional. If not provided, no relations will be deleted.
-     * </p>
      *
      * @example ["relation1", "relation2"]
      */

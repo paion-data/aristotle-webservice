@@ -60,14 +60,14 @@ public class RelationVO extends BaseEntity {
     private String updateTime;
 
     /**
-     * The source node of the relationship.
+     * The UUID of the source node of the relationship.
      */
-    @ApiModelProperty(value = "The source node of the relationship")
+    @ApiModelProperty(value = "The UUID of the source node of the relationship")
     private String sourceNode;
 
     /**
-     * The target node of the relationship.
+     * The UUID of the target node of the relationship.
      */
-    @ApiModelProperty(value = "The target node of the relationship")
+    @ApiModelProperty(value = "The UUID of the target node of the relationship")
     private String targetNode;
 }

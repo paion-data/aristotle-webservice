@@ -17,15 +17,14 @@ package com.paiondata.aristotle.controller;
 
 import com.paiondata.aristotle.common.base.Message;
 import com.paiondata.aristotle.common.base.Result;
+import com.paiondata.aristotle.model.vo.NodeVO;
 import com.paiondata.aristotle.model.vo.GraphAndNodeVO;
 import com.paiondata.aristotle.model.dto.NodeCreateDTO;
 import com.paiondata.aristotle.model.dto.GraphAndNodeCreateDTO;
 import com.paiondata.aristotle.model.dto.NodeDeleteDTO;
-import com.paiondata.aristotle.model.dto.NodeReturnDTO;
 import com.paiondata.aristotle.model.dto.NodeUpdateDTO;
 import com.paiondata.aristotle.model.dto.RelationUpdateDTO;
 import com.paiondata.aristotle.model.dto.BindNodeDTO;
-import com.paiondata.aristotle.model.vo.NodeVO;
 import com.paiondata.aristotle.service.NodeService;
 import io.swagger.annotations.Api;
 import io.swagger.annotations.ApiOperation;
@@ -86,13 +85,13 @@ public class NodeController {
      * The result is wrapped in a {@link Result} object with a success message and the list of created nodes.
      *
      * @param graphNodeCreateDTO the {@link NodeCreateDTO} containing the node creation and binding information
-     * @return a {@link Result} object containing a success message and a list of created nodes as {@link NodeReturnDTO}
+     * @return a {@link Result} object containing a success message and a list of created nodes as {@link NodeVO}
      * @notes The nodes could be created without binding any relations
      */
     @ApiOperation(value = "Creates and binds nodes",
             notes = "The nodes could be created without binding any relations")
     @PostMapping
-    public Result<List<NodeReturnDTO>> createAndBindNode(@RequestBody @Valid final NodeCreateDTO graphNodeCreateDTO) {
+    public Result<List<NodeVO>> createAndBindNode(@RequestBody @Valid final NodeCreateDTO graphNodeCreateDTO) {
         return Result.ok(Message.CREATE_SUCCESS, nodeService.createAndBindGraphAndNode(graphNodeCreateDTO, null));
     }
 

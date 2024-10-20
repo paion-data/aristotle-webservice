@@ -46,7 +46,6 @@ public class NodeDTO extends BaseEntity {
      * <p>
      * This field is required and must not be blank.
      * It serves as a temporary identifier for the node during the creation process.
-     * </p>
      *
      * @see Message#TEMPORARY_ID_MUST_NOT_NULL
      */

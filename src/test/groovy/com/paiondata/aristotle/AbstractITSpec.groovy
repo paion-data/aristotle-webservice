@@ -16,6 +16,7 @@
 package com.paiondata.aristotle
 
 import com.paiondata.aristotle.base.TestConstants
+import com.paiondata.aristotle.mapper.impl.NodeMapperImpl
 
 import io.restassured.http.ContentType
 import org.junit.jupiter.api.Assertions
@@ -451,5 +452,28 @@ abstract class AbstractITSpec extends Specification {
                 .statusCode(OK_CODE)
 
         Assert.assertEquals(null, getResponse2.jsonPath().getList("data"))
+    }
+
+    def "getFilterProperties should return correct filter properties for #node and #entries"() {
+        given:
+        def classInstance = new NodeMapperImpl()
+        def method = NodeMapperImpl.getDeclaredMethod("getFilterProperties", String.class, Map.class)
+        method.setAccessible(true)
+
+        when:
+        def result = method.invoke(classInstance, node, entries)
+
+        then:
+        result.toString() == expected
+
+        where:
+        node | entries                                      || expected
+        "n"  | ["name": "Peter"]                            || "WHERE n.name = 'Peter'"
+        "n"  | ["name": "Peter", "age": "30"]              || "WHERE n.name = 'Peter' AND n.age = '30'"
+        "n"  | [:]                                          || "WHERE "
+        "n"  | ["name": "O'Connor"]                         || "WHERE n.name = 'O''Connor'"
+        "n"  | ["name": "O\"Connor"]                        || "WHERE n.name = 'O\"Connor'"
+        "n"  | ["name": "O'Connor", "age": "30"]           || "WHERE n.name = 'O''Connor' AND n.age = '30'"
+        "n"  | ["name": "O\"Connor", "age": "30"]          || "WHERE n.name = 'O\"Connor' AND n.age = '30'"
     }
 }

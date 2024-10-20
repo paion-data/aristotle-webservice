@@ -27,15 +27,15 @@ import lombok.NoArgsConstructor;
 import java.util.Map;
 
 /**
- * Represents a node entity within a graph.
+ * Data Transfer Object (DTO) for representing a node.
  *
- * This class encapsulates the properties and metadata of a node.
+ * This DTO is used to encapsulate the data required for a node in a graph.
  */
 @Data
 @Builder
 @AllArgsConstructor
 @NoArgsConstructor
-@ApiModel(description = "Represents a node")
+@ApiModel(description = "Represents a node in a graph.")
 public class NodeVO extends BaseEntity {
 
     /**
@@ -46,8 +46,25 @@ public class NodeVO extends BaseEntity {
 
     /**
      * The properties of the node.
+     *
+     * <p>
+     * This field is a map of node attributes. Each key in the map represents an attribute name, and the corresponding
+     * value represents the attribute value. These attributes can include any relevant information about the node.
+     *
+     * @example {
+     *   "name": "Peter",
+     *   "age": "30",
+     *   "position": "Software Engineer"
+     * }
      */
-    @ApiModelProperty(value = "The properties of the node")
+    @ApiModelProperty(value = "The properties of the node. This field is a map of node attributes."
+            + "Each key in the map represents an attribute name, and the corresponding value represents the "
+            + "attribute value. These attributes can include any relevant information about the node.",
+            example = "{\n" +
+            "  \"name\": \"Peter\",\n" +
+            "  \"age\": \"30\",\n" +
+            "  \"position\": \"Software Engineer\"\n" +
+            "}")
     private Map<String, String> properties;
 
     /**

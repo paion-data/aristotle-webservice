@@ -36,6 +36,7 @@ import com.paiondata.aristotle.common.exception.GraphNullException;
 import com.paiondata.aristotle.common.exception.TransactionException;
 import com.paiondata.aristotle.mapper.NodeMapper;
 import com.paiondata.aristotle.model.dto.GraphAndNodeCreateDTO;
+import com.paiondata.aristotle.model.vo.NodeVO;
 import com.paiondata.aristotle.model.vo.GraphAndNodeVO;
 import com.paiondata.aristotle.model.dto.NodeCreateDTO;
 import com.paiondata.aristotle.model.dto.NodeDTO;
@@ -43,11 +44,9 @@ import com.paiondata.aristotle.model.dto.NodeDeleteDTO;
 import com.paiondata.aristotle.model.dto.NodeRelationDTO;
 import com.paiondata.aristotle.model.dto.BindNodeDTO;
 import com.paiondata.aristotle.model.dto.GraphCreateDTO;
-import com.paiondata.aristotle.model.dto.NodeReturnDTO;
 import com.paiondata.aristotle.model.dto.NodeUpdateDTO;
 import com.paiondata.aristotle.model.dto.RelationUpdateDTO;
 import com.paiondata.aristotle.model.entity.Graph;
-import com.paiondata.aristotle.model.vo.NodeVO;
 import com.paiondata.aristotle.repository.NodeRepository;
 import com.paiondata.aristotle.service.impl.NodeServiceImpl;
 
@@ -201,7 +200,7 @@ public class NodeServiceSpec {
                 anyString(), any(Transaction.class));
 
         // When
-        final List<NodeReturnDTO> dtos = nodeService.createAndBindGraphAndNode(nodeCreateDTO, tx);
+        final List<NodeVO> dtos = nodeService.createAndBindGraphAndNode(nodeCreateDTO, tx);
 
         // Then
         verify(commonService, times(1)).getGraphByUuid(TestConstants.TEST_ID1);

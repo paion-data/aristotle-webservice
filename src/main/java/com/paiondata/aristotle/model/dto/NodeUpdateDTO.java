@@ -47,11 +47,9 @@ public class NodeUpdateDTO extends BaseEntity {
      * <p>
      * This field is the unique identifier for the node.
      * It is typically a UUID and is used to reference the node in other parts of the system.
-     * </p>
      *
      * <p>
      * <strong>Note:</strong> This field is required and must not be blank.
-     * </p>
      *
      * @example "123e4567e89b12d3a456426614174001"
      * @see Message#UUID_MUST_NOT_BE_BLANK
@@ -69,21 +67,17 @@ public class NodeUpdateDTO extends BaseEntity {
      * This field is a map of node attributes.
      * Each key in the map represents an attribute name, and the corresponding value represents the attribute value.
      * These attributes can include any relevant information about the node.
-     * </p>
      *
      * <p>
      * <strong>Note:</strong> This is an overwrite operation. The attributes provided will
      * overwrite the existing attributes of the node. If you want to update only specific attributes,
      * you must provide all the attributes you want to keep, including the ones you are not changing.
-     * </p>
      *
      * <p>
      * <strong>Key:</strong> The name of the attribute (e.g., "name", "age").
-     * </p>
      *
      * <p>
      * <strong>Value:</strong> The value of the attribute (e.g., "Peter", "30").
-     * </p>
      *
      * @example {
      *   "name": "Peter",

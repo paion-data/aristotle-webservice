@@ -15,7 +15,7 @@
  */
 package com.paiondata.aristotle.model.vo;
 
-import com.paiondata.aristotle.model.dto.NodeReturnDTO;
+import com.paiondata.aristotle.model.BaseEntity;
 
 import io.swagger.annotations.ApiModel;
 import io.swagger.annotations.ApiModelProperty;
@@ -34,7 +34,7 @@ import java.util.List;
 @AllArgsConstructor
 @NoArgsConstructor
 @ApiModel(description = "Data Transfer Object (DTO) for creating graph and node.")
-public class GraphAndNodeVO {
+public class GraphAndNodeVO extends BaseEntity {
 
     /**
      * The unique identifier (UUID) of the graph.
@@ -82,7 +82,7 @@ public class GraphAndNodeVO {
      * The list of nodes in the graph.
      *
      * <p>
-     * This field is a list of {@link NodeReturnDTO} objects, each representing a node in the graph.
+     * This field is a list of {@link NodeVO} objects, each representing a node in the graph.
      * Each node contains its unique identifier (UUID), creation and update times, and a map of node attributes.
      *
      * @example [
@@ -108,7 +108,7 @@ public class GraphAndNodeVO {
      *   }
      * ]
      */
-    @ApiModelProperty(value = "The list of nodes in the graph. This field is a list of NodeReturnDTO objects, "
+    @ApiModelProperty(value = "The list of nodes in the graph. This field is a list of NodeVO objects, "
             + "each representing a node in the graph. Each node contains its unique identifier (UUID), creation "
             + "and update times, and a map of node attributes.", example = "[\n" +
             "  {\n" +
@@ -132,5 +132,5 @@ public class GraphAndNodeVO {
             "    }\n" +
             "  }\n" +
             "]")
-    private List<NodeReturnDTO> nodes;
+    private List<NodeVO> nodes;
 }

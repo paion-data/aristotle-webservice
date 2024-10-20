@@ -45,11 +45,9 @@ public class UserDTO extends BaseEntity {
      * <p>
      * This field is the unique identifier for the user. It can be either a UID (User ID) or a CID (Client ID),
      * depending on the context of your application.This identifier is used to uniquely identify the user in the system.
-     * </p>
      *
      * <p>
      * <strong>Note:</strong> This field is required and must not be blank.
-     * </p>
      *
      * @example "user12345"
      * @see Message#UIDCID_MUST_NOT_BE_BLANK
@@ -67,11 +65,9 @@ public class UserDTO extends BaseEntity {
      * <p>
      * This field is the nickname of the user. It is a human-readable name that the user chooses to be
      * identified by in the system.
-     * </p>
      *
      * <p>
      * <strong>Note:</strong> This field is required and must not be blank.
-     * </p>
      *
      * @example "JohnDoe"
      * @see Message#NICK_NAME_MUST_NOT_BE_BLANK

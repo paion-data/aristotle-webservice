@@ -33,15 +33,19 @@ import org.neo4j.driver.Values;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Repository;
 
+import lombok.NoArgsConstructor;
+
 import java.util.ArrayList;
 import java.util.HashSet;
 import java.util.List;
 import java.util.Map;
 import java.util.Set;
+import java.util.stream.Collectors;
 
 /**
  * Repository class for executing Cypher queries related to nodes in Neo4j.
  */
+@NoArgsConstructor(force = true)
 @Repository
 public class NodeMapperImpl implements NodeMapper {
 
@@ -62,7 +66,7 @@ public class NodeMapperImpl implements NodeMapper {
 
     /**
      * Retrieves a node by its UUID.
-     *
+     * <p>
      * Constructs a Cypher query to match a node by its UUID and return it.
      * Executes the Cypher query within a read transaction using the Neo4j session.
      * Extracts the node details from the query result and returns a {@link NodeVO} object.
@@ -92,7 +96,7 @@ public class NodeMapperImpl implements NodeMapper {
 
     /**
      * Creates a new node and associates it with a graph.
-     *
+     * <p>
      * Constructs a Cypher query to match a graph by its UUID, update its update time, <br>
      * create a new node with the provided details,
      * and establish a relationship between the graph and the new node.
@@ -136,7 +140,7 @@ public class NodeMapperImpl implements NodeMapper {
 
     /**
      * Retrieves the relationships and nodes associated with a graph by its UUID.
-     *
+     * <p>
      * Constructs a Cypher query to match a graph by its UUID and find its related nodes and relationships.
      * Optionally filters the nodes based on the provided properties.
      * Executes the Cypher query within a read transaction using the Neo4j session.
@@ -152,10 +156,10 @@ public class NodeMapperImpl implements NodeMapper {
         final String cypherQuery = "MATCH (g1:Graph { uuid: $uuid }) "
                 + "OPTIONAL MATCH (g1)-[:RELATION]->(n1:GraphNode) "
                 + (properties != null && !properties.isEmpty() ?
-                getFilterProperties(Constants.NODE_ALIAS_N1, properties.entrySet()) : "")
+                getFilterProperties(Constants.NODE_ALIAS_N1, properties) : "")
                 + " OPTIONAL MATCH (n1)-[r:RELATION]->(n2:GraphNode) "
                 + (properties != null && !properties.isEmpty() ?
-                getFilterProperties(Constants.NODE_ALIAS_N2, properties.entrySet()) : "")
+                getFilterProperties(Constants.NODE_ALIAS_N2, properties) : "")
                 + " RETURN DISTINCT n1, r, n2";
 
         try (Session session = driver.session(SessionConfig.builder().build())) {
@@ -196,7 +200,7 @@ public class NodeMapperImpl implements NodeMapper {
 
     /**
      * Binds two graph nodes together with a specified relationship.
-     *
+     * <p>
      * Constructs a Cypher query to match two graph nodes by their UUIDs, update their update times,
      * and create a relationship between them.
      * Executes the Cypher query using the provided transaction.
@@ -229,7 +233,7 @@ public class NodeMapperImpl implements NodeMapper {
 
     /**
      * Updates a graph node by its UUID.
-     *
+     * <p>
      * Constructs a Cypher query to match a graph node by its UUID and update its properties.
      * The query dynamically includes only the fields that need to be updated based on the provided properties.
      * Executes the Cypher query using the provided transaction.
@@ -256,7 +260,7 @@ public class NodeMapperImpl implements NodeMapper {
 
     /**
      * Generates a string builder containing the SET properties clause for a Cypher query.
-     *
+     * <p>
      * Iterates through the provided map entries and appends each key-value pair to the string builder
      * in the format suitable for a Cypher query's SET clause.
      * The resulting string builder can be used to dynamically construct the SET part of a Cypher query.
@@ -276,29 +280,32 @@ public class NodeMapperImpl implements NodeMapper {
 
     /**
      * Generates a string builder containing the filter properties clause for a Cypher query.
-     *
+     * <p>
      * Iterates through the provided map entries and appends each key-value pair to the string builder
      * in the format suitable for a Cypher query's WHERE clause.
      * The resulting string builder can be used to dynamically construct the WHERE part of a Cypher query.
      *
      * @param node the alias of the node to apply the filters to
-     * @param entries the set of map entries containing the properties to filter
+     * @param entries the map containing the properties to filter
      * @return a {@link StringBuilder} object containing the filter properties clause
      */
-    private StringBuilder getFilterProperties(final String node, final Set<Map.Entry<String, String>> entries) {
-        final StringBuilder filterProperties = new StringBuilder();
-        filterProperties.append("WHERE ");
+    private StringBuilder getFilterProperties(final String node, final Map<String, String> entries) {
+        return new StringBuilder()
+                .append("WHERE ")
+                .append(
+                        entries.entrySet().stream()
+                                .map(filter -> String.format("%s.%s = '%s'", node, filter.getKey(),
+                                        escapeSingleQuotes(filter.getValue())))
+                                .collect(Collectors.joining(" AND "))
+                );
+    }
 
-        boolean isFirstEntry = true;
-        for (final Map.Entry<String, String> entry : entries) {
-            if (!isFirstEntry) {
-                filterProperties.append(" AND ");
-            }
-            filterProperties.append(node).append(".").append(entry.getKey()).append(" = '")
-                    .append(entry.getValue()).append(Constants.QUOTE);
-            isFirstEntry = false;
-        }
-
-        return filterProperties;
+    /**
+     * Escapes single quotes in a string by replacing them with two single quotes.
+     * @param value the string to escape
+     * @return the escaped string
+     */
+    private String escapeSingleQuotes(final String value) {
+        return value.replace("'", "''");
     }
 }

@@ -16,6 +16,7 @@
 package com.paiondata.aristotle.model.dto;
 
 import com.paiondata.aristotle.common.base.Message;
+import com.paiondata.aristotle.model.BaseEntity;
 
 import io.swagger.annotations.ApiModel;
 import io.swagger.annotations.ApiModelProperty;
@@ -37,7 +38,7 @@ import javax.validation.constraints.NotBlank;
 @AllArgsConstructor
 @NoArgsConstructor
 @ApiModel(description = "Data Transfer Object (DTO) for binding nodes.")
-public class FilterQueryGraphDTO {
+public class FilterQueryGraphDTO extends BaseEntity {
 
     /**
      * The uuid of the graph.
