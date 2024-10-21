@@ -19,11 +19,11 @@ import com.paiondata.aristotle.common.base.Message;
 import com.paiondata.aristotle.common.base.Result;
 import com.paiondata.aristotle.model.dto.UserDTO;
 import com.paiondata.aristotle.model.vo.UserVO;
-import com.paiondata.aristotle.service.CommonService;
 import com.paiondata.aristotle.service.UserService;
 import io.swagger.annotations.Api;
 import io.swagger.annotations.ApiOperation;
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.validation.annotation.Validated;
 import org.springframework.web.bind.annotation.GetMapping;
 import org.springframework.web.bind.annotation.PathVariable;
 import org.springframework.web.bind.annotation.RequestMapping;
@@ -37,7 +37,6 @@ import javax.validation.Valid;
 import javax.validation.constraints.NotBlank;
 import javax.validation.constraints.NotEmpty;
 import java.util.List;
-import java.util.Map;
 
 /**
  * Controller for handling user-related operations.
@@ -45,21 +44,24 @@ import java.util.Map;
 @Api(tags = "User controller for handling user-related operations")
 @RestController
 @RequestMapping("/user")
+@Validated
 public class UserController {
 
     @Autowired
     private UserService userService;
 
-    @Autowired
-    private CommonService commonService;
-
     /**
-     * Retrieves a user by UID/CID.
+     * Retrieves a user and its graphs by UID/CID.
      *
-     * @param uidcid the UID/CID of the user
-     * @return the result containing the user or an error message if not found
+     * <p>
+     * This method handles a GET request to retrieve a user and its associated graphs based on the provided UID/CID.
+     * It validates the UID/CID and calls the user service to fetch the user data.
+     * The result is wrapped in a {@link Result} object and returned.
+     *
+     * @param uidcid the UID/CID of the user to retrieve
+     * @return a {@link Result} object containing the user data as a {@link UserVO}
      */
-    @ApiOperation(value = "Retrieves a user by UID/CID")
+    @ApiOperation(value = "Retrieves a user and its graphs by UID/CID")
     @GetMapping("/{uidcid}")
     public Result<UserVO> getUser(@PathVariable @NotBlank(message = Message.UIDCID_MUST_NOT_BE_BLANK)
                                       final String uidcid) {
@@ -67,11 +69,16 @@ public class UserController {
     }
 
     /**
-     * Retrieves all users.
+     * Retrieves all users and their graphs.
      *
-     * @return the result containing a list of all users
+     * <p>
+     * This method handles a GET request to retrieve a list of all users and their associated graphs.
+     * It calls the user service to fetch the user data.
+     * The result is wrapped in a {@link Result} object and returned.
+     *
+     * @return a {@link Result} object containing a list of all users as {@link UserVO}
      */
-    @ApiOperation(value = "Retrieves all users")
+    @ApiOperation(value = "Retrieves all users and their graphs")
     @GetMapping
     public Result<List<UserVO>> getAll() {
         final List<UserVO> allUsers = userService.getAllUsers();
@@ -79,24 +86,15 @@ public class UserController {
     }
 
     /**
-     * Retrieves the graph data associated with a user by UID/CID.
-     *
-     * @param uidcid the UID/CID of the user
-     * @return the result containing the graph data or an error message if not found
-     */
-    @ApiOperation(value = "Retrieves the graph data associated with a user by UID/CID")
-    @GetMapping("/graph/{uidcid}")
-    public Result<List<Map<String, Object>>> getGraphByUserUidcid(
-            @PathVariable @NotBlank(message = Message.UIDCID_MUST_NOT_BE_BLANK) final String uidcid) {
-        final List<Map<String, Object>> results = commonService.getGraphsByUidcid(uidcid);
-        return Result.ok(results);
-    }
-
-    /**
      * Creates a new user.
      *
-     * @param userDTO the DTO containing the user creation information
-     * @return the result indicating the success of the creation
+     * <p>
+     * This method handles a POST request to create a new user based on the provided user DTO.
+     * It validates the input DTO and calls the user service to perform the creation.
+     * The result is wrapped in a {@link Result} object with a success message and the created user data.
+     *
+     * @param userDTO the {@link UserDTO} containing the user information to create
+     * @return a {@link Result} object containing a success message and the created user data as {@link UserDTO}
      */
     @ApiOperation(value = "Creates a new user")
     @PostMapping
@@ -107,8 +105,13 @@ public class UserController {
     /**
      * Updates an existing user.
      *
-     * @param userDTO the DTO containing the updated user information
-     * @return the result indicating the success of the update
+     * <p>
+     * This method handles a PUT request to update an existing user based on the provided user DTO.
+     * It validates the input DTO and calls the user service to perform the update.
+     * The result is wrapped in a {@link Result} object with a success message.
+     *
+     * @param userDTO the {@link UserDTO} containing the updated user information
+     * @return a {@link Result} object containing a success message
      */
     @ApiOperation(value = "Updates an existing user")
     @PutMapping
@@ -120,12 +123,17 @@ public class UserController {
     /**
      * Deletes users by their UID/CIDs.
      *
-     * @param uidcids the list of UID/CIDs of the users to be deleted
-     * @return the result indicating the success of the deletion
+     * <p>
+     * This method handles a DELETE request to delete users based on the provided list of UID/CIDs.
+     * It validates the input list and calls the user service to perform the deletion.
+     * The result is wrapped in a {@link Result} object with a success message.
+     *
+     * @param uidcids the list of UID/CIDs of the users to delete
+     * @return a {@link Result} object containing a success message
      */
     @ApiOperation(value = "Deletes users by their UID/CIDs")
     @DeleteMapping
-    public Result<String> deleteUser(@RequestBody @NotEmpty(message = Message.UIDCID_MUST_NOT_BE_BLANK)
+    public Result<String> deleteUser(@RequestBody @NotEmpty(message = Message.UIDCIDS_MUST_NOT_EMPTY)
                                          final List<String> uidcids) {
         userService.deleteUser(uidcids);
         return Result.ok(Message.DELETE_SUCCESS);

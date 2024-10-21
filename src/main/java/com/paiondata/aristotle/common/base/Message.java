@@ -71,9 +71,19 @@ public class Message {
     public static final String UIDCID_MUST_NOT_BE_BLANK = "uidcid must not be blank!";
 
     /**
+     * UIDCIDs must not be empty.
+     */
+    public static final String UIDCIDS_MUST_NOT_EMPTY = "uidcids must not be empty!";
+
+    /**
      * UUID must not be blank.
      */
     public static final String UUID_MUST_NOT_BE_BLANK = "uuid must not be blank!";
+
+    /**
+     * UUIDs must not be empty.
+     */
+    public static final String UUIDS_MUST_NOT_EMPTY = "uuids must not be empty!";
 
     /**
      * Relation must not be blank.
@@ -144,4 +154,24 @@ public class Message {
      * Input properties error.
      */
     public static final String INPUT_PROPERTIES_ERROR = "This parameter cannot be passed: ";
+
+    /**
+     * GraphCreateDTO must not be NULL.
+     */
+    public static final String GRAPH_CREATE_DTO_MUST_NOT_BE_NULL = "GraphCreateDTO must not be NULL!";
+
+    /**
+     * fromId must not be blank.
+     */
+    public static final String FROM_ID_MUST_NOT_BE_BLANK = "fromId must not be blank!";
+
+    /**
+     * toId must not be blank.
+     */
+    public static final String TO_ID_MUST_NOT_BE_BLANK = "toId must not be blank!";
+
+    /**
+     * bindDtos must not be empty.
+     */
+    public static final String BIND_DTOS_MUST_NOT_EMPTY = "bindDtos must not be empty!";
 }

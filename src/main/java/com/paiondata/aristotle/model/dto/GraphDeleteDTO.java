@@ -16,6 +16,7 @@
 package com.paiondata.aristotle.model.dto;
 
 import com.paiondata.aristotle.common.base.Message;
+import com.paiondata.aristotle.model.BaseEntity;
 
 import io.swagger.annotations.ApiModel;
 import io.swagger.annotations.ApiModelProperty;
@@ -32,26 +33,44 @@ import javax.validation.constraints.NotEmpty;
 /**
  * Data Transfer Object (DTO) for deleting graphs.
  *
- * This DTO is used to encapsulate the data required for deleting graphs.
+ * <p>
+ * This DTO is used to encapsulate the data required for deleting graphs. It includes the user's
+ * unique identifier (uidcid) and a list of unique identifiers (uuids) for the graphs to be deleted.
  */
 @Data
 @Builder
 @AllArgsConstructor
 @NoArgsConstructor
-@ApiModel(description = "Data Transfer Object (DTO) for deleting graphs.")
-public class GraphDeleteDTO {
+@ApiModel(description = "Data Transfer Object (DTO) for deleting graphs."
+        + "This DTO is used to encapsulate the data required for deleting graphs. It includes the user's unique "
+        + "identifier (uidcid) and a list of unique identifiers (uuids) for the graphs to be deleted.")
+public class GraphDeleteDTO extends BaseEntity {
 
     /**
-     * The uidcid of user.
+     * The unique identifier (uidcid) of the user.
+     *
+     * <p>
+     * This field is required and must not be blank.
+     * It uniquely identifies the user who is performing the deletion operation.
+     *
+     * @see Message#UIDCID_MUST_NOT_BE_BLANK
      */
-    @ApiModelProperty(value = "The uidcid of user.", required = true)
+    @ApiModelProperty(value = "The unique identifier (uidcid) of the user."
+            + "This field is required and must not be blank.", required = true)
     @NotBlank(message = Message.UIDCID_MUST_NOT_BE_BLANK)
-    String uidcid;
+    private String uidcid;
 
     /**
-     * The uuids of graphs.
+     * The unique identifiers (uuids) of the graphs to be deleted.
+     *
+     * <p>
+     * This field is required and must not be empty.
+     * It contains a list of unique identifiers (uuids) for the graphs that need to be deleted.
+     *
+     * @see Message#UUIDS_MUST_NOT_EMPTY
      */
-    @ApiModelProperty(value = "The uuids of graphs.", required = true)
-    @NotEmpty(message = Message.UUID_MUST_NOT_BE_BLANK)
-    List<String> uuids;
+    @ApiModelProperty(value = "The unique identifiers (uuids) of the graphs to be deleted. "
+            + "This field is required and must not be empty.", required = true)
+    @NotEmpty(message = Message.UUIDS_MUST_NOT_EMPTY)
+    private List<String> uuids;
 }

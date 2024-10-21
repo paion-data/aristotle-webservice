@@ -25,6 +25,8 @@ import org.aspectj.lang.annotation.Aspect;
 import org.aspectj.lang.reflect.MethodSignature;
 import org.neo4j.driver.Session;
 import org.neo4j.driver.Transaction;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.core.annotation.Order;
 import org.springframework.stereotype.Component;
@@ -42,6 +44,8 @@ import javax.annotation.Resource;
 @Order(1)
 public class Neo4jTransactionAspect {
 
+    private static final Logger LOG = LoggerFactory.getLogger(Neo4jTransactionAspect.class);
+
     @Resource
     private TransactionManager neo4jTransactionManager;
 
@@ -55,6 +59,7 @@ public class Neo4jTransactionAspect {
      * @throws Throwable if an error occurs
      */
     @Around("@annotation(com.paiondata.aristotle.common.annotion.Neo4jTransactional)")
+    @SuppressWarnings({"checkstyle:IllegalThrows", "checkstyle:IllegalCatch"})
     public Object manageTransaction(final ProceedingJoinPoint joinPoint) throws Throwable {
         Transaction tx = null;
         try {
@@ -76,7 +81,11 @@ public class Neo4jTransactionAspect {
             if (tx != null) {
                 neo4jTransactionManager.rollbackTransaction(tx);
             }
-            throw e;
+
+            LOG.error(String.format("Transaction error: %s", e.getMessage()), e);
+            throw new IllegalStateException("Something went wrong inside Aristotle webservice. "
+                    + "Please file an issue at https://github.com/paion-data/aristotle/issues to report this incident. "
+                    + "We apologize for the inconvenience", e);
         } finally {
             closeTransaction(tx);
         }
@@ -99,7 +108,9 @@ public class Neo4jTransactionAspect {
         }
 
         if (!transactionInjected) {
-            throw new TransactionException(Message.METHOD_WITHOUT_TRANSACTION);
+            final String message = Message.METHOD_WITHOUT_TRANSACTION;
+            LOG.error(message);
+            throw new TransactionException(message);
         }
     }
 

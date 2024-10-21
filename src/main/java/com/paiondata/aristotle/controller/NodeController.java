@@ -17,19 +17,19 @@ package com.paiondata.aristotle.controller;
 
 import com.paiondata.aristotle.common.base.Message;
 import com.paiondata.aristotle.common.base.Result;
-import com.paiondata.aristotle.model.dto.GraphNodeDTO;
+import com.paiondata.aristotle.model.vo.GraphVO;
+import com.paiondata.aristotle.model.vo.NodeVO;
 import com.paiondata.aristotle.model.dto.NodeCreateDTO;
 import com.paiondata.aristotle.model.dto.GraphAndNodeCreateDTO;
 import com.paiondata.aristotle.model.dto.NodeDeleteDTO;
-import com.paiondata.aristotle.model.dto.NodeReturnDTO;
 import com.paiondata.aristotle.model.dto.NodeUpdateDTO;
 import com.paiondata.aristotle.model.dto.RelationUpdateDTO;
 import com.paiondata.aristotle.model.dto.BindNodeDTO;
-import com.paiondata.aristotle.model.vo.NodeVO;
 import com.paiondata.aristotle.service.NodeService;
 import io.swagger.annotations.Api;
 import io.swagger.annotations.ApiOperation;
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.validation.annotation.Validated;
 import org.springframework.web.bind.annotation.GetMapping;
 import org.springframework.web.bind.annotation.PathVariable;
 import org.springframework.web.bind.annotation.RequestMapping;
@@ -41,6 +41,8 @@ import org.springframework.web.bind.annotation.RequestBody;
 
 import javax.validation.Valid;
 import javax.validation.constraints.NotBlank;
+import javax.validation.constraints.NotEmpty;
+
 import java.util.List;
 import java.util.Optional;
 
@@ -50,16 +52,24 @@ import java.util.Optional;
 @Api(tags = "Node controller for handling graph node-related operations")
 @RestController
 @RequestMapping("/node")
+@Validated
 public class NodeController {
 
     @Autowired
     private NodeService nodeService;
 
     /**
-     * Retrieves a graph node by UUID.
+     * Retrieves a node by its UUID.
      *
-     * @param uuid the UUID of the graph node
-     * @return the result containing the graph node or an error message if not found
+     * <p>
+     * This method handles a GET request to retrieve a node based on the provided UUID.
+     * It validates the UUID and calls the node service to fetch the node data.
+     * If the node is found, it is wrapped in a {@link Result} object and returned.
+     * If the node is not found, a failure result with an appropriate message is returned.
+     *
+     * @param uuid the UUID of the node to retrieve
+     * @return a {@link Result} object containing the node data as a {@link NodeVO},
+     * or a failure message if the node is not found
      */
     @ApiOperation(value = "Retrieves a node by UUID")
     @GetMapping("/{uuid}")
@@ -70,28 +80,42 @@ public class NodeController {
     }
 
     /**
-     * Creates and binds a graph node.
+     * Creates and binds nodes.
      *
-     * @param graphNodeCreateDTO the DTO containing the graph node creation information
-     * @return the result indicating the success of the creation
+     * <p>
+     * This method handles a POST request to create and optionally bind nodes.
+     * It validates the input DTO and calls the node service to create the nodes.
+     * If specified, it also binds the nodes with relationships.
+     * The result is wrapped in a {@link Result} object with a success message and the list of created nodes.
+     *
+     * @param graphNodeCreateDTO the {@link NodeCreateDTO} containing the node creation and binding information
+     * @return a {@link Result} object containing a success message and a list of created nodes as {@link NodeVO}
+     * @notes The nodes could be created without binding any relations
      */
     @ApiOperation(value = "Creates and binds nodes",
             notes = "The nodes could be created without binding any relations")
     @PostMapping
-    public Result<List<NodeReturnDTO>> createAndBindNode(@RequestBody @Valid final NodeCreateDTO graphNodeCreateDTO) {
+    public Result<List<NodeVO>> createAndBindNode(@RequestBody @Valid final NodeCreateDTO graphNodeCreateDTO) {
         return Result.ok(Message.CREATE_SUCCESS, nodeService.createAndBindGraphAndNode(graphNodeCreateDTO, null));
     }
 
     /**
-     * Creates a graph and binds it with a graph node.
+     * Creates a graph and binds it with nodes.
      *
-     * @param graphNodeCreateDTO the DTO containing the graph and node creation information
-     * @return the result indicating the success of the creation
+     * <p>
+     * This method handles a POST request to create a graph and optionally bind it with nodes.
+     * It validates the input DTO and calls the node service to create the graph and nodes.
+     * If specified, it also binds the nodes with relationships.
+     * The result is wrapped in a {@link Result} object with a success message and the created graph data.
+     *
+     * @param graphNodeCreateDTO the {@link GraphAndNodeCreateDTO} containing the graph and node creation information
+     * @return a {@link Result} object containing a success message and the created graph data as {@link GraphVO}
+     * @notes You can create just graphs, or just graphs and nodes without binding any relations between nodes
      */
     @ApiOperation(value = "Creates a graph and binds it with nodes",
             notes = "You can create just graphs, or just graphs and nodes without binding any relations between nodes")
     @PostMapping("/graph")
-    public Result<GraphNodeDTO> createGraphAndBindGraphAndNode(
+    public Result<GraphVO> createGraphAndBindGraphAndNode(
             @RequestBody @Valid final GraphAndNodeCreateDTO graphNodeCreateDTO) {
         return Result.ok(nodeService.createGraphAndBindGraphAndNode(graphNodeCreateDTO, null));
     }
@@ -99,21 +123,32 @@ public class NodeController {
     /**
      * Binds multiple nodes.
      *
-     * @param dtos the list of DTOs containing the binding information
-     * @return the result indicating the success of the binding
+     * <p>
+     * This method handles a POST request to bind multiple nodes.
+     * It validates the input DTOs and calls the node service to perform the binding.
+     * The result is wrapped in a {@link Result} object with a success message.
+     *
+     * @param dtos a list of {@link BindNodeDTO} objects containing the binding information for the nodes
+     * @return a {@link Result} object containing a success message
      */
     @ApiOperation(value = "Binds multiple nodes")
     @PostMapping("/bind")
-    public Result<String> bindNodes(@RequestBody @Valid final List<BindNodeDTO> dtos) {
+    public Result<String> bindNodes(@RequestBody @NotEmpty(message = Message.BIND_DTOS_MUST_NOT_EMPTY)
+                                        @Valid final List<BindNodeDTO> dtos) {
         nodeService.bindNodes(dtos, null);
         return Result.ok(Message.BOUND_SUCCESS);
     }
 
     /**
-     * Updates a graph node.
+     * Updates a node.
      *
-     * @param nodeUpdateDTO the DTO containing the updated node information
-     * @return the result indicating the success of the update
+     * <p>
+     * This method handles a POST request to update a node based on the provided update DTO.
+     * It validates the input DTO and calls the node service to perform the update.
+     * The result is wrapped in a {@link Result} object with a success message.
+     *
+     * @param nodeUpdateDTO the {@link NodeUpdateDTO} containing the updated node information
+     * @return a {@link Result} object containing a success message
      */
     @ApiOperation(value = "Updates a node")
     @PostMapping("/update")
@@ -123,10 +158,15 @@ public class NodeController {
     }
 
     /**
-     * Updates a relation between graph nodes.
+     * Updates a relation between nodes.
      *
-     * @param relationUpdateDTO the DTO containing the relation update information
-     * @return the result indicating the success of the update
+     * <p>
+     * This method handles a PUT request to update a relation between nodes based on the provided update DTO.
+     * It validates the input DTO and calls the node service to perform the relation update.
+     * The result is wrapped in a {@link Result} object with a success message.
+     *
+     * @param relationUpdateDTO the {@link RelationUpdateDTO} containing the updated relation information
+     * @return a {@link Result} object containing a success message
      */
     @ApiOperation(value = "Updates a relation between nodes")
     @PutMapping("/relate")
@@ -136,10 +176,15 @@ public class NodeController {
     }
 
     /**
-     * Deletes graph nodes by their UUIDs.
+     * Deletes nodes by their UUIDs.
      *
-     * @param nodeDeleteDTO the list of UUIDs of the graph nodes to be deleted
-     * @return the result indicating the success of the deletion
+     * <p>
+     * This method handles a DELETE request to delete nodes based on the provided UUIDs.
+     * It validates the input DTO and calls the node service to perform the deletion.
+     * The result is wrapped in a {@link Result} object with a success message.
+     *
+     * @param nodeDeleteDTO the {@link NodeDeleteDTO} containing the UUIDs of the nodes to delete
+     * @return a {@link Result} object containing a success message
      */
     @ApiOperation(value = "Deletes nodes by their UUIDs")
     @DeleteMapping

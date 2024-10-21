@@ -26,47 +26,47 @@ public enum ReturnCode {
     /**
      * Indicates a successful operation.
      */
-    SUCCESS(HttpStatus.SUCCESS, "操作成功"),
+    SUCCESS(HttpStatus.SUCCESS, "Successful operation"),
 
     /**
      * Indicates a failed operation.
      */
-    FAIL(HttpStatus.ERROR, "操作失败"),
+    FAIL(HttpStatus.ERROR, "Operation failure"),
 
     /**
      * Indicates a warning.
      */
-    WARN(HttpStatus.WARN, "系统警告"),
+    WARN(HttpStatus.WARN, "System warning"),
 
     /**
      * Indicates that a required request parameter is missing.
      */
-    REQUEST_REQUIRED_PARAMETER_IS_EMPTY(13001, "请求必填参数为空"),
+    REQUEST_REQUIRED_PARAMETER_IS_EMPTY(13001, "The required request parameter is missing"),
 
     /**
      * Indicates that a parameter format mismatch occurred.
      */
-    PARAMETER_FORMAT_MISMATCH(13002, "参数格式不匹配"),
+    PARAMETER_FORMAT_MISMATCH(13002, "The parameter format mismatch occurred"),
 
     /**
      * Indicates that too many requests have been made.
      */
-    TOO_MANY_REQUESTS(13003, "用户请求次数太多"),
+    TOO_MANY_REQUESTS(13003, "Too many requests have been made"),
 
     /**
      * Indicates an error occurred in the database service.
      */
-    ERRORS_OCCURRED_IN_THE_DATABASE_SERVICE(20000, "数据库服务出错"),
+    ERRORS_OCCURRED_IN_THE_DATABASE_SERVICE(20000, "An error occurred in the database service."),
 
     /**
      * Indicates an error occurred in the message queue (MQ) service.
      */
-    MQ_SERVICE_ERROR(30000, "消息中间件服务出错"),
+    MQ_SERVICE_ERROR(30000, "An error occurred in the message queue (MQ) service"),
 
     /**
      * Indicates an error occurred in the main memory database service.
      */
-    MAIN_MEMORY_DATABASE_SERVICE_ERROR(30001, "内存数据库服务出错");
+    MAIN_MEMORY_DATABASE_SERVICE_ERROR(30001, "An error occurred in the main memory database service");
 
     /**
      * The numeric code associated with the return code.
