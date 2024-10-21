@@ -289,7 +289,7 @@ public class NodeMapperImpl implements NodeMapper {
      * @param entries the map containing the properties to filter
      * @return a {@link StringBuilder} object containing the filter properties clause
      */
-    private StringBuilder getFilterProperties(final String node, final Map<String, String> entries) {
+    private static StringBuilder getFilterProperties(final String node, final Map<String, String> entries) {
         return new StringBuilder()
                 .append("WHERE ")
                 .append(
@@ -305,7 +305,7 @@ public class NodeMapperImpl implements NodeMapper {
      * @param value the string to escape
      * @return the escaped string
      */
-    private String escapeSingleQuotes(final String value) {
+    private static String escapeSingleQuotes(final String value) {
         return value.replace("'", "''");
     }
 }

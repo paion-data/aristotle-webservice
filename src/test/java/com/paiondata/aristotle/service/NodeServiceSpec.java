@@ -37,7 +37,7 @@ import com.paiondata.aristotle.common.exception.TransactionException;
 import com.paiondata.aristotle.mapper.NodeMapper;
 import com.paiondata.aristotle.model.dto.GraphAndNodeCreateDTO;
 import com.paiondata.aristotle.model.vo.NodeVO;
-import com.paiondata.aristotle.model.vo.GraphAndNodeVO;
+import com.paiondata.aristotle.model.vo.GraphVO;
 import com.paiondata.aristotle.model.dto.NodeCreateDTO;
 import com.paiondata.aristotle.model.dto.NodeDTO;
 import com.paiondata.aristotle.model.dto.NodeDeleteDTO;
@@ -268,7 +268,7 @@ public class NodeServiceSpec {
                 anyString(), any(Transaction.class));
 
         // When
-        final GraphAndNodeVO dto = nodeService.createGraphAndBindGraphAndNode(graphNodeCreateDTO, tx);
+        final GraphVO dto = nodeService.createGraphAndBindGraphAndNode(graphNodeCreateDTO, tx);
 
         // Then
         verify(commonService, times(1)).createAndBindGraph(graphNodeCreateDTO.getGraphCreateDTO(), tx);

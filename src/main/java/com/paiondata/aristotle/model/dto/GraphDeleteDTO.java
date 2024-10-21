@@ -67,10 +67,10 @@ public class GraphDeleteDTO extends BaseEntity {
      * This field is required and must not be empty.
      * It contains a list of unique identifiers (uuids) for the graphs that need to be deleted.
      *
-     * @see Message#UUID_MUST_NOT_BE_BLANK
+     * @see Message#UUIDS_MUST_NOT_EMPTY
      */
     @ApiModelProperty(value = "The unique identifiers (uuids) of the graphs to be deleted. "
             + "This field is required and must not be empty.", required = true)
-    @NotEmpty(message = Message.UUID_MUST_NOT_BE_BLANK)
+    @NotEmpty(message = Message.UUIDS_MUST_NOT_EMPTY)
     private List<String> uuids;
 }

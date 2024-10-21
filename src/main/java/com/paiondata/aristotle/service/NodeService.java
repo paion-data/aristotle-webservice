@@ -15,7 +15,7 @@
  */
 package com.paiondata.aristotle.service;
 
-import com.paiondata.aristotle.model.vo.GraphAndNodeVO;
+import com.paiondata.aristotle.model.vo.GraphVO;
 import com.paiondata.aristotle.model.dto.NodeDeleteDTO;
 import com.paiondata.aristotle.model.vo.NodeVO;
 import com.paiondata.aristotle.model.dto.NodeUpdateDTO;
@@ -59,7 +59,7 @@ public interface NodeService {
      * @param tx the Neo4j transaction
      * @return the created graph node
      */
-    GraphAndNodeVO createGraphAndBindGraphAndNode(GraphAndNodeCreateDTO graphNodeCreateDTO, Transaction tx);
+    GraphVO createGraphAndBindGraphAndNode(GraphAndNodeCreateDTO graphNodeCreateDTO, Transaction tx);
 
     /**
      * Binds nodes based on the provided DTOs.

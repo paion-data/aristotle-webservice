@@ -15,6 +15,7 @@
  */
 package com.paiondata.aristotle.model.dto;
 
+import com.paiondata.aristotle.common.base.Message;
 import com.paiondata.aristotle.model.BaseEntity;
 
 import io.swagger.annotations.ApiModel;
@@ -51,7 +52,7 @@ public class GraphAndNodeCreateDTO extends BaseEntity {
     @ApiModelProperty(value = "The details of the graph to be created. "
             + "This field is required and must not be null.", required = true)
     @Valid
-    @NotNull
+    @NotNull(message = Message.GRAPH_CREATE_DTO_MUST_NOT_BE_NULL)
     private GraphCreateDTO graphCreateDTO;
 
     /**

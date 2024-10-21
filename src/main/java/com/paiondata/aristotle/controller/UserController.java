@@ -23,6 +23,7 @@ import com.paiondata.aristotle.service.UserService;
 import io.swagger.annotations.Api;
 import io.swagger.annotations.ApiOperation;
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.validation.annotation.Validated;
 import org.springframework.web.bind.annotation.GetMapping;
 import org.springframework.web.bind.annotation.PathVariable;
 import org.springframework.web.bind.annotation.RequestMapping;
@@ -43,6 +44,7 @@ import java.util.List;
 @Api(tags = "User controller for handling user-related operations")
 @RestController
 @RequestMapping("/user")
+@Validated
 public class UserController {
 
     @Autowired
@@ -131,7 +133,7 @@ public class UserController {
      */
     @ApiOperation(value = "Deletes users by their UID/CIDs")
     @DeleteMapping
-    public Result<String> deleteUser(@RequestBody @NotEmpty(message = Message.UIDCID_MUST_NOT_BE_BLANK)
+    public Result<String> deleteUser(@RequestBody @NotEmpty(message = Message.UIDCIDS_MUST_NOT_EMPTY)
                                          final List<String> uidcids) {
         userService.deleteUser(uidcids);
         return Result.ok(Message.DELETE_SUCCESS);

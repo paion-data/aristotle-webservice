@@ -104,4 +104,9 @@ public interface TestConstants {
      * Test color.
      */
     String GREEN = "green";
+
+    /**
+     * Test color.
+     */
+    String DATA = "data";
 }

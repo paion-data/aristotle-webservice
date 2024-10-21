@@ -1,0 +1,22 @@
+{
+  "graphCreateDTO": {
+    "userUidcid": "%s",
+    "title": "%s",
+    "description": "%s"
+  },
+  "graphNodeDTO": [
+    {
+      "temporaryId": "%s"
+    },
+    {
+      "temporaryId": "%s"
+    }
+  ],
+  "graphNodeRelationDTO": [
+    {
+      "fromId": "%s",
+      "relationName": "%s",
+      "toId": "%s"
+    }
+  ]
+}

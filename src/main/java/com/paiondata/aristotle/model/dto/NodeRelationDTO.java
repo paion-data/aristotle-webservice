@@ -44,11 +44,11 @@ public class NodeRelationDTO extends BaseEntity {
      * <p>
      * This field is required and must not be blank. It uniquely identifies the source node in the relation.
      *
-     * @see Message#UUID_MUST_NOT_BE_BLANK
+     * @see Message#FROM_ID_MUST_NOT_BE_BLANK
      */
     @ApiModelProperty(value = "The UUID of the source node in the relation. "
             + "This field is required and must not be blank.", required = true)
-    @NotBlank(message = Message.UUID_MUST_NOT_BE_BLANK)
+    @NotBlank(message = Message.FROM_ID_MUST_NOT_BE_BLANK)
     private String fromId;
 
     /**
@@ -57,11 +57,11 @@ public class NodeRelationDTO extends BaseEntity {
      * <p>
      * This field is required and must not be blank. It uniquely identifies the target node in the relation.
      *
-     * @see Message#UUID_MUST_NOT_BE_BLANK
+     * @see Message#TO_ID_MUST_NOT_BE_BLANK
      */
     @ApiModelProperty(value = "The UUID of the target node in the relation. "
             + "This field is required and must not be blank.", required = true)
-    @NotBlank(message = Message.UUID_MUST_NOT_BE_BLANK)
+    @NotBlank(message = Message.TO_ID_MUST_NOT_BE_BLANK)
     private String toId;
 
     /**

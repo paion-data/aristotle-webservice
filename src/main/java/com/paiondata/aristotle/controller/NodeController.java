@@ -17,8 +17,8 @@ package com.paiondata.aristotle.controller;
 
 import com.paiondata.aristotle.common.base.Message;
 import com.paiondata.aristotle.common.base.Result;
+import com.paiondata.aristotle.model.vo.GraphVO;
 import com.paiondata.aristotle.model.vo.NodeVO;
-import com.paiondata.aristotle.model.vo.GraphAndNodeVO;
 import com.paiondata.aristotle.model.dto.NodeCreateDTO;
 import com.paiondata.aristotle.model.dto.GraphAndNodeCreateDTO;
 import com.paiondata.aristotle.model.dto.NodeDeleteDTO;
@@ -29,6 +29,7 @@ import com.paiondata.aristotle.service.NodeService;
 import io.swagger.annotations.Api;
 import io.swagger.annotations.ApiOperation;
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.validation.annotation.Validated;
 import org.springframework.web.bind.annotation.GetMapping;
 import org.springframework.web.bind.annotation.PathVariable;
 import org.springframework.web.bind.annotation.RequestMapping;
@@ -40,6 +41,8 @@ import org.springframework.web.bind.annotation.RequestBody;
 
 import javax.validation.Valid;
 import javax.validation.constraints.NotBlank;
+import javax.validation.constraints.NotEmpty;
+
 import java.util.List;
 import java.util.Optional;
 
@@ -49,6 +52,7 @@ import java.util.Optional;
 @Api(tags = "Node controller for handling graph node-related operations")
 @RestController
 @RequestMapping("/node")
+@Validated
 public class NodeController {
 
     @Autowired
@@ -105,13 +109,13 @@ public class NodeController {
      * The result is wrapped in a {@link Result} object with a success message and the created graph data.
      *
      * @param graphNodeCreateDTO the {@link GraphAndNodeCreateDTO} containing the graph and node creation information
-     * @return a {@link Result} object containing a success message and the created graph data as {@link GraphAndNodeVO}
+     * @return a {@link Result} object containing a success message and the created graph data as {@link GraphVO}
      * @notes You can create just graphs, or just graphs and nodes without binding any relations between nodes
      */
     @ApiOperation(value = "Creates a graph and binds it with nodes",
             notes = "You can create just graphs, or just graphs and nodes without binding any relations between nodes")
     @PostMapping("/graph")
-    public Result<GraphAndNodeVO> createGraphAndBindGraphAndNode(
+    public Result<GraphVO> createGraphAndBindGraphAndNode(
             @RequestBody @Valid final GraphAndNodeCreateDTO graphNodeCreateDTO) {
         return Result.ok(nodeService.createGraphAndBindGraphAndNode(graphNodeCreateDTO, null));
     }
@@ -129,7 +133,8 @@ public class NodeController {
      */
     @ApiOperation(value = "Binds multiple nodes")
     @PostMapping("/bind")
-    public Result<String> bindNodes(@RequestBody @Valid final List<BindNodeDTO> dtos) {
+    public Result<String> bindNodes(@RequestBody @NotEmpty(message = Message.BIND_DTOS_MUST_NOT_EMPTY)
+                                        @Valid final List<BindNodeDTO> dtos) {
         nodeService.bindNodes(dtos, null);
         return Result.ok(Message.BOUND_SUCCESS);
     }

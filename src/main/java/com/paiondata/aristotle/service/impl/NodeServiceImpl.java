@@ -29,7 +29,7 @@ import com.paiondata.aristotle.common.exception.TransactionException;
 import com.paiondata.aristotle.mapper.NodeMapper;
 import com.paiondata.aristotle.model.dto.BindNodeDTO;
 import com.paiondata.aristotle.model.vo.NodeVO;
-import com.paiondata.aristotle.model.vo.GraphAndNodeVO;
+import com.paiondata.aristotle.model.vo.GraphVO;
 import com.paiondata.aristotle.model.dto.NodeDTO;
 import com.paiondata.aristotle.model.dto.NodeDeleteDTO;
 import com.paiondata.aristotle.model.dto.NodeRelationDTO;
@@ -149,12 +149,12 @@ public class NodeServiceImpl implements NodeService {
      * @param graphNodeCreateDTO The DTO containing information for creating the graph and node. <br>
      *                           It includes the graph creation details and optional node and relation details.
      * @param tx The Neo4j transaction object used for the database operation.
-     * @return The created graph node, represented by a {@link GraphAndNodeVO} object.
+     * @return The created graph node, represented by a {@link GraphVO} object.
      * @throws TransactionException If the provided transaction is null.
      */
     @Override
     @Neo4jTransactional
-    public GraphAndNodeVO createGraphAndBindGraphAndNode(final GraphAndNodeCreateDTO graphNodeCreateDTO,
+    public GraphVO createGraphAndBindGraphAndNode(final GraphAndNodeCreateDTO graphNodeCreateDTO,
                                                          final Transaction tx) {
 
         if (tx == null) {
@@ -165,7 +165,7 @@ public class NodeServiceImpl implements NodeService {
 
         final Graph graph = commonService.createAndBindGraph(graphNodeCreateDTO.getGraphCreateDTO(), tx);
 
-        final GraphAndNodeVO dto = GraphAndNodeVO.builder()
+        final GraphVO dto = GraphVO.builder()
                 .uuid(graph.getUuid())
                 .title(graph.getTitle())
                 .description(graph.getDescription())
