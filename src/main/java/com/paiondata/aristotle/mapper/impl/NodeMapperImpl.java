@@ -36,7 +36,6 @@ import org.springframework.stereotype.Repository;
 import lombok.NoArgsConstructor;
 
 import java.util.ArrayList;
-import java.util.HashSet;
 import java.util.List;
 import java.util.Map;
 import java.util.Set;
@@ -152,48 +151,58 @@ public class NodeMapperImpl implements NodeMapper {
      * @return a {@link GetRelationDTO} object containing the list of relationships and nodes
      */
     @Override
-    public GetRelationDTO getRelationByGraphUuid(final String uuid, final Map<String, String> properties) {
-        final String cypherQuery = "MATCH (g1:Graph { uuid: $uuid }) "
-                + "OPTIONAL MATCH (g1)-[:RELATION]->(n1:GraphNode) "
-                + (properties != null && !properties.isEmpty() ?
-                getFilterProperties(Constants.NODE_ALIAS_N1, properties) : "")
-                + " OPTIONAL MATCH (n1)-[r:RELATION]->(n2:GraphNode) "
-                + (properties != null && !properties.isEmpty() ?
-                getFilterProperties(Constants.NODE_ALIAS_N2, properties) : "")
-                + " RETURN DISTINCT n1, r, n2";
+    public GetRelationDTO getRelationByGraphUuid(final String uuid, final Map<String, String> properties,
+                                                 final Integer pageNumber, final Integer pageSize) {
+        final int skip = (pageNumber - 1) * pageSize;
+        final int limit = pageSize;
+
+        final StringBuilder cypherQuery = new StringBuilder("MATCH (g:Graph { uuid: $uuid }) ")
+                .append("OPTIONAL MATCH (g)-[:RELATION]->(n:GraphNode) ")
+                .append(properties != null && !properties.isEmpty() ?
+                        getFilterProperties(Constants.NODE_ALIAS_N, properties) : "")
+                .append(" OPTIONAL MATCH (n)-[r:RELATION]->(:GraphNode) ")
+                .append(" WITH DISTINCT n, COLLECT(r) AS relations")
+                .append(" RETURN DISTINCT n, relations")
+                .append(" SKIP $skip ")
+                .append(" LIMIT $limit");
 
         try (Session session = driver.session(SessionConfig.builder().build())) {
             return session.readTransaction(tx -> {
-                final var result = tx.run(cypherQuery, Values.parameters(Constants.UUID, uuid));
+                final var result = tx.run(cypherQuery.toString(), Values.parameters(
+                        Constants.UUID, uuid,
+                        "skip", skip,
+                        "limit", limit
+                ));
+
                 final List<RelationVO> relations = new ArrayList<>();
-                final Set<NodeVO> nodes = new HashSet<>();
+                final List<NodeVO> nodes = new ArrayList<>();
+                long totalCount = 0;
 
                 while (result.hasNext()) {
                     final Record record = result.next();
-                    final NodeVO n1 = nodeExtractor.extractNode(record.get(Constants.NODE_ALIAS_N1));
-                    nodes.add(n1);
+                    final NodeVO n = nodeExtractor.extractNode(record.get(Constants.NODE_ALIAS_N));
+                    nodes.add(n);
+                    totalCount++;
 
-                    if (record.get(Constants.NODE_ALIAS_N2) == null ||
-                            "NULL".equals(record.get(Constants.NODE_ALIAS_N2).toString())) {
-                        continue;
-                    }
+                    final List<Map<String, Object>> relationshipInfos = nodeExtractor
+                            .extractRelationships(record.get(Constants.RELATIONS));
 
-                    final NodeVO n2 = nodeExtractor.extractNode(record.get(Constants.NODE_ALIAS_N2));
-                    nodes.add(n2);
-                    final Map<String, Object> relation = nodeExtractor.extractRelationship(record.get("r"));
-
-                    final RelationVO relationVO = new RelationVO();
-                    relationVO.setSourceNode(n1.getUuid());
-                    relationVO.setTargetNode(n2.getUuid());
-                    relationVO.setUuid((String) relation.get(Constants.UUID));
-                    relationVO.setName((String) relation.get(Constants.NAME));
-                    relationVO.setCreateTime((String) relation.get(Constants.CREATE_TIME));
-                    relationVO.setUpdateTime((String) relation.get(Constants.UPDATE_TIME));
-
-                    relations.add(relationVO);
+                    relations.addAll(relationshipInfos.stream()
+                            .map(relationshipInfo -> {
+                                final RelationVO relationVO = new RelationVO();
+                                relationVO.setSourceNode((String) relationshipInfo.get(Constants.SOURCE_NODE));
+                                relationVO.setTargetNode((String) relationshipInfo.get(Constants.TARGET_NODE));
+                                relationVO.setUuid((String) relationshipInfo.get(Constants.UUID));
+                                relationVO.setName((String) relationshipInfo.get(Constants.NAME));
+                                relationVO.setCreateTime((String) relationshipInfo.get(Constants.CREATE_TIME));
+                                relationVO.setUpdateTime((String) relationshipInfo.get(Constants.UPDATE_TIME));
+                                return relationVO;
+                            })
+                            .collect(Collectors.toList()));
                 }
 
-                return new GetRelationDTO(relations, new ArrayList<>(nodes));
+
+                return new GetRelationDTO(relations, new ArrayList<>(nodes), totalCount);
             });
         }
     }
@@ -219,8 +228,8 @@ public class NodeMapperImpl implements NodeMapper {
                 + "WITH gn1 "
                 + "MATCH (gn2:GraphNode) WHERE gn2.uuid = $uuid2 SET gn2.update_time = $currentTime "
                 + "WITH gn1,gn2 "
-                + "CREATE (gn1)-[r:RELATION{name: $relation, uuid: $relationUuid, "
-                + "create_time: $currentTime, update_time: $currentTime}]->(gn2)";
+                + "CREATE (gn1)-[r:RELATION{name: $relation, uuid: $relationUuid, sourceNode: $uuid1, "
+                + "targetNode: $uuid2, create_time: $currentTime, update_time: $currentTime}]->(gn2)";
 
         tx.run(cypherQuery, Values.parameters(
                 "uuid1", uuid1,

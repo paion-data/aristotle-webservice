@@ -70,6 +70,18 @@ public class FilterQueryGraphDTO extends BaseEntity {
     private Map<String, String> properties;
 
     /**
+     * The page number of the result set. Defaults to 1.
+     */
+    @ApiModelProperty(value = "The page number of the result set. Defaults to 1.", example = "1")
+    private Integer pageNumber;
+
+    /**
+     * The number of results per page. Defaults to 10.
+     */
+    @ApiModelProperty(value = "The number of results per page. Defaults to 10.", example = "10")
+    private Integer pageSize;
+
+    /**
      * Returns an Optional containing the filter properties of the graph.
      * If the properties map is null, returns an empty Optional.
      *
@@ -77,5 +89,10 @@ public class FilterQueryGraphDTO extends BaseEntity {
      */
     public Optional<Map<String, String>> getProperties() {
         return Optional.ofNullable(properties);
+    }
+
+    {
+        this.pageNumber = 1;
+        this.pageSize = 10;
     }
 }

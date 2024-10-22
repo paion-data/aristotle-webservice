@@ -57,4 +57,9 @@ public class GetRelationDTO extends BaseEntity {
      * Each {@link NodeVO} object includes details such as the node ID, labels, and attributes.
      */
     private List<NodeVO> nodes;
+
+    /**
+     * The total number of nodes in the result set.
+     */
+    private Long totalCount;
 }

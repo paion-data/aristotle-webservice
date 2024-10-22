@@ -151,4 +151,22 @@ public class GraphVO extends BaseEntity {
      */
     @ApiModelProperty(value = "The relations between nodes")
     private List<RelationVO> relations;
+
+    /**
+     * The page number of the result set. Defaults to 1.
+     */
+    @ApiModelProperty(value = "The page number of the result set. Defaults to 1.", example = "1")
+    private Integer pageNumber;
+
+    /**
+     * The number of results per page. Defaults to 10.
+     */
+    @ApiModelProperty(value = "The number of results per page. Defaults to 10.", example = "10")
+    private Integer pageSize;
+
+    /**
+     * The total number of nodes in the result set.
+     */
+    @ApiModelProperty(value = "The total number of nodes in the result set.")
+    private Long totalCount;
 }

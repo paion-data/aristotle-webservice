@@ -611,7 +611,8 @@ abstract class AbstractITSpec extends Specification {
                 .contentType(ContentType.JSON)
                 .accept(ContentType.JSON)
                 .body(String.format(payload("create-graph-nodes.json"), TEST_UIDCID, TEST_GRAPH_TITLE,
-                        TestConstants.BLUE, TestConstants.BLUE, TestConstants.GREEN))
+                        TestConstants.BLUE, TestConstants.BLUE, TestConstants.GREEN,
+                        TestConstants.BLUE, TestConstants.BLUE, TestConstants.BLUE, TestConstants.BLUE))
                 .when()
                 .post("/node/graph")
                 .then()
@@ -624,13 +625,14 @@ abstract class AbstractITSpec extends Specification {
         Assertions.assertNotNull(postGraphResponse.jsonPath().get("data.uuid"))
         Assertions.assertEquals(postGraphResponse.jsonPath().get("data.title"), TEST_GRAPH_TITLE)
 
-        then: "we can GET that Graph entity next by filter params"
+        then: "we can GET that Graph entity next by filter and page params"
         Response getGraphEntityFilterResponse = RestAssured
                 .given()
                 .contentType(ContentType.JSON)
                 .accept(ContentType.JSON)
                 .body(String.format(payload("get-graph-filter.json"),
-                        GraphResponse.jsonPath().get("data.uuid"), TestConstants.BLUE))
+                        GraphResponse.jsonPath().get("data.uuid"), TestConstants.BLUE,
+                        TestConstants.DEFALUT_PAGE_SIZE, TestConstants.DEFALUT_PAGE_NUMBER))
                 .when()
                 .post(GRAPH_ENDPOINT)
                 .then()
@@ -640,15 +642,66 @@ abstract class AbstractITSpec extends Specification {
         getGraphEntityFilterResponse.then()
                 .statusCode(200)
 
+        Assert.assertEquals(TestConstants.DEFALUT_PAGE_NUMBER, getGraphEntityFilterResponse
+                .jsonPath().get("data.pageNumber"))
+        Assert.assertEquals(TestConstants.DEFALUT_PAGE_SIZE, getGraphEntityFilterResponse
+                .jsonPath().get("data.pageSize"))
+        Assert.assertEquals(TestConstants.EXPECT_TOTAL_COUNT_02, getGraphEntityFilterResponse
+                .jsonPath().get("data.totalCount"))
         Assert.assertEquals(TEST_GRAPH_TITLE,
                 getGraphEntityFilterResponse.jsonPath().get("data.title"))
         Assert.assertEquals(TestConstants.BLUE,
                 getGraphEntityFilterResponse.jsonPath().get("data.nodes[0].properties.color"))
         Assert.assertEquals(TestConstants.BLUE,
                 getGraphEntityFilterResponse.jsonPath().get("data.nodes[1].properties.color"))
-        Assert.assertNull(getGraphEntityFilterResponse.jsonPath().get("data.nodes[2]"))
         Assert.assertNotNull(getGraphEntityFilterResponse.jsonPath().get("data.relations[0]"))
         Assert.assertNull(getGraphEntityFilterResponse.jsonPath().get("data.relations[1]"))
+
+        Response getGraphEntityFilterResponsePage1 = RestAssured
+                .given()
+                .contentType(ContentType.JSON)
+                .accept(ContentType.JSON)
+                .body(String.format(payload("get-graph-filter.json"),
+                        GraphResponse.jsonPath().get("data.uuid"), TestConstants.BLUE,
+                        TestConstants.TEST_PAGE_SIZE_01, TestConstants.DEFALUT_PAGE_NUMBER))
+                .when()
+                .post(GRAPH_ENDPOINT)
+                .then()
+                .extract()
+                .response()
+
+        getGraphEntityFilterResponsePage1.then()
+                .statusCode(200)
+
+        Assert.assertEquals(TestConstants.DEFALUT_PAGE_NUMBER, getGraphEntityFilterResponsePage1
+                .jsonPath().get("data.pageNumber"))
+        Assert.assertEquals(TestConstants.TEST_PAGE_SIZE_01, getGraphEntityFilterResponsePage1
+                .jsonPath().get("data.pageSize"))
+        Assert.assertEquals(TestConstants.EXPECT_TOTAL_COUNT_03, getGraphEntityFilterResponsePage1
+                .jsonPath().get("data.totalCount"))
+
+        Response getGraphEntityFilterResponsePage2 = RestAssured
+                .given()
+                .contentType(ContentType.JSON)
+                .accept(ContentType.JSON)
+                .body(String.format(payload("get-graph-filter.json"),
+                        GraphResponse.jsonPath().get("data.uuid"), TestConstants.BLUE,
+                        TestConstants.TEST_PAGE_SIZE_01, TestConstants.TEST_PAGE_NUMBER_01))
+                .when()
+                .post(GRAPH_ENDPOINT)
+                .then()
+                .extract()
+                .response()
+
+        getGraphEntityFilterResponsePage2.then()
+                .statusCode(200)
+
+        Assert.assertEquals(TestConstants.TEST_PAGE_NUMBER_01, getGraphEntityFilterResponsePage2
+                .jsonPath().get("data.pageNumber"))
+        Assert.assertEquals(TestConstants.TEST_PAGE_SIZE_01, getGraphEntityFilterResponsePage2
+                .jsonPath().get("data.pageSize"))
+        Assert.assertEquals(TestConstants.EXPECT_TOTAL_COUNT_03, getGraphEntityFilterResponsePage2
+                .jsonPath().get("data.totalCount"))
 
         when: "the Graph entity is deleted"
         final Response deleteGraphResponse = RestAssured

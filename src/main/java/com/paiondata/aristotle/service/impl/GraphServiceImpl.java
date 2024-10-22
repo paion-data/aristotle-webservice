@@ -80,7 +80,7 @@ public class GraphServiceImpl implements GraphService {
      * Retrieves the graph by its UUID using the {@link GraphRepository#getGraphByUuid(String)} method.
      * Throws a {@link GraphNullException} if the graph is not found.
      * Retrieves the nodes and relations of the graph using the <br>
-     * {@link NodeMapper#getRelationByGraphUuid(String, Map)} method.
+     * {@link NodeMapper#getRelationByGraphUuid(String, Map, Integer, Integer)} method.
      * Constructs and returns a {@link GraphVO} object with the graph's details and the retrieved nodes and relations.
      *
      * @param filterQueryGraphDTO The DTO containing the graph UUID and optional properties for filtering. <br>
@@ -91,6 +91,8 @@ public class GraphServiceImpl implements GraphService {
     @Override
     public GraphVO getGraphVOByUuid(final FilterQueryGraphDTO filterQueryGraphDTO) {
         final String uuid = filterQueryGraphDTO.getUuid();
+        final int pageNumber = filterQueryGraphDTO.getPageNumber();
+        final int pageSize = filterQueryGraphDTO.getPageSize();
 
         final Graph graphByUuid = graphRepository.getGraphByUuid(uuid);
 
@@ -104,9 +106,11 @@ public class GraphServiceImpl implements GraphService {
 
         final Map<String, String> properties = optionalProperties.orElse(Map.of());
 
-        final GetRelationDTO dto = nodeMapper.getRelationByGraphUuid(uuid, properties);
+        final GetRelationDTO dto = nodeMapper.getRelationByGraphUuid(uuid, properties, pageNumber, pageSize);
+
         return new GraphVO(graphByUuid.getUuid(), graphByUuid.getTitle(), graphByUuid.getDescription(),
-                graphByUuid.getCreateTime(), graphByUuid.getUpdateTime(), dto.getNodes(), dto.getRelations());
+                graphByUuid.getCreateTime(), graphByUuid.getUpdateTime(), dto.getNodes(), dto.getRelations(),
+                pageNumber, pageSize, dto.getTotalCount());
     }
 
     /**

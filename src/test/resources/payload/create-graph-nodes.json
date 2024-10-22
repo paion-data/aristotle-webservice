@@ -22,6 +22,30 @@
       "properties": {
         "color": "%s"
       }
+    },
+    {
+      "temporaryId": "4",
+      "properties": {
+        "color": "%s"
+      }
+    },
+    {
+      "temporaryId": "5",
+      "properties": {
+        "color": "%s"
+      }
+    },
+    {
+      "temporaryId": "6",
+      "properties": {
+        "color": "%s"
+      }
+    },
+    {
+      "temporaryId": "7",
+      "properties": {
+        "color": "%s"
+      }
     }
   ],
   "graphNodeRelationDTO": [

@@ -109,4 +109,39 @@ public interface TestConstants {
      * Test color.
      */
     String DATA = "data";
+
+    /**
+     * Default page number.
+     */
+    Integer DEFALUT_PAGE_NUMBER = 1;
+
+    /**
+     * Default page size.
+     */
+    Integer DEFALUT_PAGE_SIZE = 10;
+
+    /**
+     * Test page number.
+     */
+    Integer TEST_PAGE_NUMBER_01 = 2;
+
+    /**
+     * Test page size.
+     */
+    Integer TEST_PAGE_SIZE_01 = 2;
+
+    /**
+     * Expected total count.
+     */
+    Long EXPECT_TOTAL_COUNT_01 = 1L;
+
+    /**
+     * Expected total count.
+     */
+    Long EXPECT_TOTAL_COUNT_02 = 6L;
+
+    /**
+     * Expected total count.
+     */
+    Long EXPECT_TOTAL_COUNT_03 = 2L;
 }
