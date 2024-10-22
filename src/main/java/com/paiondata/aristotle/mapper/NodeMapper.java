@@ -53,9 +53,12 @@ public interface NodeMapper {
      * Retrieves all relationships by graph uuid.
      * @param uuid the UUID of the graph
      * @param properties the filter properties of the node
+     * @param pageNumber the page number
+     * @param pageSize the page size
      * @return Data Transfer Object (DTO) contains relations and nodes
      */
-    GetRelationDTO getRelationByGraphUuid(String uuid, Map<String, String> properties);
+    GetRelationDTO getRelationByGraphUuid(String uuid, Map<String, String> properties,
+                                          Integer pageNumber, Integer pageSize);
 
     /**
      * Binds two graph nodes with a specified relationship.

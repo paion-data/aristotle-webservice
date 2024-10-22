@@ -116,7 +116,8 @@ public class GraphServiceSpec {
                 .updateTime(currentTime)
                 .build());
 
-        when(nodeMapper.getRelationByGraphUuid(uuid1, properties))
+        when(nodeMapper.getRelationByGraphUuid(uuid1, properties,
+                TestConstants.DEFALUT_PAGE_NUMBER, TestConstants.DEFALUT_PAGE_SIZE))
                 .thenReturn(new GetRelationDTO(
                         Collections.singletonList(RelationVO.builder()
                         .uuid(uuid1)
@@ -131,10 +132,12 @@ public class GraphServiceSpec {
                                 .properties(properties)
                                 .createTime(currentTime)
                                 .updateTime(currentTime)
-                                .build())));
+                                .build()),
+                        TestConstants.EXPECT_TOTAL_COUNT_01));
 
         // Act
-        final GraphVO graphVO = graphService.getGraphVOByUuid(new FilterQueryGraphDTO(uuid1, properties));
+        final GraphVO graphVO = graphService.getGraphVOByUuid(new FilterQueryGraphDTO(uuid1, properties,
+                TestConstants.DEFALUT_PAGE_NUMBER, TestConstants.DEFALUT_PAGE_SIZE));
 
         // Assert
         assertEquals(uuid1, graphVO.getUuid());
@@ -146,7 +149,8 @@ public class GraphServiceSpec {
         assertEquals(uuid2, graphVO.getNodes().get(0).getUuid());
 
         verify(graphRepository, times(1)).getGraphByUuid(uuid1);
-        verify(nodeMapper, times(1)).getRelationByGraphUuid(uuid1, properties);
+        verify(nodeMapper, times(1)).getRelationByGraphUuid(uuid1, properties,
+                TestConstants.DEFALUT_PAGE_NUMBER, TestConstants.DEFALUT_PAGE_SIZE);
     }
 
     /**
@@ -161,10 +165,12 @@ public class GraphServiceSpec {
 
         // Act & Assert
         assertThrows(GraphNullException.class, () -> graphService.getGraphVOByUuid(
-                new FilterQueryGraphDTO(uuid, properties)));
+                new FilterQueryGraphDTO(uuid, properties,
+                        TestConstants.DEFALUT_PAGE_NUMBER, TestConstants.DEFALUT_PAGE_SIZE)));
 
         verify(graphRepository, times(1)).getGraphByUuid(uuid);
-        verify(nodeMapper, never()).getRelationByGraphUuid(uuid, properties);
+        verify(nodeMapper, never()).getRelationByGraphUuid(uuid, properties,
+                TestConstants.DEFALUT_PAGE_NUMBER, TestConstants.DEFALUT_PAGE_SIZE);
     }
 
     /**

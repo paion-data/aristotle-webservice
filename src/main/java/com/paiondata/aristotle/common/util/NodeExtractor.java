@@ -18,11 +18,14 @@ package com.paiondata.aristotle.common.util;
 import com.paiondata.aristotle.common.base.Constants;
 import com.paiondata.aristotle.model.vo.NodeVO;
 
+import org.neo4j.driver.Value;
 import org.neo4j.driver.internal.value.NodeValue;
-import org.neo4j.driver.internal.value.RelationshipValue;
+import org.neo4j.driver.types.Relationship;
 import org.springframework.stereotype.Component;
 
+import java.util.ArrayList;
 import java.util.HashMap;
+import java.util.List;
 import java.util.Map;
 
 /**
@@ -58,24 +61,34 @@ public class NodeExtractor {
     /**
      * Extracts information from a relationship.
      *
-     * @param relationship the relationship object
+     * @param relationshipsValue the relationships queried by cypher
      *
      * @return a map containing the extracted information
      *
      * @throws IllegalArgumentException if the input relationship is not a valid RelationshipValue
      */
-    public Map<String, Object> extractRelationship(final Object relationship) {
-        final Map<String, Object> relationshipInfo = new HashMap<>();
-        if (relationship instanceof RelationshipValue) {
-            final RelationshipValue relationshipValue = (RelationshipValue) relationship;
-            final Map<String, Object> relMap = relationshipValue.asRelationship().asMap();
+    public List<Map<String, Object>> extractRelationships(final Value relationshipsValue) {
+        final List<Map<String, Object>> relationshipInfos = new ArrayList<>();
 
-            relationshipInfo.put(Constants.NAME, relMap.get(Constants.NAME));
-            relationshipInfo.put(Constants.CREATE_TIME, relMap.get(Constants.CREATE_TIME_WITHOUT_HUMP));
-            relationshipInfo.put(Constants.UPDATE_TIME, relMap.get(Constants.UPDATE_TIME_WITHOUT_HUMP));
-            relationshipInfo.put(Constants.UUID, relMap.get(Constants.UUID));
+        if (relationshipsValue != null && relationshipsValue.asList() != null) {
+            final List<Relationship> relationships = relationshipsValue.asList(Value::asRelationship);
+
+            for (final Relationship relationshipValue : relationships) {
+                final Map<String, Object> relationshipInfo = new HashMap<>();
+                final Map<String, Object> relMap = relationshipValue.asMap();
+
+                relationshipInfo.put(Constants.NAME, relMap.get(Constants.NAME));
+                relationshipInfo.put(Constants.CREATE_TIME, relMap.get(Constants.CREATE_TIME_WITHOUT_HUMP));
+                relationshipInfo.put(Constants.UPDATE_TIME, relMap.get(Constants.UPDATE_TIME_WITHOUT_HUMP));
+                relationshipInfo.put(Constants.UUID, relMap.get(Constants.UUID));
+                relationshipInfo.put(Constants.SOURCE_NODE, relMap.get(Constants.SOURCE_NODE));
+                relationshipInfo.put(Constants.TARGET_NODE, relMap.get(Constants.TARGET_NODE));
+
+                relationshipInfos.add(relationshipInfo);
+            }
         }
-        return relationshipInfo;
+
+        return relationshipInfos;
     }
 
     /**

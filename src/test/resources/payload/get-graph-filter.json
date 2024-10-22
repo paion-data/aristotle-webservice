@@ -2,5 +2,7 @@
   "uuid": "%s",
   "properties": {
     "color": "%s"
-  }
+  },
+  "pageSize": "%s",
+  "pageNumber": "%s"
 }

@@ -86,19 +86,24 @@ public interface Constants {
     String RELATION = "relation";
 
     /**
+     * Represents the relations field in the database.
+     */
+    String RELATIONS = "relations";
+
+    /**
      * Represents the relation UUID field in the database.
      */
     String RELATION_UUID = "relationUuid";
 
     /**
-     * Represents the start node field in the database.
+     * Represents the source node field in the database.
      */
-    String START_NODE = "startNode";
+    String SOURCE_NODE = "sourceNode";
 
     /**
-     * Represents the end node field in the database.
+     * Represents the target node field in the database.
      */
-    String END_NODE = "endNode";
+    String TARGET_NODE = "targetNode";
 
     /**
      * Represents the title field in the database.
@@ -153,12 +158,7 @@ public interface Constants {
     /**
      * Represents the node alias in cypher.
      */
-    String NODE_ALIAS_N1 = "n1";
-
-    /**
-     * Represents the node alias in cypher.
-     */
-    String NODE_ALIAS_N2 = "n2";
+    String NODE_ALIAS_N = "n";
 
     /**
      * Represents the quote in cypher.
