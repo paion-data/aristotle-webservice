@@ -110,6 +110,11 @@ const config: Config = {
       darkTheme: prismThemes.dracula,
       additionalLanguages: ["java", "bash", "json"]
     },
+    algolia: {
+        appId: 'DXTOFNB5C6',
+        apiKey: 'eca40f6bc63a92b106660dadd97f8703',
+        indexName: 'aristotle_ws'
+    },
   } satisfies Preset.ThemeConfig,
 };
 
