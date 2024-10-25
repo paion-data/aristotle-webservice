@@ -26,8 +26,6 @@ import io.restassured.response.Response
 
 class GraphControllerITSpec extends AbstractITSpec {
 
-
-
     def "JSON API handles invalid graph retrieving requests"() {
         expect:
         Response response = RestAssured
