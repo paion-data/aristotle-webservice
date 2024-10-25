@@ -17,16 +17,22 @@ package com.paiondata.aristotle.common.util;
 
 import com.paiondata.aristotle.common.base.Constants;
 import com.paiondata.aristotle.model.vo.NodeVO;
+import com.paiondata.aristotle.model.vo.RelationVO;
 
 import org.neo4j.driver.Value;
 import org.neo4j.driver.internal.value.NodeValue;
+import org.neo4j.driver.types.Node;
 import org.neo4j.driver.types.Relationship;
 import org.springframework.stereotype.Component;
 
 import java.util.ArrayList;
 import java.util.HashMap;
+import java.util.HashSet;
 import java.util.List;
 import java.util.Map;
+import java.util.Optional;
+import java.util.Set;
+import java.util.stream.Collectors;
 
 /**
  * Extracts information from graph nodes, relationships, and nodes.
@@ -35,13 +41,10 @@ import java.util.Map;
 public class NodeExtractor {
 
     /**
-     * Extracts information from a graph node.
+     * Extracts graph information from a NodeValue object.
      *
-     * @param node the graph node object
-     *
-     * @return a map containing the extracted information
-     *
-     * @throws IllegalArgumentException if the input node is not a valid NodeValue
+     * @param node  the NodeValue object to extract information from.
+     * @return a map containing the extracted graph information.
      */
     public Map<String, Object> extractGraph(final Object node) {
         final Map<String, Object> nodeInfo = new HashMap<>();
@@ -59,68 +62,106 @@ public class NodeExtractor {
     }
 
     /**
-     * Extracts information from a relationship.
+     * Extracts relationships from a Value object.
      *
-     * @param relationshipsValue the relationships queried by cypher
-     *
-     * @return a map containing the extracted information
-     *
-     * @throws IllegalArgumentException if the input relationship is not a valid RelationshipValue
+     * @param relationshipsValue  the Value object containing relationships.
+     * @return a list of RelationVO objects representing the extracted relationships.
      */
-    public List<Map<String, Object>> extractRelationships(final Value relationshipsValue) {
-        final List<Map<String, Object>> relationshipInfos = new ArrayList<>();
+    public List<RelationVO> extractRelationships(final Value relationshipsValue) {
+        final List<RelationVO> relations = new ArrayList<>();
 
-        if (relationshipsValue != null && relationshipsValue.asList() != null) {
-            final List<Relationship> relationships = relationshipsValue.asList(Value::asRelationship);
+        if (relationshipsValue != null) {
+            Optional.ofNullable(relationshipsValue.asList(Value::asRelationship))
+                    .ifPresent(relationships -> {
+                        for (final Relationship relationshipValue : relationships) {
+                            final Map<String, Object> relMap = relationshipValue.asMap();
+                            final Map<String, String> stringRelMap = relMap.entrySet().stream()
+                                    .collect(Collectors.toMap(Map.Entry::getKey,
+                                            entry -> String.valueOf(entry.getValue())));
 
-            for (final Relationship relationshipValue : relationships) {
-                final Map<String, Object> relationshipInfo = new HashMap<>();
-                final Map<String, Object> relMap = relationshipValue.asMap();
+                            final RelationVO relation = RelationVO.builder()
+                                    .name(stringRelMap.getOrDefault(Constants.NAME, ""))
+                                    .createTime(stringRelMap.getOrDefault(Constants.CREATE_TIME_WITHOUT_HUMP, ""))
+                                    .updateTime(stringRelMap.getOrDefault(Constants.UPDATE_TIME_WITHOUT_HUMP, ""))
+                                    .uuid(stringRelMap.getOrDefault(Constants.UUID, ""))
+                                    .sourceNode(stringRelMap.getOrDefault(Constants.SOURCE_NODE, ""))
+                                    .targetNode(stringRelMap.getOrDefault(Constants.TARGET_NODE, ""))
+                                    .build();
 
-                relationshipInfo.put(Constants.NAME, relMap.get(Constants.NAME));
-                relationshipInfo.put(Constants.CREATE_TIME, relMap.get(Constants.CREATE_TIME_WITHOUT_HUMP));
-                relationshipInfo.put(Constants.UPDATE_TIME, relMap.get(Constants.UPDATE_TIME_WITHOUT_HUMP));
-                relationshipInfo.put(Constants.UUID, relMap.get(Constants.UUID));
-                relationshipInfo.put(Constants.SOURCE_NODE, relMap.get(Constants.SOURCE_NODE));
-                relationshipInfo.put(Constants.TARGET_NODE, relMap.get(Constants.TARGET_NODE));
-
-                relationshipInfos.add(relationshipInfo);
-            }
+                            relations.add(relation);
+                        }
+                    });
         }
 
-        return relationshipInfos;
+        return relations;
     }
 
     /**
-     * Extracts information from a graph node.
+     * Extracts a single node from a Value object.
      *
-     * @param node the node object
-     *
-     * @return the extracted node information
-     *
-     * @throws IllegalArgumentException if the input node is not a valid NodeValue
+     * @param node  the Value object representing a node.
+     * @return a NodeVO object representing the extracted node.
      */
-    public NodeVO extractNode(final Object node) {
+    public NodeVO extractNode(final Value node) {
         final NodeVO nodeInfo = new NodeVO();
+
         if (node instanceof NodeValue) {
             final NodeValue nodeValue = (NodeValue) node;
-            final Map<String, Object> nodeMap = nodeValue.asNode().asMap();
+            final Map<String, Object> nodeMap = nodeValue.asMap();
+            final Map<String, String> stringNodeMap = nodeMap.entrySet().stream()
+                    .collect(Collectors.toMap(Map.Entry::getKey, entry -> String.valueOf(entry.getValue())));
 
-            nodeInfo.setUuid((String) nodeMap.get(Constants.UUID));
-            nodeInfo.setCreateTime((String) nodeMap.get(Constants.CREATE_TIME_WITHOUT_HUMP));
-            nodeInfo.setUpdateTime((String) nodeMap.get(Constants.UPDATE_TIME_WITHOUT_HUMP));
-
-            final Map<String, String> properties = new HashMap<>();
-            for (final Map.Entry<String, Object> entry : nodeMap.entrySet()) {
-                if (!Constants.UUID.equals(entry.getKey())
-                        && !Constants.UPDATE_TIME_WITHOUT_HUMP.equals(entry.getKey())
-                        && !Constants.CREATE_TIME_WITHOUT_HUMP.equals(entry.getKey())) {
-                    properties.put(entry.getKey(), (String) entry.getValue());
-                }
-            }
-
-            nodeInfo.setProperties(properties);
+            setNodeInfo(stringNodeMap, nodeInfo);
         }
         return nodeInfo;
+    }
+
+    /**
+     * Extracts multiple nodes from a Value object.
+     *
+     * @param nodesValue  the Value object containing multiple nodes.
+     * @return a set of NodeVO objects representing the extracted nodes.
+     */
+    public Set<NodeVO> extractNodes(final Value nodesValue) {
+        final Set<NodeVO> nodes = new HashSet<>();
+
+        if (nodesValue != null) {
+            Optional.ofNullable(nodesValue.asList(Value::asNode))
+                    .ifPresent(nodeList -> {
+                        for (final Node n : nodeList) {
+                            final Map<String, Object> nodeMap = n.asMap();
+                            final Map<String, String> stringNodeMap = nodeMap.entrySet().stream()
+                                    .collect(Collectors.toMap(Map.Entry::getKey,
+                                            entry -> String.valueOf(entry.getValue())));
+
+                            final NodeVO nodeInfo = new NodeVO();
+                            setNodeInfo(stringNodeMap, nodeInfo);
+
+                            nodes.add(nodeInfo);
+                        }
+                    });
+        }
+
+        return nodes;
+    }
+
+    /**
+     * Sets the node information in a NodeVO object.
+     *
+     * @param stringNodeMap  the map containing node information as strings.
+     * @param nodeInfo       the NodeVO object to set the information in.
+     */
+    private void setNodeInfo(final Map<String, String> stringNodeMap, final NodeVO nodeInfo) {
+        nodeInfo.setUuid(stringNodeMap.getOrDefault(Constants.UUID, ""));
+        nodeInfo.setCreateTime(stringNodeMap.getOrDefault(Constants.CREATE_TIME_WITHOUT_HUMP, ""));
+        nodeInfo.setUpdateTime(stringNodeMap.getOrDefault(Constants.UPDATE_TIME_WITHOUT_HUMP, ""));
+        nodeInfo.setProperties(stringNodeMap.entrySet().stream()
+                .filter(entry -> !Constants.UUID.equals(entry.getKey())
+                        && !Constants.UPDATE_TIME_WITHOUT_HUMP.equals(entry.getKey())
+                        && !Constants.CREATE_TIME_WITHOUT_HUMP.equals(entry.getKey()))
+                .collect(Collectors.toMap(
+                        Map.Entry::getKey,
+                        Map.Entry::getValue
+                )));
     }
 }

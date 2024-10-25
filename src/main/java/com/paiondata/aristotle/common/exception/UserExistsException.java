@@ -16,7 +16,7 @@
 package com.paiondata.aristotle.common.exception;
 
 /**
- * This class represents an exception thrown when a user with a specific uidcid already exists.
+ * This class represents an exception thrown when a user with a specific oidcid already exists.
  */
 
 public class UserExistsException extends BaseException {

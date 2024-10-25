@@ -42,13 +42,13 @@ public interface GraphMapper {
                       String graphUuid, String relationUuid, String currentTime, Transaction tx);
 
     /**
-     * Retrieves users' associated graphs by UIDCID.
+     * Retrieves users' associated graphs by OIDC ID.
      *
-     * @param uidcid the UIDCID of the user
+     * @param oidcid the OIDC ID of the user
      *
      * @return a list of maps containing user information and associated graphs
      */
-    List<Map<String, Object>> getGraphsByUidcid(String uidcid);
+    List<Map<String, Object>> getGraphsByOidcid(String oidcid);
 
     /**
      * Updates a graph by its UUID.

@@ -58,24 +58,24 @@ public class GraphMapperImpl implements GraphMapper {
     /**
      * Creates a new graph and associates it with a user.
      *
-     * Constructs a Cypher query to match a user by their uidcid, create a new graph with the provided details,
+     * Constructs a Cypher query to match a user by their oidcid, create a new graph with the provided details,
      * and establish a relationship between the user and the graph.
      * Executes the Cypher query using the provided transaction.
      * Extracts the graph details from the query result and returns a {@link Graph} object.
      *
      * @param title the title of the graph
      * @param description the description of the graph
-     * @param userUidcid the uidcid of the user who owns the graph
+     * @param oidcid the oidcid of the user who owns the graph
      * @param graphUuid the UUID of the graph
      * @param relationUuid the UUID of the relationship between the user and the graph
      * @param currentTime the current timestamp for creation and update times
      * @param tx the Neo4j transaction to execute the Cypher query
      * @return a {@link Graph} object representing the newly created graph
      */
-    public Graph createGraph(final String title, final String description, final String userUidcid,
+    public Graph createGraph(final String title, final String description, final String oidcid,
                              final String graphUuid, final String relationUuid, final String currentTime,
                              final Transaction tx) {
-        final String cypherQuery = "MATCH (u:User) WHERE u.uidcid = $uidcid "
+        final String cypherQuery = "MATCH (u:User) WHERE u.oidcid = $oidcid "
                 + "CREATE (g:Graph {uuid: $graphUuid, title: $title, description: $description, "
                 + "create_time: $currentTime, update_time: $currentTime}) "
                 + "WITH u, g "
@@ -85,7 +85,7 @@ public class GraphMapperImpl implements GraphMapper {
         final var result = tx.run(cypherQuery, Values.parameters(
                         Constants.TITLE, title,
                         Constants.DESCRIPTION, description,
-                        Constants.UIDCID, userUidcid,
+                        Constants.OIDCID, oidcid,
                         Constants.GRAPH_UUID, graphUuid,
                         Constants.CURRENT_TIME, currentTime,
                         Constants.RELATION_UUID, relationUuid
@@ -106,22 +106,22 @@ public class GraphMapperImpl implements GraphMapper {
     }
 
     /**
-     * Retrieves a list of graphs associated with a user by their unique identifier (uidcid).
+     * Retrieves a list of graphs associated with a user by their unique identifier (OIDC ID).
      *
-     * Constructs a Cypher query to match a user by their uidcid and retrieve all graphs they are related to.
+     * Constructs a Cypher query to match a user by their oidcid and retrieve all graphs they are related to.
      * Executes the Cypher query within a read transaction using the Neo4j session.
      * Extracts the graph details from the query results and returns a list of maps, where each map represents a graph.
      *
-     * @param uidcid the unique identifier of the user
+     * @param oidcid the unique identifier of the user
      * @return a list of maps, where each map contains the details of a graph associated with the user
      */
     @Override
-    public List<Map<String, Object>> getGraphsByUidcid(final String uidcid) {
-        final String cypherQuery = "MATCH (u:User)-[r:RELATION]->(g:Graph) WHERE u.uidcid = $uidcid RETURN DISTINCT g";
+    public List<Map<String, Object>> getGraphsByOidcid(final String oidcid) {
+        final String cypherQuery = "MATCH (u:User)-[r:RELATION]->(g:Graph) WHERE u.oidcid = $oidcid RETURN DISTINCT g";
 
         try (Session session = driver.session(SessionConfig.builder().build())) {
             return session.readTransaction(tx -> {
-                final var result = tx.run(cypherQuery, Values.parameters("uidcid", uidcid));
+                final var result = tx.run(cypherQuery, Values.parameters("oidcid", oidcid));
                 final List<Map<String, Object>> resultList = new ArrayList<>();
                 while (result.hasNext()) {
                     final Record record = result.next();

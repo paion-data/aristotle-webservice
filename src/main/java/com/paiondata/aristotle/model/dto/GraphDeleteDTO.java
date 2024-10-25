@@ -35,7 +35,7 @@ import javax.validation.constraints.NotEmpty;
  *
  * <p>
  * This DTO is used to encapsulate the data required for deleting graphs. It includes the user's
- * unique identifier (uidcid) and a list of unique identifiers (uuids) for the graphs to be deleted.
+ * unique identifier (OIDC ID) and a list of unique identifiers (uuids) for the graphs to be deleted.
  */
 @Data
 @Builder
@@ -43,22 +43,22 @@ import javax.validation.constraints.NotEmpty;
 @NoArgsConstructor
 @ApiModel(description = "Data Transfer Object (DTO) for deleting graphs."
         + "This DTO is used to encapsulate the data required for deleting graphs. It includes the user's unique "
-        + "identifier (uidcid) and a list of unique identifiers (uuids) for the graphs to be deleted.")
+        + "identifier (OIDC ID) and a list of unique identifiers (uuids) for the graphs to be deleted.")
 public class GraphDeleteDTO extends BaseEntity {
 
     /**
-     * The unique identifier (uidcid) of the user.
+     * The unique identifier (OIDC ID) of the user.
      *
      * <p>
      * This field is required and must not be blank.
      * It uniquely identifies the user who is performing the deletion operation.
      *
-     * @see Message#UIDCID_MUST_NOT_BE_BLANK
+     * @see Message#OIDCID_MUST_NOT_BE_BLANK
      */
-    @ApiModelProperty(value = "The unique identifier (uidcid) of the user."
+    @ApiModelProperty(value = "The unique identifier (OIDC ID) of the user."
             + "This field is required and must not be blank.", required = true)
-    @NotBlank(message = Message.UIDCID_MUST_NOT_BE_BLANK)
-    private String uidcid;
+    @NotBlank(message = Message.OIDCID_MUST_NOT_BE_BLANK)
+    private String oidcid;
 
     /**
      * The unique identifiers (uuids) of the graphs to be deleted.

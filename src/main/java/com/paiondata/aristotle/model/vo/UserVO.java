@@ -40,10 +40,10 @@ import java.util.Map;
 public class UserVO extends BaseEntity {
 
     /**
-     * The unique identifier (UID/CID) of the user.
+     * The unique identifier (OIDC ID) of the user.
      */
-    @ApiModelProperty(value = "The unique identifier (UID/CID) of the user")
-    private String uidcid;
+    @ApiModelProperty(value = "The unique identifier (OIDC ID) of the user")
+    private String oidcid;
 
     /**
      * The nickname of the user.

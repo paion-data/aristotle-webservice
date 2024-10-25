@@ -59,17 +59,17 @@ public class CommonServiceImpl implements CommonService {
     private GraphMapper graphMapper;
 
     /**
-     * Retrieves a user by their unique identifier (uidcid).
+     * Retrieves a user by their unique identifier (OIDC ID).
      *
-     * Attempts to find the user by their uidcid using the {@link UserRepository#getUserByUidcid(String)} method.
+     * Attempts to find the user by their oidcid using the {@link UserRepository#getUserByOidcid(String)} method.
      * Returns an {@code Optional} containing the user if found, or an empty {@code Optional} if not found.
      *
-     * @param uidcid the unique identifier of the user
+     * @param oidcid the unique identifier of the user
      * @return an {@code Optional} containing the user if found, or an empty {@code Optional} if not found
      */
     @Override
-    public Optional<User> getUserByUidcid(final String uidcid) {
-        final User user = userRepository.getUserByUidcid(uidcid);
+    public Optional<User> getUserByUidcid(final String oidcid) {
+        final User user = userRepository.getUserByOidcid(oidcid);
         return Optional.ofNullable(user);
     }
 
@@ -89,27 +89,27 @@ public class CommonServiceImpl implements CommonService {
     }
 
     /**
-     * Retrieves a list of graphs associated with a user by their user identifier (uidcid).
+     * Retrieves a list of graphs associated with a user by their user identifier (OIDC ID).
      *
-     * Checks if the user with the provided uidcid exists using <br>
-     * the {@link UserRepository#getUserByUidcid(String)} method.
+     * Checks if the user with the provided oidcid exists using <br>
+     * the {@link UserRepository#getUserByOidcid(String)} method.
      * Throws a {@link UserNullException} if the user is not found.
      * Retrieves the list of graphs associated with the user using <br>
-     * the {@link GraphMapper#getGraphsByUidcid(String)} method.
+     * the {@link GraphMapper#getGraphsByOidcid(String)} method.
      *
-     * @param uidcid The user identifier.
+     * @param oidcid The user identifier.
      * @return A list of maps, where each map represents a graph and contains its details.
-     * @throws UserNullException If the user with the specified uidcid is not found.
+     * @throws UserNullException If the user with the specified oidcid is not found.
      */
     @Override
-    public List<Map<String, Object>> getGraphsByUidcid(final String uidcid) {
-        if (userRepository.getUserByUidcid(uidcid) == null) {
-            final String message = Message.USER_NULL + uidcid;
+    public List<Map<String, Object>> getGraphsByOidcid(final String oidcid) {
+        if (userRepository.getUserByOidcid(oidcid) == null) {
+            final String message = String.format(Message.USER_NULL, oidcid);
             LOG.error(message);
             throw new UserNullException(message);
         }
 
-        return graphMapper.getGraphsByUidcid(uidcid);
+        return graphMapper.getGraphsByOidcid(oidcid);
     }
 
     /**
@@ -133,19 +133,19 @@ public class CommonServiceImpl implements CommonService {
     public Graph createAndBindGraph(final GraphCreateDTO graphCreateDTO, final Transaction tx) {
         final String title = graphCreateDTO.getTitle();
         final String description = graphCreateDTO.getDescription();
-        final String uidcid = graphCreateDTO.getUserUidcid();
+        final String oidcid = graphCreateDTO.getUserUidcid();
         final String graphUuid = UUID.fastUUID().toString(true);
         final String relationUuid = UUID.fastUUID().toString(true);
         final String currentTime = getCurrentTime();
 
-        final Optional<User> optionalUser = getUserByUidcid(uidcid);
+        final Optional<User> optionalUser = getUserByUidcid(oidcid);
         if (optionalUser.isEmpty()) {
-            final String message = Message.USER_NULL + uidcid;
+            final String message = String.format(Message.USER_NULL, oidcid);
             LOG.error(message);
             throw new UserNullException(message);
         }
 
-        return graphMapper.createGraph(title, description, uidcid, graphUuid, relationUuid, currentTime, tx);
+        return graphMapper.createGraph(title, description, oidcid, graphUuid, relationUuid, currentTime, tx);
     }
 
     /**

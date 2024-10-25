@@ -26,12 +26,12 @@ import java.util.List;
 public interface UserService {
 
     /**
-     * Retrieves a UserVO by UIDCID.
+     * Retrieves a UserVO by OIDC ID.
      *
-     * @param uidcid the UIDCID of the user
+     * @param oidcid the OIDC ID of the user
      * @return the UserVO containing user details and associated graphs
      */
-    UserVO getUserVOByUidcid(String uidcid);
+    UserVO getUserVOByUidcid(String oidcid);
 
     /**
      * Retrieves all users as UserVOs.
@@ -58,7 +58,7 @@ public interface UserService {
     /**
      * Deletes multiple users along with their related graphs and graph nodes.
      *
-     * @param uidcids a list of UIDCIDs of the users to be deleted
+     * @param oidcids a list of OIDC IDs of the users to be deleted
      */
-    void deleteUser(List<String> uidcids);
+    void deleteUser(List<String> oidcids);
 }

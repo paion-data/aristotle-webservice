@@ -23,6 +23,7 @@ import static org.mockito.ArgumentMatchers.anyString;
 import static org.mockito.ArgumentMatchers.eq;
 import static org.mockito.Mockito.doNothing;
 import static org.mockito.Mockito.mock;
+import static org.mockito.Mockito.never;
 import static org.mockito.Mockito.times;
 import static org.mockito.Mockito.verify;
 import static org.mockito.Mockito.when;
@@ -556,6 +557,45 @@ public class NodeServiceSpec {
         // When & Then
         assertThrows(NodeRelationException.class,
                 () -> nodeService.updateRelation(relationUpdateDTO));
+    }
+
+    /**
+     * Tests that getting a node by KExpend returns the expected node when the graph exists.
+     */
+    @Test
+    void expandNodeUnlimitedGraphExists() {
+        // Given
+        final String uuid = TestConstants.TEST_ID1;
+        final String name = TestConstants.TEST_NAME1;
+        final GraphVO expectedNode = new GraphVO();
+
+        when(commonService.getGraphByUuid(uuid)).thenReturn(Optional.of(new Graph()));
+        when(nodeMapper.expandNodeUnlimited(uuid, name)).thenReturn(expectedNode);
+
+        // When
+        final GraphVO result = nodeService.expandNodeUnlimited(uuid, name);
+
+        // Then
+        assertEquals(expectedNode, result);
+        verify(commonService, times(1)).getGraphByUuid(uuid);
+        verify(nodeMapper, times(1)).expandNodeUnlimited(uuid, name);
+    }
+
+    /**
+     * Tests that getting a node by KExpend throws a GraphNullException when the graph does not exist.
+     */
+    @Test
+    void expandNodeUnlimitedGraphDoesNotExistThrowsGraphNullException() {
+        // Arrange
+        final String uuid = TestConstants.TEST_ID1;
+        final String name = TestConstants.TEST_NAME1;
+        when(commonService.getGraphByUuid(uuid)).thenReturn(Optional.empty());
+
+        // Act & Assert
+        assertThrows(GraphNullException.class, () -> nodeService.expandNodeUnlimited(uuid, name));
+
+        verify(commonService, times(1)).getGraphByUuid(uuid);
+        verify(nodeMapper, never()).expandNodeUnlimited(uuid, name);
     }
 
     /**

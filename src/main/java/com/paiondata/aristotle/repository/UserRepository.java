@@ -33,13 +33,13 @@ import java.util.List;
 public interface UserRepository extends Neo4jRepository<User, Long> {
 
     /**
-     * Retrieves a user by their unique identifier (UID/CID).
+     * Retrieves a user by their unique identifier (OIDC ID).
      *
-     * @param uidcid the unique identifier of the user
+     * @param oidcid the unique identifier of the user
      * @return the user
      */
-    @Query("MATCH (u:User { uidcid: $uidcid }) RETURN u")
-    User getUserByUidcid(String uidcid);
+    @Query("MATCH (u:User { oidcid: $oidcid }) RETURN u")
+    User getUserByOidcid(String oidcid);
 
     /**
      * Retrieves all users.
@@ -50,53 +50,53 @@ public interface UserRepository extends Neo4jRepository<User, Long> {
     List<User> findAll();
 
     /**
-     * Checks if a user with the given UID/CID exists.
+     * Checks if a user with the given OIDC ID exists.
      *
-     * @param uidcid the unique identifier of the user
-     * @return the count of users with the given UID/CID
+     * @param oidcid the unique identifier of the user
+     * @return the count of users with the given OIDC ID
      */
-    @Query("MATCH (u:User { uidcid: $uidcid }) RETURN count(u)")
-    long checkUidcidExists(String uidcid);
+    @Query("MATCH (u:User { oidcid: $oidcid }) RETURN count(u)")
+    long checkUidcidExists(String oidcid);
 
     /**
      * Creates a new user.
      *
-     * @param uidcid   the unique identifier of the user
+     * @param oidcid the unique identifier of the user
      * @param nickName the nickname of the user
      * @return the created user
      */
-    @Query("CREATE (u:User { uidcid: $uidcid, nick_name: $nickName }) RETURN u")
-    User createUser(@Param("uidcid") String uidcid,
+    @Query("CREATE (u:User { oidcid: $oidcid, nick_name: $nickName }) RETURN u")
+    User createUser(@Param("oidcid") String oidcid,
                     @Param("nickName") String nickName);
 
     /**
      * Updates the nickname of a user.
      *
-     * @param uidcid   the unique identifier of the user
+     * @param oidcid   the unique identifier of the user
      * @param nickName the new nickname of the user
      * @return the updated user
      */
-    @Query("MATCH (u:User { uidcid: $uidcid }) SET u.nick_name = $nickName RETURN u")
-    User updateUser(@Param("uidcid") String uidcid,
+    @Query("MATCH (u:User { oidcid: $oidcid }) SET u.nick_name = $nickName RETURN u")
+    User updateUser(@Param("oidcid") String oidcid,
                     @Param("nickName") String nickName);
 
     /**
-     * Deletes users by their UID/CIDs.
+     * Deletes users by their OIDC IDs.
      *
-     * @param uidcids the list of UID/CIDs of the users to be deleted
+     * @param oidcids the list of OIDC IDs of the users to be deleted
      */
-    @Query("MATCH (u:User) WHERE u.uidcid IN $uidcids DETACH DELETE u")
-    void deleteByUidcids(List<String> uidcids);
+    @Query("MATCH (u:User) WHERE u.oidcid IN $oidcids DETACH DELETE u")
+    void deleteByOidcids(List<String> oidcids);
 
     /**
      * Retrieves the UUIDs of graphs associated with the given users.
      *
-     * @param uidcids the list of UID/CIDs of the users
+     * @param oidcids the list of OIDC IDs of the users
      * @return the list of UUIDs of the graphs
      */
-    @Query("MATCH (u:User) WHERE u.uidcid IN $uidcids "
+    @Query("MATCH (u:User) WHERE u.oidcid IN $oidcids "
             + "WITH u "
             + "MATCH (u)-[r:RELATION]->(g:Graph) "
             + "RETURN g.uuid")
-    List<String> getGraphUuidsByUserUidcid(List<String> uidcids);
+    List<String> getGraphUuidsByUserOidcid(List<String> oidcids);
 }

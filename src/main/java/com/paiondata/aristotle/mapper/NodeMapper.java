@@ -18,6 +18,7 @@ package com.paiondata.aristotle.mapper;
 import com.paiondata.aristotle.model.dto.GetRelationDTO;
 import com.paiondata.aristotle.model.dto.NodeDTO;
 import com.paiondata.aristotle.model.dto.NodeUpdateDTO;
+import com.paiondata.aristotle.model.vo.GraphVO;
 import com.paiondata.aristotle.model.vo.NodeVO;
 
 import org.neo4j.driver.Transaction;
@@ -59,6 +60,14 @@ public interface NodeMapper {
      */
     GetRelationDTO getRelationByGraphUuid(String uuid, Map<String, String> properties,
                                           Integer pageNumber, Integer pageSize);
+
+    /**
+     * Retrieves an unlimited expansion of a node in the graph.
+     * @param uuid the UUID of the graph.
+     * @param name the name of the node to expand.
+     * @return a GraphVO object containing the expanded nodes and their relationships.
+     */
+    GraphVO expandNodeUnlimited(String uuid, String name);
 
     /**
      * Binds two graph nodes with a specified relationship.

@@ -75,11 +75,11 @@ public class GraphCreateDTO extends BaseEntity {
      * This field is required and must not be blank. It uniquely identifies the user who owns the graph.
      * The UID/CID can be a unique identifier such as a username or a user ID.
      *
-     * @see Message#UIDCID_MUST_NOT_BE_BLANK
+     * @see Message#OIDCID_MUST_NOT_BE_BLANK
      */
     @ApiModelProperty(value = "The UID/CID of the user who owns the graph. This field is required and must "
             + "not be blank. It uniquely identifies the user who owns the graph. The UID/CID can be a unique "
             + "identifier such as a username or a user ID.", required = true)
-    @NotBlank(message = Message.UIDCID_MUST_NOT_BE_BLANK)
+    @NotBlank(message = Message.OIDCID_MUST_NOT_BE_BLANK)
     private String userUidcid;
 }
