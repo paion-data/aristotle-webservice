@@ -28,6 +28,15 @@ import io.restassured.response.Response
 
 class NodeControllerITSpec extends AbstractITSpec {
 
+    static final String DELETE_GRAPH_JSON = "delete-graph.json"
+    static final String UPDATE_NODE_JSON = "update-node.json"
+    static final String TEST_UIDCID = "6b47"
+    static final String TEST_NICK_NAME = "Jame"
+    static final String UPDATE_NICK_NAME = "Fame"
+    static final String TEST_GRAPH_TITLE = "Rus"
+    static final String UPDATE_GRAPH_TITLE = "Kas"
+    static final String UPDATE_NODE_TITLE = "Los"
+
     def "JSON API handles invalid graph and node creation requests"() {
         expect:
         Response response = RestAssured

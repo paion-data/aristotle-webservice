@@ -50,16 +50,8 @@ abstract class AbstractITSpec extends Specification {
     static final String GRAPH_ENDPOINT = "/graph"
     static final String NODE_ENDPOINT = "/node"
     static final String CREATE_UPDATE_USER_JSON = "create-update-user.json"
-    static final String UPDATE_GRAPH_JSON = "update-graph.json"
     static final String GET_GRAPH_JSON = "get-graph.json"
-    static final String DELETE_GRAPH_JSON = "delete-graph.json"
-    static final String UPDATE_NODE_JSON = "update-node.json"
-    static final String TEST_UIDCID = "6b47"
-    static final String TEST_NICK_NAME = "Jame"
-    static final String UPDATE_NICK_NAME = "Fame"
-    static final String TEST_GRAPH_TITLE = "Rus"
-    static final String UPDATE_GRAPH_TITLE = "Kas"
-    static final String UPDATE_NODE_TITLE = "Los"
+    static final String UPDATE_GRAPH_JSON = "update-graph.json"
 
     @Shared
     DockerComposeContainer COMPOSE = new DockerComposeContainer(new File("docker-compose.yml"))
