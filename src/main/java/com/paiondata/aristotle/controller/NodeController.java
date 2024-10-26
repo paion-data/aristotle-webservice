@@ -101,7 +101,6 @@ public class NodeController {
 
     /**
      * Creates a graph and binds it with nodes.
-     *
      * <p>
      * This method handles a POST request to create a graph and optionally bind it with nodes.
      * It validates the input DTO and calls the node service to create the graph and nodes.
