@@ -31,12 +31,12 @@ import java.util.Optional;
 public interface CommonService {
 
     /**
-     * Retrieves an optional user by UIDCID.
+     * Retrieves an optional user by OIDC ID.
      *
      * @param oidcid the OIDC ID of the user
      * @return an Optional containing the user if found, or empty otherwise
      */
-    Optional<User> getUserByUidcid(String oidcid);
+    Optional<User> getUserByOidcid(String oidcid);
 
     /**
      * Retrieves a graph by its UUID.

@@ -69,5 +69,5 @@ public interface GraphRepository extends Neo4jRepository<Graph, Long> {
      */
     @Query("MATCH (u:User{oidcid: $oidcid})-[:RELATION]->(g:Graph{uuid: $graphUuid}) " +
             "RETURN g.uuid")
-    String getGraphByGraphUuidAndUidcid(@Param("graphUuid") String graphUuid, @Param("oidcid") String oidcid);
+    String getGraphByGraphUuidAndOidcid(@Param("graphUuid") String graphUuid, @Param("oidcid") String oidcid);
 }

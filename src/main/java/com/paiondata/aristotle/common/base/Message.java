@@ -23,7 +23,7 @@ public class Message {
     /**
      * The user does not exist.
      */
-    public static final String USER_NULL = "The user with UIDCID '%s' does not exist";
+    public static final String USER_NULL = "The user with OIDCID '%s' does not exist";
 
     /**
      * The graph does not exist.
@@ -51,9 +51,9 @@ public class Message {
     public static final String BOUND_SUCCESS = "Bound successfully.";
 
     /**
-     * The UIDCID already exists.
+     * The OIDC ID already exists.
      */
-    public static final String UIDCID_EXISTS = "The user with UIDCID '%s' already exists";
+    public static final String OIDCID_EXISTS = "The user with OIDC ID '%s' already exists";
 
     /**
      * The request parameter verification failed.

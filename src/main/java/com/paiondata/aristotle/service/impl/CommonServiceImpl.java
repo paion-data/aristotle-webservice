@@ -68,7 +68,7 @@ public class CommonServiceImpl implements CommonService {
      * @return an {@code Optional} containing the user if found, or an empty {@code Optional} if not found
      */
     @Override
-    public Optional<User> getUserByUidcid(final String oidcid) {
+    public Optional<User> getUserByOidcid(final String oidcid) {
         final User user = userRepository.getUserByOidcid(oidcid);
         return Optional.ofNullable(user);
     }
@@ -118,7 +118,7 @@ public class CommonServiceImpl implements CommonService {
      * Retrieves the title, description, and user identifier from the provided DTO.
      * Generates unique UUIDs for the graph and its relation.
      * Retrieves the current time.
-     * Attempts to find the user by the provided user identifier using the {@link #getUserByUidcid(String)} method.
+     * Attempts to find the user by the provided user identifier using the {@link #getUserByOidcid(String)} method.
      * Throws a {@link UserNullException} if the user is not found.
      * Creates and binds the graph to the user using <br>
      * the {@link GraphMapper#createGraph(String, String, String, String, String, String, Transaction)} method.
@@ -133,12 +133,12 @@ public class CommonServiceImpl implements CommonService {
     public Graph createAndBindGraph(final GraphCreateDTO graphCreateDTO, final Transaction tx) {
         final String title = graphCreateDTO.getTitle();
         final String description = graphCreateDTO.getDescription();
-        final String oidcid = graphCreateDTO.getUserUidcid();
+        final String oidcid = graphCreateDTO.getUserOidcid();
         final String graphUuid = UUID.fastUUID().toString(true);
         final String relationUuid = UUID.fastUUID().toString(true);
         final String currentTime = getCurrentTime();
 
-        final Optional<User> optionalUser = getUserByUidcid(oidcid);
+        final Optional<User> optionalUser = getUserByOidcid(oidcid);
         if (optionalUser.isEmpty()) {
             final String message = String.format(Message.USER_NULL, oidcid);
             LOG.error(message);

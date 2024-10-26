@@ -92,7 +92,7 @@ public interface NodeService {
     void updateRelation(RelationUpdateDTO relationUpdateDTO);
 
     /**
-     * Retrieves a k-degree expansion of a node in the graph.
+     * Retrieves an unlimited expansion of a node in the graph.
      * @param uuid the UUID of the graph.
      * @param name the name of the node to expand.
      * @return a GraphVO object containing the expanded nodes and their relationships.

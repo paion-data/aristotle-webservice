@@ -75,7 +75,7 @@ public class UserServiceImpl implements UserService {
      */
     @Transactional(readOnly = true)
     @Override
-    public UserVO getUserVOByUidcid(final String oidcid) {
+    public UserVO getUserVOByOidcid(final String oidcid) {
         final User user = userRepository.getUserByOidcid(oidcid);
 
         if (user == null) {
@@ -137,7 +137,7 @@ public class UserServiceImpl implements UserService {
             final User returnUser = userRepository.createUser(oidcid, user.getNickName());
             return new UserDTO(returnUser.getOidcid(), returnUser.getNickName());
         } catch (final DataIntegrityViolationException e) {
-            final String message = String.format(Message.UIDCID_EXISTS, oidcid);
+            final String message = String.format(Message.OIDCID_EXISTS, oidcid);
             LOG.error(message);
             throw new UserExistsException(message);
         }
@@ -146,7 +146,7 @@ public class UserServiceImpl implements UserService {
     /**
      * Updates an existing user.
      *
-     * Checks if a user with the given oidcid exists using the {@link UserRepository#checkUidcidExists(String)} method.
+     * Checks if a user with the given oidcid exists using the {@link UserRepository#checkOidcidExists(String)} method.
      * If the user exists, updates the user's nickname using
      * the {@link UserRepository#updateUser(String, String)} method.
      * If the user does not exist, throws a {@link UserNullException}.
@@ -159,7 +159,7 @@ public class UserServiceImpl implements UserService {
     public void updateUser(final UserDTO userDTO) {
         final String oidcid = userDTO.getOidcid();
 
-        if (userRepository.checkUidcidExists(oidcid) != 0) {
+        if (userRepository.checkOidcidExists(oidcid) != 0) {
             userRepository.updateUser(oidcid, userDTO.getNickName());
         } else {
             final String message = String.format(Message.USER_NULL, oidcid);
@@ -172,7 +172,7 @@ public class UserServiceImpl implements UserService {
      * Deletes multiple users and their related graphs and nodes.
      * <p>
      * Iterates through the provided list of user identifiers (oidcids) and checks if each user exists using
-     * the {@link CommonService#getUserByUidcid(String)} method.
+     * the {@link CommonService#getUserByOidcid(String)} method.
      * Throws a {@link UserNullException} if any user does not exist.
      * Retrieves the UUIDs of graphs related to the users using the {@link #getRelatedGraphUuids(List)} method.
      * Retrieves the UUIDs of nodes related to the graphs using the {@link #getRelatedGraphNodeUuids(List)} method.
@@ -187,7 +187,7 @@ public class UserServiceImpl implements UserService {
     @Override
     public void deleteUser(final List<String> oidcids) {
         for (final String oidcid : oidcids) {
-            if (commonService.getUserByUidcid(oidcid).isEmpty()) {
+            if (commonService.getUserByOidcid(oidcid).isEmpty()) {
                 final String message = String.format(Message.USER_NULL, oidcid);
                 LOG.error(message);
                 throw new UserNullException(message);
@@ -203,13 +203,13 @@ public class UserServiceImpl implements UserService {
     }
 
     /**
-     * Retrieves the UUIDs of related graphs for a list of user UIDCIDs.
+     * Retrieves the UUIDs of related graphs for a list of user OIDC IDs.
      *
-     * @param userUidcids a list of user UIDCIDs
+     * @param userOidcids a list of user OIDC IDs
      * @return a list of related graph UUIDs
      */
-    private List<String> getRelatedGraphUuids(final List<String> userUidcids) {
-        return userRepository.getGraphUuidsByUserOidcid(userUidcids);
+    private List<String> getRelatedGraphUuids(final List<String> userOidcids) {
+        return userRepository.getGraphUuidsByUserOidcid(userOidcids);
     }
 
     /**

@@ -32,7 +32,7 @@ class UserControllerITSpec extends AbstractITSpec {
                 .given()
                 .contentType(ContentType.JSON)
                 .accept(ContentType.JSON)
-                .body(String.format(payload(CREATE_UPDATE_USER_JSON), uidcid, nickName))
+                .body(String.format(payload(CREATE_UPDATE_USER_JSON), oidcid, nickName))
                 .when()
                 .post(USER_ENDPOINT)
                 .then()
@@ -45,9 +45,9 @@ class UserControllerITSpec extends AbstractITSpec {
         assert sortedActualData == sortedExpectedData
 
         where:
-        uidcid   | nickName       | expectedMsg                              | expectedData
-        ""       | ""             | "Request parameter verification error: " | ["nickName must not be blank!", "uidcid must not be blank!"]
-        ""       | "name"         | "Request parameter verification error: " | ["uidcid must not be blank!"]
+        oidcid   | nickName       | expectedMsg                              | expectedData
+        ""       | ""             | "Request parameter verification error: " | ["nickName must not be blank!", "oidcid must not be blank!"]
+        ""       | "name"         | "Request parameter verification error: " | ["oidcid must not be blank!"]
         "id"     | ""             | "Request parameter verification error: " | ["nickName must not be blank!"]
     }
 
@@ -57,7 +57,7 @@ class UserControllerITSpec extends AbstractITSpec {
                 .given()
                 .contentType(ContentType.JSON)
                 .accept(ContentType.JSON)
-                .body(String.format(payload(CREATE_UPDATE_USER_JSON), uidcid, nickName))
+                .body(String.format(payload(CREATE_UPDATE_USER_JSON), oidcid, nickName))
                 .when()
                 .put(USER_ENDPOINT)
                 .then()
@@ -70,9 +70,9 @@ class UserControllerITSpec extends AbstractITSpec {
         assert sortedActualData == sortedExpectedData
 
         where:
-        uidcid   | nickName       | expectedMsg                              | expectedData
-        ""       | ""             | "Request parameter verification error: " | ["nickName must not be blank!", "uidcid must not be blank!"]
-        ""       | "name"         | "Request parameter verification error: " | ["uidcid must not be blank!"]
+        oidcid   | nickName       | expectedMsg                              | expectedData
+        ""       | ""             | "Request parameter verification error: " | ["nickName must not be blank!", "oidcid must not be blank!"]
+        ""       | "name"         | "Request parameter verification error: " | ["oidcid must not be blank!"]
         "id"     | ""             | "Request parameter verification error: " | ["nickName must not be blank!"]
     }
 
@@ -89,6 +89,6 @@ class UserControllerITSpec extends AbstractITSpec {
                 .extract()
                 .response()
 
-        Assertions.assertEquals("deleteUser.uidcids: uidcids must not be empty!", response.jsonPath().get("msg"))
+        Assertions.assertEquals("deleteUser.oidcids: oidcids must not be empty!", response.jsonPath().get("msg"))
     }
 }

@@ -215,12 +215,12 @@ public class GraphServiceSpec {
                 .build();
 
         when(commonService.getGraphByUuid(uuid)).thenReturn(Optional.ofNullable(graph));
-        when(graphRepository.getGraphByGraphUuidAndUidcid(uuid, oidcid)).thenReturn(null);
+        when(graphRepository.getGraphByGraphUuidAndOidcid(uuid, oidcid)).thenReturn(null);
 
         // Act & Assert
         assertThrows(DeleteException.class, () -> graphService.deleteByUuids(graphDeleteDTO));
         verify(commonService, times(1)).getGraphByUuid(uuid);
-        verify(graphRepository, times(1)).getGraphByGraphUuidAndUidcid(uuid, oidcid);
+        verify(graphRepository, times(1)).getGraphByGraphUuidAndOidcid(uuid, oidcid);
         verify(graphRepository, never()).deleteByUuids(anyList());
         verify(nodeRepository, never()).deleteByUuids(anyList());
     }
@@ -245,7 +245,7 @@ public class GraphServiceSpec {
                 .build();
 
         when(commonService.getGraphByUuid(graphUuid)).thenReturn(Optional.ofNullable(graph));
-        when(graphRepository.getGraphByGraphUuidAndUidcid(graphUuid, oidcid)).thenReturn(graphUuid);
+        when(graphRepository.getGraphByGraphUuidAndOidcid(graphUuid, oidcid)).thenReturn(graphUuid);
         when(graphRepository.getGraphNodeUuidsByGraphUuids(anyList())).thenReturn(Collections.singletonList(nodeUuid));
 
         doNothing().when(nodeRepository).deleteByUuids(anyList());

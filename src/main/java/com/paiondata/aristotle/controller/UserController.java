@@ -65,7 +65,7 @@ public class UserController {
     @GetMapping("/{oidcid}")
     public Result<UserVO> getUser(@PathVariable @NotBlank(message = Message.OIDCID_MUST_NOT_BE_BLANK)
                                       final String oidcid) {
-        return Result.ok(userService.getUserVOByUidcid(oidcid));
+        return Result.ok(userService.getUserVOByOidcid(oidcid));
     }
 
     /**

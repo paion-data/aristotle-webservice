@@ -142,7 +142,7 @@ public class GraphServiceImpl implements GraphService {
                 LOG.error(message);
                 throw new GraphNullException(message);
             }
-            if (graphRepository.getGraphByGraphUuidAndUidcid(uuid, oidcid) == null) {
+            if (graphRepository.getGraphByGraphUuidAndOidcid(uuid, oidcid) == null) {
                 final String message = String.format(Message.GRAPH_BIND_ANOTHER_USER, uuid);
                 LOG.error(message);
                 throw new DeleteException(message);

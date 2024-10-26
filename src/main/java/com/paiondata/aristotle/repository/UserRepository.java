@@ -56,7 +56,7 @@ public interface UserRepository extends Neo4jRepository<User, Long> {
      * @return the count of users with the given OIDC ID
      */
     @Query("MATCH (u:User { oidcid: $oidcid }) RETURN count(u)")
-    long checkUidcidExists(String oidcid);
+    long checkOidcidExists(String oidcid);
 
     /**
      * Creates a new user.

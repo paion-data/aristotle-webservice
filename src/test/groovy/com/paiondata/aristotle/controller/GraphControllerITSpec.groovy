@@ -66,7 +66,7 @@ class GraphControllerITSpec extends AbstractITSpec {
                 .given()
                 .contentType(ContentType.JSON)
                 .accept(ContentType.JSON)
-                .body(String.format(payload("delete-graph-to-valid.json"), uidcid))
+                .body(String.format(payload("delete-graph-to-valid.json"), oidcid))
                 .when()
                 .delete(GRAPH_ENDPOINT)
                 .then()
@@ -79,8 +79,8 @@ class GraphControllerITSpec extends AbstractITSpec {
         assert sortedActualData == sortedExpectedData
 
         where:
-        uidcid   | expectedMsg                              | expectedData
-        ""       | "Request parameter verification error: " | ["uidcid must not be blank!", "uuids must not be empty!"]
+        oidcid   | expectedMsg                              | expectedData
+        ""       | "Request parameter verification error: " | ["oidcid must not be blank!", "uuids must not be empty!"]
         "id"     | "Request parameter verification error: " | ["uuids must not be empty!"]
     }
 }

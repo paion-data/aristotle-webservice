@@ -497,7 +497,7 @@ public class NodeServiceImpl implements NodeService {
     }
 
     /**
-     * Retrieves a k-degree expansion of a node in the graph.
+     * Retrieves an unlimited expansion of a node in the graph.
      * <p>
      * This method first checks if the graph with the given UUID exists. If the graph does not exist, it logs an error
      * and throws a {@link GraphNullException}. If the graph exists,

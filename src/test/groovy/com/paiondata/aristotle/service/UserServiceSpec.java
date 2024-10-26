@@ -80,10 +80,10 @@ public class UserServiceSpec {
     }
 
     /**
-     * Tests that getting a UserVO by UIDCID returns the correct UserVO when the user exists.
+     * Tests that getting a UserVO by OIDC ID returns the correct UserVO when the user exists.
      */
     @Test
-    public void getUserVOByUidcidUserExistsReturnsUserVO() {
+    public void getUserVOByOidcidUserExistsReturnsUserVO() {
         // Arrange
         final String oidcid = TestConstants.TEST_ID1;
         final String nickName = TestConstants.TEST_NAME1;
@@ -99,7 +99,7 @@ public class UserServiceSpec {
         when(commonService.getGraphsByOidcid(oidcid)).thenReturn(graphs);
 
         // Act
-        final UserVO userVO = userService.getUserVOByUidcid(oidcid);
+        final UserVO userVO = userService.getUserVOByOidcid(oidcid);
 
         // Assert
         Assertions.assertEquals(oidcid, userVO.getOidcid());
@@ -120,7 +120,7 @@ public class UserServiceSpec {
         when(userRepository.getUserByOidcid(oidcid)).thenReturn(null);
 
         // Act & Assert
-        assertThrows(UserNullException.class, () -> userService.getUserVOByUidcid(oidcid));
+        assertThrows(UserNullException.class, () -> userService.getUserVOByOidcid(oidcid));
 
         verify(userRepository, times(1)).getUserByOidcid(oidcid);
         verify(commonService, never()).getGraphsByOidcid(anyString());
@@ -240,8 +240,8 @@ public class UserServiceSpec {
         final List<String> graphUuids = Arrays.asList("graph1", "graph2");
         final List<String> graphNodeUuids = Arrays.asList("node1", "node2");
 
-        when(commonService.getUserByUidcid(TestConstants.TEST_ID1)).thenReturn(Optional.ofNullable(users.get(0)));
-        when(commonService.getUserByUidcid(TestConstants.TEST_ID2)).thenReturn(Optional.ofNullable(users.get(1)));
+        when(commonService.getUserByOidcid(TestConstants.TEST_ID1)).thenReturn(Optional.ofNullable(users.get(0)));
+        when(commonService.getUserByOidcid(TestConstants.TEST_ID2)).thenReturn(Optional.ofNullable(users.get(1)));
         when(userRepository.getGraphUuidsByUserOidcid(oidcids)).thenReturn(graphUuids);
         when(graphRepository.getGraphNodeUuidsByGraphUuids(graphUuids)).thenReturn(graphNodeUuids);
 
@@ -249,7 +249,7 @@ public class UserServiceSpec {
         userService.deleteUser(oidcids);
 
         // Assert
-        verify(commonService, times(2)).getUserByUidcid(anyString());
+        verify(commonService, times(2)).getUserByOidcid(anyString());
         verify(userRepository).deleteByOidcids(oidcids);
         verify(graphRepository).deleteByUuids(graphUuids);
         verify(nodeRepository).deleteByUuids(graphNodeUuids);
@@ -263,15 +263,15 @@ public class UserServiceSpec {
         // Arrange
         final List<String> oidcids = Arrays.asList(TestConstants.TEST_ID1, TestConstants.TEST_ID2);
 
-        // Mocking commonService.getUserByUidcid to return empty Optional<User> for one user
-        when(commonService.getUserByUidcid(TestConstants.TEST_ID1)).thenReturn(Optional.of(new User()));
-        when(commonService.getUserByUidcid(TestConstants.TEST_ID2)).thenReturn(Optional.empty());
+        // Mocking commonService.getUserByOidcid to return empty Optional<User> for one user
+        when(commonService.getUserByOidcid(TestConstants.TEST_ID1)).thenReturn(Optional.of(new User()));
+        when(commonService.getUserByOidcid(TestConstants.TEST_ID2)).thenReturn(Optional.empty());
 
         // Act & Assert
         assertThrows(UserNullException.class, () -> userService.deleteUser(oidcids));
 
         // Verify
-        verify(commonService, times(2)).getUserByUidcid(anyString());
+        verify(commonService, times(2)).getUserByOidcid(anyString());
         verify(userRepository, never()).deleteByOidcids(any());
         verify(graphRepository, never()).deleteByUuids(any());
         verify(nodeRepository, never()).deleteByUuids(any());

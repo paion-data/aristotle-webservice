@@ -1,6 +1,6 @@
 {
   "graphCreateDTO": {
-    "userUidcid": "%s",
+    "userOidcid": "%s",
     "title": "-",
     "description": "-"
   },
