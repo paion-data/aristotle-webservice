@@ -1,0 +1,68 @@
+{
+  "graphCreateDTO": {
+    "userOidcid": "%s",
+    "title": "-",
+    "description": "-"
+  },
+  "graphNodeDTO": [
+    {
+      "temporaryId": "%s",
+      "properties": {
+        "name": "%s"
+      }
+    },
+    {
+      "temporaryId": "%s",
+      "properties": {
+        "name": "%s"
+      }
+    },
+    {
+      "temporaryId": "%s",
+      "properties": {
+        "name": "%s"
+      }
+    },
+    {
+      "temporaryId": "%s",
+      "properties": {
+        "name": "%s"
+      }
+    },
+    {
+      "temporaryId": "%s",
+      "properties": {
+        "name": "%s"
+      }
+    },
+    {
+      "temporaryId": "%s",
+      "properties": {
+        "name": "%s"
+      }
+    }
+  ],
+  "graphNodeRelationDTO": [
+    {
+      "fromId": "%s",
+      "relationName": "%s",
+      "toId": "%s"
+    },{
+      "fromId": "%s",
+      "relationName": "%s",
+      "toId": "%s"
+    },{
+      "fromId": "%s",
+      "relationName": "%s",
+      "toId": "%s"
+    },{
+      "fromId": "%s",
+      "relationName": "%s",
+      "toId": "%s"
+    },{
+      "fromId": "%s",
+      "relationName": "%s",
+      "toId": "%s"
+    }
+  ]
+}

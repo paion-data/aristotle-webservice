@@ -40,24 +40,24 @@ import javax.validation.constraints.NotBlank;
 public class UserDTO extends BaseEntity {
 
     /**
-     * The unique identifier (UID/CID) of the user.
+     * The unique identifier (OIDC ID) of the user.
      *
      * <p>
-     * This field is the unique identifier for the user. It can be either a UID (User ID) or a CID (Client ID),
+     * This field is the unique identifier for the user. It can be a OIDC ID (User ID),
      * depending on the context of your application.This identifier is used to uniquely identify the user in the system.
      *
      * <p>
      * <strong>Note:</strong> This field is required and must not be blank.
      *
      * @example "user12345"
-     * @see Message#UIDCID_MUST_NOT_BE_BLANK
+     * @see Message#OIDCID_MUST_NOT_BE_BLANK
      */
-    @ApiModelProperty(value = "The unique identifier (UID/CID) of the user. This field is the unique identifier for "
-            + "the user. It can be either a UID (User ID) or a CID (Client ID), depending on the context of your "
+    @ApiModelProperty(value = "The unique identifier (OIDC ID) of the user. This field is the unique identifier for "
+            + "the user. It can be a OIDC ID, depending on the context of your "
             + "application. This identifier is used to uniquely identify the user in the system. This field is "
             + "required and must not be blank.", required = true, example = "user12345")
-    @NotBlank(message = Message.UIDCID_MUST_NOT_BE_BLANK)
-    private String uidcid;
+    @NotBlank(message = Message.OIDCID_MUST_NOT_BE_BLANK)
+    private String oidcid;
 
     /**
      * The nickname of the user.

@@ -61,9 +61,9 @@ public interface Constants {
     String ID = "id";
 
     /**
-     * Represents the UIDCID field in the database.
+     * Represents the OIDC ID field in the database.
      */
-    String UIDCID = "uidcid";
+    String OIDCID = "oidcid";
 
     /**
      * Represents the UUID field in the database.
@@ -159,6 +159,16 @@ public interface Constants {
      * Represents the node alias in cypher.
      */
     String NODE_ALIAS_N = "n";
+
+    /**
+     * Represents the nodes in cypher.
+     */
+    String NODES = "nodes";
+
+    /**
+     * Represents the path in cypher.
+     */
+    String PATH = "path";
 
     /**
      * Represents the quote in cypher.

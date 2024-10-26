@@ -21,6 +21,7 @@ import com.paiondata.aristotle.mapper.NodeMapper;
 import com.paiondata.aristotle.model.dto.GetRelationDTO;
 import com.paiondata.aristotle.model.dto.NodeDTO;
 import com.paiondata.aristotle.model.dto.NodeUpdateDTO;
+import com.paiondata.aristotle.model.vo.GraphVO;
 import com.paiondata.aristotle.model.vo.NodeVO;
 import com.paiondata.aristotle.model.vo.RelationVO;
 
@@ -36,6 +37,7 @@ import org.springframework.stereotype.Repository;
 import lombok.NoArgsConstructor;
 
 import java.util.ArrayList;
+import java.util.HashSet;
 import java.util.List;
 import java.util.Map;
 import java.util.Set;
@@ -156,8 +158,8 @@ public class NodeMapperImpl implements NodeMapper {
         final int skip = (pageNumber - 1) * pageSize;
         final int limit = pageSize;
 
-        final StringBuilder cypherQuery = new StringBuilder("MATCH (g:Graph { uuid: $uuid }) ")
-                .append("OPTIONAL MATCH (g)-[:RELATION]->(n:GraphNode) ")
+        final StringBuilder cypherQuery = new StringBuilder("MATCH (g:Graph { uuid: $uuid })")
+                .append(" OPTIONAL MATCH (g)-[:RELATION]->(n:GraphNode) ")
                 .append(properties != null && !properties.isEmpty() ?
                         getFilterProperties(Constants.NODE_ALIAS_N, properties) : "")
                 .append(" OPTIONAL MATCH (n)-[r:RELATION]->(:GraphNode) ")
@@ -184,25 +186,60 @@ public class NodeMapperImpl implements NodeMapper {
                     nodes.add(n);
                     totalCount++;
 
-                    final List<Map<String, Object>> relationshipInfos = nodeExtractor
-                            .extractRelationships(record.get(Constants.RELATIONS));
-
-                    relations.addAll(relationshipInfos.stream()
-                            .map(relationshipInfo -> {
-                                final RelationVO relationVO = new RelationVO();
-                                relationVO.setSourceNode((String) relationshipInfo.get(Constants.SOURCE_NODE));
-                                relationVO.setTargetNode((String) relationshipInfo.get(Constants.TARGET_NODE));
-                                relationVO.setUuid((String) relationshipInfo.get(Constants.UUID));
-                                relationVO.setName((String) relationshipInfo.get(Constants.NAME));
-                                relationVO.setCreateTime((String) relationshipInfo.get(Constants.CREATE_TIME));
-                                relationVO.setUpdateTime((String) relationshipInfo.get(Constants.UPDATE_TIME));
-                                return relationVO;
-                            })
-                            .collect(Collectors.toList()));
+                    relations.addAll(nodeExtractor.extractRelationships(record.get(Constants.RELATIONS)));
                 }
 
-
                 return new GetRelationDTO(relations, new ArrayList<>(nodes), totalCount);
+            });
+        }
+    }
+
+    /**
+     * Retrieves an unlimited expansion of a node in the graph.
+     * <p>
+     * This method constructs a Cypher query to find the specified node in the graph and then performs an unlimited
+     * expansion using the APOC library. It returns a KExpendVO object containing the expanded nodes and their
+     * relationships.
+     * <p>
+     * The Cypher query matches the specified node in the graph and uses the APOC `apoc.path.expand` procedure to
+     * perform the expansion. The expansion is performed without any depth limit, ensuring that all reachable nodes
+     * and relationships are included in the result.
+     * <p>
+     * The query filters out relationships with the name 'HAVE' to avoid including certain types of relationships in the
+     * expansion.
+     *
+     * @param uuid the UUID of the graph.
+     * @param name the name of the node to expand.
+     * @return a GraphVO object containing the expanded nodes and their relationships.
+     */
+    @Override
+    public GraphVO expandNodeUnlimited(final String uuid, final String name) {
+        final String cypherQuery = "MATCH (g:Graph { uuid: $uuid }) "
+                + "-[:RELATION]->(n:GraphNode {name: $name}) "
+                + "CALL apoc.path.expand(n, \"RELATION\", null, 1, -1) YIELD path "
+                + "WHERE"
+                + " all(rel IN relationships(path) WHERE rel.name <> 'HAVE') "
+                + "RETURN nodes(path) AS nodes, relationships(path) AS relations";
+
+        try (Session session = driver.session(SessionConfig.builder().build())) {
+            return session.readTransaction(tx -> {
+                final var result = tx.run(cypherQuery, Values.parameters(
+                        Constants.UUID, uuid,
+                        Constants.NAME, name));
+
+                final Set<RelationVO> relations = new HashSet<>();
+                final Set<NodeVO> nodes = new HashSet<>();
+
+                while (result.hasNext()) {
+                    final Record record = result.next();
+                    relations.addAll(nodeExtractor.extractRelationships(record.get(Constants.RELATIONS)));
+                    nodes.addAll(nodeExtractor.extractNodes(record.get(Constants.NODES)));
+                }
+
+                return GraphVO.builder()
+                        .relations(new ArrayList<>(relations))
+                        .nodes(new ArrayList<>(nodes))
+                        .build();
             });
         }
     }
@@ -291,7 +328,7 @@ public class NodeMapperImpl implements NodeMapper {
      * Generates a string builder containing the filter properties clause for a Cypher query.
      * <p>
      * Iterates through the provided map entries and appends each key-value pair to the string builder
-     * in the format suitable for a Cypher query's WHERE clause.
+     * in the format suitable for a Cypher queries WHERE clause.
      * The resulting string builder can be used to dynamically construct the WHERE part of a Cypher query.
      *
      * @param node the alias of the node to apply the filters to

@@ -23,17 +23,17 @@ public class Message {
     /**
      * The user does not exist.
      */
-    public static final String USER_NULL = "The user does not exist: ";
+    public static final String USER_NULL = "The user with OIDCID '%s' does not exist";
 
     /**
      * The graph does not exist.
      */
-    public static final String GRAPH_NULL = "The graph does not exist: ";
+    public static final String GRAPH_NULL = "The graph with UUID '%s' does not exist";
 
     /**
-     * The graph node does not exist.
+     * The node does not exist.
      */
-    public static final String GRAPH_NODE_NULL = "The graph node does not exist: ";
+    public static final String NODE_NULL = "The node with UUID '%s' does not exist";
 
     /**
      * The operation succeeded.
@@ -51,9 +51,9 @@ public class Message {
     public static final String BOUND_SUCCESS = "Bound successfully.";
 
     /**
-     * The UIDCID already exists.
+     * The OIDC ID already exists.
      */
-    public static final String UIDCID_EXISTS = "UIDCID already exists: ";
+    public static final String OIDCID_EXISTS = "The user with OIDC ID '%s' already exists";
 
     /**
      * The request parameter verification failed.
@@ -66,14 +66,14 @@ public class Message {
     public static final String UNKNOWN_EXCEPTION = "Unknown exception.";
 
     /**
-     * UIDCID must not be blank.
+     * OIDC ID must not be blank.
      */
-    public static final String UIDCID_MUST_NOT_BE_BLANK = "uidcid must not be blank!";
+    public static final String OIDCID_MUST_NOT_BE_BLANK = "oidcid must not be blank!";
 
     /**
-     * UIDCIDs must not be empty.
+     * OIDC IDs must not be empty.
      */
-    public static final String UIDCIDS_MUST_NOT_EMPTY = "uidcids must not be empty!";
+    public static final String OIDCIDS_MUST_NOT_EMPTY = "oidcids must not be empty!";
 
     /**
      * UUID must not be blank.
@@ -106,6 +106,11 @@ public class Message {
     public static final String DESCRIPTION_MUST_NOT_BE_BLANK = "description must not be blank!";
 
     /**
+     * Name must not be blank.
+     */
+    public static final String NAME_MUST_NOT_BE_BLANK = "name must not be blank!";
+
+    /**
      * TemporaryId must not null.
      */
     public static final String TEMPORARY_ID_MUST_NOT_NULL = "temporaryId must not null!";
@@ -118,27 +123,27 @@ public class Message {
     /**
      * Duplicate key found.
      */
-    public static final String DUPLICATE_KEY = "Duplicate key found: ";
+    public static final String DUPLICATE_KEY = "Duplicate key found: %s";
 
     /**
-     * Could not bind graphNode by another graph.
+     * Could not bind node by another graph.
      */
-    public static final String BOUND_ANOTHER_GRAPH = "Could not bind graphNode by another graph: ";
+    public static final String BOUND_ANOTHER_GRAPH = "Could not bind node by another graph '%s'";
 
     /**
      * The relation does not exist.
      */
-    public static final String GRAPH_NODE_RELATION_NULL = "The relation does not exist: ";
+    public static final String RELATION_NULL = "The relation with uuid '%s' does not exist";
 
     /**
      * The graph is already bound to another user.
      */
-    public static final String GRAPH_BIND_ANOTHER_USER = "The graph is already bound to another user: ";
+    public static final String GRAPH_BIND_ANOTHER_USER = "The graph with uuid '%s' is already bound to another user";
 
     /**
      * The node is already bound to another graph.
      */
-    public static final String NODE_BIND_ANOTHER_USER = "The node is already bound to another graph: ";
+    public static final String NODE_BIND_ANOTHER_GRAPH = "The node with uuid '%s' is already bound to another graph";
 
     /**
      * Transaction is null.
@@ -153,7 +158,7 @@ public class Message {
     /**
      * Input properties error.
      */
-    public static final String INPUT_PROPERTIES_ERROR = "This parameter cannot be passed: ";
+    public static final String INPUT_PROPERTIES_ERROR = "The parameter with '%s' is not valid.";
 
     /**
      * GraphCreateDTO must not be NULL.

@@ -64,10 +64,10 @@ public interface GraphRepository extends Neo4jRepository<Graph, Long> {
     /**
      * Retrieves the UUID of a graph associated with a specific user.
      * @param graphUuid the UUID of the graph
-     * @param uidcid the UID/CID of the user
+     * @param oidcid the OIDC ID of the user
      * @return the UUID of the graph
      */
-    @Query("MATCH (u:User{uidcid: $uidcid})-[:RELATION]->(g:Graph{uuid: $graphUuid}) " +
+    @Query("MATCH (u:User{oidcid: $oidcid})-[:RELATION]->(g:Graph{uuid: $graphUuid}) " +
             "RETURN g.uuid")
-    String getGraphByGraphUuidAndUidcid(@Param("graphUuid") String graphUuid, @Param("uidcid") String uidcid);
+    String getGraphByGraphUuidAndOidcid(@Param("graphUuid") String graphUuid, @Param("oidcid") String oidcid);
 }

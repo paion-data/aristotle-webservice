@@ -48,26 +48,19 @@ public class User extends BaseEntity {
     private Long id;
 
     /**
-     * The unique identifier (UID/CID) of the user.
-     *
-     * @see Property#uidcid
+     * The unique identifier (OIDC ID) of the user.
      */
-    @Property("uidcid")
-    private String uidcid;
+    @Property("oidcid")
+    private String oidcid;
 
     /**
      * The nickname of the user.
-     *
-     * @see Property#nick_name
      */
     @Property("nick_name")
     private String nickName;
 
     /**
      * The list of graphs associated with the user.
-     *
-     * @see Relationship#type
-     * @see Relationship#direction
      */
     @Relationship(type = "RELATION", direction = Relationship.Direction.OUTGOING)
     private List<Graph> graphs;

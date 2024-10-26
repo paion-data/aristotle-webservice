@@ -30,7 +30,7 @@ class NodeControllerITSpec extends AbstractITSpec {
 
     static final String DELETE_GRAPH_JSON = "delete-graph.json"
     static final String UPDATE_NODE_JSON = "update-node.json"
-    static final String TEST_UIDCID = "6b47"
+    static final String TEST_OIDCID = "6b47"
     static final String TEST_NICK_NAME = "Jame"
     static final String UPDATE_NICK_NAME = "Fame"
     static final String TEST_GRAPH_TITLE = "Rus"
@@ -43,7 +43,7 @@ class NodeControllerITSpec extends AbstractITSpec {
                 .given()
                 .contentType(ContentType.JSON)
                 .accept(ContentType.JSON)
-                .body(String.format(payload("create-graph-nodes-to-valid.json"), uidcid, title, description,
+                .body(String.format(payload("create-graph-nodes-to-valid.json"), oidcid, title, description,
                         temporaryId1, temporaryId2, fromId, relationName, toId))
                 .when()
                 .post(NODE_ENDPOINT + "/graph")
@@ -57,35 +57,35 @@ class NodeControllerITSpec extends AbstractITSpec {
         assert sortedActualData == sortedExpectedData
 
         where:
-        uidcid   | title      | description   | temporaryId1 | temporaryId2 | fromId | relationName | toId  | expectedMsg                              | expectedData
-        ""       | "title"    | "description" | "id1"        | "id2"        | "id1"  | "relation"   | "id2" | "Request parameter verification error: " | ["uidcid must not be blank!"]
-        "uidcid" | ""         | "description" | "id1"        | "id2"        | "id1"  | "relation"   | "id2" | "Request parameter verification error: " | ["title must not be blank!"]
-        "uidcid" | "title"    | ""            | "id1"        | "id2"        | "id1"  | "relation"   | "id2" | "Request parameter verification error: " | ["description must not be blank!"]
-        "uidcid" | "title"    | "description" | ""           | "id2"        | "id1"  | "relation"   | "id2" | "Request parameter verification error: " | ["temporaryId must not null!"]
-        "uidcid" | "title"    | "description" | "id1"        | ""           | "id1"  | "relation"   | "id2" | "Request parameter verification error: " | ["temporaryId must not null!"]
-        "uidcid" | "title"    | "description" | "id1"        | "id2"        | ""     | "relation"   | "id2" | "Request parameter verification error: " | ["fromId must not be blank!"]
-        "uidcid" | "title"    | "description" | "id1"        | "id2"        | "id1"  | ""           | "id2" | "Request parameter verification error: " | ["relation must not be blank!"]
-        "uidcid" | "title"    | "description" | "id1"        | "id2"        | "id1"  | "relation"   | ""    | "Request parameter verification error: " | ["toId must not be blank!"]
-        ""       | ""         | "description" | "id1"        | "id2"        | "id1"  | "relation"   | "id2" | "Request parameter verification error: " | ["uidcid must not be blank!", "title must not be blank!"]
-        ""       | "title"    | ""            | "id1"        | "id2"        | "id1"  | "relation"   | "id2" | "Request parameter verification error: " | ["uidcid must not be blank!", "description must not be blank!"]
-        ""       | "title"    | "description" | ""           | "id2"        | "id1"  | "relation"   | "id2" | "Request parameter verification error: " | ["uidcid must not be blank!", "temporaryId must not null!"]
-        ""       | "title"    | "description" | "id1"        | ""           | "id1"  | "relation"   | "id2" | "Request parameter verification error: " | ["uidcid must not be blank!", "temporaryId must not null!"]
-        ""       | "title"    | "description" | "id1"        | "id2"        | ""     | "relation"   | "id2" | "Request parameter verification error: " | ["uidcid must not be blank!", "fromId must not be blank!"]
-        ""       | "title"    | "description" | "id1"        | "id2"        | "id1"  | ""           | "id2" | "Request parameter verification error: " | ["uidcid must not be blank!", "relation must not be blank!"]
-        ""       | "title"    | "description" | "id1"        | "id2"        | "id1"  | "relation"   | ""    | "Request parameter verification error: " | ["uidcid must not be blank!", "toId must not be blank!"]
-        "uidcid" | ""         | ""            | "id1"        | "id2"        | "id1"  | "relation"   | "id2" | "Request parameter verification error: " | ["title must not be blank!", "description must not be blank!"]
-        "uidcid" | ""         | "description" | ""           | "id2"        | "id1"  | "relation"   | "id2" | "Request parameter verification error: " | ["title must not be blank!", "temporaryId must not null!"]
-        "uidcid" | ""         | "description" | "id1"        | ""           | "id1"  | "relation"   | "id2" | "Request parameter verification error: " | ["title must not be blank!", "temporaryId must not null!"]
-        "uidcid" | ""         | "description" | "id1"        | "id2"        | ""     | "relation"   | "id2" | "Request parameter verification error: " | ["title must not be blank!", "fromId must not be blank!"]
-        "uidcid" | ""         | "description" | "id1"        | "id2"        | "id1"  | ""           | "id2" | "Request parameter verification error: " | ["title must not be blank!", "relation must not be blank!"]
-        "uidcid" | ""         | "description" | "id1"        | "id2"        | "id1"  | "relation"   | ""    | "Request parameter verification error: " | ["title must not be blank!", "toId must not be blank!"]
-        "uidcid" | "title"    | ""            | ""           | "id2"        | "id1"  | "relation"   | "id2" | "Request parameter verification error: " | ["description must not be blank!", "temporaryId must not null!"]
-        "uidcid" | "title"    | ""            | "id1"        | ""           | "id1"  | "relation"   | "id2" | "Request parameter verification error: " | ["description must not be blank!", "temporaryId must not null!"]
-        "uidcid" | "title"    | ""            | "id1"        | "id2"        | ""     | "relation"   | "id2" | "Request parameter verification error: " | ["description must not be blank!", "fromId must not be blank!"]
-        "uidcid" | "title"    | ""            | "id1"        | "id2"        | "id1"  | ""           | "id2" | "Request parameter verification error: " | ["description must not be blank!", "relation must not be blank!"]
-        "uidcid" | "title"    | ""            | "id1"        | "id2"        | "id1"  | "relation"   | ""    | "Request parameter verification error: " | ["description must not be blank!", "toId must not be blank!"]
-        "uidcid" | "title"    | "description" | ""           | ""           | "id1"  | "relation"   | "id2" | "Request parameter verification error: " | ["temporaryId must not null!", "temporaryId must not null!"]
-        "uidcid" | "title"    | "description" | ""           | "id2"        | ""     | "relation"   | "id2" | "Request parameter verification error: " | ["temporaryId must not null!", "fromId must not be blank!"]
+        oidcid   | title      | description   | temporaryId1 | temporaryId2 | fromId | relationName | toId  | expectedMsg                              | expectedData
+        ""       | "title"    | "description" | "id1"        | "id2"        | "id1"  | "relation"   | "id2" | "Request parameter verification error: " | ["oidcid must not be blank!"]
+        "oidcid" | ""         | "description" | "id1"        | "id2"        | "id1"  | "relation"   | "id2" | "Request parameter verification error: " | ["title must not be blank!"]
+        "oidcid" | "title"    | ""            | "id1"        | "id2"        | "id1"  | "relation"   | "id2" | "Request parameter verification error: " | ["description must not be blank!"]
+        "oidcid" | "title"    | "description" | ""           | "id2"        | "id1"  | "relation"   | "id2" | "Request parameter verification error: " | ["temporaryId must not null!"]
+        "oidcid" | "title"    | "description" | "id1"        | ""           | "id1"  | "relation"   | "id2" | "Request parameter verification error: " | ["temporaryId must not null!"]
+        "oidcid" | "title"    | "description" | "id1"        | "id2"        | ""     | "relation"   | "id2" | "Request parameter verification error: " | ["fromId must not be blank!"]
+        "oidcid" | "title"    | "description" | "id1"        | "id2"        | "id1"  | ""           | "id2" | "Request parameter verification error: " | ["relation must not be blank!"]
+        "oidcid" | "title"    | "description" | "id1"        | "id2"        | "id1"  | "relation"   | ""    | "Request parameter verification error: " | ["toId must not be blank!"]
+        ""       | ""         | "description" | "id1"        | "id2"        | "id1"  | "relation"   | "id2" | "Request parameter verification error: " | ["oidcid must not be blank!", "title must not be blank!"]
+        ""       | "title"    | ""            | "id1"        | "id2"        | "id1"  | "relation"   | "id2" | "Request parameter verification error: " | ["oidcid must not be blank!", "description must not be blank!"]
+        ""       | "title"    | "description" | ""           | "id2"        | "id1"  | "relation"   | "id2" | "Request parameter verification error: " | ["oidcid must not be blank!", "temporaryId must not null!"]
+        ""       | "title"    | "description" | "id1"        | ""           | "id1"  | "relation"   | "id2" | "Request parameter verification error: " | ["oidcid must not be blank!", "temporaryId must not null!"]
+        ""       | "title"    | "description" | "id1"        | "id2"        | ""     | "relation"   | "id2" | "Request parameter verification error: " | ["oidcid must not be blank!", "fromId must not be blank!"]
+        ""       | "title"    | "description" | "id1"        | "id2"        | "id1"  | ""           | "id2" | "Request parameter verification error: " | ["oidcid must not be blank!", "relation must not be blank!"]
+        ""       | "title"    | "description" | "id1"        | "id2"        | "id1"  | "relation"   | ""    | "Request parameter verification error: " | ["oidcid must not be blank!", "toId must not be blank!"]
+        "oidcid" | ""         | ""            | "id1"        | "id2"        | "id1"  | "relation"   | "id2" | "Request parameter verification error: " | ["title must not be blank!", "description must not be blank!"]
+        "oidcid" | ""         | "description" | ""           | "id2"        | "id1"  | "relation"   | "id2" | "Request parameter verification error: " | ["title must not be blank!", "temporaryId must not null!"]
+        "oidcid" | ""         | "description" | "id1"        | ""           | "id1"  | "relation"   | "id2" | "Request parameter verification error: " | ["title must not be blank!", "temporaryId must not null!"]
+        "oidcid" | ""         | "description" | "id1"        | "id2"        | ""     | "relation"   | "id2" | "Request parameter verification error: " | ["title must not be blank!", "fromId must not be blank!"]
+        "oidcid" | ""         | "description" | "id1"        | "id2"        | "id1"  | ""           | "id2" | "Request parameter verification error: " | ["title must not be blank!", "relation must not be blank!"]
+        "oidcid" | ""         | "description" | "id1"        | "id2"        | "id1"  | "relation"   | ""    | "Request parameter verification error: " | ["title must not be blank!", "toId must not be blank!"]
+        "oidcid" | "title"    | ""            | ""           | "id2"        | "id1"  | "relation"   | "id2" | "Request parameter verification error: " | ["description must not be blank!", "temporaryId must not null!"]
+        "oidcid" | "title"    | ""            | "id1"        | ""           | "id1"  | "relation"   | "id2" | "Request parameter verification error: " | ["description must not be blank!", "temporaryId must not null!"]
+        "oidcid" | "title"    | ""            | "id1"        | "id2"        | ""     | "relation"   | "id2" | "Request parameter verification error: " | ["description must not be blank!", "fromId must not be blank!"]
+        "oidcid" | "title"    | ""            | "id1"        | "id2"        | "id1"  | ""           | "id2" | "Request parameter verification error: " | ["description must not be blank!", "relation must not be blank!"]
+        "oidcid" | "title"    | ""            | "id1"        | "id2"        | "id1"  | "relation"   | ""    | "Request parameter verification error: " | ["description must not be blank!", "toId must not be blank!"]
+        "oidcid" | "title"    | "description" | ""           | ""           | "id1"  | "relation"   | "id2" | "Request parameter verification error: " | ["temporaryId must not null!", "temporaryId must not null!"]
+        "oidcid" | "title"    | "description" | ""           | "id2"        | ""     | "relation"   | "id2" | "Request parameter verification error: " | ["temporaryId must not null!", "fromId must not be blank!"]
     }
 
     def "JSON API handles invalid node creation requests"() {
@@ -173,7 +173,7 @@ class NodeControllerITSpec extends AbstractITSpec {
                 .given()
                 .contentType(ContentType.JSON)
                 .accept(ContentType.JSON)
-                .body(String.format(payload(CREATE_UPDATE_USER_JSON), TEST_UIDCID, TEST_NICK_NAME))
+                .body(String.format(payload(CREATE_UPDATE_USER_JSON), TEST_OIDCID, TEST_NICK_NAME))
                 .when()
                 .post(USER_ENDPOINT)
                 .then()
@@ -183,14 +183,14 @@ class NodeControllerITSpec extends AbstractITSpec {
         postUserResponse.then()
                 .statusCode(HttpStatus.OK.value())
 
-        Assertions.assertEquals(postUserResponse.jsonPath().get("data.uidcid"), TEST_UIDCID)
+        Assertions.assertEquals(postUserResponse.jsonPath().get("data.oidcid"), TEST_OIDCID)
         Assertions.assertEquals(postUserResponse.jsonPath().get("data.nickName"), TEST_NICK_NAME)
 
         then: "we can GET that User entity next"
         Response getUserEntityResponse = RestAssured
                 .given()
                 .when()
-                .get(USER_ENDPOINT + "/" + TEST_UIDCID)
+                .get(USER_ENDPOINT + "/" + TEST_OIDCID)
                 .then()
                 .extract()
                 .response()
@@ -198,7 +198,7 @@ class NodeControllerITSpec extends AbstractITSpec {
         getUserEntityResponse.then()
                 .statusCode(200)
 
-        Assert.assertEquals(TEST_UIDCID, getUserEntityResponse.jsonPath().get("data.uidcid"))
+        Assert.assertEquals(TEST_OIDCID, getUserEntityResponse.jsonPath().get("data.oidcid"))
         Assert.assertEquals(TEST_NICK_NAME, getUserEntityResponse.jsonPath().get("data.nickName"))
 
         when: "we update that User entity"
@@ -206,7 +206,7 @@ class NodeControllerITSpec extends AbstractITSpec {
                 .given()
                 .contentType(ContentType.JSON)
                 .accept(ContentType.JSON)
-                .body(String.format(payload(CREATE_UPDATE_USER_JSON), TEST_UIDCID, UPDATE_NICK_NAME))
+                .body(String.format(payload(CREATE_UPDATE_USER_JSON), TEST_OIDCID, UPDATE_NICK_NAME))
                 .when()
                 .put(USER_ENDPOINT)
                 .then()
@@ -216,7 +216,7 @@ class NodeControllerITSpec extends AbstractITSpec {
         Response getUpdatedUserEntityResponse = RestAssured
                 .given()
                 .when()
-                .get(USER_ENDPOINT + "/" + TEST_UIDCID)
+                .get(USER_ENDPOINT + "/" + TEST_OIDCID)
                 .then()
                 .extract()
                 .response()
@@ -224,7 +224,7 @@ class NodeControllerITSpec extends AbstractITSpec {
         getUpdatedUserEntityResponse.then()
                 .statusCode(HttpStatus.OK.value())
 
-        Assert.assertEquals(TEST_UIDCID, getUpdatedUserEntityResponse.jsonPath().get("data.uidcid"))
+        Assert.assertEquals(TEST_OIDCID, getUpdatedUserEntityResponse.jsonPath().get("data.oidcid"))
         Assert.assertEquals(UPDATE_NICK_NAME, getUpdatedUserEntityResponse.jsonPath().get("data.nickName"))
 
         when: "a Graph entity is POSTed via JSON API"
@@ -232,7 +232,7 @@ class NodeControllerITSpec extends AbstractITSpec {
                 .given()
                 .contentType(ContentType.JSON)
                 .accept(ContentType.JSON)
-                .body(String.format(payload("create-graph.json"), TEST_UIDCID, TEST_GRAPH_TITLE))
+                .body(String.format(payload("create-graph.json"), TEST_OIDCID, TEST_GRAPH_TITLE))
                 .when()
                 .post("/node/graph")
                 .then()
@@ -249,7 +249,7 @@ class NodeControllerITSpec extends AbstractITSpec {
         Response getGraphEntityResponse = RestAssured
                 .given()
                 .when()
-                .get(USER_ENDPOINT + "/" + TEST_UIDCID)
+                .get(USER_ENDPOINT + "/" + TEST_OIDCID)
                 .then()
                 .extract()
                 .response()
@@ -257,7 +257,7 @@ class NodeControllerITSpec extends AbstractITSpec {
         getGraphEntityResponse.then()
                 .statusCode(HttpStatus.OK.value())
 
-        Assert.assertEquals(TEST_UIDCID, getGraphEntityResponse.jsonPath().get("data.uidcid"))
+        Assert.assertEquals(TEST_OIDCID, getGraphEntityResponse.jsonPath().get("data.oidcid"))
         Assert.assertEquals(TEST_GRAPH_TITLE, getGraphEntityResponse.jsonPath().get("data.graphs[0].title"))
 
         when: "we update that Graph entity"
@@ -276,7 +276,7 @@ class NodeControllerITSpec extends AbstractITSpec {
         Response getUpdatedGraphEntityResponse = RestAssured
                 .given()
                 .when()
-                .get(USER_ENDPOINT + "/" + TEST_UIDCID)
+                .get(USER_ENDPOINT + "/" + TEST_OIDCID)
                 .then()
                 .extract()
                 .response()
@@ -414,7 +414,7 @@ class NodeControllerITSpec extends AbstractITSpec {
                 .given()
                 .contentType(ContentType.JSON)
                 .accept(ContentType.JSON)
-                .body(String.format(payload("create-graph-nodes.json"), TEST_UIDCID, TEST_GRAPH_TITLE,
+                .body(String.format(payload("create-graph-nodes.json"), TEST_OIDCID, TEST_GRAPH_TITLE,
                         TestConstants.BLUE, TestConstants.BLUE, TestConstants.GREEN,
                         TestConstants.BLUE, TestConstants.BLUE, TestConstants.BLUE, TestConstants.BLUE))
                 .when()
@@ -507,12 +507,65 @@ class NodeControllerITSpec extends AbstractITSpec {
         Assert.assertEquals(TestConstants.EXPECT_TOTAL_COUNT_03, getGraphEntityFilterResponsePage2
                 .jsonPath().get("data.totalCount"))
 
+        when: "create graph and nodes and bind relationships to expend in one step"
+        Response GraphExpendResponse = RestAssured
+                .given()
+                .contentType(ContentType.JSON)
+                .accept(ContentType.JSON)
+                .body(String.format(payload("create-graph-nodes-to-expend.json"),
+                        TEST_OIDCID, TestConstants.TEST_ID1, TestConstants.TEST_NAME1, TestConstants.TEST_ID2,
+                        TestConstants.TEST_NAME2, TestConstants.TEST_ID3, TestConstants.TEST_NAME3,
+                        TestConstants.TEST_ID4, TestConstants.TEST_NAME4, TestConstants.TEST_ID5,
+                        TestConstants.TEST_NAME5, TestConstants.TEST_ID6, TestConstants.TEST_NAME6,
+                        TestConstants.TEST_ID1, TestConstants.TEST_RELATION1, TestConstants.TEST_ID2,
+                        TestConstants.TEST_ID3, TestConstants.TEST_RELATION2, TestConstants.TEST_ID2,
+                        TestConstants.TEST_ID1, TestConstants.TEST_RELATION3, TestConstants.TEST_ID4,
+                        TestConstants.TEST_ID5, TestConstants.TEST_RELATION4, TestConstants.TEST_ID4,
+                        TestConstants.TEST_ID1, TestConstants.TEST_RELATION5, TestConstants.TEST_ID6))
+                .when()
+                .post("/node/graph")
+                .then()
+                .extract()
+                .response()
+
+        GraphExpendResponse.then()
+                .statusCode(200)
+
+        Assertions.assertNotNull(GraphExpendResponse.jsonPath().get("data.uuid"))
+
+        then: "we can GET that expend nodes next by graph uuid and node's name"
+
+        Response getNodesKExpendResponse = RestAssured
+                .given()
+                .contentType(ContentType.JSON)
+                .accept(ContentType.JSON)
+                .when()
+                .get(NODE_ENDPOINT + "/expand?uuid=" + GraphExpendResponse.jsonPath().get("data.uuid") +
+                        "&name=" + TestConstants.TEST_NAME1)
+                .then()
+                .extract()
+                .response()
+
+        getNodesKExpendResponse.then()
+                .statusCode(200)
+
+        List<String> expectedNodeNames = Arrays.asList(TestConstants.TEST_NAME1, TestConstants.TEST_NAME2,
+                TestConstants.TEST_NAME3, TestConstants.TEST_NAME4, TestConstants.TEST_NAME5, TestConstants.TEST_NAME6)
+        List<String> expectedRelationNames = Arrays.asList(TestConstants.TEST_RELATION1, TestConstants.TEST_RELATION2,
+                TestConstants.TEST_RELATION3, TestConstants.TEST_RELATION4, TestConstants.TEST_RELATION5)
+
+        List<String> actualNodeNames = getNodesKExpendResponse.jsonPath().getList("data.nodes.properties.name")
+        List<String> actualRelationNames = getNodesKExpendResponse.jsonPath().getList("data.relations.name")
+
+        Assertions.assertTrue(actualNodeNames.containsAll(expectedNodeNames))
+        Assertions.assertTrue(actualRelationNames.containsAll(expectedRelationNames))
+
         when: "the Graph entity is deleted"
         final Response deleteGraphResponse = RestAssured
                 .given()
                 .contentType(ContentType.JSON)
                 .accept(ContentType.JSON)
-                .body(String.format(payload((DELETE_GRAPH_JSON)), TEST_UIDCID,
+                .body(String.format(payload((DELETE_GRAPH_JSON)), TEST_OIDCID,
                         getGraphEntityResponse.jsonPath().get("data.graphs[0].uuid")))
                 .when()
                 .delete(GRAPH_ENDPOINT)
@@ -539,7 +592,7 @@ class NodeControllerITSpec extends AbstractITSpec {
                 .given()
                 .contentType(ContentType.JSON)
                 .accept(ContentType.JSON)
-                .body(Arrays.asList(TEST_UIDCID))
+                .body(Arrays.asList(TEST_OIDCID))
                 .when()
                 .delete(USER_ENDPOINT)
         deleteUserResponse.then()
@@ -549,7 +602,7 @@ class NodeControllerITSpec extends AbstractITSpec {
         Response getResponse2 = RestAssured
                 .given()
                 .when()
-                .get(USER_ENDPOINT + "/" + TEST_UIDCID)
+                .get(USER_ENDPOINT + "/" + TEST_OIDCID)
         getResponse2.then()
                 .statusCode(HttpStatus.OK.value())
 

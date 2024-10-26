@@ -41,6 +41,16 @@ public interface TestConstants {
     String TEST_ID4 = "id4";
 
     /**
+     * Test IDs.
+     */
+    String TEST_ID5 = "id5";
+
+    /**
+     * Test IDs.
+     */
+    String TEST_ID6 = "id6";
+
+    /**
      * Test titles.
      */
     String TEST_TILE1 = "test-tile1";
@@ -71,6 +81,21 @@ public interface TestConstants {
     String TEST_RELATION2 = "relation2";
 
     /**
+     * Test relations.
+     */
+    String TEST_RELATION3 = "relation3";
+
+    /**
+     * Test relations.
+     */
+    String TEST_RELATION4 = "relation4";
+
+    /**
+     * Test relations.
+     */
+    String TEST_RELATION5 = "relation5";
+
+    /**
      * Test names.
      */
     String TEST_NAME1 = "test-name1";
@@ -79,6 +104,26 @@ public interface TestConstants {
      * Test names.
      */
     String TEST_NAME2 = "test-name2";
+
+    /**
+     * Test names.
+     */
+    String TEST_NAME3 = "test-name3";
+
+    /**
+     * Test names.
+     */
+    String TEST_NAME4 = "test-name4";
+
+    /**
+     * Test names.
+     */
+    String TEST_NAME5 = "test-name5";
+
+    /**
+     * Test names.
+     */
+    String TEST_NAME6 = "test-name6";
 
     /**
      * Test keys.

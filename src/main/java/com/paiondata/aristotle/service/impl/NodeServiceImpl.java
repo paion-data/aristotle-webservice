@@ -125,7 +125,7 @@ public class NodeServiceImpl implements NodeService {
 
         final Optional<Graph> optionalGraph = commonService.getGraphByUuid(graphUuid);
         if (optionalGraph.isEmpty()) {
-            final String message = Message.GRAPH_NULL + graphUuid;
+            final String message = String.format(Message.GRAPH_NULL, graphUuid);
             LOG.error(message);
             throw new GraphNullException(message);
         }
@@ -227,10 +227,10 @@ public class NodeServiceImpl implements NodeService {
             checkIds.add(dto.getToId());
         }
 
-        final List<String> graphUuidByGraphNodeUuid = nodeRepository.getGraphUuidByGraphNodeUuid(checkIds);
-        for (final String s : graphUuidByGraphNodeUuid) {
-            if (!s.equals(graphUuid)) {
-                final String message = Message.BOUND_ANOTHER_GRAPH + s;
+        final List<String> graphUuids = nodeRepository.getGraphUuidByGraphNodeUuid(checkIds);
+        for (final String uuid : graphUuids) {
+            if (!uuid.equals(graphUuid)) {
+                final String message = String.format(Message.BOUND_ANOTHER_GRAPH, uuid);
                 LOG.error(message);
                 throw new NodeRelationException(message);
             }
@@ -283,7 +283,7 @@ public class NodeServiceImpl implements NodeService {
 
             // check duplicate temporaryId
             if (uuidMap.containsKey(dto.getTemporaryId())) {
-                final String message = Message.DUPLICATE_KEY + dto.getTemporaryId();
+                final String message = String.format(Message.DUPLICATE_KEY, dto.getTemporaryId());
                 LOG.error(message);
                 throw new TemporaryKeyException(message);
             } else {
@@ -382,11 +382,11 @@ public class NodeServiceImpl implements NodeService {
 
             if (graphNodeOptional1.isEmpty() || graphNodeOptional2.isEmpty()) {
                 if (graphNodeOptional1.isEmpty()) {
-                    final String message = Message.GRAPH_NODE_NULL + startNode;
+                    final String message = String.format(Message.NODE_NULL, startNode);
                     LOG.error(message);
                     throw new NodeNullException(message);
                 } else {
-                    final String message = Message.GRAPH_NODE_NULL + endNode;
+                    final String message = String.format(Message.NODE_NULL, endNode);
                     LOG.error(message);
                     throw new NodeNullException(message);
                 }
@@ -423,12 +423,12 @@ public class NodeServiceImpl implements NodeService {
 
         for (final String uuid : uuids) {
             if (getNodeByUuid(uuid).isEmpty()) {
-                final String message = Message.GRAPH_NODE_NULL + uuid;
+                final String message = String.format(Message.NODE_NULL, uuid);
                 LOG.error(message);
                 throw new NodeNullException(message);
             }
             if (nodeRepository.getNodeByGraphUuidAndNodeUuid(graphUuid, uuid) == null) {
-                final String message = Message.NODE_BIND_ANOTHER_USER + uuid;
+                final String message = String.format(Message.NODE_BIND_ANOTHER_GRAPH, uuid);
                 LOG.error(message);
                 throw new DeleteException(message);
             }
@@ -461,7 +461,7 @@ public class NodeServiceImpl implements NodeService {
         if (graphNodeByUuid.isPresent()) {
             nodeMapper.updateNodeByUuid(nodeUpdateDTO, current, tx);
         } else {
-            final String message = Message.GRAPH_NODE_NULL + uuid;
+            final String message = String.format(Message.NODE_NULL, uuid);
             LOG.error(message);
             throw new NodeNullException(message);
         }
@@ -497,6 +497,30 @@ public class NodeServiceImpl implements NodeService {
     }
 
     /**
+     * Retrieves an unlimited expansion of a node in the graph.
+     * <p>
+     * This method first checks if the graph with the given UUID exists. If the graph does not exist, it logs an error
+     * and throws a {@link GraphNullException}. If the graph exists,
+     * it calls the {@link NodeMapper#expandNodeUnlimited(String, String)}
+     * method to retrieve the k-degree expansion of the specified node.
+     *
+     * @param uuid the UUID of the graph.
+     * @param name the name of the node to expand.
+     * @return a GraphVO object containing the expanded nodes and their relationships.
+     * @throws GraphNullException if the graph with the given UUID does not exist.
+     */
+    @Override
+    public GraphVO expandNodeUnlimited(final String uuid, final String name) {
+        if (commonService.getGraphByUuid(uuid).isEmpty()) {
+            final String message = String.format(Message.GRAPH_NULL, uuid);
+            LOG.error(message);
+            throw new GraphNullException(message);
+        }
+
+        return nodeMapper.expandNodeUnlimited(uuid, name);
+    }
+
+    /**
      * Validates and updates graph node relations based on the provided map.
      * <p>
      * Iterates over the entries in the provided {@code updateMap}.
@@ -512,7 +536,7 @@ public class NodeServiceImpl implements NodeService {
     private void validateAndUpdateRelations(final Map<String, String> updateMap, final String graphUuid) {
         updateMap.forEach((uuid, newName) -> {
             if (nodeRepository.getRelationByUuid(uuid) == null) {
-                final String message = Message.GRAPH_NODE_RELATION_NULL + uuid;
+                final String message = String.format(Message.RELATION_NULL, uuid);
                 LOG.error(message);
                 throw new NodeRelationException(message);
             }
@@ -535,7 +559,7 @@ public class NodeServiceImpl implements NodeService {
     private void validateAndDeleteRelations(final List<String> deleteList, final String graphUuid) {
         deleteList.forEach(uuid -> {
             if (nodeRepository.getRelationByUuid(uuid) == null) {
-                final String message = Message.GRAPH_NODE_RELATION_NULL + uuid;
+                final String message = String.format(Message.RELATION_NULL, uuid);
                 LOG.error(message);
                 throw new NodeRelationException(message);
             }
@@ -579,7 +603,7 @@ public class NodeServiceImpl implements NodeService {
             }
         }
         if (!invalidKeys.isEmpty()) {
-            final String message = Message.INPUT_PROPERTIES_ERROR + invalidKeys;
+            final String message = String.format(Message.INPUT_PROPERTIES_ERROR, invalidKeys);
             LOG.error(message);
             throw new IllegalArgumentException(message);
         }

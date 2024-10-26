@@ -179,11 +179,11 @@ public class GraphServiceSpec {
     @Test
     public void deleteByUuidsGraphNotExistThrowsGraphNullException() {
         // Arrange
-        final String uidcid = TestConstants.TEST_ID1;
+        final String oidcid = TestConstants.TEST_ID1;
         final String uuid = TestConstants.TEST_ID2;
 
         final GraphDeleteDTO graphDeleteDTO = GraphDeleteDTO.builder()
-                .uidcid(uidcid)
+                .oidcid(oidcid)
                 .uuids(Collections.singletonList(uuid))
                 .build();
 
@@ -202,7 +202,7 @@ public class GraphServiceSpec {
     @Test
     public void deleteByUuidsGraphBoundToAnotherUserThrowsDeleteException() {
         // Arrange
-        final String uidcid = TestConstants.TEST_ID1;
+        final String oidcid = TestConstants.TEST_ID1;
         final String uuid = TestConstants.TEST_ID2;
 
         final Graph graph = Graph.builder()
@@ -210,17 +210,17 @@ public class GraphServiceSpec {
                 .build();
 
         final GraphDeleteDTO graphDeleteDTO = GraphDeleteDTO.builder()
-                .uidcid(uidcid)
+                .oidcid(oidcid)
                 .uuids(Collections.singletonList(uuid))
                 .build();
 
         when(commonService.getGraphByUuid(uuid)).thenReturn(Optional.ofNullable(graph));
-        when(graphRepository.getGraphByGraphUuidAndUidcid(uuid, uidcid)).thenReturn(null);
+        when(graphRepository.getGraphByGraphUuidAndOidcid(uuid, oidcid)).thenReturn(null);
 
         // Act & Assert
         assertThrows(DeleteException.class, () -> graphService.deleteByUuids(graphDeleteDTO));
         verify(commonService, times(1)).getGraphByUuid(uuid);
-        verify(graphRepository, times(1)).getGraphByGraphUuidAndUidcid(uuid, uidcid);
+        verify(graphRepository, times(1)).getGraphByGraphUuidAndOidcid(uuid, oidcid);
         verify(graphRepository, never()).deleteByUuids(anyList());
         verify(nodeRepository, never()).deleteByUuids(anyList());
     }
@@ -231,21 +231,21 @@ public class GraphServiceSpec {
     @Test
     public void deleteByUuidsValidRequestDeletesGraphsAndRelatedGraphNodes() {
         // Arrange
-        final String uidcid = TestConstants.TEST_ID1;
+        final String oidcid = TestConstants.TEST_ID1;
         final String graphUuid = TestConstants.TEST_ID2;
         final String nodeUuid = TestConstants.TEST_ID3;
 
         final Graph graph = Graph.builder()
-                .uuid(uidcid)
+                .uuid(oidcid)
                 .build();
 
         final GraphDeleteDTO graphDeleteDTO = GraphDeleteDTO.builder()
-                .uidcid(uidcid)
+                .oidcid(oidcid)
                 .uuids(Collections.singletonList(graphUuid))
                 .build();
 
         when(commonService.getGraphByUuid(graphUuid)).thenReturn(Optional.ofNullable(graph));
-        when(graphRepository.getGraphByGraphUuidAndUidcid(graphUuid, uidcid)).thenReturn(graphUuid);
+        when(graphRepository.getGraphByGraphUuidAndOidcid(graphUuid, oidcid)).thenReturn(graphUuid);
         when(graphRepository.getGraphNodeUuidsByGraphUuids(anyList())).thenReturn(Collections.singletonList(nodeUuid));
 
         doNothing().when(nodeRepository).deleteByUuids(anyList());
@@ -312,7 +312,7 @@ public class GraphServiceSpec {
         });
 
         // Act & Assert
-        assertEquals(Message.GRAPH_NULL + graphUpdateDTO.getUuid(), exception.getMessage());
+        assertEquals(String.format(Message.GRAPH_NULL, graphUpdateDTO.getUuid()), exception.getMessage());
     }
 
     /**

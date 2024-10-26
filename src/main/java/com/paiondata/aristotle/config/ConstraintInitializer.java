@@ -40,7 +40,7 @@ public class ConstraintInitializer implements CommandLineRunner {
     public void run(final String... args) {
         try (Session session = neo4jDriver.session(SessionConfig.builder().build())) {
             session.writeTransaction(tx -> {
-                tx.run("CREATE CONSTRAINT IF NOT EXISTS FOR (u:User) REQUIRE u.uidcid IS UNIQUE");
+                tx.run("CREATE CONSTRAINT IF NOT EXISTS FOR (u:User) REQUIRE u.oidcid IS UNIQUE");
                 tx.run("CREATE CONSTRAINT IF NOT EXISTS FOR (g:Graph) REQUIRE g.uuid IS UNIQUE");
                 tx.run("CREATE CONSTRAINT IF NOT EXISTS FOR (gn:GraphNode) REQUIRE gn.uuid IS UNIQUE");
                 return null;

@@ -51,21 +51,21 @@ public class UserController {
     private UserService userService;
 
     /**
-     * Retrieves a user and its graphs by UID/CID.
+     * Retrieves a user and its graphs by OIDC ID.
      *
      * <p>
-     * This method handles a GET request to retrieve a user and its associated graphs based on the provided UID/CID.
-     * It validates the UID/CID and calls the user service to fetch the user data.
+     * This method handles a GET request to retrieve a user and its associated graphs based on the provided OIDC ID.
+     * It validates the OIDC ID and calls the user service to fetch the user data.
      * The result is wrapped in a {@link Result} object and returned.
      *
-     * @param uidcid the UID/CID of the user to retrieve
+     * @param oidcid the OIDC ID of the user to retrieve
      * @return a {@link Result} object containing the user data as a {@link UserVO}
      */
-    @ApiOperation(value = "Retrieves a user and its graphs by UID/CID")
-    @GetMapping("/{uidcid}")
-    public Result<UserVO> getUser(@PathVariable @NotBlank(message = Message.UIDCID_MUST_NOT_BE_BLANK)
-                                      final String uidcid) {
-        return Result.ok(userService.getUserVOByUidcid(uidcid));
+    @ApiOperation(value = "Retrieves a user and its graphs by OIDC ID")
+    @GetMapping("/{oidcid}")
+    public Result<UserVO> getUser(@PathVariable @NotBlank(message = Message.OIDCID_MUST_NOT_BE_BLANK)
+                                      final String oidcid) {
+        return Result.ok(userService.getUserVOByOidcid(oidcid));
     }
 
     /**
@@ -121,21 +121,21 @@ public class UserController {
     }
 
     /**
-     * Deletes users by their UID/CIDs.
+     * Deletes users by their OIDC IDs.
      *
      * <p>
-     * This method handles a DELETE request to delete users based on the provided list of UID/CIDs.
+     * This method handles a DELETE request to delete users based on the provided list of OIDC IDs.
      * It validates the input list and calls the user service to perform the deletion.
      * The result is wrapped in a {@link Result} object with a success message.
      *
-     * @param uidcids the list of UID/CIDs of the users to delete
+     * @param oidcids the list of OIDC IDs of the users to delete
      * @return a {@link Result} object containing a success message
      */
-    @ApiOperation(value = "Deletes users by their UID/CIDs")
+    @ApiOperation(value = "Deletes users by their OIDC IDs")
     @DeleteMapping
-    public Result<String> deleteUser(@RequestBody @NotEmpty(message = Message.UIDCIDS_MUST_NOT_EMPTY)
-                                         final List<String> uidcids) {
-        userService.deleteUser(uidcids);
+    public Result<String> deleteUser(@RequestBody @NotEmpty(message = Message.OIDCIDS_MUST_NOT_EMPTY)
+                                         final List<String> oidcids) {
+        userService.deleteUser(oidcids);
         return Result.ok(Message.DELETE_SUCCESS);
     }
 }

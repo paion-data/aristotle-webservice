@@ -97,7 +97,7 @@ public class GraphServiceImpl implements GraphService {
         final Graph graphByUuid = graphRepository.getGraphByUuid(uuid);
 
         if (graphByUuid == null) {
-            final String message = Message.GRAPH_NULL + uuid;
+            final String message = String.format(Message.GRAPH_NULL, uuid);
             LOG.error(message);
             throw new GraphNullException(message);
         }
@@ -126,26 +126,26 @@ public class GraphServiceImpl implements GraphService {
      * Deletes the graphs using the {@link GraphRepository#deleteByUuids(List)} method.
      *
      * @param graphDeleteDTO The DTO containing the user identifier and the list of graph UUIDs to be deleted. <br>
-     *                       It includes the user identifier ({@code uidcid}) and the list of graph UUIDs.
+     *                       It includes the user identifier ({@code oidcid}) and the list of graph UUIDs.
      * @throws GraphNullException If any of the specified graphs are not found.
      * @throws DeleteException If any of the specified graphs are bound to another user.
      */
     @Transactional
     @Override
     public void deleteByUuids(final GraphDeleteDTO graphDeleteDTO) {
-        final String uidcid = graphDeleteDTO.getUidcid();
+        final String oidcid = graphDeleteDTO.getOidcid();
         final List<String> uuids = graphDeleteDTO.getUuids();
 
         for (final String uuid : uuids) {
             if (commonService.getGraphByUuid(uuid).isEmpty()) {
-                final String message = Message.GRAPH_NULL + uuid;
+                final String message = String.format(Message.GRAPH_NULL, uuid);
                 LOG.error(message);
                 throw new GraphNullException(message);
             }
-            if (graphRepository.getGraphByGraphUuidAndUidcid(uuid, uidcid) == null) {
-                final String message = Message.GRAPH_BIND_ANOTHER_USER + uuid;
+            if (graphRepository.getGraphByGraphUuidAndOidcid(uuid, oidcid) == null) {
+                final String message = String.format(Message.GRAPH_BIND_ANOTHER_USER, uuid);
                 LOG.error(message);
-                throw new DeleteException(Message.GRAPH_BIND_ANOTHER_USER + uuid);
+                throw new DeleteException(message);
             }
         }
 
@@ -188,7 +188,7 @@ public class GraphServiceImpl implements GraphService {
         if (graphByUuid.isPresent()) {
             graphMapper.updateGraphByUuid(uuid, graphUpdateDTO.getTitle(), graphUpdateDTO.getDescription(), now, tx);
         } else {
-            final String message = Message.GRAPH_NULL + uuid;
+            final String message = String.format(Message.GRAPH_NULL, uuid);
             LOG.error(message);
             throw new GraphNullException(message);
         }

@@ -15,24 +15,17 @@
  */
 package com.paiondata.aristotle
 
-import com.paiondata.aristotle.base.TestConstants
-
 import org.springframework.http.HttpStatus
 import org.testcontainers.containers.DockerComposeContainer
 import org.testcontainers.containers.wait.strategy.Wait
 import org.testcontainers.spock.Testcontainers
-
-import io.restassured.http.ContentType
-import org.junit.jupiter.api.Assertions
 
 import spock.lang.Shared
 
 import java.time.Duration
 
 import javax.validation.constraints.NotNull
-import org.junit.Assert
 import io.restassured.RestAssured
-import io.restassured.response.Response
 import spock.lang.Specification
 
 import java.nio.file.Files

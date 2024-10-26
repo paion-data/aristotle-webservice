@@ -31,12 +31,12 @@ import java.util.Optional;
 public interface CommonService {
 
     /**
-     * Retrieves an optional user by UIDCID.
+     * Retrieves an optional user by OIDC ID.
      *
-     * @param uidcid the UIDCID of the user
+     * @param oidcid the OIDC ID of the user
      * @return an Optional containing the user if found, or empty otherwise
      */
-    Optional<User> getUserByUidcid(String uidcid);
+    Optional<User> getUserByOidcid(String oidcid);
 
     /**
      * Retrieves a graph by its UUID.
@@ -48,13 +48,13 @@ public interface CommonService {
     Optional<Graph> getGraphByUuid(String uuid);
 
     /**
-     * Retrieves users' associated graphs by UIDCID.
+     * Retrieves users' associated graphs by OIDC ID.
      *
-     * @param uidcid the UIDCID of the user
+     * @param oidcid the OIDC ID of the user
      *
      * @return a list of maps containing user information and associated graphs
      */
-    List<Map<String, Object>> getGraphsByUidcid(String uidcid);
+    List<Map<String, Object>> getGraphsByOidcid(String oidcid);
 
     /**
      * Creates and binds a new graph using the provided DTO.

@@ -28,11 +28,14 @@ import com.paiondata.aristotle.model.dto.BindNodeDTO;
 import com.paiondata.aristotle.service.NodeService;
 import io.swagger.annotations.Api;
 import io.swagger.annotations.ApiOperation;
+import io.swagger.annotations.ApiParam;
+
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.validation.annotation.Validated;
 import org.springframework.web.bind.annotation.GetMapping;
 import org.springframework.web.bind.annotation.PathVariable;
 import org.springframework.web.bind.annotation.RequestMapping;
+import org.springframework.web.bind.annotation.RequestParam;
 import org.springframework.web.bind.annotation.RestController;
 import org.springframework.web.bind.annotation.PostMapping;
 import org.springframework.web.bind.annotation.DeleteMapping;
@@ -76,7 +79,30 @@ public class NodeController {
     public Result<NodeVO> getNodeByUuid(
             @PathVariable @NotBlank(message = Message.UUID_MUST_NOT_BE_BLANK) final String uuid) {
         final Optional<NodeVO> optionalGraphNode = nodeService.getNodeByUuid(uuid);
-        return optionalGraphNode.map(Result::ok).orElseGet(() -> Result.fail(Message.GRAPH_NODE_NULL + uuid));
+        return optionalGraphNode.map(Result::ok).orElseGet(() -> Result.fail(String.format(Message.NODE_NULL, uuid)));
+    }
+
+    /**
+     * Retrieves an unlimited expansion of a node in the graph.
+     * <p>
+     * This endpoint accepts a graph UUID and a node name as query parameters.
+     * It validates that both parameters are not blank.
+     * If the validation passes, it calls the {@link NodeService#expandNodeUnlimited(String, String)} method to retrieve
+     * the unlimited expansion of the specified node and returns the result wrapped in a {@link Result} object.
+     *
+     * @param uuid the UUID of the graph.
+     * @param name the name of the node to expand.
+     * @return a {@link Result} object containing the unlimited expansion of the node.
+     */
+    @ApiOperation(value = "Retrieve unlimited expansion of a node",
+            notes = "This endpoint retrieves the unlimited expansion of a node in the graph.")
+    @GetMapping("/expand")
+    public Result<GraphVO> expandNodeUnlimited(
+            @ApiParam(value = "The UUID of the graph", required = true)
+            @RequestParam @NotBlank(message = Message.UUID_MUST_NOT_BE_BLANK) final String uuid,
+            @ApiParam(value = "The name of the node to expand", required = true)
+            @RequestParam @NotBlank(message = Message.NAME_MUST_NOT_BE_BLANK) final String name) {
+        return Result.ok(nodeService.expandNodeUnlimited(uuid, name));
     }
 
     /**

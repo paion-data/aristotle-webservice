@@ -68,21 +68,21 @@ public class CommonServiceSpec {
     private GraphMapper graphMapper;
 
     /**
-     * Tests that getting a user by UIDCID returns the correct user when the user exists.
+     * Tests that getting a user by OIDC ID returns the correct user when the user exists.
      */
     @Test
-    public void getUserByUidcidUserExistsReturnsUser() {
+    public void getUserByOidcidUserExistsReturnsUser() {
         // Arrange
-        final String uidcid = TestConstants.TEST_ID1;
+        final String oidcid = TestConstants.TEST_ID1;
         final User expectedUser = User.builder()
-                .uidcid(uidcid)
+                .oidcid(oidcid)
                 .nickName(TestConstants.TEST_NAME1)
                 .build();
 
-        when(userRepository.getUserByUidcid(uidcid)).thenReturn(expectedUser);
+        when(userRepository.getUserByOidcid(oidcid)).thenReturn(expectedUser);
 
         // Act
-        final Optional<User> userOptional = commonService.getUserByUidcid(uidcid);
+        final Optional<User> userOptional = commonService.getUserByOidcid(oidcid);
 
         // Assert
         Assertions.assertTrue(userOptional.isPresent());
@@ -90,17 +90,17 @@ public class CommonServiceSpec {
     }
 
     /**
-     * Tests that getting a user by UIDCID returns an empty Optional when the user does not exist.
+     * Tests that getting a user by OIDC ID returns an empty Optional when the user does not exist.
      */
     @Test
-    public void getUserByUidcidUserDoesNotExistReturnsEmptyOptional() {
+    public void getUserByOidcidUserDoesNotExistReturnsEmptyOptional() {
         // Arrange
-        final String uidcid = TestConstants.TEST_ID1;
+        final String oidcid = TestConstants.TEST_ID1;
 
-        when(userRepository.getUserByUidcid(uidcid)).thenReturn(null);
+        when(userRepository.getUserByOidcid(oidcid)).thenReturn(null);
 
         // Act
-        final Optional<User> userOptional = commonService.getUserByUidcid(uidcid);
+        final Optional<User> userOptional = commonService.getUserByOidcid(oidcid);
 
         // Assert
         Assertions.assertFalse(userOptional.isPresent());
@@ -158,11 +158,11 @@ public class CommonServiceSpec {
         final GraphCreateDTO graphCreateDTO = GraphCreateDTO.builder()
                 .title(TestConstants.TEST_TILE1)
                 .description(TestConstants.TEST_DESCRIPTION1)
-                .userUidcid(TestConstants.TEST_ID1)
+                .userOidcid(TestConstants.TEST_ID1)
                 .build();
 
         final User user = User.builder()
-                .uidcid(TestConstants.TEST_ID1)
+                .oidcid(TestConstants.TEST_ID1)
                 .build();
 
         final Graph graph = Graph.builder()
@@ -171,7 +171,7 @@ public class CommonServiceSpec {
 
         final Transaction tx = mock(Transaction.class);
 
-        when(userRepository.getUserByUidcid(eq(TestConstants.TEST_ID1))).thenReturn(user);
+        when(userRepository.getUserByOidcid(eq(TestConstants.TEST_ID1))).thenReturn(user);
         when(graphMapper.createGraph(any(String.class), any(String.class), any(String.class),
                 any(String.class), any(String.class), any(String.class), eq(tx))).thenReturn(graph);
 
@@ -180,7 +180,7 @@ public class CommonServiceSpec {
 
         // Assert
         assertEquals(graph, result);
-        verify(userRepository, times(1)).getUserByUidcid(eq(TestConstants.TEST_ID1));
+        verify(userRepository, times(1)).getUserByOidcid(eq(TestConstants.TEST_ID1));
         verify(graphMapper, times(1)).createGraph(any(String.class), any(String.class), any(String.class),
                 any(String.class), any(String.class), any(String.class), eq(tx));
     }
@@ -194,16 +194,16 @@ public class CommonServiceSpec {
         final GraphCreateDTO graphCreateDTO = GraphCreateDTO.builder()
                 .title(TestConstants.TEST_TILE1)
                 .description(TestConstants.TEST_DESCRIPTION1)
-                .userUidcid(TestConstants.TEST_ID1)
+                .userOidcid(TestConstants.TEST_ID1)
                 .build();
 
         final Transaction tx = mock(Transaction.class);
 
-        when(userRepository.getUserByUidcid(eq(TestConstants.TEST_ID1))).thenReturn(null);
+        when(userRepository.getUserByOidcid(eq(TestConstants.TEST_ID1))).thenReturn(null);
 
         // Act & Assert
         assertThrows(UserNullException.class, () -> commonService.createAndBindGraph(graphCreateDTO, tx));
-        verify(userRepository, times(1)).getUserByUidcid(eq(TestConstants.TEST_ID1));
+        verify(userRepository, times(1)).getUserByOidcid(eq(TestConstants.TEST_ID1));
         verify(graphMapper, never()).createGraph(any(String.class), any(String.class), any(String.class),
                 any(String.class), any(String.class), any(String.class), eq(tx));
     }

@@ -31,24 +31,24 @@ public interface GraphMapper {
      * Creates a new graph with the specified properties.
      * @param title the title of the graph
      * @param description the description of the graph
-     * @param userUidcid the UIDCID of the user
+     * @param userOidcid the OIDC ID of the user
      * @param graphUuid the UUID of the graph
      * @param relationUuid the UUID of the link between the created node and the graph this node belongs to
      * @param currentTime the current time
      * @param tx the Neo4j transaction
      * @return the created Graph object
      */
-    Graph createGraph(String title, String description, String userUidcid,
+    Graph createGraph(String title, String description, String userOidcid,
                       String graphUuid, String relationUuid, String currentTime, Transaction tx);
 
     /**
-     * Retrieves users' associated graphs by UIDCID.
+     * Retrieves users' associated graphs by OIDC ID.
      *
-     * @param uidcid the UIDCID of the user
+     * @param oidcid the OIDC ID of the user
      *
      * @return a list of maps containing user information and associated graphs
      */
-    List<Map<String, Object>> getGraphsByUidcid(String uidcid);
+    List<Map<String, Object>> getGraphsByOidcid(String oidcid);
 
     /**
      * Updates a graph by its UUID.
