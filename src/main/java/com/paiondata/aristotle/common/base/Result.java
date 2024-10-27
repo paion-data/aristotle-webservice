@@ -219,6 +219,19 @@ public class Result<T> implements Serializable {
     }
 
     /**
+     * Creates a failed result with data, a custom code and message.
+     *
+     * @param code the custom code
+     * @param msg  the custom message
+     * @param data the data associated with the result
+     * @param <T>  the type of the data
+     * @return     a failed result with data, a custom code and message
+     */
+    public static <T> Result<T> fail(final int code, final String msg, final T data) {
+        return restResult(data, code, msg);
+    }
+
+    /**
      * Creates a failed result using a predefined return code.
      *
      * @param returnCode  the predefined return code

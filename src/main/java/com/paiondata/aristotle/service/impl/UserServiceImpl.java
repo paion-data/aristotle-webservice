@@ -16,8 +16,6 @@
 package com.paiondata.aristotle.service.impl;
 
 import com.paiondata.aristotle.common.base.Message;
-import com.paiondata.aristotle.common.exception.UserNullException;
-import com.paiondata.aristotle.common.exception.UserExistsException;
 import com.paiondata.aristotle.model.dto.UserDTO;
 import com.paiondata.aristotle.model.entity.User;
 import com.paiondata.aristotle.model.vo.UserVO;
@@ -37,6 +35,7 @@ import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
 import java.util.List;
+import java.util.NoSuchElementException;
 import java.util.stream.Collectors;
 
 /**
@@ -65,13 +64,13 @@ public class UserServiceImpl implements UserService {
      * Retrieves a user view object (VO) by their unique identifier (oidcid).
      *
      * Attempts to find the user by their oidcid using the {@link UserRepository#getUserByOidcid(String)} method.
-     * Throws a {@link UserNullException} if the user is not found.
+     * Throws a {@link NoSuchElementException} if the user is not found.
      * Constructs and returns a {@link UserVO} object containing the user's details and their associated graphs.
      * The associated graphs are retrieved using the {@link CommonService#getGraphsByOidcid(String)} method.
      *
      * @param oidcid the unique identifier of the user
      * @return a {@link UserVO} object representing the user and their associated graphs
-     * @throws UserNullException if the user with the specified oidcid is not found
+     * @throws NoSuchElementException if the user with the specified oidcid is not found
      */
     @Transactional(readOnly = true)
     @Override
@@ -81,7 +80,7 @@ public class UserServiceImpl implements UserService {
         if (user == null) {
             final String message = String.format(Message.USER_NULL, oidcid);
             LOG.error(message);
-            throw new UserNullException(message);
+            throw new NoSuchElementException(message);
         }
 
         return UserVO.builder()
@@ -121,12 +120,12 @@ public class UserServiceImpl implements UserService {
      * Attempts to create a new user in the repository using
      * the {@link UserRepository#createUser(String, String)} method.
      * If the user creation fails due to a data integrity violation (e.g., duplicate oidcid),
-     * a {@link UserExistsException} is thrown.
+     * a {@link IllegalArgumentException} is thrown.
      * Returns a {@link UserDTO} object containing the details of the newly created user.
      *
      * @param user the {@link UserDTO} object containing the user's details
      * @return a {@link UserDTO} object representing the newly created user
-     * @throws UserExistsException if a user with the same oidcid already exists
+     * @throws IllegalArgumentException if a user with the same oidcid already exists
      */
     @Transactional
     @Override
@@ -139,7 +138,7 @@ public class UserServiceImpl implements UserService {
         } catch (final DataIntegrityViolationException e) {
             final String message = String.format(Message.OIDCID_EXISTS, oidcid);
             LOG.error(message);
-            throw new UserExistsException(message);
+            throw new IllegalArgumentException(message);
         }
     }
 
@@ -149,10 +148,10 @@ public class UserServiceImpl implements UserService {
      * Checks if a user with the given oidcid exists using the {@link UserRepository#checkOidcidExists(String)} method.
      * If the user exists, updates the user's nickname using
      * the {@link UserRepository#updateUser(String, String)} method.
-     * If the user does not exist, throws a {@link UserNullException}.
+     * If the user does not exist, throws a {@link NoSuchElementException}.
      *
      * @param userDTO the {@link UserDTO} object containing the updated user details
-     * @throws UserNullException if the user with the specified oidcid does not exist
+     * @throws NoSuchElementException if the user with the specified oidcid does not exist
      */
     @Transactional
     @Override
@@ -164,7 +163,7 @@ public class UserServiceImpl implements UserService {
         } else {
             final String message = String.format(Message.USER_NULL, oidcid);
             LOG.error(message);
-            throw new UserNullException(message);
+            throw new NoSuchElementException(message);
         }
     }
 
@@ -173,7 +172,7 @@ public class UserServiceImpl implements UserService {
      * <p>
      * Iterates through the provided list of user identifiers (oidcids) and checks if each user exists using
      * the {@link CommonService#getUserByOidcid(String)} method.
-     * Throws a {@link UserNullException} if any user does not exist.
+     * Throws a {@link NoSuchElementException} if any user does not exist.
      * Retrieves the UUIDs of graphs related to the users using the {@link #getRelatedGraphUuids(List)} method.
      * Retrieves the UUIDs of nodes related to the graphs using the {@link #getRelatedGraphNodeUuids(List)} method.
      * Deletes the users from the user repository using the {@link UserRepository#deleteByOidcids(List)} method.
@@ -181,7 +180,7 @@ public class UserServiceImpl implements UserService {
      * Deletes the related nodes from the node repository using the {@link NodeRepository#deleteByUuids(List)} method.
      *
      * @param oidcids the list of user identifiers to be deleted
-     * @throws UserNullException if any user with the specified oidcid does not exist
+     * @throws NoSuchElementException if any user with the specified oidcid does not exist
      */
     @Transactional
     @Override
@@ -190,7 +189,7 @@ public class UserServiceImpl implements UserService {
             if (commonService.getUserByOidcid(oidcid).isEmpty()) {
                 final String message = String.format(Message.USER_NULL, oidcid);
                 LOG.error(message);
-                throw new UserNullException(message);
+                throw new NoSuchElementException(message);
             }
         }
 

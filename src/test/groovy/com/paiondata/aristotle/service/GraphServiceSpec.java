@@ -29,9 +29,6 @@ import static org.mockito.Mockito.when;
 
 import com.paiondata.aristotle.base.TestConstants;
 import com.paiondata.aristotle.common.base.Message;
-import com.paiondata.aristotle.common.exception.DeleteException;
-import com.paiondata.aristotle.common.exception.GraphNullException;
-import com.paiondata.aristotle.common.exception.TransactionException;
 import com.paiondata.aristotle.mapper.GraphMapper;
 import com.paiondata.aristotle.mapper.NodeMapper;
 import com.paiondata.aristotle.model.dto.FilterQueryGraphDTO;
@@ -60,6 +57,7 @@ import java.time.ZoneId;
 import java.util.Collections;
 import java.util.Date;
 import java.util.Map;
+import java.util.NoSuchElementException;
 import java.util.Optional;
 
 /**
@@ -154,17 +152,17 @@ public class GraphServiceSpec {
     }
 
     /**
-     * Tests that getting a GraphVO By Uuid throws a GraphNullException when the graph does not exist.
+     * Tests that getting a GraphVO By Uuid throws a NoSuchElementException when the graph does not exist.
      */
     @Test
-    void getGraphVOByUuidGraphDoesNotExistThrowsGraphNullException() {
+    void getGraphVOByUuidGraphDoesNotExistThrowsNoSuchElementException() {
         // Arrange
         final String uuid = TestConstants.TEST_ID1;
         final Map<String, String> properties = Collections.singletonMap("key1", "value1");
         when(graphRepository.getGraphByUuid(uuid)).thenReturn(null);
 
         // Act & Assert
-        assertThrows(GraphNullException.class, () -> graphService.getGraphVOByUuid(
+        assertThrows(NoSuchElementException.class, () -> graphService.getGraphVOByUuid(
                 new FilterQueryGraphDTO(uuid, properties,
                         TestConstants.DEFALUT_PAGE_NUMBER, TestConstants.DEFALUT_PAGE_SIZE)));
 
@@ -174,10 +172,10 @@ public class GraphServiceSpec {
     }
 
     /**
-     * Tests that deleting a graph throws a GraphNullException when the graph does not exist.
+     * Tests that deleting a graph throws a NoSuchElementException when the graph does not exist.
      */
     @Test
-    public void deleteByUuidsGraphNotExistThrowsGraphNullException() {
+    public void deleteByUuidsGraphNotExistThrowsNoSuchElementException() {
         // Arrange
         final String oidcid = TestConstants.TEST_ID1;
         final String uuid = TestConstants.TEST_ID2;
@@ -190,17 +188,17 @@ public class GraphServiceSpec {
         when(commonService.getGraphByUuid(uuid)).thenReturn(Optional.empty());
 
         // Act & Assert
-        assertThrows(GraphNullException.class, () -> graphService.deleteByUuids(graphDeleteDTO));
+        assertThrows(NoSuchElementException.class, () -> graphService.deleteByUuids(graphDeleteDTO));
         verify(commonService, times(1)).getGraphByUuid(uuid);
         verify(graphRepository, never()).deleteByUuids(anyList());
         verify(nodeRepository, never()).deleteByUuids(anyList());
     }
 
     /**
-     * Tests that deleting a graph throws a DeleteException when the graph is bound to another user.
+     * Tests that deleting a graph throws a IllegalStateException when the graph is bound to another user.
      */
     @Test
-    public void deleteByUuidsGraphBoundToAnotherUserThrowsDeleteException() {
+    public void deleteByUuidsGraphBoundToAnotherUserThrowsIllegalStateException() {
         // Arrange
         final String oidcid = TestConstants.TEST_ID1;
         final String uuid = TestConstants.TEST_ID2;
@@ -218,7 +216,7 @@ public class GraphServiceSpec {
         when(graphRepository.getGraphByGraphUuidAndOidcid(uuid, oidcid)).thenReturn(null);
 
         // Act & Assert
-        assertThrows(DeleteException.class, () -> graphService.deleteByUuids(graphDeleteDTO));
+        assertThrows(IllegalStateException.class, () -> graphService.deleteByUuids(graphDeleteDTO));
         verify(commonService, times(1)).getGraphByUuid(uuid);
         verify(graphRepository, times(1)).getGraphByGraphUuidAndOidcid(uuid, oidcid);
         verify(graphRepository, never()).deleteByUuids(anyList());
@@ -259,7 +257,7 @@ public class GraphServiceSpec {
     }
 
     /**
-     * Tests that updating a graph throws a TransactionException when the transaction is null.
+     * Tests that updating a graph throws a IllegalArgumentException when the transaction is null.
      */
     @Test
     public void updateGraphTransactionIsNullShouldThrowTransactionException() {
@@ -267,9 +265,8 @@ public class GraphServiceSpec {
         final GraphUpdateDTO graphUpdateDTO = new GraphUpdateDTO(TestConstants.TEST_ID1, TestConstants.TEST_TILE1,
                 TestConstants.TEST_DESCRIPTION1);
 
-        final TransactionException exception = assertThrows(TransactionException.class, () -> {
-            graphService.updateGraph(graphUpdateDTO, null);
-        });
+        final IllegalArgumentException exception = assertThrows(IllegalArgumentException.class,
+                () -> graphService.updateGraph(graphUpdateDTO, null));
 
         // Act & Assert
         assertEquals(Message.TRANSACTION_NULL, exception.getMessage());
@@ -296,10 +293,10 @@ public class GraphServiceSpec {
     }
 
     /**
-     * Tests that updating a graph throws a GraphNullException when the graph does not exist.
+     * Tests that updating a graph throws a NoSuchElementException when the graph does not exist.
      */
     @Test
-    void updateGraphGraphNotExistsThrowsGraphNullException() {
+    void updateGraphGraphNotExistsThrowsNoSuchElementException() {
         // Arrange
         final Transaction tx = mock(Transaction.class);
         final GraphUpdateDTO graphUpdateDTO = new GraphUpdateDTO(TestConstants.TEST_ID1, TestConstants.TEST_TILE1,
@@ -307,9 +304,8 @@ public class GraphServiceSpec {
 
         when(commonService.getGraphByUuid(anyString())).thenReturn(Optional.empty());
 
-        final GraphNullException exception = assertThrows(GraphNullException.class, () -> {
-            graphService.updateGraph(graphUpdateDTO, tx);
-        });
+        final NoSuchElementException exception = assertThrows(NoSuchElementException.class,
+                () -> graphService.updateGraph(graphUpdateDTO, tx));
 
         // Act & Assert
         assertEquals(String.format(Message.GRAPH_NULL, graphUpdateDTO.getUuid()), exception.getMessage());

@@ -19,6 +19,7 @@ import com.paiondata.aristotle.AbstractITSpec
 import com.paiondata.aristotle.base.TestConstants
 
 import org.junit.jupiter.api.Assertions
+import org.springframework.http.HttpStatus
 
 import io.restassured.RestAssured
 import io.restassured.http.ContentType
@@ -39,6 +40,9 @@ class GraphControllerITSpec extends AbstractITSpec {
                 .extract()
                 .response()
 
+        response.then()
+                .statusCode(HttpStatus.BAD_REQUEST.value())
+
         Assertions.assertEquals("Request parameter verification error: ", response.jsonPath().get("msg"))
         Assertions.assertEquals("uuid must not be blank!", response.jsonPath().get("data[0]"))
     }
@@ -56,6 +60,9 @@ class GraphControllerITSpec extends AbstractITSpec {
                 .extract()
                 .response()
 
+        response.then()
+                .statusCode(HttpStatus.BAD_REQUEST.value())
+
         Assertions.assertEquals("Request parameter verification error: ", response.jsonPath().get("msg"))
         Assertions.assertEquals("uuid must not be blank!", response.jsonPath().get("data[0]"))
     }
@@ -72,6 +79,9 @@ class GraphControllerITSpec extends AbstractITSpec {
                 .then()
                 .extract()
                 .response()
+
+        response.then()
+                .statusCode(HttpStatus.BAD_REQUEST.value())
 
         def actualData = response.jsonPath().get(TestConstants.DATA) as List<String>
         def sortedActualData = actualData.sort()

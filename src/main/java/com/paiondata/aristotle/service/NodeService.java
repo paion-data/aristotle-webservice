@@ -15,11 +15,11 @@
  */
 package com.paiondata.aristotle.service;
 
+import com.paiondata.aristotle.model.dto.NodeRelationDTO;
 import com.paiondata.aristotle.model.vo.GraphVO;
 import com.paiondata.aristotle.model.dto.NodeDeleteDTO;
 import com.paiondata.aristotle.model.vo.NodeVO;
 import com.paiondata.aristotle.model.dto.NodeUpdateDTO;
-import com.paiondata.aristotle.model.dto.BindNodeDTO;
 import com.paiondata.aristotle.model.dto.GraphAndNodeCreateDTO;
 import com.paiondata.aristotle.model.dto.NodeCreateDTO;
 import com.paiondata.aristotle.model.dto.RelationUpdateDTO;
@@ -67,7 +67,7 @@ public interface NodeService {
      * @param dtos the list of DTOs for binding nodes
      * @param tx   the Neo4j transaction
      */
-    void bindNodes(List<BindNodeDTO> dtos, Transaction tx);
+    void bindNodes(List<NodeRelationDTO> dtos, Transaction tx);
 
     /**
      * Deletes graph nodes by their UUIDs.

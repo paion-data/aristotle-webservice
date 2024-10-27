@@ -17,9 +17,6 @@ package com.paiondata.aristotle.service.impl;
 
 import com.paiondata.aristotle.common.annotion.Neo4jTransactional;
 import com.paiondata.aristotle.common.base.Message;
-import com.paiondata.aristotle.common.exception.DeleteException;
-import com.paiondata.aristotle.common.exception.GraphNullException;
-import com.paiondata.aristotle.common.exception.TransactionException;
 import com.paiondata.aristotle.mapper.GraphMapper;
 import com.paiondata.aristotle.mapper.NodeMapper;
 import com.paiondata.aristotle.model.dto.FilterQueryGraphDTO;
@@ -47,6 +44,7 @@ import java.time.ZoneId;
 import java.util.Date;
 import java.util.List;
 import java.util.Map;
+import java.util.NoSuchElementException;
 import java.util.Optional;
 
 /**
@@ -78,7 +76,7 @@ public class GraphServiceImpl implements GraphService {
      * Retrieves a graph view object (VO) by its UUID.
      * <p>
      * Retrieves the graph by its UUID using the {@link GraphRepository#getGraphByUuid(String)} method.
-     * Throws a {@link GraphNullException} if the graph is not found.
+     * Throws a {@link NoSuchElementException} if the graph is not found.
      * Retrieves the nodes and relations of the graph using the <br>
      * {@link NodeMapper#getRelationByGraphUuid(String, Map, Integer, Integer)} method.
      * Constructs and returns a {@link GraphVO} object with the graph's details and the retrieved nodes and relations.
@@ -86,7 +84,7 @@ public class GraphServiceImpl implements GraphService {
      * @param filterQueryGraphDTO The DTO containing the graph UUID and optional properties for filtering. <br>
      *                            It includes the graph UUID and an optional map of properties.
      * @return A {@link GraphVO} object representing the graph and its nodes and relations.
-     * @throws GraphNullException If the graph with the specified UUID is not found.
+     * @throws NoSuchElementException If the graph with the specified UUID is not found.
      */
     @Override
     public GraphVO getGraphVOByUuid(final FilterQueryGraphDTO filterQueryGraphDTO) {
@@ -99,7 +97,7 @@ public class GraphServiceImpl implements GraphService {
         if (graphByUuid == null) {
             final String message = String.format(Message.GRAPH_NULL, uuid);
             LOG.error(message);
-            throw new GraphNullException(message);
+            throw new NoSuchElementException(message);
         }
 
         final Optional<Map<String, String>> optionalProperties = filterQueryGraphDTO.getProperties();
@@ -119,16 +117,16 @@ public class GraphServiceImpl implements GraphService {
      * Checks if the provided graph UUIDs exist and belong to the specified user.
      * For each UUID:
      * - Retrieves the graph by its UUID using the {@link CommonService#getGraphByUuid(String)} method.
-     * - Throws a {@link GraphNullException} if the graph is not found.
-     * - Throws a {@link DeleteException} if the graph is bound to another user.
+     * - Throws a {@link NoSuchElementException} if the graph is not found.
+     * - Throws a {@link IllegalStateException} if the graph is bound to another user.
      * Retrieves the UUIDs of related graph nodes using the {@link #getRelatedGraphNodeUuids(List)} method.
      * Deletes the related graph nodes using the {@link NodeRepository#deleteByUuids(List)} method.
      * Deletes the graphs using the {@link GraphRepository#deleteByUuids(List)} method.
      *
      * @param graphDeleteDTO The DTO containing the user identifier and the list of graph UUIDs to be deleted. <br>
      *                       It includes the user identifier ({@code oidcid}) and the list of graph UUIDs.
-     * @throws GraphNullException If any of the specified graphs are not found.
-     * @throws DeleteException If any of the specified graphs are bound to another user.
+     * @throws NoSuchElementException If any of the specified graphs are not found.
+     * @throws IllegalStateException If any of the specified graphs are bound to another user.
      */
     @Transactional
     @Override
@@ -140,12 +138,12 @@ public class GraphServiceImpl implements GraphService {
             if (commonService.getGraphByUuid(uuid).isEmpty()) {
                 final String message = String.format(Message.GRAPH_NULL, uuid);
                 LOG.error(message);
-                throw new GraphNullException(message);
+                throw new NoSuchElementException(message);
             }
             if (graphRepository.getGraphByGraphUuidAndOidcid(uuid, oidcid) == null) {
                 final String message = String.format(Message.GRAPH_BIND_ANOTHER_USER, uuid);
                 LOG.error(message);
-                throw new DeleteException(message);
+                throw new IllegalStateException(message);
             }
         }
 
@@ -158,7 +156,7 @@ public class GraphServiceImpl implements GraphService {
     /**
      * Updates an existing graph based on the provided DTO.
      * <p>
-     * Checks if the provided Neo4j transaction ({@code tx}) is null. If it is,a {@link TransactionException} is thrown.
+     * Checks if the provided Neo4j transaction ({@code tx}) is null, a {@link IllegalArgumentException} is thrown.
      * Retrieves the graph UUID from the {@code graphUpdateDTO}.
      * Attempts to find the graph by its UUID using the {@link CommonService#getGraphByUuid(String)} method.
      * Retrieves the current time.
@@ -168,8 +166,8 @@ public class GraphServiceImpl implements GraphService {
      * @param graphUpdateDTO The DTO containing the updated information for the graph. <br>
      *                       It includes the graph UUID, title, and description.
      * @param tx The Neo4j transaction object used for the database operation.
-     * @throws TransactionException If the provided transaction is null.
-     * @throws GraphNullException If the graph with the specified UUID is not found.
+     * @throws IllegalArgumentException If the provided transaction is null.
+     * @throws NoSuchElementException If the graph with the specified UUID is not found.
      */
     @Neo4jTransactional
     @Override
@@ -178,7 +176,7 @@ public class GraphServiceImpl implements GraphService {
         if (tx == null) {
             final String message = Message.TRANSACTION_NULL;
             LOG.error(message);
-            throw new TransactionException(message);
+            throw new IllegalArgumentException(message);
         }
 
         final String uuid = graphUpdateDTO.getUuid();
@@ -190,7 +188,7 @@ public class GraphServiceImpl implements GraphService {
         } else {
             final String message = String.format(Message.GRAPH_NULL, uuid);
             LOG.error(message);
-            throw new GraphNullException(message);
+            throw new NoSuchElementException(message);
         }
     }
 

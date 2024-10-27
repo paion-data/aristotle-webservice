@@ -51,6 +51,9 @@ class NodeControllerITSpec extends AbstractITSpec {
                 .extract()
                 .response()
 
+        response.then()
+                .statusCode(HttpStatus.BAD_REQUEST.value())
+
         def actualData = response.jsonPath().get(TestConstants.DATA) as List<String>
         def sortedActualData = actualData.sort()
         def sortedExpectedData = expectedData.sort()
@@ -102,6 +105,9 @@ class NodeControllerITSpec extends AbstractITSpec {
                 .extract()
                 .response()
 
+        response.then()
+                .statusCode(HttpStatus.BAD_REQUEST.value())
+
         def actualData = response.jsonPath().get(TestConstants.DATA) as List<String>
         def sortedActualData = actualData.sort()
         def sortedExpectedData = expectedData.sort()
@@ -130,14 +136,17 @@ class NodeControllerITSpec extends AbstractITSpec {
                 .extract()
                 .response()
 
+        response.then()
+                .statusCode(HttpStatus.BAD_REQUEST.value())
+
         def actualMsg = response.jsonPath().get("msg")
         assert actualMsg == expectedMsg
 
         where:
         fromId | relationName | toId  | expectedMsg
-        ""     | "relation"   | "id2" | "bindNodes.dtos[0].fromId: uuid must not be blank!"
+        ""     | "relation"   | "id2" | "bindNodes.dtos[0].fromId: fromId must not be blank!"
         "id1"  | ""           | "id2" | "bindNodes.dtos[0].relationName: relation must not be blank!"
-        "id1"  | "relation"   | ""    | "bindNodes.dtos[0].toId: uuid must not be blank!"
+        "id1"  | "relation"   | ""    | "bindNodes.dtos[0].toId: toId must not be blank!"
     }
 
     def "JSON API handles invalid node updating requests"() {
@@ -152,6 +161,9 @@ class NodeControllerITSpec extends AbstractITSpec {
                 .then()
                 .extract()
                 .response()
+
+        response.then()
+                .statusCode(HttpStatus.BAD_REQUEST.value())
 
         Assertions.assertEquals("Request parameter verification error: ", response.jsonPath().get("msg"))
         Assertions.assertEquals("uuid must not be blank!", response.jsonPath().get("data[0]"))
@@ -393,7 +405,7 @@ class NodeControllerITSpec extends AbstractITSpec {
                 .accept(ContentType.JSON)
                 .body(String.format(payload("delete-node.json"),
                         getGraphEntityResponse.jsonPath().get("data.graphs[0].uuid"),
-                        getNodeEntityResponse.jsonPath().get("data.nodes[1].startNode.uuid")))
+                        getNodeEntityResponse.jsonPath().get("data.nodes[1].uuid")))
                 .when()
                 .delete(NODE_ENDPOINT)
         deleteNodeResponse.then()
@@ -403,9 +415,9 @@ class NodeControllerITSpec extends AbstractITSpec {
         Response getResponse4 = RestAssured
                 .given()
                 .when()
-                .get(NODE_ENDPOINT + "/" + getNodeEntityResponse.jsonPath().get("data.nodes[1].startNode.uuid"))
+                .get(NODE_ENDPOINT + "/" + getNodeEntityResponse.jsonPath().get("data.nodes[1].uuid"))
         getResponse4.then()
-                .statusCode(HttpStatus.OK.value())
+                .statusCode(HttpStatus.INTERNAL_SERVER_ERROR.value())
 
         Assert.assertEquals(null, getResponse4.jsonPath().get(TestConstants.DATA))
 
@@ -585,6 +597,9 @@ class NodeControllerITSpec extends AbstractITSpec {
                 .extract()
                 .response()
 
+        getResponse3.then()
+                .statusCode(HttpStatus.INTERNAL_SERVER_ERROR.value())
+
         Assert.assertEquals(null, getResponse3.jsonPath().getList(TestConstants.DATA))
 
         when: "the User entity is deleted"
@@ -604,7 +619,7 @@ class NodeControllerITSpec extends AbstractITSpec {
                 .when()
                 .get(USER_ENDPOINT + "/" + TEST_OIDCID)
         getResponse2.then()
-                .statusCode(HttpStatus.OK.value())
+                .statusCode(HttpStatus.INTERNAL_SERVER_ERROR.value())
 
         Assert.assertEquals(null, getResponse2.jsonPath().getList(TestConstants.DATA))
     }

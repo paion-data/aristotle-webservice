@@ -30,11 +30,6 @@ import static org.mockito.Mockito.when;
 
 import com.paiondata.aristotle.base.TestConstants;
 import com.paiondata.aristotle.common.base.Constants;
-import com.paiondata.aristotle.common.exception.DeleteException;
-import com.paiondata.aristotle.common.exception.NodeNullException;
-import com.paiondata.aristotle.common.exception.NodeRelationException;
-import com.paiondata.aristotle.common.exception.GraphNullException;
-import com.paiondata.aristotle.common.exception.TransactionException;
 import com.paiondata.aristotle.mapper.NodeMapper;
 import com.paiondata.aristotle.model.dto.GraphAndNodeCreateDTO;
 import com.paiondata.aristotle.model.vo.NodeVO;
@@ -43,7 +38,6 @@ import com.paiondata.aristotle.model.dto.NodeCreateDTO;
 import com.paiondata.aristotle.model.dto.NodeDTO;
 import com.paiondata.aristotle.model.dto.NodeDeleteDTO;
 import com.paiondata.aristotle.model.dto.NodeRelationDTO;
-import com.paiondata.aristotle.model.dto.BindNodeDTO;
 import com.paiondata.aristotle.model.dto.GraphCreateDTO;
 import com.paiondata.aristotle.model.dto.NodeUpdateDTO;
 import com.paiondata.aristotle.model.dto.RelationUpdateDTO;
@@ -70,6 +64,7 @@ import java.util.Date;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
+import java.util.NoSuchElementException;
 import java.util.Optional;
 import java.util.Set;
 
@@ -136,7 +131,7 @@ public class NodeServiceSpec {
     }
 
     /**
-     * Tests that creating and binding a Graph and Node throws a TransactionException when the transaction is null.
+     * Tests that creating and binding a Graph and Node throws a IllegalArgumentException when the transaction is null.
      */
     @Test
     public void createAndBindGraphAndNodeTransactionNullThrowsTransactionException() {
@@ -144,16 +139,14 @@ public class NodeServiceSpec {
         final NodeCreateDTO nodeCreateDTO = new NodeCreateDTO();
 
         // Then
-        assertThrows(TransactionException.class, () -> {
-            nodeService.createAndBindGraphAndNode(nodeCreateDTO, null);
-        });
+        assertThrows(IllegalArgumentException.class, () -> nodeService.createAndBindGraphAndNode(nodeCreateDTO, null));
     }
 
     /**
-     * Tests that creating and binding a Graph and Node throws a GraphNullException when the graph UUID is not found.
+     * Tests that creating and binding a Graph and Node throws a NoSuchElementException when the UUID is not found.
      */
     @Test
-    public void createAndBindGraphAndNodeGraphUuidNotFoundThrowsGraphNullException() {
+    public void createAndBindGraphAndNodeGraphUuidNotFoundThrowsNoSuchElementException() {
         // Given
         final Transaction tx = mock(Transaction.class);
         final NodeCreateDTO nodeCreateDTO = new NodeCreateDTO();
@@ -163,9 +156,7 @@ public class NodeServiceSpec {
         when(commonService.getGraphByUuid(anyString())).thenReturn(Optional.empty());
 
         // Then
-        assertThrows(GraphNullException.class, () -> {
-            nodeService.createAndBindGraphAndNode(nodeCreateDTO, tx);
-        });
+        assertThrows(NoSuchElementException.class, () -> nodeService.createAndBindGraphAndNode(nodeCreateDTO, tx));
     }
 
     /**
@@ -212,7 +203,8 @@ public class NodeServiceSpec {
     }
 
     /**
-     * Tests that creating and binding a graph and its nodes throws a GraphNullException when the graph does not exist.
+     * Tests that creating and binding a graph and its nodes throws a NoSuchElementException
+     * when the graph does not exist.
      */
     @Test
     void createAndBindGraphAndNodeGraphDoesNotExistShouldThrowException() {
@@ -224,7 +216,7 @@ public class NodeServiceSpec {
         when(commonService.getGraphByUuid(TestConstants.TEST_ID1)).thenReturn(Optional.empty());
 
         // When & Then
-        assertThrows(GraphNullException.class, () -> nodeService.createAndBindGraphAndNode(graphNodeCreateDTO, tx));
+        assertThrows(NoSuchElementException.class, () -> nodeService.createAndBindGraphAndNode(graphNodeCreateDTO, tx));
 
         // Then
         verify(commonService, times(1)).getGraphByUuid(TestConstants.TEST_ID1);
@@ -289,7 +281,7 @@ public class NodeServiceSpec {
     void bindNodesNodesExistShouldBindNodes() {
         // Given
         final Transaction tx = mock(Transaction.class);
-        final List<BindNodeDTO> dtos = Collections.singletonList(new BindNodeDTO(TestConstants.TEST_ID1,
+        final List<NodeRelationDTO> dtos = Collections.singletonList(new NodeRelationDTO(TestConstants.TEST_ID1,
                 TestConstants.TEST_ID2, TestConstants.TEST_RELATION1));
 
         when(nodeMapper.getNodeByUuid(TestConstants.TEST_ID1)).thenReturn(new NodeVO());
@@ -306,19 +298,19 @@ public class NodeServiceSpec {
     }
 
     /**
-     * Tests that binding nodes throws a NodeNullException when one of the nodes does not exist.
+     * Tests that binding nodes throws a NoSuchElementException when one of the nodes does not exist.
      */
     @Test
     void bindNodesNodesDoesNotExistShouldThrowException() {
         // Given
         final Transaction tx = mock(Transaction.class);
-        final List<BindNodeDTO> dtos = Collections.singletonList(new BindNodeDTO(TestConstants.TEST_ID1,
+        final List<NodeRelationDTO> dtos = Collections.singletonList(new NodeRelationDTO(TestConstants.TEST_ID1,
                 TestConstants.TEST_ID2, TestConstants.TEST_RELATION1));
 
         when(nodeMapper.getNodeByUuid(TestConstants.TEST_ID1)).thenReturn(null);
 
         // When & Then
-        assertThrows(NodeNullException.class, () -> nodeService.bindNodes(dtos, tx));
+        assertThrows(NoSuchElementException.class, () -> nodeService.bindNodes(dtos, tx));
 
         // Then
         verify(nodeMapper, times(2)).getNodeByUuid(anyString());
@@ -352,7 +344,7 @@ public class NodeServiceSpec {
     }
 
     /**
-     * Tests that deleting nodes throws a NodeNullException when the node does not exist.
+     * Tests that deleting nodes throws a NoSuchElementException when the node does not exist.
      */
     @Test
     public void deleteByUuidsNodeDoesNotExistThrowsException() {
@@ -367,11 +359,11 @@ public class NodeServiceSpec {
         when(nodeMapper.getNodeByUuid(nodeUuid)).thenReturn(null);
 
         // Assert handled by expected exception
-        assertThrows(NodeNullException.class, () -> nodeService.deleteByUuids(dto));
+        assertThrows(NoSuchElementException.class, () -> nodeService.deleteByUuids(dto));
     }
 
     /**
-     * Tests that deleting nodes throws a DeleteException when the node belongs to another graph.
+     * Tests that deleting nodes throws a IllegalStateException when the node belongs to another graph.
      */
     @Test
     public void deleteByUuidsNodeBelongsToAnotherGraphThrowsException() {
@@ -391,7 +383,7 @@ public class NodeServiceSpec {
         when(nodeRepository.getNodeByGraphUuidAndNodeUuid(graphUuid, nodeUuid)).thenReturn(null);
 
         // Assert handled by expected exception
-        assertThrows(DeleteException.class, () -> nodeService.deleteByUuids(dto));
+        assertThrows(IllegalStateException.class, () -> nodeService.deleteByUuids(dto));
     }
 
     /**
@@ -434,7 +426,7 @@ public class NodeServiceSpec {
         when(nodeMapper.getNodeByUuid(TestConstants.TEST_ID1)).thenReturn(null);
 
         // When & Then
-        assertThrows(NodeNullException.class, () -> nodeService.updateNode(nodeUpdateDTO, tx));
+        assertThrows(NoSuchElementException.class, () -> nodeService.updateNode(nodeUpdateDTO, tx));
 
         // Then
         verify(nodeMapper).getNodeByUuid(TestConstants.TEST_ID1);
@@ -536,7 +528,7 @@ public class NodeServiceSpec {
                 updateMap, Collections.emptyList());
 
         // When & Then
-        assertThrows(NodeRelationException.class,
+        assertThrows(NoSuchElementException.class,
                 () -> nodeService.updateRelation(relationUpdateDTO));
     }
 
@@ -555,7 +547,7 @@ public class NodeServiceSpec {
                 Collections.emptyMap(), deleteList);
 
         // When & Then
-        assertThrows(NodeRelationException.class,
+        assertThrows(NoSuchElementException.class,
                 () -> nodeService.updateRelation(relationUpdateDTO));
     }
 
@@ -582,17 +574,17 @@ public class NodeServiceSpec {
     }
 
     /**
-     * Tests that getting a node by KExpend throws a GraphNullException when the graph does not exist.
+     * Tests that getting a node by KExpend throws a NoSuchElementException when the graph does not exist.
      */
     @Test
-    void expandNodeUnlimitedGraphDoesNotExistThrowsGraphNullException() {
+    void expandNodeUnlimitedGraphDoesNotExistThrowsNoSuchElementException() {
         // Arrange
         final String uuid = TestConstants.TEST_ID1;
         final String name = TestConstants.TEST_NAME1;
         when(commonService.getGraphByUuid(uuid)).thenReturn(Optional.empty());
 
         // Act & Assert
-        assertThrows(GraphNullException.class, () -> nodeService.expandNodeUnlimited(uuid, name));
+        assertThrows(NoSuchElementException.class, () -> nodeService.expandNodeUnlimited(uuid, name));
 
         verify(commonService, times(1)).getGraphByUuid(uuid);
         verify(nodeMapper, never()).expandNodeUnlimited(uuid, name);

@@ -63,7 +63,7 @@ public class Message {
     /**
      * Unknown exception.
      */
-    public static final String UNKNOWN_EXCEPTION = "Unknown exception.";
+    public static final String UNKNOWN_EXCEPTION = "Request URL '{}', encountered an unknown exception.";
 
     /**
      * OIDC ID must not be blank.
