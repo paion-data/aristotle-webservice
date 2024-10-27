@@ -38,7 +38,6 @@ import com.paiondata.aristotle.model.dto.NodeCreateDTO;
 import com.paiondata.aristotle.model.dto.NodeDTO;
 import com.paiondata.aristotle.model.dto.NodeDeleteDTO;
 import com.paiondata.aristotle.model.dto.NodeRelationDTO;
-import com.paiondata.aristotle.model.dto.BindNodeDTO;
 import com.paiondata.aristotle.model.dto.GraphCreateDTO;
 import com.paiondata.aristotle.model.dto.NodeUpdateDTO;
 import com.paiondata.aristotle.model.dto.RelationUpdateDTO;
@@ -282,7 +281,7 @@ public class NodeServiceSpec {
     void bindNodesNodesExistShouldBindNodes() {
         // Given
         final Transaction tx = mock(Transaction.class);
-        final List<BindNodeDTO> dtos = Collections.singletonList(new BindNodeDTO(TestConstants.TEST_ID1,
+        final List<NodeRelationDTO> dtos = Collections.singletonList(new NodeRelationDTO(TestConstants.TEST_ID1,
                 TestConstants.TEST_ID2, TestConstants.TEST_RELATION1));
 
         when(nodeMapper.getNodeByUuid(TestConstants.TEST_ID1)).thenReturn(new NodeVO());
@@ -305,7 +304,7 @@ public class NodeServiceSpec {
     void bindNodesNodesDoesNotExistShouldThrowException() {
         // Given
         final Transaction tx = mock(Transaction.class);
-        final List<BindNodeDTO> dtos = Collections.singletonList(new BindNodeDTO(TestConstants.TEST_ID1,
+        final List<NodeRelationDTO> dtos = Collections.singletonList(new NodeRelationDTO(TestConstants.TEST_ID1,
                 TestConstants.TEST_ID2, TestConstants.TEST_RELATION1));
 
         when(nodeMapper.getNodeByUuid(TestConstants.TEST_ID1)).thenReturn(null);

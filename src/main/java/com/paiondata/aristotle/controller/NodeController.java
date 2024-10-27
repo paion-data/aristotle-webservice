@@ -17,6 +17,7 @@ package com.paiondata.aristotle.controller;
 
 import com.paiondata.aristotle.common.base.Message;
 import com.paiondata.aristotle.common.base.Result;
+import com.paiondata.aristotle.model.dto.NodeRelationDTO;
 import com.paiondata.aristotle.model.vo.GraphVO;
 import com.paiondata.aristotle.model.vo.NodeVO;
 import com.paiondata.aristotle.model.dto.NodeCreateDTO;
@@ -24,13 +25,15 @@ import com.paiondata.aristotle.model.dto.GraphAndNodeCreateDTO;
 import com.paiondata.aristotle.model.dto.NodeDeleteDTO;
 import com.paiondata.aristotle.model.dto.NodeUpdateDTO;
 import com.paiondata.aristotle.model.dto.RelationUpdateDTO;
-import com.paiondata.aristotle.model.dto.BindNodeDTO;
 import com.paiondata.aristotle.service.NodeService;
 import io.swagger.annotations.Api;
 import io.swagger.annotations.ApiOperation;
 import io.swagger.annotations.ApiParam;
 
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.http.ResponseEntity;
 import org.springframework.validation.annotation.Validated;
 import org.springframework.web.bind.annotation.GetMapping;
 import org.springframework.web.bind.annotation.PathVariable;
@@ -47,6 +50,7 @@ import javax.validation.constraints.NotBlank;
 import javax.validation.constraints.NotEmpty;
 
 import java.util.List;
+import java.util.NoSuchElementException;
 import java.util.Optional;
 
 /**
@@ -57,6 +61,8 @@ import java.util.Optional;
 @RequestMapping("/node")
 @Validated
 public class NodeController {
+
+    private static final Logger LOG = LoggerFactory.getLogger(NodeController.class);
 
     @Autowired
     private NodeService nodeService;
@@ -76,10 +82,17 @@ public class NodeController {
      */
     @ApiOperation(value = "Retrieves a node by UUID")
     @GetMapping("/{uuid}")
-    public Result<NodeVO> getNodeByUuid(
+    public ResponseEntity<Result<NodeVO>> getNodeByUuid(
             @PathVariable @NotBlank(message = Message.UUID_MUST_NOT_BE_BLANK) final String uuid) {
-        final Optional<NodeVO> optionalGraphNode = nodeService.getNodeByUuid(uuid);
-        return optionalGraphNode.map(Result::ok).orElseGet(() -> Result.fail(String.format(Message.NODE_NULL, uuid)));
+        final Optional<NodeVO> optionalNode = nodeService.getNodeByUuid(uuid);
+
+        if (optionalNode.isPresent()) {
+            return ResponseEntity.ok(Result.ok(optionalNode.get()));
+        } else {
+            final String message = String.format(Message.NODE_NULL, uuid);
+            LOG.error(message);
+            throw new NoSuchElementException(message);
+        }
     }
 
     /**
@@ -153,13 +166,13 @@ public class NodeController {
      * It validates the input DTOs and calls the node service to perform the binding.
      * The result is wrapped in a {@link Result} object with a success message.
      *
-     * @param dtos a list of {@link BindNodeDTO} objects containing the binding information for the nodes
+     * @param dtos a list of {@link NodeRelationDTO} objects containing the binding information for the nodes
      * @return a {@link Result} object containing a success message
      */
     @ApiOperation(value = "Binds multiple nodes")
     @PostMapping("/bind")
     public Result<String> bindNodes(@RequestBody @NotEmpty(message = Message.BIND_DTOS_MUST_NOT_EMPTY)
-                                        @Valid final List<BindNodeDTO> dtos) {
+                                        @Valid final List<NodeRelationDTO> dtos) {
         nodeService.bindNodes(dtos, null);
         return Result.ok(Message.BOUND_SUCCESS);
     }

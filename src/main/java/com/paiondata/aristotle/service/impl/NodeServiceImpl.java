@@ -21,7 +21,6 @@ import com.paiondata.aristotle.common.annotion.Neo4jTransactional;
 import com.paiondata.aristotle.common.base.Constants;
 import com.paiondata.aristotle.common.base.Message;
 import com.paiondata.aristotle.mapper.NodeMapper;
-import com.paiondata.aristotle.model.dto.BindNodeDTO;
 import com.paiondata.aristotle.model.vo.NodeVO;
 import com.paiondata.aristotle.model.vo.GraphVO;
 import com.paiondata.aristotle.model.dto.NodeDTO;
@@ -350,7 +349,7 @@ public class NodeServiceImpl implements NodeService {
     /**
      * Binds nodes based on the provided DTOs.
      * <p>
-     * Iterates over the list of {@code BindNodeDTO} objects provided in the {@code dtos} parameter.
+     * Iterates over the list of {@code NodeRelationDTO} objects provided in the {@code dtos} parameter.
      * For each DTO, it extracts the start node UUID, end node UUID, and relation name.
      * Retrieves the start and end nodes by their UUIDs using the {@link #getNodeByUuid(String)} method.
      * Generates a unique UUID for the new relation and gets the current time.
@@ -366,8 +365,8 @@ public class NodeServiceImpl implements NodeService {
      */
     @Neo4jTransactional
     @Override
-    public void bindNodes(final List<BindNodeDTO> dtos, final Transaction tx) {
-        for (final BindNodeDTO dto : dtos) {
+    public void bindNodes(final List<NodeRelationDTO> dtos, final Transaction tx) {
+        for (final NodeRelationDTO dto : dtos) {
             final String startNode = dto.getFromId();
             final String endNode = dto.getToId();
             final Optional<NodeVO> graphNodeOptional1 = getNodeByUuid(startNode);

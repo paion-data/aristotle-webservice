@@ -259,11 +259,11 @@ public class GlobalExceptionHandler {
             if (!errors.isEmpty()) {
                 errors.forEach(msg -> fieldErrorMsg.add(msg.getDefaultMessage()));
                 return ResponseEntity.status(HttpStatus.BAD_REQUEST)
-                        .body(Result.fail(HttpStatus.BAD_REQUEST, Message.PARAM_VERIFY_FAIL + fieldErrorMsg));
+                        .body(Result.fail(HttpStatus.BAD_REQUEST, Message.PARAM_VERIFY_FAIL, fieldErrorMsg));
             }
         }
         fieldErrorMsg.add("Unknown exception");
         return ResponseEntity.status(HttpStatus.BAD_REQUEST)
-                .body(Result.fail(HttpStatus.BAD_REQUEST, Message.PARAM_VERIFY_FAIL + fieldErrorMsg));
+                .body(Result.fail(HttpStatus.BAD_REQUEST, Message.PARAM_VERIFY_FAIL, fieldErrorMsg));
     }
 }

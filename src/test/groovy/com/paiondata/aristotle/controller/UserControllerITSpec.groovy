@@ -19,6 +19,7 @@ import com.paiondata.aristotle.AbstractITSpec
 import com.paiondata.aristotle.base.TestConstants
 
 import org.junit.jupiter.api.Assertions
+import org.springframework.http.HttpStatus
 
 import io.restassured.RestAssured
 import io.restassured.http.ContentType
@@ -88,6 +89,9 @@ class UserControllerITSpec extends AbstractITSpec {
                 .then()
                 .extract()
                 .response()
+
+        response.then()
+                .statusCode(HttpStatus.BAD_REQUEST.value())
 
         Assertions.assertEquals("deleteUser.oidcids: oidcids must not be empty!", response.jsonPath().get("msg"))
     }
