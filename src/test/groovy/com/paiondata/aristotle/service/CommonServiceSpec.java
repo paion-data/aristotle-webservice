@@ -26,7 +26,6 @@ import static org.mockito.Mockito.verify;
 import static org.mockito.Mockito.when;
 
 import com.paiondata.aristotle.base.TestConstants;
-import com.paiondata.aristotle.common.exception.UserNullException;
 import com.paiondata.aristotle.mapper.GraphMapper;
 import com.paiondata.aristotle.model.dto.GraphCreateDTO;
 import com.paiondata.aristotle.model.entity.Graph;
@@ -47,6 +46,7 @@ import java.text.SimpleDateFormat;
 import java.time.LocalDateTime;
 import java.time.ZoneId;
 import java.util.Date;
+import java.util.NoSuchElementException;
 import java.util.Optional;
 
 /**
@@ -186,10 +186,10 @@ public class CommonServiceSpec {
     }
 
     /**
-     * Tests that creating and binding a graph with a non-existent user throws UserNullException.
+     * Tests that creating and binding a graph with a non-existent user throws NoSuchElementException.
      */
     @Test
-    public void createAndBindGraphUserDoesNotExistThrowsUserNullException() {
+    public void createAndBindGraphUserDoesNotExistThrowsNoSuchElementException() {
         // Arrange
         final GraphCreateDTO graphCreateDTO = GraphCreateDTO.builder()
                 .title(TestConstants.TEST_TILE1)
@@ -202,7 +202,7 @@ public class CommonServiceSpec {
         when(userRepository.getUserByOidcid(eq(TestConstants.TEST_ID1))).thenReturn(null);
 
         // Act & Assert
-        assertThrows(UserNullException.class, () -> commonService.createAndBindGraph(graphCreateDTO, tx));
+        assertThrows(NoSuchElementException.class, () -> commonService.createAndBindGraph(graphCreateDTO, tx));
         verify(userRepository, times(1)).getUserByOidcid(eq(TestConstants.TEST_ID1));
         verify(graphMapper, never()).createGraph(any(String.class), any(String.class), any(String.class),
                 any(String.class), any(String.class), any(String.class), eq(tx));

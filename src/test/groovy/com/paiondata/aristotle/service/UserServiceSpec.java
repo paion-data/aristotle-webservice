@@ -25,8 +25,6 @@ import static org.mockito.Mockito.verify;
 import static org.mockito.Mockito.when;
 
 import com.paiondata.aristotle.base.TestConstants;
-import com.paiondata.aristotle.common.exception.UserExistsException;
-import com.paiondata.aristotle.common.exception.UserNullException;
 import com.paiondata.aristotle.model.dto.UserDTO;
 import com.paiondata.aristotle.model.entity.User;
 import com.paiondata.aristotle.model.vo.UserVO;
@@ -49,6 +47,7 @@ import java.util.Arrays;
 import java.util.Collections;
 import java.util.List;
 import java.util.Map;
+import java.util.NoSuchElementException;
 import java.util.Optional;
 
 /**
@@ -111,16 +110,16 @@ public class UserServiceSpec {
     }
 
     /**
-     * Tests that getting a UserVO by OIDC ID throws a UserNullException when the user does not exist.
+     * Tests that getting a UserVO by OIDC ID throws a NoSuchElementException when the user does not exist.
      */
     @Test
-    public void getUserVOByOidcidUserDoesNotExistThrowsUserNullException() {
+    public void getUserVOByOidcidUserDoesNotExistThrowsNoSuchElementException() {
         // Arrange
         final String oidcid = TestConstants.TEST_ID1;
         when(userRepository.getUserByOidcid(oidcid)).thenReturn(null);
 
         // Act & Assert
-        assertThrows(UserNullException.class, () -> userService.getUserVOByOidcid(oidcid));
+        assertThrows(NoSuchElementException.class, () -> userService.getUserVOByOidcid(oidcid));
 
         verify(userRepository, times(1)).getUserByOidcid(oidcid);
         verify(commonService, never()).getGraphsByOidcid(anyString());
@@ -204,7 +203,7 @@ public class UserServiceSpec {
     }
 
     /**
-     * Tests that creating a user throws a UserExistsException when the user already exists.
+     * Tests that creating a user throws a IllegalArgumentException when the user already exists.
      */
     @Test
     public void createUserUserAlreadyExistsThrowsUserOidcidExistsException() {
@@ -221,7 +220,7 @@ public class UserServiceSpec {
                 .createUser(oidcid, nickName);
 
         // Act & Assert
-        assertThrows(UserExistsException.class, () -> userService.createUser(user));
+        assertThrows(IllegalArgumentException.class, () -> userService.createUser(user));
 
         // Verify
         verify(userRepository).createUser(oidcid, nickName);
@@ -256,10 +255,10 @@ public class UserServiceSpec {
     }
 
     /**
-     * Tests that deleting users throws a UserNullException when a user does not exist.
+     * Tests that deleting users throws a NoSuchElementException when a user does not exist.
      */
     @Test
-    public void deleteUserUserDoesNotExistThrowsUserNullException() {
+    public void deleteUserUserDoesNotExistThrowsNoSuchElementException() {
         // Arrange
         final List<String> oidcids = Arrays.asList(TestConstants.TEST_ID1, TestConstants.TEST_ID2);
 
@@ -268,7 +267,7 @@ public class UserServiceSpec {
         when(commonService.getUserByOidcid(TestConstants.TEST_ID2)).thenReturn(Optional.empty());
 
         // Act & Assert
-        assertThrows(UserNullException.class, () -> userService.deleteUser(oidcids));
+        assertThrows(NoSuchElementException.class, () -> userService.deleteUser(oidcids));
 
         // Verify
         verify(commonService, times(2)).getUserByOidcid(anyString());

@@ -16,7 +16,6 @@
 package com.paiondata.aristotle.service.impl;
 
 import com.paiondata.aristotle.common.base.Message;
-import com.paiondata.aristotle.common.exception.UserNullException;
 import com.paiondata.aristotle.mapper.GraphMapper;
 import com.paiondata.aristotle.model.dto.GraphCreateDTO;
 import com.paiondata.aristotle.model.entity.Graph;
@@ -39,6 +38,7 @@ import java.time.ZoneId;
 import java.util.Date;
 import java.util.List;
 import java.util.Map;
+import java.util.NoSuchElementException;
 import java.util.Optional;
 
 /**
@@ -93,20 +93,20 @@ public class CommonServiceImpl implements CommonService {
      *
      * Checks if the user with the provided oidcid exists using <br>
      * the {@link UserRepository#getUserByOidcid(String)} method.
-     * Throws a {@link UserNullException} if the user is not found.
+     * Throws a {@link NoSuchElementException} if the user is not found.
      * Retrieves the list of graphs associated with the user using <br>
      * the {@link GraphMapper#getGraphsByOidcid(String)} method.
      *
      * @param oidcid The user identifier.
      * @return A list of maps, where each map represents a graph and contains its details.
-     * @throws UserNullException If the user with the specified oidcid is not found.
+     * @throws NoSuchElementException If the user with the specified oidcid is not found.
      */
     @Override
     public List<Map<String, Object>> getGraphsByOidcid(final String oidcid) {
         if (userRepository.getUserByOidcid(oidcid) == null) {
             final String message = String.format(Message.USER_NULL, oidcid);
             LOG.error(message);
-            throw new UserNullException(message);
+            throw new NoSuchElementException(message);
         }
 
         return graphMapper.getGraphsByOidcid(oidcid);
@@ -119,7 +119,7 @@ public class CommonServiceImpl implements CommonService {
      * Generates unique UUIDs for the graph and its relation.
      * Retrieves the current time.
      * Attempts to find the user by the provided user identifier using the {@link #getUserByOidcid(String)} method.
-     * Throws a {@link UserNullException} if the user is not found.
+     * Throws a {@link NoSuchElementException} if the user is not found.
      * Creates and binds the graph to the user using <br>
      * the {@link GraphMapper#createGraph(String, String, String, String, String, String, Transaction)} method.
      *
@@ -127,7 +127,7 @@ public class CommonServiceImpl implements CommonService {
      *                       It includes the graph title, description, and user identifier.
      * @param tx The Neo4j transaction object used for the database operation.
      * @return The created {@link Graph} object.
-     * @throws UserNullException If the user with the specified identifier is not found.
+     * @throws NoSuchElementException If the user with the specified identifier is not found.
      */
     @Override
     public Graph createAndBindGraph(final GraphCreateDTO graphCreateDTO, final Transaction tx) {
@@ -142,7 +142,7 @@ public class CommonServiceImpl implements CommonService {
         if (optionalUser.isEmpty()) {
             final String message = String.format(Message.USER_NULL, oidcid);
             LOG.error(message);
-            throw new UserNullException(message);
+            throw new NoSuchElementException(message);
         }
 
         return graphMapper.createGraph(title, description, oidcid, graphUuid, relationUuid, currentTime, tx);

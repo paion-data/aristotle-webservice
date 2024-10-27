@@ -16,7 +16,6 @@
 package com.paiondata.aristotle.aop;
 
 import com.paiondata.aristotle.common.base.Message;
-import com.paiondata.aristotle.common.exception.TransactionException;
 import com.paiondata.aristotle.common.util.TransactionManager;
 
 import org.aspectj.lang.ProceedingJoinPoint;
@@ -110,7 +109,7 @@ public class Neo4jTransactionAspect {
         if (!transactionInjected) {
             final String message = Message.METHOD_WITHOUT_TRANSACTION;
             LOG.error(message);
-            throw new TransactionException(message);
+            throw new IllegalArgumentException(message);
         }
     }
 

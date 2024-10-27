@@ -25,6 +25,7 @@ import javax.validation.ConstraintViolationException;
 import javax.validation.ValidationException;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.dao.DuplicateKeyException;
+import org.springframework.http.ResponseEntity;
 import org.springframework.validation.BindException;
 import org.springframework.validation.BindingResult;
 import org.springframework.validation.ObjectError;
@@ -53,14 +54,15 @@ public class GlobalExceptionHandler {
      *
      * @param e         the exception
      * @param request   the HTTP request
-     * @return a result object indicating failure with BAD_METHOD status
+     * @return a response entity indicating failure with BAD_METHOD status
      */
     @ExceptionHandler(HttpRequestMethodNotSupportedException.class)
-    public Result<Void> handleHttpRequestMethodNotSupported(final HttpRequestMethodNotSupportedException e,
-                                                            final HttpServletRequest request) {
+    public ResponseEntity<Result<Void>> handleHttpRequestMethodNotSupported(
+            final HttpRequestMethodNotSupportedException e, final HttpServletRequest request) {
         final String requestUri = request.getRequestURI();
-        log.error("请求地址'{}',不支持'{}'请求", requestUri, e.getMethod());
-        return Result.fail(HttpStatus.BAD_METHOD, e.getMessage());
+        log.error("Request URL '{}', does not support '{}' request", requestUri, e.getMethod());
+        return ResponseEntity.status(HttpStatus.BAD_METHOD)
+                .body(Result.fail(HttpStatus.BAD_METHOD, e.getMessage()));
     }
 
     /**
@@ -68,14 +70,18 @@ public class GlobalExceptionHandler {
      *
      * @param e         the exception
      * @param request   the HTTP request
-     * @return a result object indicating failure with BAD_REQUEST status
+     * @return a response entity indicating failure with BAD_REQUEST status
      */
     @ExceptionHandler(MissingPathVariableException.class)
-    public Result<Void> handleMissingPathVariableException(final MissingPathVariableException e,
-                                                           final HttpServletRequest request) {
+    public ResponseEntity<Result<Void>> handleMissingPathVariableException(final MissingPathVariableException e,
+                                                                           final HttpServletRequest request) {
         final String requestUri = request.getRequestURI();
-        log.error("请求路径中缺少必需的路径变量'{}',发生系统异常.", requestUri, e);
-        return Result.fail(HttpStatus.BAD_REQUEST, String.format("请求路径中缺少必需的路径变量[%s]", e.getVariableName()));
+        log.error("The required path variable '{}' is missing in the request path, causing a system exception.",
+                requestUri, e);
+        return ResponseEntity.status(HttpStatus.BAD_REQUEST)
+                .body(Result.fail(HttpStatus.BAD_REQUEST,
+                        String.format("The required path variable [%s] is missing in the request path",
+                                e.getVariableName())));
     }
 
     /**
@@ -83,30 +89,35 @@ public class GlobalExceptionHandler {
      *
      * @param e         the exception
      * @param request   the HTTP request
-     * @return a result object indicating failure with BAD_REQUEST status
+     * @return a response entity indicating failure with BAD_REQUEST status
      */
     @ExceptionHandler(MethodArgumentTypeMismatchException.class)
-    public Result<Void> handleMethodArgumentTypeMismatchException(final MethodArgumentTypeMismatchException e,
-                                                                  final HttpServletRequest request) {
+    public ResponseEntity<Result<Void>> handleMethodArgumentTypeMismatchException(
+            final MethodArgumentTypeMismatchException e, final HttpServletRequest request) {
         final String requestUri = request.getRequestURI();
-        log.error("请求参数类型不匹配'{}',发生系统异常.", requestUri, e);
-        return Result.fail(HttpStatus.BAD_REQUEST, String.format(
-                "请求参数类型不匹配，参数[%s]要求类型为：'%s'，但输入值为：'%s'", e.getName(),
-                Objects.isNull(e.getRequiredType()) ? "None" : e.getRequiredType().getName(), e.getValue()));
+        log.error("The request parameter type does not match '{}', causing a system exception.", requestUri, e);
+        return ResponseEntity.status(HttpStatus.BAD_REQUEST)
+                .body(Result.fail(HttpStatus.BAD_REQUEST, String.format(
+                        "The request parameter type does not match, parameter [%s] requires type '%s', "
+                                + "but the input value is '%s'", e.getName(),
+                        Objects.isNull(e.getRequiredType()) ? "None" : e.getRequiredType().getName(), e.getValue())));
     }
+
 
     /**
      * Handles RuntimeException.
      *
      * @param e         the exception
      * @param request   the HTTP request
-     * @return a result object indicating failure with ERROR status
+     * @return a response entity indicating failure with INTERNAL_SERVER_ERROR status
      */
     @ExceptionHandler(RuntimeException.class)
-    public Result<Void> handleRuntimeException(final RuntimeException e, final HttpServletRequest request) {
+    public ResponseEntity<Result<Void>> handleRuntimeException(final RuntimeException e,
+                                                               final HttpServletRequest request) {
         final String requestUri = request.getRequestURI();
-        log.error("请求地址'{}', 发生未知异常.", requestUri, e);
-        return Result.fail(HttpStatus.ERROR, e.getMessage());
+        log.error(Message.UNKNOWN_EXCEPTION, requestUri, e);
+        return ResponseEntity.status(HttpStatus.ERROR)
+                .body(Result.fail(HttpStatus.ERROR, e.getMessage()));
     }
 
     /**
@@ -114,13 +125,14 @@ public class GlobalExceptionHandler {
      *
      * @param e         the exception
      * @param request   the HTTP request
-     * @return a result object indicating failure with ERROR status
+     * @return a response entity indicating failure with INTERNAL_SERVER_ERROR status
      */
     @ExceptionHandler(Exception.class)
-    public Result<Void> handleException(final Exception e, final HttpServletRequest request) {
+    public ResponseEntity<Result<Void>> handleException(final Exception e, final HttpServletRequest request) {
         final String requestUri = request.getRequestURI();
-        log.error("请求地址'{}',发生系统异常.", requestUri, e);
-        return Result.fail(HttpStatus.ERROR, e.getMessage());
+        log.error("Request URL '{}', encountered a system exception.", requestUri, e);
+        return ResponseEntity.status(HttpStatus.ERROR)
+                .body(Result.fail(HttpStatus.ERROR, e.getMessage()));
     }
 
     /**
@@ -128,13 +140,15 @@ public class GlobalExceptionHandler {
      *
      * @param e         the exception
      * @param request   the HTTP request
-     * @return a result object indicating failure with BAD_REQUEST status
+     * @return a response entity indicating failure with BAD_REQUEST status
      */
     @ExceptionHandler(ValidationException.class)
-    public Result<Void> handleValidationException(final ValidationException e, final HttpServletRequest request) {
+    public ResponseEntity<Result<Void>> handleValidationException(final ValidationException e,
+                                                                  final HttpServletRequest request) {
         final String requestUri = request.getRequestURI();
-        log.error("校验失败'{}', 发生系统异常.", requestUri, e);
-        return Result.fail(HttpStatus.BAD_REQUEST, e.getMessage());
+        log.error("Validation failed '{}', encountered a system exception.", requestUri, e);
+        return ResponseEntity.status(HttpStatus.BAD_REQUEST)
+                .body(Result.fail(HttpStatus.BAD_REQUEST, e.getMessage()));
     }
 
     /**
@@ -142,14 +156,15 @@ public class GlobalExceptionHandler {
      *
      * @param e         the exception
      * @param request   the HTTP request
-     * @return a result object indicating failure with BAD_REQUEST status
+     * @return a response entity indicating failure with BAD_REQUEST status
      */
     @ExceptionHandler(ConstraintViolationException.class)
-    public Result<Void> handleConstraintViolationException(final ConstraintViolationException e,
-                                                           final HttpServletRequest request) {
+    public ResponseEntity<Result<Void>> handleConstraintViolationException(final ConstraintViolationException e,
+                                                                           final HttpServletRequest request) {
         final String requestUri = request.getRequestURI();
-        log.error("校验失败'{}',发生系统异常.", requestUri, e);
-        return Result.fail(HttpStatus.BAD_REQUEST, e.getMessage());
+        log.error("Constraint violation failed '{}', encountered a system exception.", requestUri, e);
+        return ResponseEntity.status(HttpStatus.BAD_REQUEST)
+                .body(Result.fail(HttpStatus.BAD_REQUEST, e.getMessage()));
     }
 
     /**
@@ -157,13 +172,15 @@ public class GlobalExceptionHandler {
      *
      * @param e         the exception
      * @param request   the HTTP request
-     * @return a result object indicating failure with BAD_REQUEST status
+     * @return a response entity indicating failure with BAD_REQUEST status
      */
     @ExceptionHandler(DuplicateKeyException.class)
-    public Result<Void> handleDuplicateKeyException(final DuplicateKeyException e, final HttpServletRequest request) {
+    public ResponseEntity<Result<Void>> handleDuplicateKeyException(final DuplicateKeyException e,
+                                                                    final HttpServletRequest request) {
         final String requestUri = request.getRequestURI();
-        log.error("数据重复'{}',发生系统异常.", requestUri, e);
-        return Result.fail(HttpStatus.BAD_REQUEST, e.getMessage());
+        log.error("Data duplication '{}', encountered a system exception.", requestUri, e);
+        return ResponseEntity.status(HttpStatus.BAD_REQUEST)
+                .body(Result.fail(HttpStatus.BAD_REQUEST, e.getMessage()));
     }
 
     /**
@@ -171,14 +188,15 @@ public class GlobalExceptionHandler {
      *
      * @param e         the exception
      * @param request   the HTTP request
-     * @return a result object indicating failure with BAD_REQUEST status
+     * @return a response entity indicating failure with BAD_REQUEST status
      */
     @ExceptionHandler(BindException.class)
-    public Result<Void> handleBindException(final BindException e, final HttpServletRequest request) {
+    public ResponseEntity<Result<Void>> handleBindException(final BindException e, final HttpServletRequest request) {
         final String requestUri = request.getRequestURI();
-        log.error("自定义验证失败'{}',发生系统异常.", requestUri, e);
+        log.error("Custom validation failed '{}', encountered a system exception.", requestUri, e);
         final String message = e.getAllErrors().get(0).getDefaultMessage();
-        return Result.fail(HttpStatus.BAD_REQUEST, message);
+        return ResponseEntity.status(HttpStatus.BAD_REQUEST)
+                .body(Result.fail(HttpStatus.BAD_REQUEST, message));
     }
 
     /**
@@ -186,46 +204,51 @@ public class GlobalExceptionHandler {
      *
      * @param e         the exception
      * @param request   the HTTP request
-     * @return a result object indicating failure with appropriate status
+     * @return a response entity indicating failure with appropriate status
      */
     @ExceptionHandler(ServletException.class)
-    public Result<Void> handleServletException(final ServletException e, final HttpServletRequest request) {
+    public ResponseEntity<Result<Void>> handleServletException(final ServletException e,
+                                                               final HttpServletRequest request) {
         final Throwable cause = e.getCause();
         final String requestUri = request.getRequestURI();
         if (cause instanceof NoClassDefFoundError || cause instanceof ExceptionInInitializerError) {
-            log.error("未启用服务'{}',发生系统异常.", requestUri, e);
-            return Result.fail(HttpStatus.ERROR, "未启用服务");
+            log.error("Service not enabled '{}', encountered a system exception.", requestUri, e);
+            return ResponseEntity.status(HttpStatus.ERROR)
+                    .body(Result.fail(HttpStatus.ERROR, "Service not enabled"));
         }
         if (e instanceof NoHandlerFoundException) {
-            log.error("未找到路径或资源'{}',发生系统异常.", requestUri, e);
-            return Result.fail(HttpStatus.NOT_FOUND, "未找到路径或资源");
+            log.error("Path or resource not found '{}', encountered a system exception.", requestUri, e);
+            return ResponseEntity.status(HttpStatus.NOT_FOUND)
+                    .body(Result.fail(HttpStatus.NOT_FOUND, "Path or resource not found"));
         }
-        log.error("请求地址'{}',发生未知异常.", requestUri, e);
-        return Result.fail(HttpStatus.ERROR, e.getMessage());
+        log.error(Message.UNKNOWN_EXCEPTION, requestUri, e);
+        return ResponseEntity.status(HttpStatus.ERROR)
+                .body(Result.fail(HttpStatus.ERROR, e.getMessage()));
     }
 
     /**
      * Handles CustomizeReturnException.
      *
      * @param e         the exception
-     * @return a result object indicating failure with the exception's return code
+     * @return a response entity indicating failure with the exception's return code
      */
     @ExceptionHandler(CustomizeReturnException.class)
-    public Result<String> handleCustomizeReturnException(final CustomizeReturnException e) {
+    public ResponseEntity<Result<String>> handleCustomizeReturnException(final CustomizeReturnException e) {
         log.error(e.getMsg() == null ? e.getReturnCode().getMsg() : e.getMsg(), e);
         final int code = e.getReturnCode().getCode();
         final String msg = e.getMsg() == null ? e.getReturnCode().getMsg() : e.getMsg();
-        return Result.fail(code, msg);
+        return ResponseEntity.status(code)
+                .body(Result.fail(code, msg));
     }
 
     /**
-     * Handles RuntimeException.
+     * Handles MethodArgumentNotValidException.
      *
      * @param e         the exception
-     * @return a result object indicating failure with INTERNAL_SERVER_ERROR status
+     * @return a response entity indicating failure with BAD_REQUEST status
      */
     @ExceptionHandler(MethodArgumentNotValidException.class)
-    public Result<List<String>> parameterExceptionHandler(final MethodArgumentNotValidException e) {
+    public ResponseEntity<Result<List<String>>> parameterExceptionHandler(final MethodArgumentNotValidException e) {
         // get exception information
         final BindingResult exceptions = e.getBindingResult();
         // all error arguments are listed here, returned using list
@@ -235,10 +258,12 @@ public class GlobalExceptionHandler {
             final List<ObjectError> errors = exceptions.getAllErrors();
             if (!errors.isEmpty()) {
                 errors.forEach(msg -> fieldErrorMsg.add(msg.getDefaultMessage()));
-                return Result.fail(Message.PARAM_VERIFY_FAIL, fieldErrorMsg);
+                return ResponseEntity.status(HttpStatus.BAD_REQUEST)
+                        .body(Result.fail(HttpStatus.BAD_REQUEST, Message.PARAM_VERIFY_FAIL + fieldErrorMsg));
             }
         }
-        fieldErrorMsg.add(Message.UNKNOWN_EXCEPTION);
-        return Result.fail(Message.PARAM_VERIFY_FAIL, fieldErrorMsg);
+        fieldErrorMsg.add("Unknown exception");
+        return ResponseEntity.status(HttpStatus.BAD_REQUEST)
+                .body(Result.fail(HttpStatus.BAD_REQUEST, Message.PARAM_VERIFY_FAIL + fieldErrorMsg));
     }
 }
