@@ -47,18 +47,18 @@ public class NodeExtractor {
      * @return a map containing the extracted graph information.
      */
     public Map<String, Object> extractGraph(final Object node) {
-        final Map<String, Object> nodeInfo = new HashMap<>();
+        final Map<String, Object> graphInfo = new HashMap<>();
         if (node instanceof NodeValue) {
             final NodeValue nodeValue = (NodeValue) node;
             final Map<String, Object> nodeMap = nodeValue.asNode().asMap();
 
-            nodeInfo.put(Constants.DESCRIPTION, nodeMap.get(Constants.DESCRIPTION));
-            nodeInfo.put(Constants.UPDATE_TIME, nodeMap.get(Constants.UPDATE_TIME_WITHOUT_HUMP));
-            nodeInfo.put(Constants.CREATE_TIME, nodeMap.get(Constants.CREATE_TIME_WITHOUT_HUMP));
-            nodeInfo.put(Constants.TITLE, nodeMap.get(Constants.TITLE));
-            nodeInfo.put(Constants.UUID, nodeMap.get(Constants.UUID));
+            graphInfo.put(Constants.DESCRIPTION, nodeMap.get(Constants.DESCRIPTION));
+            graphInfo.put(Constants.UPDATE_TIME, nodeMap.get(Constants.UPDATE_TIME_WITHOUT_HUMP));
+            graphInfo.put(Constants.CREATE_TIME, nodeMap.get(Constants.CREATE_TIME_WITHOUT_HUMP));
+            graphInfo.put(Constants.TITLE, nodeMap.get(Constants.TITLE));
+            graphInfo.put(Constants.UUID, nodeMap.get(Constants.UUID));
         }
-        return nodeInfo;
+        return graphInfo;
     }
 
     /**
@@ -102,12 +102,12 @@ public class NodeExtractor {
      * @param node  the Value object representing a node.
      * @return a NodeVO object representing the extracted node.
      */
-    public NodeVO extractNode(final Value node) {
+    public NodeVO extractNode(final Object node) {
         final NodeVO nodeInfo = new NodeVO();
 
         if (node instanceof NodeValue) {
             final NodeValue nodeValue = (NodeValue) node;
-            final Map<String, Object> nodeMap = nodeValue.asMap();
+            final Map<String, Object> nodeMap = nodeValue.asNode().asMap();
             final Map<String, String> stringNodeMap = nodeMap.entrySet().stream()
                     .collect(Collectors.toMap(Map.Entry::getKey, entry -> String.valueOf(entry.getValue())));
 

@@ -159,14 +159,16 @@ public class NodeServiceImpl implements NodeService {
 
         final Graph graph = commonService.createAndBindGraph(graphNodeCreateDTO.getGraphCreateDTO(), tx);
 
-        final GraphVO dto = GraphVO.builder()
+        final GraphVO graphVO = GraphVO.builder()
                 .uuid(graph.getUuid())
                 .title(graph.getTitle())
                 .description(graph.getDescription())
+                .createTime(graph.getCreateTime())
+                .updateTime(graph.getUpdateTime())
                 .build();
 
         if (graphNodeCreateDTO.getGraphNodeDTO() == null) {
-            return dto;
+            return graphVO;
         }
 
         final String graphUuid = graph.getUuid();
@@ -176,8 +178,8 @@ public class NodeServiceImpl implements NodeService {
                 graphNodeCreateDTO.getGraphNodeRelationDTO(),
                 graphUuid, tx);
 
-        dto.setNodes(nodes);
-        return dto;
+        graphVO.setNodes(nodes);
+        return graphVO;
     }
 
     /**

@@ -13,7 +13,7 @@
  * See the License for the specific language governing permissions and
  * limitations under the License.
  */
-package com.paiondata.aristotle.base;
+package com.paiondata.aristotle.common.base;
 
 /**
  * Constants for testing.
@@ -41,24 +41,24 @@ public interface TestConstants {
     String TEST_ID4 = "id4";
 
     /**
-     * Test IDs.
+     * Test titles.
      */
-    String TEST_ID5 = "id5";
-
-    /**
-     * Test IDs.
-     */
-    String TEST_ID6 = "id6";
+    String TEST_TITLE1 = "test-title1";
 
     /**
      * Test titles.
      */
-    String TEST_TILE1 = "test-tile1";
+    String TEST_TITLE2 = "test-title2";
 
     /**
      * Test titles.
      */
-    String TEST_TILE2 = "test-tile2";
+    String TEST_TITLE3 = "test-title3";
+
+    /**
+     * Test titles.
+     */
+    String TEST_TITLE4 = "test-title4";
 
     /**
      * Test descriptions.
@@ -81,21 +81,6 @@ public interface TestConstants {
     String TEST_RELATION2 = "relation2";
 
     /**
-     * Test relations.
-     */
-    String TEST_RELATION3 = "relation3";
-
-    /**
-     * Test relations.
-     */
-    String TEST_RELATION4 = "relation4";
-
-    /**
-     * Test relations.
-     */
-    String TEST_RELATION5 = "relation5";
-
-    /**
      * Test names.
      */
     String TEST_NAME1 = "test-name1";
@@ -104,26 +89,6 @@ public interface TestConstants {
      * Test names.
      */
     String TEST_NAME2 = "test-name2";
-
-    /**
-     * Test names.
-     */
-    String TEST_NAME3 = "test-name3";
-
-    /**
-     * Test names.
-     */
-    String TEST_NAME4 = "test-name4";
-
-    /**
-     * Test names.
-     */
-    String TEST_NAME5 = "test-name5";
-
-    /**
-     * Test names.
-     */
-    String TEST_NAME6 = "test-name6";
 
     /**
      * Test keys.
@@ -141,6 +106,11 @@ public interface TestConstants {
     String TEST_VALUE1 = "test-value1";
 
     /**
+     * Test values.
+     */
+    String TEST_VALUE2 = "test-value2";
+
+    /**
      * Test color.
      */
     String BLUE = "blue";
@@ -151,9 +121,94 @@ public interface TestConstants {
     String GREEN = "green";
 
     /**
-     * Test color.
+     * Test data.
      */
     String DATA = "data";
+
+    /**
+     * Test data.
+     */
+    String DATA_OIDCID = "data.oidcid";
+
+    /**
+     * Test data.
+     */
+    String DATA_UUID = "data.uuid";
+
+    /**
+     * Test data.
+     */
+    String DATA_TITLE = "data.title";
+
+    /**
+     * Test data.
+     */
+    String DATA_PAGENUMBER = "data.pageNumber";
+
+    /**
+     * Test data.
+     */
+    String DATA_PAGESIZE = "data.pageSize";
+
+    /**
+     * Test data.
+     */
+    String DATA_TOTALCOUNT = "data.totalCount";
+
+    /**
+     * Test data.
+     */
+    String DATA_NICKNAME = "data.nickName";
+
+    /**
+     * Test data.
+     */
+    String DATA_0 = "data[0]";
+
+    /**
+     * Test data.
+     */
+    String DATA_0_UUID = "data[0].uuid";
+
+    /**
+     * Test data.
+     */
+    String DATA_1_UUID = "data[1].uuid";
+
+    /**
+     * Test data.
+     */
+    String DATA_2_UUID = "data[2].uuid";
+
+    /**
+     * Test message.
+     */
+    String MSG = "msg";
+
+    /**
+     * Test time.
+     */
+    String TEST_TIME_01 = "2024-10-18 13:48:33";
+
+    /**
+     * Test time.
+     */
+    String TEST_TIME_02 = "2024-10-18 13:48:34";
+
+    /**
+     * Test slash.
+     */
+    String SLASH = "/";
+
+    /**
+     * Request parameter verification error.
+     */
+    String REQUEST_PARAM_ERROR = "Request parameter verification error: ";
+
+    /**
+     * UUID not blank.
+     */
+    String UUID_NOT_BLANK = "uuid must not be blank!";
 
     /**
      * Default page number.
@@ -183,10 +238,10 @@ public interface TestConstants {
     /**
      * Expected total count.
      */
-    Long EXPECT_TOTAL_COUNT_02 = 6L;
+    Integer EXPECT_TOTAL_COUNT_02 = 6;
 
     /**
      * Expected total count.
      */
-    Long EXPECT_TOTAL_COUNT_03 = 2L;
+    Integer EXPECT_TOTAL_COUNT_03 = 2;
 }

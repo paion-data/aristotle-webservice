@@ -103,7 +103,6 @@ public class GlobalExceptionHandler {
                         Objects.isNull(e.getRequiredType()) ? "None" : e.getRequiredType().getName(), e.getValue())));
     }
 
-
     /**
      * Handles RuntimeException.
      *
