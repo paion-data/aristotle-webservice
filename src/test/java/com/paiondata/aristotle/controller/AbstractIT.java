@@ -15,10 +15,20 @@
  */
 package com.paiondata.aristotle.controller;
 
+import org.junit.jupiter.api.AfterAll;
 import org.junit.jupiter.api.AfterEach;
+import org.junit.jupiter.api.BeforeAll;
 import org.junit.jupiter.api.BeforeEach;
+import org.neo4j.configuration.connectors.BoltConnector;
+import org.neo4j.configuration.helpers.SocketAddress;
+import org.neo4j.harness.Neo4j;
+import org.neo4j.harness.Neo4jBuilders;
 import org.springframework.boot.test.context.SpringBootTest;
 import org.springframework.boot.test.web.server.LocalServerPort;
+import org.springframework.test.context.DynamicPropertyRegistry;
+import org.springframework.test.context.DynamicPropertySource;
+import org.springframework.transaction.annotation.Propagation;
+import org.springframework.transaction.annotation.Transactional;
 
 import java.io.IOException;
 import java.net.URISyntaxException;
@@ -36,6 +46,7 @@ import java.util.Objects;
  * tests do not conflict with other running services. It also ensures that transactions are
  * never propagated, preventing any accidental data persistence during tests.
  */
+@Transactional(propagation = Propagation.NEVER)
 @SpringBootTest(webEnvironment = SpringBootTest.WebEnvironment.RANDOM_PORT)
 abstract class AbstractIT {
 
@@ -85,10 +96,47 @@ abstract class AbstractIT {
     static final String GET_GRAPH_FILTER_JSON = "get-graph-filter.json";
 
     /**
+     * The embedded Neo4j database server used for testing.
+     */
+    private static Neo4j embeddedDatabaseServer;
+
+    /**
      * The port number on which the application is running.
      */
     @LocalServerPort
     protected int port;
+
+    /**
+     * Sets up the embedded Neo4j database server before all tests.
+     */
+    @BeforeAll
+    static void setUp() {
+        embeddedDatabaseServer = Neo4jBuilders.newInProcessBuilder()
+                .withDisabledServer()
+                .withConfig(BoltConnector.enabled, true)
+                .withConfig(BoltConnector.listen_address, new SocketAddress("localhost", 7687))
+                .build();
+    }
+
+    /**
+     * Stops the embedded Neo4j database server after all tests.
+     */
+    @AfterAll
+    static void stop() {
+        if (embeddedDatabaseServer != null) {
+            embeddedDatabaseServer.close();
+        }
+    }
+
+    /**
+     * Registers dynamic properties for the Neo4j database connection.
+     *
+     * @param registry The dynamic property registry.
+     */
+    @DynamicPropertySource
+    static void neo4jProperties(final DynamicPropertyRegistry registry) {
+        registry.add("spring.neo4j.uri", embeddedDatabaseServer::boltURI);
+    }
 
     /**
      * Configures the base URI and port for REST requests before each test.

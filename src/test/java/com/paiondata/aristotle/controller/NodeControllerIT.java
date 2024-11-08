@@ -22,21 +22,13 @@ import static org.junit.jupiter.api.Assertions.assertTrue;
 
 import com.paiondata.aristotle.common.base.TestConstants;
 
-import org.junit.jupiter.api.AfterAll;
-import org.junit.jupiter.api.BeforeAll;
 import org.junit.jupiter.api.MethodOrderer;
 import org.junit.jupiter.api.Order;
 import org.junit.jupiter.api.Test;
 import org.junit.jupiter.api.TestMethodOrder;
 import org.junit.jupiter.params.ParameterizedTest;
 import org.junit.jupiter.params.provider.CsvSource;
-import org.neo4j.harness.Neo4j;
-import org.neo4j.harness.Neo4jBuilders;
 import org.springframework.http.HttpStatus;
-import org.springframework.test.context.DynamicPropertyRegistry;
-import org.springframework.test.context.DynamicPropertySource;
-import org.springframework.transaction.annotation.Propagation;
-import org.springframework.transaction.annotation.Transactional;
 
 import io.restassured.RestAssured;
 import io.restassured.http.ContentType;
@@ -52,14 +44,8 @@ import java.util.stream.Collectors;
  * NodeController. These tests validate various operations such as creating, updating, deleting, and retrieving
  * nodes and their relationships.
  */
-@Transactional(propagation = Propagation.NEVER)
 @TestMethodOrder(MethodOrderer.OrderAnnotation.class)
 public class NodeControllerIT extends AbstractIT {
-
-    /**
-     * The embedded Neo4j database server used for testing.
-     */
-    private static Neo4j embeddedDatabaseServer;
 
     /**
      * A static string variable to store the UUID of a created graph.
@@ -80,36 +66,6 @@ public class NodeControllerIT extends AbstractIT {
      * A static string variable to store the UUID of the third created node.
      */
     private static String nodeUuid3;
-
-    /**
-     * Sets up the embedded Neo4j database server before all tests.
-     */
-    @BeforeAll
-    static void setUp() {
-        embeddedDatabaseServer = Neo4jBuilders.newInProcessBuilder()
-                .withDisabledServer()
-                .build();
-    }
-
-    /**
-     * Stops the embedded Neo4j database server after all tests.
-     */
-    @AfterAll
-    static void stop() {
-        if (embeddedDatabaseServer != null) {
-            embeddedDatabaseServer.close();
-        }
-    }
-
-    /**
-     * Registers dynamic properties for the Neo4j database connection.
-     *
-     * @param registry The dynamic property registry.
-     */
-    @DynamicPropertySource
-    static void neo4jProperties(final DynamicPropertyRegistry registry) {
-        registry.add("spring.neo4j.uri", embeddedDatabaseServer::boltURI);
-    }
 
     /**
      * Parameterized test to verify if the JSON API correctly handles invalid user creation requests by returning
