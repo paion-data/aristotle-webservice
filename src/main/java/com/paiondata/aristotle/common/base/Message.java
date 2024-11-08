@@ -179,4 +179,9 @@ public class Message {
      * bindDtos must not be empty.
      */
     public static final String BIND_DTOS_MUST_NOT_EMPTY = "bindDtos must not be empty!";
+
+    /**
+     * value can not be null.
+     */
+    public static final String VALUE_CAN_NOT_BE_NULL = "'%s' value can not be null";
 }

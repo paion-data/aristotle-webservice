@@ -48,8 +48,6 @@
         <version.maven.surefire.plugin>3.0.0-M5</version.maven.surefire.plugin>
         <version.maven.failsafe.plugin>3.0.0-M4</version.maven.failsafe.plugin>
         <version.maven.surefire.report.plugin>${version.maven.surefire.plugin}</version.maven.surefire.report.plugin>
-        <version.groovy>4.0.6</version.groovy>
-        <version.spock>2.4-M1-groovy-4.0</version.spock>
     </properties>
     <dependencies>
         <dependency>
@@ -117,13 +115,6 @@
 
         <!-- Testing -->
         <dependency>
-            <groupId>org.spockframework</groupId>
-            <artifactId>spock-bom</artifactId>
-            <version>${version.spock}</version>
-            <type>pom</type>
-            <scope>import</scope>
-        </dependency>
-        <dependency>
             <groupId>jakarta.validation</groupId>
             <artifactId>jakarta.validation-api</artifactId>
             <version>3.0.1</version>
@@ -138,10 +129,6 @@
                 <exclusion>
                     <groupId>org.apache.groovy</groupId>
                     <artifactId>groovy-xml</artifactId>
-                </exclusion>
-                <exclusion>
-                    <groupId>org.codehaus.groovy</groupId>
-                    <artifactId>groovy-json</artifactId>
                 </exclusion>
                 <exclusion>
                     <groupId>org.codehaus.groovy</groupId>
@@ -161,28 +148,16 @@
         </dependency>
 
         <dependency>
-            <groupId>org.spockframework</groupId>
-            <artifactId>spock-core</artifactId>
-            <version>${version.spock}</version>
+            <groupId>org.neo4j.test</groupId>
+            <artifactId>neo4j-harness</artifactId>
+            <version>5.23.0</version>
             <scope>test</scope>
-        </dependency>
-        <dependency>
-            <groupId>org.apache.groovy</groupId>
-            <artifactId>groovy</artifactId>
-            <version>${version.groovy}</version>
-            <scope>test</scope>
-        </dependency>
-        <dependency>
-            <groupId>org.apache.groovy</groupId>
-            <artifactId>groovy-json</artifactId>
-            <version>${version.groovy}</version>
-            <scope>test</scope>
-        </dependency>
-        <dependency>
-            <groupId>org.spockframework</groupId>
-            <artifactId>spock-spring</artifactId>
-            <version>${version.spock}</version>
-            <scope>test</scope>
+            <exclusions>
+                <exclusion>
+                    <groupId>org.slf4j</groupId>
+                    <artifactId>slf4j-nop</artifactId>
+                </exclusion>
+            </exclusions>
         </dependency>
 
         <!-- Mockito -->
@@ -193,12 +168,6 @@
             <scope>test</scope>
         </dependency>
 
-        <dependency>
-            <groupId>org.testcontainers</groupId>
-            <artifactId>spock</artifactId>
-            <version>1.17.6</version>
-            <scope>test</scope>
-        </dependency>
     </dependencies>
 
     <build>
@@ -258,22 +227,6 @@
                 </executions>
             </plugin>
 
-            <!-- Groovy Spock -->
-            <plugin>
-                <!-- Mandatory plugins for using Spock -->
-                <groupId>org.codehaus.gmavenplus</groupId>
-                <artifactId>gmavenplus-plugin</artifactId>
-                <version>2.1.0</version>
-                <executions>
-                    <execution>
-                        <goals>
-                            <goal>compile</goal>
-                            <goal>compileTests</goal>
-                        </goals>
-                    </execution>
-                </executions>
-            </plugin>
-
             <!-- Unite Test -->
             <plugin>
                 <groupId>org.apache.maven.plugins</groupId>
@@ -284,10 +237,10 @@
                         <java.awt.headless>true</java.awt.headless>
                     </systemPropertyVariables>
                     <includes>
-                        <include>%regex[.*Spec.*]</include>
+                        <include>**/*Test.java</include>
                     </includes>
                     <excludes>
-                        <exclude>%regex[.*ITSpec.*]</exclude>
+                        <exclude>%regex[.*IT.java]</exclude>
                     </excludes>
                 </configuration>
             </plugin>
@@ -312,7 +265,7 @@
                 </executions>
                 <configuration>
                     <includes>
-                        <include>**/*ITSpec.*</include>
+                        <include>**/*IT.java</include>
                     </includes>
                 </configuration>
             </plugin>

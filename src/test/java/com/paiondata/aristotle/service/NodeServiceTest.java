@@ -28,7 +28,7 @@ import static org.mockito.Mockito.times;
 import static org.mockito.Mockito.verify;
 import static org.mockito.Mockito.when;
 
-import com.paiondata.aristotle.base.TestConstants;
+import com.paiondata.aristotle.common.base.TestConstants;
 import com.paiondata.aristotle.common.base.Constants;
 import com.paiondata.aristotle.mapper.NodeMapper;
 import com.paiondata.aristotle.model.dto.GraphAndNodeCreateDTO;
@@ -73,7 +73,7 @@ import java.util.Set;
  * Uses Mockito to mock dependencies and validate graph node service operations.
  */
 @ExtendWith(MockitoExtension.class)
-public class NodeServiceSpec {
+public class NodeServiceTest {
 
     @InjectMocks
     private NodeServiceImpl nodeService;
@@ -169,9 +169,9 @@ public class NodeServiceSpec {
         final NodeCreateDTO nodeCreateDTO = new NodeCreateDTO();
         nodeCreateDTO.setGraphUuid(TestConstants.TEST_ID1);
         nodeCreateDTO.setGraphNodeDTO(List.of(
-                new NodeDTO(TestConstants.TEST_ID1, Map.of(Constants.TITLE, TestConstants.TEST_TILE1,
+                new NodeDTO(TestConstants.TEST_ID1, Map.of(Constants.TITLE, TestConstants.TEST_TITLE1,
                         Constants.DESCRIPTION, TestConstants.TEST_DESCRIPTION1)),
-                new NodeDTO(TestConstants.TEST_ID2, Map.of(Constants.TITLE, TestConstants.TEST_TILE2,
+                new NodeDTO(TestConstants.TEST_ID2, Map.of(Constants.TITLE, TestConstants.TEST_TITLE2,
                         Constants.DESCRIPTION, TestConstants.TEST_DESCRIPTION2))));
         nodeCreateDTO.setGraphNodeRelationDTO(List.of(
                 new NodeRelationDTO(TestConstants.TEST_ID1, TestConstants.TEST_ID2, TestConstants.TEST_RELATION1),
@@ -186,7 +186,7 @@ public class NodeServiceSpec {
 
         when(nodeMapper.createNode(anyString(), anyString(), anyString(), anyString(), any(NodeDTO.class),
                 any(Transaction.class)))
-                .thenReturn((new NodeVO(graphNodeUuid, Map.of(Constants.TITLE, TestConstants.TEST_TILE1,
+                .thenReturn((new NodeVO(graphNodeUuid, Map.of(Constants.TITLE, TestConstants.TEST_TITLE1,
                         Constants.DESCRIPTION, TestConstants.TEST_DESCRIPTION1), currentTime, currentTime)));
         doNothing().when(nodeMapper).bindGraphNodeToGraphNode(anyString(), anyString(), anyString(), anyString(),
                 anyString(), any(Transaction.class));
@@ -230,12 +230,12 @@ public class NodeServiceSpec {
         // Given
         final Transaction tx = mock(Transaction.class);
         final GraphAndNodeCreateDTO graphNodeCreateDTO = new GraphAndNodeCreateDTO();
-        graphNodeCreateDTO.setGraphCreateDTO(new GraphCreateDTO(TestConstants.TEST_TILE1,
+        graphNodeCreateDTO.setGraphCreateDTO(new GraphCreateDTO(TestConstants.TEST_TITLE1,
                 TestConstants.TEST_DESCRIPTION1, TestConstants.TEST_ID1));
         graphNodeCreateDTO.setGraphNodeDTO(List.of(
-                new NodeDTO(TestConstants.TEST_ID1, Map.of(Constants.TITLE, TestConstants.TEST_TILE1,
+                new NodeDTO(TestConstants.TEST_ID1, Map.of(Constants.TITLE, TestConstants.TEST_TITLE1,
                         Constants.DESCRIPTION, TestConstants.TEST_DESCRIPTION1)),
-                new NodeDTO(TestConstants.TEST_ID2, Map.of(Constants.TITLE, TestConstants.TEST_TILE2,
+                new NodeDTO(TestConstants.TEST_ID2, Map.of(Constants.TITLE, TestConstants.TEST_TITLE2,
                         Constants.DESCRIPTION, TestConstants.TEST_DESCRIPTION2))));
         graphNodeCreateDTO.setGraphNodeRelationDTO(List.of(
                 new NodeRelationDTO(TestConstants.TEST_ID1, TestConstants.TEST_ID2, TestConstants.TEST_RELATION1),
@@ -245,7 +245,7 @@ public class NodeServiceSpec {
         when(commonService.createAndBindGraph(graphNodeCreateDTO.getGraphCreateDTO(), tx))
                 .thenReturn(Graph.builder()
                         .uuid(TestConstants.TEST_ID1)
-                        .title(TestConstants.TEST_TILE1)
+                        .title(TestConstants.TEST_TITLE1)
                         .description(TestConstants.TEST_DESCRIPTION1)
                         .build());
 
@@ -255,7 +255,7 @@ public class NodeServiceSpec {
 
         when(nodeMapper.createNode(anyString(), anyString(), anyString(), anyString(), any(NodeDTO.class),
                 any(Transaction.class)))
-                .thenReturn((new NodeVO(graphNodeUuid, Map.of(Constants.TITLE, TestConstants.TEST_TILE1,
+                .thenReturn((new NodeVO(graphNodeUuid, Map.of(Constants.TITLE, TestConstants.TEST_TITLE1,
                         Constants.DESCRIPTION, TestConstants.TEST_DESCRIPTION1), currentTime, currentTime)));
         doNothing().when(nodeMapper).bindGraphNodeToGraphNode(anyString(), anyString(), anyString(), anyString(),
                 anyString(), any(Transaction.class));
@@ -269,7 +269,7 @@ public class NodeServiceSpec {
                 TestConstants.TEST_ID2));
         Assertions.assertNotNull(dto);
         Assertions.assertNotNull(dto.getUuid());
-        Assertions.assertEquals(dto.getTitle(), TestConstants.TEST_TILE1);
+        Assertions.assertEquals(dto.getTitle(), TestConstants.TEST_TITLE1);
         Assertions.assertEquals(dto.getDescription(), TestConstants.TEST_DESCRIPTION1);
         Assertions.assertNotNull(dto.getNodes());
     }
@@ -396,7 +396,7 @@ public class NodeServiceSpec {
         final String uuid = TestConstants.TEST_ID1;
         final NodeUpdateDTO nodeUpdateDTO = NodeUpdateDTO.builder()
                 .uuid(uuid)
-                .properties(Map.of(Constants.TITLE, TestConstants.TEST_TILE2,
+                .properties(Map.of(Constants.TITLE, TestConstants.TEST_TITLE2,
                         Constants.DESCRIPTION, TestConstants.TEST_DESCRIPTION2))
                 .build();
 
@@ -419,7 +419,7 @@ public class NodeServiceSpec {
         final String uuid = TestConstants.TEST_ID1;
         final NodeUpdateDTO nodeUpdateDTO = NodeUpdateDTO.builder()
                 .uuid(uuid)
-                .properties(Map.of(Constants.TITLE, TestConstants.TEST_TILE2,
+                .properties(Map.of(Constants.TITLE, TestConstants.TEST_TITLE2,
                         Constants.DESCRIPTION, TestConstants.TEST_DESCRIPTION2))
                 .build();
 

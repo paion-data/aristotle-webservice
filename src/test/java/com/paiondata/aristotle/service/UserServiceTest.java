@@ -24,7 +24,7 @@ import static org.mockito.Mockito.times;
 import static org.mockito.Mockito.verify;
 import static org.mockito.Mockito.when;
 
-import com.paiondata.aristotle.base.TestConstants;
+import com.paiondata.aristotle.common.base.TestConstants;
 import com.paiondata.aristotle.model.dto.UserDTO;
 import com.paiondata.aristotle.model.entity.User;
 import com.paiondata.aristotle.model.vo.UserVO;
@@ -54,7 +54,7 @@ import java.util.Optional;
  * Tests for UserService.
  */
 @ExtendWith(MockitoExtension.class)
-public class UserServiceSpec {
+public class UserServiceTest {
 
     @InjectMocks
     private UserServiceImpl userService;

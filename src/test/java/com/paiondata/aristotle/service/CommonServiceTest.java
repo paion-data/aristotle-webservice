@@ -25,7 +25,7 @@ import static org.mockito.Mockito.times;
 import static org.mockito.Mockito.verify;
 import static org.mockito.Mockito.when;
 
-import com.paiondata.aristotle.base.TestConstants;
+import com.paiondata.aristotle.common.base.TestConstants;
 import com.paiondata.aristotle.mapper.GraphMapper;
 import com.paiondata.aristotle.model.dto.GraphCreateDTO;
 import com.paiondata.aristotle.model.entity.Graph;
@@ -53,7 +53,7 @@ import java.util.Optional;
  * Tests for CommonService.
  */
 @ExtendWith(MockitoExtension.class)
-public class CommonServiceSpec {
+public class CommonServiceTest {
 
     @InjectMocks
     private CommonServiceImpl commonService;
@@ -116,7 +116,7 @@ public class CommonServiceSpec {
         final String currentTime = getCurrentTime();
         final Graph graph = Graph.builder()
                 .uuid(uuid)
-                .title(TestConstants.TEST_TILE1)
+                .title(TestConstants.TEST_TITLE1)
                 .description(TestConstants.TEST_DESCRIPTION1)
                 .createTime(currentTime)
                 .updateTime(currentTime)
@@ -156,7 +156,7 @@ public class CommonServiceSpec {
     void createAndBindGraphValidInputGraphCreatedSuccessfully() {
         // Arrange
         final GraphCreateDTO graphCreateDTO = GraphCreateDTO.builder()
-                .title(TestConstants.TEST_TILE1)
+                .title(TestConstants.TEST_TITLE1)
                 .description(TestConstants.TEST_DESCRIPTION1)
                 .userOidcid(TestConstants.TEST_ID1)
                 .build();
@@ -192,7 +192,7 @@ public class CommonServiceSpec {
     public void createAndBindGraphUserDoesNotExistThrowsNoSuchElementException() {
         // Arrange
         final GraphCreateDTO graphCreateDTO = GraphCreateDTO.builder()
-                .title(TestConstants.TEST_TILE1)
+                .title(TestConstants.TEST_TITLE1)
                 .description(TestConstants.TEST_DESCRIPTION1)
                 .userOidcid(TestConstants.TEST_ID1)
                 .build();

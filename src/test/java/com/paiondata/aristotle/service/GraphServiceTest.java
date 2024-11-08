@@ -27,7 +27,7 @@ import static org.mockito.Mockito.times;
 import static org.mockito.Mockito.verify;
 import static org.mockito.Mockito.when;
 
-import com.paiondata.aristotle.base.TestConstants;
+import com.paiondata.aristotle.common.base.TestConstants;
 import com.paiondata.aristotle.common.base.Message;
 import com.paiondata.aristotle.mapper.GraphMapper;
 import com.paiondata.aristotle.mapper.NodeMapper;
@@ -65,7 +65,7 @@ import java.util.Optional;
  * Uses Mockito to mock dependencies and validate graph service operations.
  */
 @ExtendWith(MockitoExtension.class)
-public class GraphServiceSpec {
+public class GraphServiceTest {
 
     @InjectMocks
     private GraphServiceImpl graphService;
@@ -100,7 +100,7 @@ public class GraphServiceSpec {
         // Arrange
         final String uuid1 = TestConstants.TEST_ID1;
         final String uuid2 = TestConstants.TEST_ID2;
-        final String title = TestConstants.TEST_TILE1;
+        final String title = TestConstants.TEST_TITLE1;
         final String description = TestConstants.TEST_DESCRIPTION1;
         final String name = TestConstants.TEST_NAME1;
         final String currentTime = getCurrentTime();
@@ -262,7 +262,7 @@ public class GraphServiceSpec {
     @Test
     public void updateGraphTransactionIsNullShouldThrowTransactionException() {
         // Arrange
-        final GraphUpdateDTO graphUpdateDTO = new GraphUpdateDTO(TestConstants.TEST_ID1, TestConstants.TEST_TILE1,
+        final GraphUpdateDTO graphUpdateDTO = new GraphUpdateDTO(TestConstants.TEST_ID1, TestConstants.TEST_TITLE1,
                 TestConstants.TEST_DESCRIPTION1);
 
         final IllegalArgumentException exception = assertThrows(IllegalArgumentException.class,
@@ -279,7 +279,7 @@ public class GraphServiceSpec {
     void updateGraphWhenGraphExistsShouldUpdateGraph() {
         // Arrange
         final Transaction tx = mock(Transaction.class);
-        final GraphUpdateDTO graphUpdateDTO = new GraphUpdateDTO(TestConstants.TEST_ID1, TestConstants.TEST_TILE1,
+        final GraphUpdateDTO graphUpdateDTO = new GraphUpdateDTO(TestConstants.TEST_ID1, TestConstants.TEST_TITLE1,
                 TestConstants.TEST_DESCRIPTION1);
         final Optional<Graph> graph = Optional.of(new Graph());
 
@@ -299,7 +299,7 @@ public class GraphServiceSpec {
     void updateGraphGraphNotExistsThrowsNoSuchElementException() {
         // Arrange
         final Transaction tx = mock(Transaction.class);
-        final GraphUpdateDTO graphUpdateDTO = new GraphUpdateDTO(TestConstants.TEST_ID1, TestConstants.TEST_TILE1,
+        final GraphUpdateDTO graphUpdateDTO = new GraphUpdateDTO(TestConstants.TEST_ID1, TestConstants.TEST_TITLE1,
                 TestConstants.TEST_DESCRIPTION1);
 
         when(commonService.getGraphByUuid(anyString())).thenReturn(Optional.empty());
