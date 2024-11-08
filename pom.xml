@@ -237,7 +237,7 @@
                         <java.awt.headless>true</java.awt.headless>
                     </systemPropertyVariables>
                     <includes>
-                        <include>%regex[.*Test.java]</include>
+                        <include>**/*Test.java</include>
                     </includes>
                     <excludes>
                         <exclude>%regex[.*IT.java]</exclude>
