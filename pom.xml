@@ -257,10 +257,10 @@
                         <java.awt.headless>true</java.awt.headless>
                     </systemPropertyVariables>
                     <includes>
-                        <include>%regex[.*Test.*]</include>
+                        <include>%regex[.*Test.java]</include>
                     </includes>
                     <excludes>
-                        <exclude>%regex[.*IT.*]</exclude>
+                        <exclude>%regex[.*IT.java]</exclude>
                     </excludes>
                 </configuration>
             </plugin>
@@ -285,7 +285,7 @@
                 </executions>
                 <configuration>
                     <includes>
-                        <include>**/*IT.*</include>
+                        <include>**/*IT.java</include>
                     </includes>
                 </configuration>
             </plugin>

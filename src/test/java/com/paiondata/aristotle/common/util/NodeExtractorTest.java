@@ -17,20 +17,20 @@ package com.paiondata.aristotle.common.util;
 
 import static org.junit.jupiter.api.Assertions.assertEquals;
 import static org.junit.jupiter.api.Assertions.assertNotNull;
-import static org.junit.jupiter.api.Assertions.assertNull;
-import static org.junit.jupiter.api.Assertions.assertTrue;
+import static org.junit.jupiter.api.Assertions.assertThrows;
 import static org.mockito.ArgumentMatchers.any;
 import static org.mockito.Mockito.mock;
 import static org.mockito.Mockito.when;
 
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
+import org.neo4j.driver.Value;
 import org.neo4j.driver.internal.value.ListValue;
 import org.neo4j.driver.internal.value.NodeValue;
 import org.neo4j.driver.types.Node;
 import org.neo4j.driver.types.Relationship;
-
 import com.paiondata.aristotle.common.base.Constants;
+import com.paiondata.aristotle.common.base.Message;
 import com.paiondata.aristotle.common.base.TestConstants;
 import com.paiondata.aristotle.model.vo.NodeVO;
 import com.paiondata.aristotle.model.vo.RelationVO;
@@ -62,18 +62,21 @@ public class NodeExtractorTest {
     }
 
     /**
-     * Tests the behavior of the {@link NodeExtractor#extractGraph(Object)} method with a null input.
-     * Expected Result: Returns an empty {@code Map}.
+     * Tests the behavior of the {@link NodeExtractor#extractGraph(Value)} method with a null input.
      */
     @Test
     void testExtractGraphWithNullInput() {
-        final Map<String, Object> result = nodeExtractor.extractGraph(null);
-        assertNotNull(result);
-        assertTrue(result.isEmpty());
+        // Arrange
+        final Value node = null;
+
+        // Act and Assert
+        final Exception exception = assertThrows(IllegalArgumentException.class,
+                () -> nodeExtractor.extractGraph(node));
+        assertEquals(String.format(Message.VALUE_CAN_NOT_BE_NULL, "Graph"), exception.getMessage());
     }
 
     /**
-     * Tests the behavior of the {@link NodeExtractor#extractGraph(Object)} method with a valid node value input.
+     * Tests the behavior of the {@link NodeExtractor#extractGraph(Value)} method with a valid node value input.
      * Expected Result: Returns a {@code Map} containing the node properties.
      */
     @Test
@@ -102,14 +105,17 @@ public class NodeExtractorTest {
     }
 
     /**
-     * Tests the behavior of the  method with a null input.
-     * Expected Result: Returns an empty {@code List}.
+     * Tests the behavior of the {@link NodeExtractor#extractRelationships(Value)}} method with a null input.
      */
     @Test
     void testExtractRelationshipsWithNullInput() {
-        final List<RelationVO> result = nodeExtractor.extractRelationships(null);
-        assertNotNull(result);
-        assertTrue(result.isEmpty());
+        // Arrange
+        final Value relations = null;
+
+        // Act and Assert
+        final Exception exception = assertThrows(IllegalArgumentException.class,
+                () -> nodeExtractor.extractRelationships(relations));
+        assertEquals(String.format(Message.VALUE_CAN_NOT_BE_NULL, "Relations"), exception.getMessage());
     }
 
     /**
@@ -167,21 +173,20 @@ public class NodeExtractorTest {
     }
 
     /**
-     * Tests the behavior of the {@link NodeExtractor#extractNode(Object)} method with a null input.
-     * Expected Result: Returns a default {@link NodeVO} instance.
+     * Tests the behavior of the {@link NodeExtractor#extractNode(Value)} method with a null input.
      */
     @Test
     void testExtractNodeWithNullInput() {
-        final NodeVO result = nodeExtractor.extractNode(null);
-        assertNotNull(result);
-        assertNull(result.getUuid());
-        assertNull(result.getCreateTime());
-        assertNull(result.getUpdateTime());
-        assertNull(result.getProperties());
+        // Arrange
+        final Value node = null;
+
+        // Act and Assert
+        final Exception exception = assertThrows(IllegalArgumentException.class, () -> nodeExtractor.extractNode(node));
+        assertEquals(String.format(Message.VALUE_CAN_NOT_BE_NULL, "Node"), exception.getMessage());
     }
 
     /**
-     * Tests the behavior of the {@link NodeExtractor#extractNode(Object)} method with a valid node value input.
+     * Tests the behavior of the {@link NodeExtractor#extractNode(Value)} method with a valid node value input.
      * Expected Result: Returns a {@link NodeVO} instance containing the node properties.
      */
     @Test
@@ -211,14 +216,17 @@ public class NodeExtractorTest {
     }
 
     /**
-     * Tests the behavior of the  method with a null input.
-     * Expected Result: Returns an empty {@code Set}.
+     * Tests the behavior of the {@link NodeExtractor#extractNodes(Value)} method with a null input.
      */
     @Test
     void testExtractNodesWithNullInput() {
-        final Set<NodeVO> result = nodeExtractor.extractNodes(null);
-        assertNotNull(result);
-        assertTrue(result.isEmpty());
+        // Arrange
+        final Value nodes = null;
+
+        // Act and Assert
+        final Exception exception = assertThrows(IllegalArgumentException.class,
+                () -> nodeExtractor.extractNodes(nodes));
+        assertEquals(String.format(Message.VALUE_CAN_NOT_BE_NULL, "Nodes"), exception.getMessage());
     }
 
     /**
