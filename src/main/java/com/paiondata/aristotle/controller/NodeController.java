@@ -48,6 +48,7 @@ import org.springframework.web.bind.annotation.RequestBody;
 import javax.validation.Valid;
 import javax.validation.constraints.NotBlank;
 import javax.validation.constraints.NotEmpty;
+import javax.validation.constraints.NotNull;
 
 import java.util.List;
 import java.util.NoSuchElementException;
@@ -96,26 +97,28 @@ public class NodeController {
     }
 
     /**
-     * Retrieves an unlimited expansion of a node in the graph.
+     * Retrieves a k-degree expansion of a node.
      * <p>
-     * This endpoint accepts a graph UUID and a node name as query parameters.
-     * It validates that both parameters are not blank.
-     * If the validation passes, it calls the {@link NodeService#expandNodeUnlimited(String, String)} method to retrieve
-     * the unlimited expansion of the specified node and returns the result wrapped in a {@link Result} object.
+     * This endpoint retrieves the k-degree expansion of a node within a specified graph.
+     * If the input degree is less than 0, the maximum depth is directly returned.
      *
-     * @param uuid the UUID of the graph.
-     * @param name the name of the node to expand.
-     * @return a {@link Result} object containing the unlimited expansion of the node.
+     * @param graphUuid The UUID of the graph.
+     * @param nodeUuid The UUID of the node.
+     * @param degree The degree that needs to be expanded.
+     * @return A {@link Result} object containing the expanded graph represented as a {@link GraphVO}.
      */
-    @ApiOperation(value = "Retrieve unlimited expansion of a node",
-            notes = "This endpoint retrieves the unlimited expansion of a node in the graph.")
+    @ApiOperation(value = "Retrieves a k-degree expansion of a node",
+            notes = "If the input degree is less than 0, the maximum depth is directly returned")
     @GetMapping("/expand")
-    public Result<GraphVO> expandNodeUnlimited(
+    public Result<GraphVO> kDegreeExpansion(
             @ApiParam(value = "The UUID of the graph", required = true)
-            @RequestParam @NotBlank(message = Message.UUID_MUST_NOT_BE_BLANK) final String uuid,
-            @ApiParam(value = "The name of the node to expand", required = true)
-            @RequestParam @NotBlank(message = Message.NAME_MUST_NOT_BE_BLANK) final String name) {
-        return Result.ok(nodeService.expandNodeUnlimited(uuid, name));
+            @RequestParam @NotBlank(message = Message.UUID_MUST_NOT_BE_BLANK) final String graphUuid,
+            @ApiParam(value = "The UUID of the node", required = true)
+            @RequestParam @NotBlank(message = Message.UUID_MUST_NOT_BE_BLANK) final String nodeUuid,
+            @ApiParam(value = "The degree that needs to be expanded, "
+                    + "if is less than 0, the maximum depth is directly returned")
+            @RequestParam @NotNull(message = Message.DEGREE_MUST_NOT_BE_NULL) final Integer degree) {
+        return Result.ok(nodeService.getkDegreeExpansion(graphUuid, nodeUuid, degree));
     }
 
     /**

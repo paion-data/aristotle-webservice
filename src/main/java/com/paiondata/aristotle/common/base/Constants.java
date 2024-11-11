@@ -161,6 +161,11 @@ public interface Constants {
     String NODE_ALIAS_N = "n";
 
     /**
+     * Represents the node alias in cypher.
+     */
+    String NODE_ALIAS_M = "m";
+
+    /**
      * Represents the nodes in cypher.
      */
     String NODES = "nodes";

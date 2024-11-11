@@ -48,9 +48,14 @@ import java.util.stream.Collectors;
 public class NodeControllerIT extends AbstractIT {
 
     /**
-     * A static string variable to store the UUID of a created graph.
+     * A static string variable to store the UUID of a first created graph.
      */
-    private static String graphUuid;
+    private static String graphUuid1;
+
+    /**
+     * A static string variable to store the UUID of a second created graph.
+     */
+    private static String graphUuid2;
 
     /**
      * A static string variable to store the UUID of the first created node.
@@ -288,7 +293,7 @@ public class NodeControllerIT extends AbstractIT {
         response.then()
                 .statusCode(HttpStatus.OK.value());
 
-        graphUuid = response.jsonPath().get(TestConstants.DATA_UUID);
+        graphUuid1 = response.jsonPath().get(TestConstants.DATA_UUID);
 
         assertNotNull(response.jsonPath().get(TestConstants.DATA_UUID));
         assertEquals(TestConstants.TEST_TITLE1, response.jsonPath().get("data.title"));
@@ -305,7 +310,7 @@ public class NodeControllerIT extends AbstractIT {
                 .given()
                 .contentType(ContentType.JSON)
                 .accept(ContentType.JSON)
-                .body(String.format(payload("create-node.json"), graphUuid,
+                .body(String.format(payload("create-node.json"), graphUuid1,
                         TestConstants.TEST_TITLE1, TestConstants.TEST_TITLE2, TestConstants.TEST_TITLE3))
                 .when()
                 .post(NODE_ENDPOINT)
@@ -336,7 +341,7 @@ public class NodeControllerIT extends AbstractIT {
                 .given()
                 .contentType(ContentType.JSON)
                 .accept(ContentType.JSON)
-                .body(String.format(payload(GET_GRAPH_JSON), graphUuid))
+                .body(String.format(payload(GET_GRAPH_JSON), graphUuid1))
                 .when()
                 .post(GRAPH_ENDPOINT)
                 .then()
@@ -424,7 +429,7 @@ public class NodeControllerIT extends AbstractIT {
                 .given()
                 .contentType(ContentType.JSON)
                 .accept(ContentType.JSON)
-                .body(String.format(payload(GET_GRAPH_JSON), graphUuid))
+                .body(String.format(payload(GET_GRAPH_JSON), graphUuid1))
                 .when()
                 .post(GRAPH_ENDPOINT)
                 .then()
@@ -435,16 +440,70 @@ public class NodeControllerIT extends AbstractIT {
     }
 
     /**
-     * Tests if a node entity can be deleted by making a DELETE request to the node endpoint and verifying the response.
+     * Tests if a graph can be created and nodes can be bound to it and the relationships can be expanded.
      */
     @Test
     @Order(14)
+    public void weCanCreateGraphAndNodesAndBindRelationshipsToExpand() {
+        final Response response = RestAssured
+                .given()
+                .contentType(ContentType.JSON)
+                .accept(ContentType.JSON)
+                .body(String.format(payload("create-graph-nodes-to-expand.json"), TestConstants.TEST_ID1))
+                .when()
+                .post(NODE_ENDPOINT + GRAPH_ENDPOINT)
+                .then()
+                .extract()
+                .response();
+
+        response.then()
+                .statusCode(HttpStatus.OK.value());
+
+        graphUuid2 = response.jsonPath().get(TestConstants.DATA_UUID);
+        nodeUuid2 = response.jsonPath().get(TestConstants.DATA_NODES_0_UUID);
+
+        assertNotNull(response.jsonPath().get(TestConstants.DATA_UUID));
+        assertNotNull(response.jsonPath().get(TestConstants.DATA_NODES_0_UUID));
+    }
+
+    /**
+     * Tests if the nodes can be retrieved to the node/expand endpoint and verifying the response.
+     * @param degree the degree of the node to expand.
+     * @param count the expected number of nodes to be returned.
+     */
+    @ParameterizedTest
+    @CsvSource({"1, 4", "2, 9", "3, 11", "4, 14", "5, 15", "6, 16", "7, 16", "0, 1", "-1, 16", "1000, 16"})
+    @Order(15)
+    public void weCanGetThatExpandNodesNextByGraphUuidAndNodesName(final String degree, final String count) {
+        final Response response = RestAssured
+                .given()
+                .contentType(ContentType.JSON)
+                .accept(ContentType.JSON)
+                .when()
+                .get(NODE_ENDPOINT + "/expand?graphUuid=" + graphUuid2 + "&nodeUuid=" + nodeUuid2 + "&degree=" + degree)
+                .then()
+                .extract()
+                .response();
+
+        response.then()
+                .statusCode(HttpStatus.OK.value());
+
+        final List<String> actualNodeNames = response.jsonPath().getList("data.nodes.uuid");
+
+        assertEquals(Integer.valueOf(count), actualNodeNames.size());
+    }
+
+    /**
+     * Tests if a node entity can be deleted by making a DELETE request to the node endpoint and verifying the response.
+     */
+    @Test
+    @Order(16)
     void weCanDeleteThatNodeEntity() {
         final Response response = RestAssured
                 .given()
                 .contentType(ContentType.JSON)
                 .accept(ContentType.JSON)
-                .body(String.format(payload("delete-node.json"), graphUuid, nodeUuid1))
+                .body(String.format(payload("delete-node.json"), graphUuid1, nodeUuid1))
                 .when()
                 .delete(NODE_ENDPOINT);
         response.then()
@@ -456,7 +515,7 @@ public class NodeControllerIT extends AbstractIT {
      * and verifying the response.
      */
     @Test
-    @Order(15)
+    @Order(17)
     void thatNodeEntityIsNotFoundInDatabaseAnymore() {
         final Response response = RestAssured
                 .given()

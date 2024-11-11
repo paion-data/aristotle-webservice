@@ -62,12 +62,13 @@ public interface NodeMapper {
                                           Integer pageNumber, Integer pageSize);
 
     /**
-     * Retrieves an unlimited expansion of a node in the graph.
-     * @param uuid the UUID of the graph.
-     * @param name the name of the node to expand.
+     * Retrieves a k-degree expansion of a node in the graph.
+     * @param graphUuid the UUID of the graph.
+     * @param nodeUuid the UUID of the node to expand.
+     * @param k the degree of expansion.
      * @return a GraphVO object containing the expanded nodes and their relationships.
      */
-    GraphVO expandNodeUnlimited(String uuid, String name);
+    GraphVO kDegreeExpansion(String graphUuid, String nodeUuid, Integer k);
 
     /**
      * Binds two graph nodes with a specified relationship.

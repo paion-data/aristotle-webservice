@@ -1,0 +1,11 @@
+{
+  "graphUuid": "%s",
+  "graphNodeDTO": [
+    {
+      "temporaryId": "1",
+      "properties": {
+        "name": "1"
+      }
+    }
+  ]
+}

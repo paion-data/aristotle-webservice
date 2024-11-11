@@ -492,27 +492,27 @@ public class NodeServiceImpl implements NodeService {
     }
 
     /**
-     * Retrieves an unlimited expansion of a node in the graph.
+     * Retrieves the k-degree expansion of a graph from a given node.
      * <p>
-     * This method first checks if the graph with the given UUID exists. If the graph does not exist, it logs an error
-     * and throws a {@link NoSuchElementException}. If the graph exists,
-     * it calls the {@link NodeMapper#expandNodeUnlimited(String, String)}
-     * method to retrieve the k-degree expansion of the specified node.
+     * This method first checks if the graph with the specified UUID exists. If the graph does not exist, it throws
+     * a {@link NoSuchElementException}.
+     * If the graph exists, it delegates the k-degree expansion to the `nodeMapper` to perform the actual expansion.
      *
-     * @param uuid the UUID of the graph.
-     * @param name the name of the node to expand.
-     * @return a GraphVO object containing the expanded nodes and their relationships.
-     * @throws NoSuchElementException if the graph with the given UUID does not exist.
+     * @param graphUuid The UUID of the graph.
+     * @param nodeUuid The UUID of the starting node.
+     * @param k The desired depth of expansion.
+     * @return A {@link GraphVO} object containing the expanded nodes and relationships.
+     * @throws NoSuchElementException If the graph with the specified UUID does not exist.
      */
     @Override
-    public GraphVO expandNodeUnlimited(final String uuid, final String name) {
-        if (commonService.getGraphByUuid(uuid).isEmpty()) {
-            final String message = String.format(Message.GRAPH_NULL, uuid);
+    public GraphVO getkDegreeExpansion(final String graphUuid, final String nodeUuid, final Integer k) {
+        if (commonService.getGraphByUuid(graphUuid).isEmpty()) {
+            final String message = String.format(Message.GRAPH_NULL, graphUuid);
             LOG.error(message);
             throw new NoSuchElementException(message);
         }
 
-        return nodeMapper.expandNodeUnlimited(uuid, name);
+        return nodeMapper.kDegreeExpansion(graphUuid, nodeUuid, k);
     }
 
     /**

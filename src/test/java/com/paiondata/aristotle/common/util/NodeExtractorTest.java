@@ -27,6 +27,7 @@ import org.junit.jupiter.api.Test;
 import org.neo4j.driver.Value;
 import org.neo4j.driver.internal.value.ListValue;
 import org.neo4j.driver.internal.value.NodeValue;
+import org.neo4j.driver.internal.value.RelationshipValue;
 import org.neo4j.driver.types.Node;
 import org.neo4j.driver.types.Relationship;
 import com.paiondata.aristotle.common.base.Constants;
@@ -102,6 +103,51 @@ public class NodeExtractorTest {
         assertEquals(TestConstants.TEST_TIME_02, result.get(Constants.CREATE_TIME));
         assertEquals(TestConstants.TEST_TITLE1, result.get(Constants.TITLE));
         assertEquals(TestConstants.TEST_ID1, result.get(Constants.UUID));
+    }
+
+    /**
+     * Tests the behavior of the {@link NodeExtractor#extractNode(Value)} method with a null input.
+     */
+    @Test
+    void testExtractRelationWithNullInput() {
+        // Arrange
+        final Value relation = null;
+
+        // Act and Assert
+        final Exception exception = assertThrows(IllegalArgumentException.class,
+                () -> nodeExtractor.extractRelationship(relation));
+        assertEquals(String.format(Message.VALUE_CAN_NOT_BE_NULL, "Relation"), exception.getMessage());
+    }
+
+    /**
+     * Tests the behavior of the {@link NodeExtractor#extractRelationship(Value)} method
+     * with a valid relationship value input.
+     */
+    @Test
+    void testExtractRelationshipWithValidRelationship() {
+        final Relationship relationship = mock(Relationship.class);
+
+        final Map<String, Object> relMap = new HashMap<>();
+        relMap.put(Constants.NAME, TestConstants.TEST_NAME1);
+        relMap.put(Constants.CREATE_TIME_WITHOUT_HUMP, TestConstants.TEST_TIME_01);
+        relMap.put(Constants.UPDATE_TIME_WITHOUT_HUMP, TestConstants.TEST_TIME_02);
+        relMap.put(Constants.UUID, TestConstants.TEST_ID1);
+        relMap.put(Constants.SOURCE_NODE, TestConstants.TEST_ID2);
+        relMap.put(Constants.TARGET_NODE, TestConstants.TEST_ID3);
+
+        when(relationship.asMap()).thenReturn(relMap);
+        final RelationshipValue relationshipValue = mock(RelationshipValue.class);
+        when(relationshipValue.asRelationship()).thenReturn(relationship);
+
+        final RelationVO result = nodeExtractor.extractRelationship(relationshipValue);
+
+        assertNotNull(result);
+        assertEquals(TestConstants.TEST_NAME1, result.getName());
+        assertEquals(TestConstants.TEST_TIME_01, result.getCreateTime());
+        assertEquals(TestConstants.TEST_TIME_02, result.getUpdateTime());
+        assertEquals(TestConstants.TEST_ID1, result.getUuid());
+        assertEquals(TestConstants.TEST_ID2, result.getSourceNode());
+        assertEquals(TestConstants.TEST_ID3, result.getTargetNode());
     }
 
     /**

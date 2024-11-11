@@ -92,10 +92,11 @@ public interface NodeService {
     void updateRelation(RelationUpdateDTO relationUpdateDTO);
 
     /**
-     * Retrieves an unlimited expansion of a node in the graph.
-     * @param uuid the UUID of the graph.
-     * @param name the name of the node to expand.
+     * Retrieves the k-degree expansion of a node in a graph.
+     * @param graphUuid the UUID of the graph
+     * @param nodeUuid the UUID of the node
+     * @param k the degree of expansion
      * @return a GraphVO object containing the expanded nodes and their relationships.
      */
-    GraphVO expandNodeUnlimited(String uuid, String name);
+    GraphVO getkDegreeExpansion(String graphUuid, String nodeUuid, Integer k);
 }

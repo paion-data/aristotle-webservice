@@ -16,6 +16,7 @@
 package com.paiondata.aristotle.mapper.impl;
 
 import com.paiondata.aristotle.common.base.Constants;
+import com.paiondata.aristotle.common.base.Message;
 import com.paiondata.aristotle.common.util.NodeExtractor;
 import com.paiondata.aristotle.mapper.NodeMapper;
 import com.paiondata.aristotle.model.dto.GetRelationDTO;
@@ -31,6 +32,8 @@ import org.neo4j.driver.Session;
 import org.neo4j.driver.SessionConfig;
 import org.neo4j.driver.Transaction;
 import org.neo4j.driver.Values;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Repository;
 
@@ -38,8 +41,11 @@ import lombok.NoArgsConstructor;
 
 import java.util.ArrayList;
 import java.util.HashSet;
+import java.util.LinkedList;
 import java.util.List;
 import java.util.Map;
+import java.util.NoSuchElementException;
+import java.util.Queue;
 import java.util.Set;
 import java.util.stream.Collectors;
 
@@ -49,6 +55,14 @@ import java.util.stream.Collectors;
 @NoArgsConstructor(force = true)
 @Repository
 public class NodeMapperImpl implements NodeMapper {
+
+    private static final Logger LOG = LoggerFactory.getLogger(NodeMapperImpl.class);
+
+    private static final String CYPER_QUERY = "MATCH (g:Graph { uuid: $graphUuid })-[:RELATION]->" +
+            "(n:GraphNode { uuid: $nodeUuid}) " +
+            "WITH g, n " +
+            "MATCH (n)-[relation:RELATION]-(m:GraphNode) " +
+            "RETURN m, relation";
 
     private final Driver driver;
 
@@ -195,53 +209,129 @@ public class NodeMapperImpl implements NodeMapper {
     }
 
     /**
-     * Retrieves an unlimited expansion of a node in the graph.
+     * Expands the graph from a given node to a specified depth.
      * <p>
-     * This method constructs a Cypher query to find the specified node in the graph and then performs an unlimited
-     * expansion using the APOC library. It returns a KExpendVO object containing the expanded nodes and their
-     * relationships.
-     * <p>
-     * The Cypher query matches the specified node in the graph and uses the APOC `apoc.path.expand` procedure to
-     * perform the expansion. The expansion is performed without any depth limit, ensuring that all reachable nodes
-     * and relationships are included in the result.
-     * <p>
-     * The query filters out relationships with the name 'HAVE' to avoid including certain types of relationships in the
-     * expansion.
+     * This method calculates the maximum depth of the graph and ensures that the expansion does not exceed this depth.
+     * If the specified depth `k` is negative, it will be set to the maximum depth.
+     * The method uses a breadth-first search (BFS) approach to expand the graph and collect nodes and relationships up
+     * to the specified depth.
      *
-     * @param uuid the UUID of the graph.
-     * @param name the name of the node to expand.
-     * @return a GraphVO object containing the expanded nodes and their relationships.
+     * @param graphUuid The UUID of the graph.
+     * @param nodeUuid The UUID of the starting node.
+     * @param k The desired depth of expansion.
+     * @return A {@link GraphVO} object containing the expanded nodes and relationships.
+     * @throws NoSuchElementException If the starting node with the given UUID does not exist in the graph.
      */
     @Override
-    public GraphVO expandNodeUnlimited(final String uuid, final String name) {
-        final String cypherQuery = "MATCH (g:Graph { uuid: $uuid }) "
-                + "-[:RELATION]->(n:GraphNode {name: $name}) "
-                + "CALL apoc.path.expand(n, \"RELATION\", null, 1, -1) YIELD path "
-                + "WHERE"
-                + " all(rel IN relationships(path) WHERE rel.name <> 'HAVE') "
-                + "RETURN nodes(path) AS nodes, relationships(path) AS relations";
+    public GraphVO kDegreeExpansion(final String graphUuid, final String nodeUuid, final Integer k) {
+        // calculate max depth
+        final int maxDepth = calculateMaxDepth(graphUuid, nodeUuid);
+
+        // check if k is greater than max depth
+        int effectiveDepth = Math.min(k, maxDepth);
+
+        // check if k is negative
+        if (k < 0) {
+            effectiveDepth = maxDepth;
+        }
+
+        final Queue<String> queue = new LinkedList<>();
+        queue.add(nodeUuid);
+        final Set<String> visited = new HashSet<>();
+        visited.add(nodeUuid);
+        final Set<RelationVO> relations = new HashSet<>();
+        final Set<NodeVO> nodes = new HashSet<>();
+
+        final String geFirstNodeQuery = "MATCH (g:Graph { uuid: $graphUuid })-[:RELATION]"
+                + "->(n:GraphNode { uuid: $nodeUuid}) RETURN n";
 
         try (Session session = driver.session(SessionConfig.builder().build())) {
-            return session.readTransaction(tx -> {
-                final var result = tx.run(cypherQuery, Values.parameters(
-                        Constants.UUID, uuid,
-                        Constants.NAME, name));
 
-                final Set<RelationVO> relations = new HashSet<>();
-                final Set<NodeVO> nodes = new HashSet<>();
+            // get first node
+            final var firstNodeResult = session.run(geFirstNodeQuery, Values.parameters(
+                    Constants.GRAPH_UUID, graphUuid,
+                    Constants.NODE_UUID, nodeUuid));
+            if (firstNodeResult.hasNext()) {
+                final NodeVO node = nodeExtractor.extractNode(firstNodeResult.next().get(Constants.NODE_ALIAS_N));
+                nodes.add(node);
+            } else {
+                final String message = String.format(Message.NODE_NULL, nodeUuid);
+                LOG.error(message);
+                throw new NoSuchElementException(message);
+            }
 
-                while (result.hasNext()) {
-                    final Record record = result.next();
-                    relations.addAll(nodeExtractor.extractRelationships(record.get(Constants.RELATIONS)));
-                    nodes.addAll(nodeExtractor.extractNodes(record.get(Constants.NODES)));
+            for (int depth = 0; depth < effectiveDepth; depth++) {
+                final int layerSize = queue.size();
+
+                for (int i = 0; i < layerSize; i++) {
+                    final String currentNodeId = queue.poll();
+
+                    final var queryResult = session.run(CYPER_QUERY, Values.parameters(
+                            Constants.GRAPH_UUID, graphUuid,
+                            Constants.NODE_UUID, currentNodeId));
+
+                    while (queryResult.hasNext()) {
+                        final Record record = queryResult.next();
+                        final NodeVO nodeVO = nodeExtractor.extractNode(record.get(Constants.NODE_ALIAS_M));
+                        final String neighborId = nodeVO.getUuid();
+
+                        if (!visited.contains(neighborId)) {
+                            visited.add(neighborId);
+                            queue.add(neighborId);
+                            relations.add(nodeExtractor.extractRelationship(record.get(Constants.RELATION)));
+                            nodes.add(nodeVO);
+                        }
+                    }
                 }
-
-                return GraphVO.builder()
-                        .relations(new ArrayList<>(relations))
-                        .nodes(new ArrayList<>(nodes))
-                        .build();
-            });
+            }
         }
+
+        return GraphVO.builder()
+                .relations(new ArrayList<>(relations))
+                .nodes(new ArrayList<>(nodes))
+                .build();
+    }
+
+    /**
+     * Calculates the maximum depth of the expansion for a given start node in a graph.
+     * @param graphUuid the UUID of the graph.
+     * @param startNodeUuid the UUID of the start node.
+     * @return the maximum depth
+     */
+    private int calculateMaxDepth(final String graphUuid, final String startNodeUuid) {
+        final Queue<String> queue = new LinkedList<>();
+        queue.add(startNodeUuid);
+        final Set<String> visited = new HashSet<>();
+        visited.add(startNodeUuid);
+        int depth = 0;
+
+        try (Session session = driver.session(SessionConfig.builder().build())) {
+            while (!queue.isEmpty()) {
+                final int layerSize = queue.size();
+
+                for (int i = 0; i < layerSize; i++) {
+                    final String currentNodeId = queue.poll();
+
+                    final var queryResult = session.run(CYPER_QUERY, Values.parameters(
+                            Constants.GRAPH_UUID, graphUuid,
+                            Constants.NODE_UUID, currentNodeId));
+
+                    while (queryResult.hasNext()) {
+                        final Record record = queryResult.next();
+                        final NodeVO nodeVO = nodeExtractor.extractNode(record.get(Constants.NODE_ALIAS_M));
+                        final String neighborId = nodeVO.getUuid();
+
+                        if (!visited.contains(neighborId)) {
+                            visited.add(neighborId);
+                            queue.add(neighborId);
+                        }
+                    }
+                }
+                depth++;
+            }
+        }
+
+        return depth;
     }
 
     /**

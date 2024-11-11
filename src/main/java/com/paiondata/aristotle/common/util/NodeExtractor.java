@@ -22,6 +22,7 @@ import com.paiondata.aristotle.model.vo.RelationVO;
 
 import org.neo4j.driver.Value;
 import org.neo4j.driver.internal.value.NodeValue;
+import org.neo4j.driver.internal.value.RelationshipValue;
 import org.neo4j.driver.types.Node;
 import org.neo4j.driver.types.Relationship;
 import org.slf4j.Logger;
@@ -76,6 +77,32 @@ public class NodeExtractor {
     }
 
     /**
+     * Extracts and converts a relationship value into a {@link RelationVO} object.
+     * This method checks if the provided relationship value is null. If it is null,
+     * an {@link IllegalArgumentException} is thrown.
+     * If the value is a valid relationship, it is converted into a {@link RelationVO} object
+     * by calling the `setRelationVOInfo` method.
+     *
+     * @param relation The relationship value to be extracted.
+     * @return A {@link RelationVO} object representing the extracted relationship.
+     * @throws IllegalArgumentException If the provided relationship value is null.
+     */
+    public RelationVO extractRelationship(final Value relation) {
+        if (relation == null) {
+            final String message = String.format(Message.VALUE_CAN_NOT_BE_NULL, "Relation");
+            LOG.error(message);
+            throw new IllegalArgumentException(message);
+        }
+
+        RelationVO relationVO = null;
+        if (relation instanceof RelationshipValue) {
+            final Relationship relationshipValue = relation.asRelationship();
+            relationVO = setRelationVOInfo(relationshipValue);
+        }
+        return relationVO;
+    }
+
+    /**
      * Extracts relationships from a given relationships value.
      * If the input relationships value is null, an {@link IllegalArgumentException} is thrown with
      * a specific error message.
@@ -94,28 +121,12 @@ public class NodeExtractor {
 
         final List<RelationVO> relations = new ArrayList<>();
 
-        if (relationshipsValue != null) {
-            Optional.ofNullable(relationshipsValue.asList(Value::asRelationship))
-                    .ifPresent(relationships -> {
-                        for (final Relationship relationshipValue : relationships) {
-                            final Map<String, Object> relMap = relationshipValue.asMap();
-                            final Map<String, String> stringRelMap = relMap.entrySet().stream()
-                                    .collect(Collectors.toMap(Map.Entry::getKey,
-                                            entry -> String.valueOf(entry.getValue())));
-
-                            final RelationVO relation = RelationVO.builder()
-                                    .name(stringRelMap.getOrDefault(Constants.NAME, ""))
-                                    .createTime(stringRelMap.getOrDefault(Constants.CREATE_TIME_WITHOUT_HUMP, ""))
-                                    .updateTime(stringRelMap.getOrDefault(Constants.UPDATE_TIME_WITHOUT_HUMP, ""))
-                                    .uuid(stringRelMap.getOrDefault(Constants.UUID, ""))
-                                    .sourceNode(stringRelMap.getOrDefault(Constants.SOURCE_NODE, ""))
-                                    .targetNode(stringRelMap.getOrDefault(Constants.TARGET_NODE, ""))
-                                    .build();
-
-                            relations.add(relation);
-                        }
-                    });
-        }
+        Optional.ofNullable(relationshipsValue.asList(Value::asRelationship))
+                .ifPresent(relationships -> {
+                    for (final Relationship relationshipValue : relationships) {
+                        relations.add(setRelationVOInfo(relationshipValue));
+                    }
+                });
 
         return relations;
     }
@@ -168,24 +179,43 @@ public class NodeExtractor {
 
         final Set<NodeVO> nodes = new HashSet<>();
 
-        if (nodesValue != null) {
-            Optional.ofNullable(nodesValue.asList(Value::asNode))
-                    .ifPresent(nodeList -> {
-                        for (final Node n : nodeList) {
-                            final Map<String, Object> nodeMap = n.asMap();
-                            final Map<String, String> stringNodeMap = nodeMap.entrySet().stream()
-                                    .collect(Collectors.toMap(Map.Entry::getKey,
-                                            entry -> String.valueOf(entry.getValue())));
+        Optional.ofNullable(nodesValue.asList(Value::asNode))
+                .ifPresent(nodeList -> {
+                    for (final Node n : nodeList) {
+                        final Map<String, Object> nodeMap = n.asMap();
+                        final Map<String, String> stringNodeMap = nodeMap.entrySet().stream()
+                                .collect(Collectors.toMap(Map.Entry::getKey,
+                                        entry -> String.valueOf(entry.getValue())));
 
-                            final NodeVO nodeInfo = new NodeVO();
-                            setNodeInfo(stringNodeMap, nodeInfo);
+                        final NodeVO nodeInfo = new NodeVO();
+                        setNodeInfo(stringNodeMap, nodeInfo);
 
-                            nodes.add(nodeInfo);
-                        }
-                    });
-        }
+                        nodes.add(nodeInfo);
+                    }
+                });
 
         return nodes;
+    }
+
+    /**
+     * Sets the node information in a RelationVO object.
+     *
+     * @param relationshipValue the relationship value to extract node information from
+     * @return the RelationVO object
+     */
+    private RelationVO setRelationVOInfo(final Relationship relationshipValue) {
+        final Map<String, Object> relMap = relationshipValue.asMap();
+        final Map<String, String> stringRelMap = relMap.entrySet().stream()
+                .collect(Collectors.toMap(Map.Entry::getKey, entry -> String.valueOf(entry.getValue())));
+
+        return RelationVO.builder()
+                .name(stringRelMap.getOrDefault(Constants.NAME, ""))
+                .createTime(stringRelMap.getOrDefault(Constants.CREATE_TIME_WITHOUT_HUMP, ""))
+                .updateTime(stringRelMap.getOrDefault(Constants.UPDATE_TIME_WITHOUT_HUMP, ""))
+                .uuid(stringRelMap.getOrDefault(Constants.UUID, ""))
+                .sourceNode(stringRelMap.getOrDefault(Constants.SOURCE_NODE, ""))
+                .targetNode(stringRelMap.getOrDefault(Constants.TARGET_NODE, ""))
+                .build();
     }
 
     /**
