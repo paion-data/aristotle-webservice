@@ -18,6 +18,7 @@ package com.paiondata.aristotle.mapper.impl;
 import com.paiondata.aristotle.common.base.Constants;
 import com.paiondata.aristotle.common.base.Message;
 import com.paiondata.aristotle.common.util.NodeExtractor;
+import com.paiondata.aristotle.common.util.RelationShipExtractor;
 import com.paiondata.aristotle.mapper.NodeMapper;
 import com.paiondata.aristotle.model.dto.GetRelationDTO;
 import com.paiondata.aristotle.model.dto.NodeDTO;
@@ -58,8 +59,8 @@ public class NodeMapperImpl implements NodeMapper {
 
     private static final Logger LOG = LoggerFactory.getLogger(NodeMapperImpl.class);
 
-    private static final String CYPER_QUERY = "MATCH (g:Graph { uuid: $graphUuid })-[:RELATION]->" +
-            "(n:GraphNode { uuid: $nodeUuid}) " +
+    private static final String GET_WEAKLY_CONNECTED_NEIGHBORS_CYPHER = "MATCH (g:Graph { uuid: $graphUuid })-" +
+            "[:RELATION]->(n:GraphNode { uuid: $nodeUuid}) " +
             "WITH g, n " +
             "MATCH (n)-[relation:RELATION]-(m:GraphNode) " +
             "RETURN m, relation";
@@ -67,16 +68,20 @@ public class NodeMapperImpl implements NodeMapper {
     private final Driver driver;
 
     private final NodeExtractor nodeExtractor;
+    private final RelationShipExtractor relationShipExtractor;
 
     /**
      * Constructs a new NodeMapperImpl object with the specified Driver and NodeExtractor.
      * @param driver the Driver instance
      * @param nodeExtractor the NodeExtractor instance
+     * @param relationShipExtractor the RelationShipExtractor instance
      */
     @Autowired
-    public NodeMapperImpl(final Driver driver, final NodeExtractor nodeExtractor) {
+    public NodeMapperImpl(final Driver driver,
+                          final NodeExtractor nodeExtractor, final RelationShipExtractor relationShipExtractor) {
         this.driver = driver;
         this.nodeExtractor = nodeExtractor;
+        this.relationShipExtractor = relationShipExtractor;
     }
 
     /**
@@ -200,7 +205,7 @@ public class NodeMapperImpl implements NodeMapper {
                     nodes.add(n);
                     totalCount++;
 
-                    relations.addAll(nodeExtractor.extractRelationships(record.get(Constants.RELATIONS)));
+                    relations.addAll(relationShipExtractor.extractRelationships(record.get(Constants.RELATIONS)));
                 }
 
                 return new GetRelationDTO(relations, new ArrayList<>(nodes), totalCount);
@@ -266,7 +271,7 @@ public class NodeMapperImpl implements NodeMapper {
                 for (int i = 0; i < layerSize; i++) {
                     final String currentNodeId = queue.poll();
 
-                    final var queryResult = session.run(CYPER_QUERY, Values.parameters(
+                    final var queryResult = session.run(GET_WEAKLY_CONNECTED_NEIGHBORS_CYPHER, Values.parameters(
                             Constants.GRAPH_UUID, graphUuid,
                             Constants.NODE_UUID, currentNodeId));
 
@@ -278,7 +283,7 @@ public class NodeMapperImpl implements NodeMapper {
                         if (!visited.contains(neighborId)) {
                             visited.add(neighborId);
                             queue.add(neighborId);
-                            relations.add(nodeExtractor.extractRelationship(record.get(Constants.RELATION)));
+                            relations.add(relationShipExtractor.extractRelationship(record.get(Constants.RELATION)));
                             nodes.add(nodeVO);
                         }
                     }
@@ -312,7 +317,7 @@ public class NodeMapperImpl implements NodeMapper {
                 for (int i = 0; i < layerSize; i++) {
                     final String currentNodeId = queue.poll();
 
-                    final var queryResult = session.run(CYPER_QUERY, Values.parameters(
+                    final var queryResult = session.run(GET_WEAKLY_CONNECTED_NEIGHBORS_CYPHER, Values.parameters(
                             Constants.GRAPH_UUID, graphUuid,
                             Constants.NODE_UUID, currentNodeId));
 

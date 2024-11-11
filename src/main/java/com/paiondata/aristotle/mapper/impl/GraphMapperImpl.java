@@ -93,7 +93,7 @@ public class GraphMapperImpl implements GraphMapper {
         );
 
         final Record record = result.next();
-        final Map<String, Object> objectMap = nodeExtractor.extractGraph(record.get(Constants.GRAPH_IN_CYPHER));
+        final Map<String, Object> objectMap = nodeExtractor.extractGraph(record.get(Constants.GRAPH_ALISA_G));
 
         return Graph.builder()
                 .id((Long) objectMap.get(Constants.ID))
@@ -125,7 +125,7 @@ public class GraphMapperImpl implements GraphMapper {
                 final List<Map<String, Object>> resultList = new ArrayList<>();
                 while (result.hasNext()) {
                     final Record record = result.next();
-                    final Map<String, Object> graph = nodeExtractor.extractGraph(record.get(Constants.GRAPH_IN_CYPHER));
+                    final Map<String, Object> graph = nodeExtractor.extractGraph(record.get(Constants.GRAPH_ALISA_G));
 
                     resultList.add(graph);
                 }
