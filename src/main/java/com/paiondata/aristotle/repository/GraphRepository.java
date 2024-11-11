@@ -36,6 +36,7 @@ public interface GraphRepository extends Neo4jRepository<Graph, Long> {
      * Retrieves a graph by its UUID.
      *
      * @param uuid the UUID of the graph
+     *
      * @return the graph
      */
     @Query("MATCH (g:Graph) WHERE g.uuid = $uuid RETURN g")
@@ -53,6 +54,7 @@ public interface GraphRepository extends Neo4jRepository<Graph, Long> {
      * Retrieves the UUIDs of graph nodes associated with the given graphs.
      *
      * @param uuids the list of UUIDs of the graphs
+     *
      * @return the list of UUIDs of the graph nodes
      */
     @Query("MATCH (g:Graph) WHERE g.uuid IN $uuids "
@@ -65,6 +67,7 @@ public interface GraphRepository extends Neo4jRepository<Graph, Long> {
      * Retrieves the UUID of a graph associated with a specific user.
      * @param graphUuid the UUID of the graph
      * @param oidcid the OIDC ID of the user
+     *
      * @return the UUID of the graph
      */
     @Query("MATCH (u:User{oidcid: $oidcid})-[:RELATION]->(g:Graph{uuid: $graphUuid}) " +

@@ -29,6 +29,7 @@ public class Neo4jConfig {
     /**
      * Creates a new session for Neo4j.
      * @param driver the driver instance
+     *
      * @return the session instance
      */
     @Bean

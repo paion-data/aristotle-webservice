@@ -36,6 +36,7 @@ public interface UserRepository extends Neo4jRepository<User, Long> {
      * Retrieves a user by their unique identifier (OIDC ID).
      *
      * @param oidcid the unique identifier of the user
+     *
      * @return the user
      */
     @Query("MATCH (u:User { oidcid: $oidcid }) RETURN u")
@@ -53,6 +54,7 @@ public interface UserRepository extends Neo4jRepository<User, Long> {
      * Checks if a user with the given OIDC ID exists.
      *
      * @param oidcid the unique identifier of the user
+     *
      * @return the count of users with the given OIDC ID
      */
     @Query("MATCH (u:User { oidcid: $oidcid }) RETURN count(u)")
@@ -63,6 +65,7 @@ public interface UserRepository extends Neo4jRepository<User, Long> {
      *
      * @param oidcid the unique identifier of the user
      * @param nickName the nickname of the user
+     *
      * @return the created user
      */
     @Query("CREATE (u:User { oidcid: $oidcid, nick_name: $nickName }) RETURN u")
@@ -74,6 +77,7 @@ public interface UserRepository extends Neo4jRepository<User, Long> {
      *
      * @param oidcid   the unique identifier of the user
      * @param nickName the new nickname of the user
+     *
      * @return the updated user
      */
     @Query("MATCH (u:User { oidcid: $oidcid }) SET u.nick_name = $nickName RETURN u")
@@ -92,6 +96,7 @@ public interface UserRepository extends Neo4jRepository<User, Long> {
      * Retrieves the UUIDs of graphs associated with the given users.
      *
      * @param oidcids the list of OIDC IDs of the users
+     *
      * @return the list of UUIDs of the graphs
      */
     @Query("MATCH (u:User) WHERE u.oidcid IN $oidcids "

@@ -47,7 +47,9 @@ public class RelationShipExtractor {
      * by calling the `setRelationVOInfo` method.
      *
      * @param relation The relationship value to be extracted.
+     *
      * @return A {@link RelationVO} object representing the extracted relationship.
+     *
      * @throws IllegalArgumentException If the provided relationship value is null.
      */
     public RelationVO extractRelationship(final Value relation) {
@@ -72,7 +74,9 @@ public class RelationShipExtractor {
      * If the input relationships value is valid, it extracts and returns a list of {@link RelationVO} objects.
      *
      * @param relationshipsValue the relationships value to extract relationships from
+     *
      * @return a list of {@link RelationVO} objects representing the relationships
+     *
      * @throws IllegalArgumentException if the input relationships value is null
      */
     public List<RelationVO> extractRelationships(final Value relationshipsValue) {
@@ -98,6 +102,7 @@ public class RelationShipExtractor {
      * Sets the node information in a RelationVO object.
      *
      * @param relationshipValue the relationship value to extract node information from
+     *
      * @return the RelationVO object
      */
     private RelationVO setRelationVOInfo(final Relationship relationshipValue) {

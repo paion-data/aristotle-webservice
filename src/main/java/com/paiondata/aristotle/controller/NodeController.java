@@ -78,6 +78,7 @@ public class NodeController {
      * If the node is not found, a failure result with an appropriate message is returned.
      *
      * @param uuid the UUID of the node to retrieve
+     *
      * @return a {@link Result} object containing the node data as a {@link NodeVO},
      * or a failure message if the node is not found
      */
@@ -105,6 +106,7 @@ public class NodeController {
      * @param graphUuid The UUID of the graph.
      * @param nodeUuid The UUID of the node.
      * @param degree The degree that needs to be expanded.
+     *
      * @return A {@link Result} object containing the expanded graph represented as a {@link GraphVO}.
      */
     @ApiOperation(value = "Retrieves a k-degree expansion of a node",
@@ -131,7 +133,9 @@ public class NodeController {
      * The result is wrapped in a {@link Result} object with a success message and the list of created nodes.
      *
      * @param graphNodeCreateDTO the {@link NodeCreateDTO} containing the node creation and binding information
+     *
      * @return a {@link Result} object containing a success message and a list of created nodes as {@link NodeVO}
+     *
      * @notes The nodes could be created without binding any relations
      */
     @ApiOperation(value = "Creates and binds nodes",
@@ -150,7 +154,9 @@ public class NodeController {
      * The result is wrapped in a {@link Result} object with a success message and the created graph data.
      *
      * @param graphNodeCreateDTO the {@link GraphAndNodeCreateDTO} containing the graph and node creation information
+     *
      * @return a {@link Result} object containing a success message and the created graph data as {@link GraphVO}
+     *
      * @notes You can create just graphs, or just graphs and nodes without binding any relations between nodes
      */
     @ApiOperation(value = "Creates a graph and binds it with nodes",
@@ -170,6 +176,7 @@ public class NodeController {
      * The result is wrapped in a {@link Result} object with a success message.
      *
      * @param dtos a list of {@link NodeRelationDTO} objects containing the binding information for the nodes
+     *
      * @return a {@link Result} object containing a success message
      */
     @ApiOperation(value = "Binds multiple nodes")
@@ -189,6 +196,7 @@ public class NodeController {
      * The result is wrapped in a {@link Result} object with a success message.
      *
      * @param nodeUpdateDTO the {@link NodeUpdateDTO} containing the updated node information
+     *
      * @return a {@link Result} object containing a success message
      */
     @ApiOperation(value = "Updates a node")
@@ -207,6 +215,7 @@ public class NodeController {
      * The result is wrapped in a {@link Result} object with a success message.
      *
      * @param relationUpdateDTO the {@link RelationUpdateDTO} containing the updated relation information
+     *
      * @return a {@link Result} object containing a success message
      */
     @ApiOperation(value = "Updates a relation between nodes")
@@ -225,6 +234,7 @@ public class NodeController {
      * The result is wrapped in a {@link Result} object with a success message.
      *
      * @param nodeDeleteDTO the {@link NodeDeleteDTO} containing the UUIDs of the nodes to delete
+     *
      * @return a {@link Result} object containing a success message
      */
     @ApiOperation(value = "Deletes nodes by their UUIDs")

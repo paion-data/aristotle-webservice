@@ -70,6 +70,7 @@ public class GraphMapperImpl implements GraphMapper {
      * @param relationUuid the UUID of the relationship between the user and the graph
      * @param currentTime the current timestamp for creation and update times
      * @param tx the Neo4j transaction to execute the Cypher query
+     *
      * @return a {@link Graph} object representing the newly created graph
      */
     public Graph createGraph(final String title, final String description, final String oidcid,
@@ -113,6 +114,7 @@ public class GraphMapperImpl implements GraphMapper {
      * Extracts the graph details from the query results and returns a list of maps, where each map represents a graph.
      *
      * @param oidcid the unique identifier of the user
+     *
      * @return a list of maps, where each map contains the details of a graph associated with the user
      */
     @Override

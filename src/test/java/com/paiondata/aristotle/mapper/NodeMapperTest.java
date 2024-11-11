@@ -40,6 +40,7 @@ public class NodeMapperTest {
      * @param node              the node label
      * @param entriesString     the filter entries
      * @param expected          the expected result
+     *
      * @throws InvocationTargetException the invocation target exception
      * @throws IllegalAccessException   the illegal access exception
      * @throws NoSuchMethodException the no such method exception

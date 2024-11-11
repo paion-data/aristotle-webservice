@@ -40,6 +40,7 @@ public interface NodeService {
      * Retrieves a graph node by its UUID.
      *
      * @param uuid the UUID of the graph node
+     *
      * @return an {@code Optional} containing the graph node if found
      */
     Optional<NodeVO> getNodeByUuid(String uuid);
@@ -49,6 +50,7 @@ public interface NodeService {
      *
      * @param nodeCreateDTO the DTO containing information for creating the graph and node
      * @param tx the Neo4j transaction
+     *
      * @return the list of created nodes
      */
     List<NodeVO> createAndBindGraphAndNode(NodeCreateDTO nodeCreateDTO, Transaction tx);
@@ -57,6 +59,7 @@ public interface NodeService {
      * Creates a graph and binds it with a node based on the provided DTO.
      * @param graphNodeCreateDTO the DTO containing information for creating the graph and node
      * @param tx the Neo4j transaction
+     *
      * @return the created graph node
      */
     GraphVO createGraphAndBindGraphAndNode(GraphAndNodeCreateDTO graphNodeCreateDTO, Transaction tx);
@@ -96,6 +99,7 @@ public interface NodeService {
      * @param graphUuid the UUID of the graph
      * @param nodeUuid the UUID of the node
      * @param k the degree of expansion
+     *
      * @return a GraphVO object containing the expanded nodes and their relationships.
      */
     GraphVO getkDegreeExpansion(String graphUuid, String nodeUuid, Integer k);

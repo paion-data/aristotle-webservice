@@ -93,6 +93,7 @@ public class NodeMapperImpl implements NodeMapper {
      * If no node is found, returns {@code null}.
      *
      * @param uuid the UUID of the node to retrieve
+     *
      * @return a {@link NodeVO} object representing the node, or {@code null} if no node is found
      */
     @Override
@@ -129,6 +130,7 @@ public class NodeMapperImpl implements NodeMapper {
      * @param currentTime the current timestamp for creation and update times
      * @param nodeDTO the DTO containing the properties of the new node
      * @param tx the Neo4j transaction to execute the Cypher query
+     *
      * @return a {@link NodeVO} object representing the newly created node
      */
     @Override
@@ -169,6 +171,7 @@ public class NodeMapperImpl implements NodeMapper {
      *
      * @param uuid the UUID of the graph
      * @param properties a map of properties to filter the nodes (optional)
+     *
      * @return a {@link GetRelationDTO} object containing the list of relationships and nodes
      */
     @Override
@@ -224,7 +227,9 @@ public class NodeMapperImpl implements NodeMapper {
      * @param graphUuid The UUID of the graph.
      * @param nodeUuid The UUID of the starting node.
      * @param k The desired depth of expansion.
+     *
      * @return A {@link GraphVO} object containing the expanded nodes and relationships.
+     *
      * @throws NoSuchElementException If the starting node with the given UUID does not exist in the graph.
      */
     @Override
@@ -301,6 +306,7 @@ public class NodeMapperImpl implements NodeMapper {
      * Calculates the maximum depth of the expansion for a given start node in a graph.
      * @param graphUuid the UUID of the graph.
      * @param startNodeUuid the UUID of the start node.
+     *
      * @return the maximum depth
      */
     private int calculateMaxDepth(final String graphUuid, final String startNodeUuid) {
@@ -407,6 +413,7 @@ public class NodeMapperImpl implements NodeMapper {
      * The resulting string builder can be used to dynamically construct the SET part of a Cypher query.
      *
      * @param entries the set of map entries containing the properties to set
+     *
      * @return a {@link StringBuilder} object containing the SET properties clause
      */
     private StringBuilder getSetProperties(final Set<Map.Entry<String, String>> entries) {
@@ -428,6 +435,7 @@ public class NodeMapperImpl implements NodeMapper {
      *
      * @param node the alias of the node to apply the filters to
      * @param entries the map containing the properties to filter
+     *
      * @return a {@link StringBuilder} object containing the filter properties clause
      */
     private static StringBuilder getFilterProperties(final String node, final Map<String, String> entries) {
@@ -444,6 +452,7 @@ public class NodeMapperImpl implements NodeMapper {
     /**
      * Escapes single quotes in a string by replacing them with two single quotes.
      * @param value the string to escape
+     *
      * @return the escaped string
      */
     private static String escapeSingleQuotes(final String value) {

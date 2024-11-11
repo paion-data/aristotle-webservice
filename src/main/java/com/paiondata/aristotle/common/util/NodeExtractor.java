@@ -47,7 +47,9 @@ public class NodeExtractor {
      * If the input node is a valid {@link NodeValue}, it extracts and returns a map containing the graph information.
      *
      * @param node the node value to extract graph information from
+     *
      * @return a map containing the graph information
+     *
      * @throws IllegalArgumentException if the input node is null
      */
     public Map<String, Object> extractGraph(final Value node) {
@@ -78,7 +80,9 @@ public class NodeExtractor {
      * containing the node information.
      *
      * @param node the node value to extract node information from
+     *
      * @return a {@link NodeVO} object containing the node information
+     *
      * @throws IllegalArgumentException if the input node is null
      */
     public NodeVO extractNode(final Value node) {
@@ -107,7 +111,9 @@ public class NodeExtractor {
      * If the input nodes value is valid, it extracts and returns a set of {@link NodeVO} objects representing the node.
      *
      * @param nodesValue the nodes value to extract nodes from
+     *
      * @return a set of {@link NodeVO} objects representing the nodes
+     *
      * @throws IllegalArgumentException if the input nodes value is null
      */
     public Set<NodeVO> extractNodes(final Value nodesValue) {
