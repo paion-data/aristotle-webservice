@@ -15,7 +15,6 @@ services:
     image: neo4j:5.23
     environment:
       NEO4J_AUTH: neo4j/12345678
-      NEO4JLABS_PLUGINS: "[\"apoc\"]"
     volumes:
       - neo4j-data:/data
     ports:
