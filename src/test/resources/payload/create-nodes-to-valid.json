@@ -1,6 +1,6 @@
 {
   "graphUuid": "%s",
-  "graphNodeDTO": [
+  "nodeDTO": [
     {
       "temporaryId": "%s"
     },
@@ -8,7 +8,7 @@
       "temporaryId": "%s"
     }
   ],
-  "graphNodeRelationDTO": [
+  "nodeRelationDTO": [
     {
       "fromId": "%s",
       "relationName": "%s",

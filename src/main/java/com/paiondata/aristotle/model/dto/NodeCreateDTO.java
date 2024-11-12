@@ -27,7 +27,6 @@ import lombok.NoArgsConstructor;
 
 import javax.validation.Valid;
 import javax.validation.constraints.NotBlank;
-import javax.validation.constraints.NotNull;
 import java.util.List;
 
 /**
@@ -66,10 +65,9 @@ public class NodeCreateDTO extends BaseEntity {
      * @see NodeDTO
      */
     @ApiModelProperty(value = "The list of nodes to be created within the graph. "
-            + "This field is required and must not be null.", required = true)
-    @NotNull
+            + "One can create relationships without passing this field.")
     @Valid
-    private List<NodeDTO> graphNodeDTO;
+    private List<NodeDTO> nodeDTO;
 
     /**
      * The list of relations between nodes within the graph.
@@ -86,5 +84,5 @@ public class NodeCreateDTO extends BaseEntity {
     @ApiModelProperty(value = "The list of relations between nodes within the graph. "
             + "One can create nodes without passing this field if no relationships are needed.")
     @Valid
-    private List<NodeRelationDTO> graphNodeRelationDTO;
+    private List<NodeRelationDTO> nodeRelationDTO;
 }

@@ -17,7 +17,6 @@ package com.paiondata.aristotle.controller;
 
 import com.paiondata.aristotle.common.base.Message;
 import com.paiondata.aristotle.common.base.Result;
-import com.paiondata.aristotle.model.dto.NodeRelationDTO;
 import com.paiondata.aristotle.model.vo.GraphVO;
 import com.paiondata.aristotle.model.vo.NodeVO;
 import com.paiondata.aristotle.model.dto.NodeCreateDTO;
@@ -47,7 +46,6 @@ import org.springframework.web.bind.annotation.RequestBody;
 
 import javax.validation.Valid;
 import javax.validation.constraints.NotBlank;
-import javax.validation.constraints.NotEmpty;
 import javax.validation.constraints.NotNull;
 
 import java.util.List;
@@ -136,10 +134,12 @@ public class NodeController {
      *
      * @return a {@link Result} object containing a success message and a list of created nodes as {@link NodeVO}
      *
-     * @notes The nodes could be created without binding any relations
+     * @notes The nodes could be created without binding any relations,
+     * or create relationships only on existing nodes without creating new nodes
      */
     @ApiOperation(value = "Creates and binds nodes",
-            notes = "The nodes could be created without binding any relations")
+            notes = "The nodes could be created without binding any relations, "
+                    + "or create relationships only on existing nodes without creating new nodes")
     @PostMapping
     public Result<List<NodeVO>> createAndBindNode(@RequestBody @Valid final NodeCreateDTO graphNodeCreateDTO) {
         return Result.ok(Message.CREATE_SUCCESS, nodeService.createAndBindGraphAndNode(graphNodeCreateDTO, null));
@@ -165,26 +165,6 @@ public class NodeController {
     public Result<GraphVO> createGraphAndBindGraphAndNode(
             @RequestBody @Valid final GraphAndNodeCreateDTO graphNodeCreateDTO) {
         return Result.ok(nodeService.createGraphAndBindGraphAndNode(graphNodeCreateDTO, null));
-    }
-
-    /**
-     * Binds multiple nodes.
-     *
-     * <p>
-     * This method handles a POST request to bind multiple nodes.
-     * It validates the input DTOs and calls the node service to perform the binding.
-     * The result is wrapped in a {@link Result} object with a success message.
-     *
-     * @param dtos a list of {@link NodeRelationDTO} objects containing the binding information for the nodes
-     *
-     * @return a {@link Result} object containing a success message
-     */
-    @ApiOperation(value = "Binds multiple nodes")
-    @PostMapping("/bind")
-    public Result<String> bindNodes(@RequestBody @NotEmpty(message = Message.BIND_DTOS_MUST_NOT_EMPTY)
-                                        @Valid final List<NodeRelationDTO> dtos) {
-        nodeService.bindNodes(dtos, null);
-        return Result.ok(Message.BOUND_SUCCESS);
     }
 
     /**

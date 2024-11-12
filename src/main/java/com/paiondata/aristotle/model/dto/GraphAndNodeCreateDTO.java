@@ -66,7 +66,7 @@ public class GraphAndNodeCreateDTO extends BaseEntity {
      */
     @ApiModelProperty(value = "The list of nodes to be created within the graph. This field is optional.")
     @Valid
-    private List<NodeDTO> graphNodeDTO;
+    private List<NodeDTO> nodeDTO;
 
     /**
      * The list of relations between nodes within the graph.
@@ -79,5 +79,5 @@ public class GraphAndNodeCreateDTO extends BaseEntity {
      */
     @ApiModelProperty(value = "The list of relations between nodes within the graph. This field is optional.")
     @Valid
-    private List<NodeRelationDTO> graphNodeRelationDTO;
+    private List<NodeRelationDTO> nodeRelationDTO;
 }

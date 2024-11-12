@@ -168,12 +168,12 @@ public class NodeServiceTest {
         final Transaction tx = mock(Transaction.class);
         final NodeCreateDTO nodeCreateDTO = new NodeCreateDTO();
         nodeCreateDTO.setGraphUuid(TestConstants.TEST_ID1);
-        nodeCreateDTO.setGraphNodeDTO(List.of(
+        nodeCreateDTO.setNodeDTO(List.of(
                 new NodeDTO(TestConstants.TEST_ID1, Map.of(Constants.TITLE, TestConstants.TEST_TITLE1,
                         Constants.DESCRIPTION, TestConstants.TEST_DESCRIPTION1)),
                 new NodeDTO(TestConstants.TEST_ID2, Map.of(Constants.TITLE, TestConstants.TEST_TITLE2,
                         Constants.DESCRIPTION, TestConstants.TEST_DESCRIPTION2))));
-        nodeCreateDTO.setGraphNodeRelationDTO(List.of(
+        nodeCreateDTO.setNodeRelationDTO(List.of(
                 new NodeRelationDTO(TestConstants.TEST_ID1, TestConstants.TEST_ID2, TestConstants.TEST_RELATION1),
                 new NodeRelationDTO(TestConstants.TEST_ID2, TestConstants.TEST_ID1, TestConstants.TEST_RELATION2)
         ));
@@ -203,23 +203,33 @@ public class NodeServiceTest {
     }
 
     /**
-     * Tests that creating and binding a graph and its nodes throws a NoSuchElementException
-     * when the graph does not exist.
+     * Tests that binding existing nodes succeeds when the graph exists and the input nodes are null.
      */
     @Test
-    void createAndBindGraphAndNodeGraphDoesNotExistShouldThrowException() {
+    void createAndBindGraphAndNodeNodesNullShouldOnlyBindRelations() {
         // Given
         final Transaction tx = mock(Transaction.class);
-        final NodeCreateDTO graphNodeCreateDTO = new NodeCreateDTO();
-        graphNodeCreateDTO.setGraphUuid(TestConstants.TEST_ID1);
+        final NodeCreateDTO nodeCreateDTO = new NodeCreateDTO();
+        nodeCreateDTO.setGraphUuid(TestConstants.TEST_ID1);
+        nodeCreateDTO.setNodeRelationDTO(List.of(
+                new NodeRelationDTO(TestConstants.TEST_ID1, TestConstants.TEST_ID2, TestConstants.TEST_RELATION1),
+                new NodeRelationDTO(TestConstants.TEST_ID2, TestConstants.TEST_ID1, TestConstants.TEST_RELATION2)
+        ));
 
-        when(commonService.getGraphByUuid(TestConstants.TEST_ID1)).thenReturn(Optional.empty());
+        when(commonService.getGraphByUuid(TestConstants.TEST_ID1)).thenReturn(Optional.of(new Graph()));
 
-        // When & Then
-        assertThrows(NoSuchElementException.class, () -> nodeService.createAndBindGraphAndNode(graphNodeCreateDTO, tx));
+        // Mock createGraphAndBindGraphAndNode to return a non-null GraphNode
+        doNothing().when(nodeMapper).bindGraphNodeToGraphNode(anyString(), anyString(), anyString(), anyString(),
+                anyString(), any(Transaction.class));
+
+        // When
+        final List<NodeVO> dtos = nodeService.createAndBindGraphAndNode(nodeCreateDTO, tx);
 
         // Then
         verify(commonService, times(1)).getGraphByUuid(TestConstants.TEST_ID1);
+        verify(nodeRepository, times(1)).getGraphUuidByGraphNodeUuid(Set.of(TestConstants.TEST_ID1,
+                TestConstants.TEST_ID2));
+        Assertions.assertTrue(dtos.isEmpty());
     }
 
     /**
@@ -232,12 +242,12 @@ public class NodeServiceTest {
         final GraphAndNodeCreateDTO graphNodeCreateDTO = new GraphAndNodeCreateDTO();
         graphNodeCreateDTO.setGraphCreateDTO(new GraphCreateDTO(TestConstants.TEST_TITLE1,
                 TestConstants.TEST_DESCRIPTION1, TestConstants.TEST_ID1));
-        graphNodeCreateDTO.setGraphNodeDTO(List.of(
+        graphNodeCreateDTO.setNodeDTO(List.of(
                 new NodeDTO(TestConstants.TEST_ID1, Map.of(Constants.TITLE, TestConstants.TEST_TITLE1,
                         Constants.DESCRIPTION, TestConstants.TEST_DESCRIPTION1)),
                 new NodeDTO(TestConstants.TEST_ID2, Map.of(Constants.TITLE, TestConstants.TEST_TITLE2,
                         Constants.DESCRIPTION, TestConstants.TEST_DESCRIPTION2))));
-        graphNodeCreateDTO.setGraphNodeRelationDTO(List.of(
+        graphNodeCreateDTO.setNodeRelationDTO(List.of(
                 new NodeRelationDTO(TestConstants.TEST_ID1, TestConstants.TEST_ID2, TestConstants.TEST_RELATION1),
                 new NodeRelationDTO(TestConstants.TEST_ID2, TestConstants.TEST_ID1, TestConstants.TEST_RELATION2)
         ));
@@ -272,48 +282,6 @@ public class NodeServiceTest {
         Assertions.assertEquals(dto.getTitle(), TestConstants.TEST_TITLE1);
         Assertions.assertEquals(dto.getDescription(), TestConstants.TEST_DESCRIPTION1);
         Assertions.assertNotNull(dto.getNodes());
-    }
-
-    /**
-     * Tests that binding nodes succeeds when both nodes exist.
-     */
-    @Test
-    void bindNodesNodesExistShouldBindNodes() {
-        // Given
-        final Transaction tx = mock(Transaction.class);
-        final List<NodeRelationDTO> dtos = Collections.singletonList(new NodeRelationDTO(TestConstants.TEST_ID1,
-                TestConstants.TEST_ID2, TestConstants.TEST_RELATION1));
-
-        when(nodeMapper.getNodeByUuid(TestConstants.TEST_ID1)).thenReturn(new NodeVO());
-        when(nodeMapper.getNodeByUuid(TestConstants.TEST_ID2)).thenReturn(new NodeVO());
-
-        // When & Then
-        assertDoesNotThrow(() -> nodeService.bindNodes(dtos, tx));
-
-        // Then
-        verify(nodeMapper, times(1)).getNodeByUuid(TestConstants.TEST_ID1);
-        verify(nodeMapper, times(1)).getNodeByUuid(TestConstants.TEST_ID2);
-        verify(nodeMapper, times(1))
-                .bindGraphNodeToGraphNode(anyString(), anyString(), anyString(), anyString(), anyString(), eq(tx));
-    }
-
-    /**
-     * Tests that binding nodes throws a NoSuchElementException when one of the nodes does not exist.
-     */
-    @Test
-    void bindNodesNodesDoesNotExistShouldThrowException() {
-        // Given
-        final Transaction tx = mock(Transaction.class);
-        final List<NodeRelationDTO> dtos = Collections.singletonList(new NodeRelationDTO(TestConstants.TEST_ID1,
-                TestConstants.TEST_ID2, TestConstants.TEST_RELATION1));
-
-        when(nodeMapper.getNodeByUuid(TestConstants.TEST_ID1)).thenReturn(null);
-
-        // When & Then
-        assertThrows(NoSuchElementException.class, () -> nodeService.bindNodes(dtos, tx));
-
-        // Then
-        verify(nodeMapper, times(2)).getNodeByUuid(anyString());
     }
 
     /**

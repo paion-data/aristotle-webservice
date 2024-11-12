@@ -171,45 +171,11 @@ public class NodeControllerIT extends AbstractIT {
     }
 
     /**
-     * Parameterized test to verify if the JSON API correctly handles invalid node updating requests by returning a
-     * 400 Bad Request status code and appropriate error messages.
-     *
-     * @param fromId The from ID to be used in the request body.
-     * @param relationName The relation name to be used in the request body.
-     * @param toId The to ID to be used in the request body.
-     * @param expectedMsg The expected error message.
-     */
-    @ParameterizedTest
-    @CsvSource({
-            "'', relation, id2, bindNodes.dtos[0].fromId: fromId must not be blank!",
-            "id1, '', id2, bindNodes.dtos[0].relationName: relation must not be blank!",
-            "id1, relation, '', bindNodes.dtos[0].toId: toId must not be blank!"})
-    @Order(3)
-    void jsonApiHandlesInvalidNodeUpdatingRequests(final String fromId, final String relationName, final String toId,
-                                                   final String expectedMsg) {
-        final Response response = RestAssured
-                .given()
-                .contentType(ContentType.JSON)
-                .accept(ContentType.JSON)
-                .body(String.format(payload("relate-node-to-valid.json"), fromId, relationName, toId))
-                .when()
-                .post(NODE_ENDPOINT + "/bind")
-                .then()
-                .extract()
-                .response();
-
-        response.then()
-                .statusCode(HttpStatus.BAD_REQUEST.value());
-
-        assertEquals(expectedMsg, response.jsonPath().get(TestConstants.MSG));
-    }
-
-    /**
      * Tests if the JSON API correctly handles invalid node updating requests by returning a 400 Bad Request status code
      * and appropriate error messages.
      */
     @Test
-    @Order(4)
+    @Order(3)
     void jsonApiHandlesInvalidNodeUpdatingRequests() {
         final Response response = RestAssured
                 .given()
@@ -234,7 +200,7 @@ public class NodeControllerIT extends AbstractIT {
      * response data is empty.
      */
     @Test
-    @Order(5)
+    @Order(4)
     void databaseIsEmpty() {
         final Response response = RestAssured
                 .given()
@@ -252,7 +218,7 @@ public class NodeControllerIT extends AbstractIT {
      * verifying the response.
      */
     @Test
-    @Order(6)
+    @Order(5)
     void anUserEntityIsPostedViaJsonApi() {
         final Response response = RestAssured
                 .given()
@@ -277,7 +243,7 @@ public class NodeControllerIT extends AbstractIT {
      * node/graph endpoint and verifying the response.
      */
     @Test
-    @Order(7)
+    @Order(6)
     void anGraphEntityIsPostedViaJsonApiWithoutAnyNode() {
         final Response response = RestAssured
                 .given()
@@ -304,7 +270,7 @@ public class NodeControllerIT extends AbstractIT {
      * verifying the response.
      */
     @Test
-    @Order(8)
+    @Order(7)
     void nodeEntityIsPostedViaJsonApi() {
         final Response response = RestAssured
                 .given()
@@ -335,7 +301,7 @@ public class NodeControllerIT extends AbstractIT {
      * and verifying the response.
      */
     @Test
-    @Order(9)
+    @Order(8)
     void weCanGetThatNodeEntityNext() {
         final Response response = RestAssured
                 .given()
@@ -364,7 +330,7 @@ public class NodeControllerIT extends AbstractIT {
      * and verifying the response.
      */
     @Test
-    @Order(10)
+    @Order(9)
     void weCanUpdateThatNodeEntity() {
         RestAssured
                 .given()
@@ -382,7 +348,7 @@ public class NodeControllerIT extends AbstractIT {
      * and verifying the response.
      */
     @Test
-    @Order(11)
+    @Order(10)
     void weCanGetThatNodeEntityWithUpdatedAttribute() {
         final Response response = RestAssured
                 .given()
@@ -403,16 +369,16 @@ public class NodeControllerIT extends AbstractIT {
      * Tests if nodes can be related by making a POST request to the node/bind endpoint and verifying the response.
      */
     @Test
-    @Order(12)
+    @Order(11)
     void theNodesAreRelated() {
         RestAssured
                 .given()
                 .contentType(ContentType.JSON)
                 .accept(ContentType.JSON)
-                .body(String.format(payload("relate-node.json"), nodeUuid1, nodeUuid2, nodeUuid1,
+                .body(String.format(payload("relate-node.json"), graphUuid1, nodeUuid1, nodeUuid2, nodeUuid1,
                         nodeUuid3, nodeUuid2, nodeUuid3))
                 .when()
-                .post("/node/bind")
+                .post(NODE_ENDPOINT)
                 .then()
                 .extract()
                 .response();
@@ -423,7 +389,7 @@ public class NodeControllerIT extends AbstractIT {
      * graph endpoint and verifying the response.
      */
     @Test
-    @Order(13)
+    @Order(12)
     void weCanGetTheRelationOfNodesViaGraphUuid() {
         final Response response = RestAssured
                 .given()
@@ -443,7 +409,7 @@ public class NodeControllerIT extends AbstractIT {
      * Tests if a graph can be created and nodes can be bound to it and the relationships can be expanded.
      */
     @Test
-    @Order(14)
+    @Order(13)
     public void weCanCreateGraphAndNodesAndBindRelationshipsToExpand() {
         final Response response = RestAssured
                 .given()
@@ -473,7 +439,7 @@ public class NodeControllerIT extends AbstractIT {
      */
     @ParameterizedTest
     @CsvSource({"1, 4", "2, 9", "3, 11", "4, 14", "5, 15", "6, 16", "7, 16", "0, 1", "-1, 16", "1000, 16"})
-    @Order(15)
+    @Order(14)
     public void weCanGetThatExpandNodesNextByGraphUuidAndNodesName(final String degree, final String count) {
         final Response response = RestAssured
                 .given()
@@ -497,7 +463,7 @@ public class NodeControllerIT extends AbstractIT {
      * Tests if a node entity can be deleted by making a DELETE request to the node endpoint and verifying the response.
      */
     @Test
-    @Order(16)
+    @Order(15)
     void weCanDeleteThatNodeEntity() {
         final Response response = RestAssured
                 .given()
@@ -515,7 +481,7 @@ public class NodeControllerIT extends AbstractIT {
      * and verifying the response.
      */
     @Test
-    @Order(17)
+    @Order(16)
     void thatNodeEntityIsNotFoundInDatabaseAnymore() {
         final Response response = RestAssured
                 .given()
