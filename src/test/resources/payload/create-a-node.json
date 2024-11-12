@@ -1,6 +1,6 @@
 {
   "graphUuid": "%s",
-  "graphNodeDTO": [
+  "nodeDTO": [
     {
       "temporaryId": "1",
       "properties": {

@@ -4,7 +4,7 @@
     "title": "%s",
     "description": "-"
   },
-  "graphNodeDTO": [
+  "nodeDTO": [
     {
       "temporaryId": "1",
       "properties": {
@@ -48,7 +48,7 @@
       }
     }
   ],
-  "graphNodeRelationDTO": [
+  "nodeRelationDTO": [
     {
       "fromId": "1",
       "relationName": "-",

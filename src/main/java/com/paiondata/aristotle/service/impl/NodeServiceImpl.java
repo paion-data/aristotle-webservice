@@ -47,6 +47,7 @@ import java.text.SimpleDateFormat;
 import java.time.LocalDateTime;
 import java.time.ZoneId;
 import java.util.ArrayList;
+import java.util.Collections;
 import java.util.Date;
 import java.util.HashMap;
 import java.util.HashSet;
@@ -111,7 +112,6 @@ public class NodeServiceImpl implements NodeService {
     @Neo4jTransactional
     @Override
     public List<NodeVO> createAndBindGraphAndNode(final NodeCreateDTO nodeCreateDTO, final Transaction tx) {
-
         if (tx == null) {
             final String message = Message.TRANSACTION_NULL;
             LOG.error(message);
@@ -127,8 +127,8 @@ public class NodeServiceImpl implements NodeService {
             throw new NoSuchElementException(message);
         }
 
-        return checkInputRelationsAndBindGraphAndNode(nodeCreateDTO.getGraphNodeDTO(),
-                nodeCreateDTO.getGraphNodeRelationDTO(), graphUuid, tx);
+        return checkInputRelationsAndBindGraphAndNode(nodeCreateDTO.getNodeDTO(),
+                nodeCreateDTO.getNodeRelationDTO(), graphUuid, tx);
     }
 
     /**
@@ -155,7 +155,6 @@ public class NodeServiceImpl implements NodeService {
     @Neo4jTransactional
     public GraphVO createGraphAndBindGraphAndNode(final GraphAndNodeCreateDTO graphNodeCreateDTO,
                                                          final Transaction tx) {
-
         if (tx == null) {
             final String message = Message.TRANSACTION_NULL;
             LOG.error(message);
@@ -172,15 +171,15 @@ public class NodeServiceImpl implements NodeService {
                 .updateTime(graph.getUpdateTime())
                 .build();
 
-        if (graphNodeCreateDTO.getGraphNodeDTO() == null) {
+        if (graphNodeCreateDTO.getNodeDTO() == null) {
             return graphVO;
         }
 
         final String graphUuid = graph.getUuid();
 
         final List<NodeVO> nodes = checkInputRelationsAndBindGraphAndNode(
-                graphNodeCreateDTO.getGraphNodeDTO(),
-                graphNodeCreateDTO.getGraphNodeRelationDTO(),
+                graphNodeCreateDTO.getNodeDTO(),
+                graphNodeCreateDTO.getNodeRelationDTO(),
                 graphUuid, tx);
 
         graphVO.setNodes(nodes);
@@ -218,7 +217,10 @@ public class NodeServiceImpl implements NodeService {
         final String currentTime = getCurrentTime();
         final Map<String, String> uuidMap = new HashMap<>();
 
-        final List<NodeVO> nodes = createNodes(nodeDTOs, uuidMap, currentTime, graphUuid, tx);
+        List<NodeVO> nodes = Collections.emptyList();
+        if (nodeDTOs != null) {
+            nodes = createNodes(nodeDTOs, uuidMap, currentTime, graphUuid, tx);
+        }
 
         if (nodeRelationDTOs == null || nodeRelationDTOs.isEmpty()) {
             return nodes;
@@ -356,51 +358,6 @@ public class NodeServiceImpl implements NodeService {
      */
     private String getNodeId(final String id, final Map<String, String> uuidMap) {
         return uuidMap.getOrDefault(id, id);
-    }
-
-    /**
-     * Binds nodes based on the provided DTOs.
-     * <p>
-     * Iterates over the list of {@code NodeRelationDTO} objects provided in the {@code dtos} parameter.
-     * For each DTO, it extracts the start node UUID, end node UUID, and relation name.
-     * Retrieves the start and end nodes by their UUIDs using the {@link #getNodeByUuid(String)} method.
-     * Generates a unique UUID for the new relation and gets the current time.
-     * If either the start node or the end node is not found, <br>
-     * it throws a {@link NoSuchElementException} with an error message including the missing node's UUID.
-     * If both nodes are found, it binds the start node to the end node using the <br>
-     * {@link NodeMapper#bindGraphNodeToGraphNode(String, String, String, String, String, Transaction)} method.
-     *
-     * @param dtos the list of DTOs for binding nodes. <br>
-     * Each DTO contains the start node UUID, end node UUID, and relation name.
-     * @param tx   the Neo4j transaction object used for the database operation
-     *
-     * @throws NoSuchElementException if either the start node or the end node is not found in the graph
-     */
-    @Neo4jTransactional
-    @Override
-    public void bindNodes(final List<NodeRelationDTO> dtos, final Transaction tx) {
-        for (final NodeRelationDTO dto : dtos) {
-            final String startNode = dto.getFromId();
-            final String endNode = dto.getToId();
-            final Optional<NodeVO> graphNodeOptional1 = getNodeByUuid(startNode);
-            final Optional<NodeVO> graphNodeOptional2 = getNodeByUuid(endNode);
-            final String relationUuid = UUID.fastUUID().toString(true);
-            final String now = getCurrentTime();
-
-            if (graphNodeOptional1.isEmpty() || graphNodeOptional2.isEmpty()) {
-                if (graphNodeOptional1.isEmpty()) {
-                    final String message = String.format(Message.NODE_NULL, startNode);
-                    LOG.error(message);
-                    throw new NoSuchElementException(message);
-                } else {
-                    final String message = String.format(Message.NODE_NULL, endNode);
-                    LOG.error(message);
-                    throw new NoSuchElementException(message);
-                }
-            }
-
-            nodeMapper.bindGraphNodeToGraphNode(startNode, endNode, dto.getRelationName(), relationUuid, now, tx);
-        }
     }
 
     /**

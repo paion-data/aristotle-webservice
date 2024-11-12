@@ -1,17 +1,20 @@
-[
-  {
-    "fromId": "%s",
-    "relationName": "-",
-    "toId": "%s"
-  },
-  {
-    "fromId": "%s",
-    "relationName": "-",
-    "toId": "%s"
-  },
-  {
-    "fromId": "%s",
-    "relationName": "-",
-    "toId": "%s"
-  }
-]
+{
+  "graphUuid": "%s",
+  "nodeRelationDTO": [
+    {
+      "fromId": "%s",
+      "relationName": "-",
+      "toId": "%s"
+    },
+    {
+      "fromId": "%s",
+      "relationName": "-",
+      "toId": "%s"
+    },
+    {
+      "fromId": "%s",
+      "relationName": "-",
+      "toId": "%s"
+    }
+  ]
+}
