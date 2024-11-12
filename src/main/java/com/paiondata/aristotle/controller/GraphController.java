@@ -53,6 +53,7 @@ public class GraphController {
      * The result is wrapped in a {@link Result} object and returned.
      *
      * @param dto the {@link FilterQueryGraphDTO} containing the UUID and filter parameters
+     *
      * @return a {@link Result} object containing the graph data as a {@link GraphVO}
      */
     @ApiOperation(value = "Retrieve the graph by uuid and filter parameters")
@@ -70,6 +71,7 @@ public class GraphController {
      * The result is wrapped in a {@link Result} object with a success message.
      *
      * @param graphUpdateDTO the {@link GraphUpdateDTO} containing the updated graph information
+     *
      * @return a {@link Result} object containing a success message
      */
     @ApiOperation(value = "Updates a graph")
@@ -88,6 +90,7 @@ public class GraphController {
      * The result is wrapped in a {@link Result} object with a success message.
      *
      * @param graphDeleteDTO the {@link GraphDeleteDTO} containing the UUIDs of the graphs to delete
+     *
      * @return a {@link Result} object containing a success message
      */
     @ApiOperation(value = "Deletes graphs by their UUIDs")

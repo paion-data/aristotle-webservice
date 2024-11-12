@@ -69,7 +69,9 @@ public class UserServiceImpl implements UserService {
      * The associated graphs are retrieved using the {@link CommonService#getGraphsByOidcid(String)} method.
      *
      * @param oidcid the unique identifier of the user
+     *
      * @return a {@link UserVO} object representing the user and their associated graphs
+     *
      * @throws NoSuchElementException if the user with the specified oidcid is not found
      */
     @Transactional(readOnly = true)
@@ -124,7 +126,9 @@ public class UserServiceImpl implements UserService {
      * Returns a {@link UserDTO} object containing the details of the newly created user.
      *
      * @param user the {@link UserDTO} object containing the user's details
+     *
      * @return a {@link UserDTO} object representing the newly created user
+     *
      * @throws IllegalArgumentException if a user with the same oidcid already exists
      */
     @Transactional
@@ -151,6 +155,7 @@ public class UserServiceImpl implements UserService {
      * If the user does not exist, throws a {@link NoSuchElementException}.
      *
      * @param userDTO the {@link UserDTO} object containing the updated user details
+     *
      * @throws NoSuchElementException if the user with the specified oidcid does not exist
      */
     @Transactional
@@ -180,6 +185,7 @@ public class UserServiceImpl implements UserService {
      * Deletes the related nodes from the node repository using the {@link NodeRepository#deleteByUuids(List)} method.
      *
      * @param oidcids the list of user identifiers to be deleted
+     *
      * @throws NoSuchElementException if any user with the specified oidcid does not exist
      */
     @Transactional
@@ -205,6 +211,7 @@ public class UserServiceImpl implements UserService {
      * Retrieves the UUIDs of related graphs for a list of user OIDC IDs.
      *
      * @param userOidcids a list of user OIDC IDs
+     *
      * @return a list of related graph UUIDs
      */
     private List<String> getRelatedGraphUuids(final List<String> userOidcids) {
@@ -215,6 +222,7 @@ public class UserServiceImpl implements UserService {
      * Retrieves the UUIDs of related graph nodes for a list of graph UUIDs.
      *
      * @param graphUuids a list of graph UUIDs
+     *
      * @return a list of related graph node UUIDs
      */
     private List<String> getRelatedGraphNodeUuids(final List<String> graphUuids) {

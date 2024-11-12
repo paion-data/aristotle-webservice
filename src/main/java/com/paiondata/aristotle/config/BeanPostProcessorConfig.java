@@ -42,7 +42,6 @@ public class BeanPostProcessorConfig {
      * @return returns the processed bean.
      *
      * @throws BeansException if a BeansException occurs.
-     *
      * @throws IllegalStateException if an error occurs while processing the bean.
      */
     @Bean
@@ -61,7 +60,6 @@ public class BeanPostProcessorConfig {
              * Customizes the SpringFox handler mappings.
              *
              * @param mappings the list of handler mappings to be customized.
-             *
              * @param <T> the type of handler mappings.
              */
             private <T extends RequestMappingInfoHandlerMapping> void customizeSpringfoxHandlerMappings(
@@ -77,6 +75,7 @@ public class BeanPostProcessorConfig {
              * Retrieves the handler mappings from the given bean.
              *
              * @param bean the bean from which the handler mappings are to be retrieved.
+             *
              * @return the list of handler mappings.
              *
              * @throws IllegalStateException if an error occurs while retrieving the handler mappings.

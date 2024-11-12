@@ -48,6 +48,7 @@ import org.springframework.web.bind.annotation.RequestBody;
 import javax.validation.Valid;
 import javax.validation.constraints.NotBlank;
 import javax.validation.constraints.NotEmpty;
+import javax.validation.constraints.NotNull;
 
 import java.util.List;
 import java.util.NoSuchElementException;
@@ -77,6 +78,7 @@ public class NodeController {
      * If the node is not found, a failure result with an appropriate message is returned.
      *
      * @param uuid the UUID of the node to retrieve
+     *
      * @return a {@link Result} object containing the node data as a {@link NodeVO},
      * or a failure message if the node is not found
      */
@@ -96,26 +98,29 @@ public class NodeController {
     }
 
     /**
-     * Retrieves an unlimited expansion of a node in the graph.
+     * Retrieves a k-degree expansion of a node.
      * <p>
-     * This endpoint accepts a graph UUID and a node name as query parameters.
-     * It validates that both parameters are not blank.
-     * If the validation passes, it calls the {@link NodeService#expandNodeUnlimited(String, String)} method to retrieve
-     * the unlimited expansion of the specified node and returns the result wrapped in a {@link Result} object.
+     * This endpoint retrieves the k-degree expansion of a node within a specified graph.
+     * If the input degree is less than 0, the maximum depth is directly returned.
      *
-     * @param uuid the UUID of the graph.
-     * @param name the name of the node to expand.
-     * @return a {@link Result} object containing the unlimited expansion of the node.
+     * @param graphUuid The UUID of the graph.
+     * @param nodeUuid The UUID of the node.
+     * @param degree The degree that needs to be expanded.
+     *
+     * @return A {@link Result} object containing the expanded graph represented as a {@link GraphVO}.
      */
-    @ApiOperation(value = "Retrieve unlimited expansion of a node",
-            notes = "This endpoint retrieves the unlimited expansion of a node in the graph.")
+    @ApiOperation(value = "Retrieves a k-degree expansion of a node",
+            notes = "If the input degree is less than 0, the maximum depth is directly returned")
     @GetMapping("/expand")
-    public Result<GraphVO> expandNodeUnlimited(
+    public Result<GraphVO> kDegreeExpansion(
             @ApiParam(value = "The UUID of the graph", required = true)
-            @RequestParam @NotBlank(message = Message.UUID_MUST_NOT_BE_BLANK) final String uuid,
-            @ApiParam(value = "The name of the node to expand", required = true)
-            @RequestParam @NotBlank(message = Message.NAME_MUST_NOT_BE_BLANK) final String name) {
-        return Result.ok(nodeService.expandNodeUnlimited(uuid, name));
+            @RequestParam @NotBlank(message = Message.UUID_MUST_NOT_BE_BLANK) final String graphUuid,
+            @ApiParam(value = "The UUID of the node", required = true)
+            @RequestParam @NotBlank(message = Message.UUID_MUST_NOT_BE_BLANK) final String nodeUuid,
+            @ApiParam(value = "The degree that needs to be expanded, "
+                    + "if is less than 0, the maximum depth is directly returned")
+            @RequestParam @NotNull(message = Message.DEGREE_MUST_NOT_BE_NULL) final Integer degree) {
+        return Result.ok(nodeService.getkDegreeExpansion(graphUuid, nodeUuid, degree));
     }
 
     /**
@@ -128,7 +133,9 @@ public class NodeController {
      * The result is wrapped in a {@link Result} object with a success message and the list of created nodes.
      *
      * @param graphNodeCreateDTO the {@link NodeCreateDTO} containing the node creation and binding information
+     *
      * @return a {@link Result} object containing a success message and a list of created nodes as {@link NodeVO}
+     *
      * @notes The nodes could be created without binding any relations
      */
     @ApiOperation(value = "Creates and binds nodes",
@@ -147,7 +154,9 @@ public class NodeController {
      * The result is wrapped in a {@link Result} object with a success message and the created graph data.
      *
      * @param graphNodeCreateDTO the {@link GraphAndNodeCreateDTO} containing the graph and node creation information
+     *
      * @return a {@link Result} object containing a success message and the created graph data as {@link GraphVO}
+     *
      * @notes You can create just graphs, or just graphs and nodes without binding any relations between nodes
      */
     @ApiOperation(value = "Creates a graph and binds it with nodes",
@@ -167,6 +176,7 @@ public class NodeController {
      * The result is wrapped in a {@link Result} object with a success message.
      *
      * @param dtos a list of {@link NodeRelationDTO} objects containing the binding information for the nodes
+     *
      * @return a {@link Result} object containing a success message
      */
     @ApiOperation(value = "Binds multiple nodes")
@@ -186,6 +196,7 @@ public class NodeController {
      * The result is wrapped in a {@link Result} object with a success message.
      *
      * @param nodeUpdateDTO the {@link NodeUpdateDTO} containing the updated node information
+     *
      * @return a {@link Result} object containing a success message
      */
     @ApiOperation(value = "Updates a node")
@@ -204,6 +215,7 @@ public class NodeController {
      * The result is wrapped in a {@link Result} object with a success message.
      *
      * @param relationUpdateDTO the {@link RelationUpdateDTO} containing the updated relation information
+     *
      * @return a {@link Result} object containing a success message
      */
     @ApiOperation(value = "Updates a relation between nodes")
@@ -222,6 +234,7 @@ public class NodeController {
      * The result is wrapped in a {@link Result} object with a success message.
      *
      * @param nodeDeleteDTO the {@link NodeDeleteDTO} containing the UUIDs of the nodes to delete
+     *
      * @return a {@link Result} object containing a success message
      */
     @ApiOperation(value = "Deletes nodes by their UUIDs")

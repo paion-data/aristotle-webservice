@@ -18,27 +18,23 @@ package com.paiondata.aristotle.common.util;
 import com.paiondata.aristotle.common.base.Constants;
 import com.paiondata.aristotle.common.base.Message;
 import com.paiondata.aristotle.model.vo.NodeVO;
-import com.paiondata.aristotle.model.vo.RelationVO;
 
 import org.neo4j.driver.Value;
 import org.neo4j.driver.internal.value.NodeValue;
 import org.neo4j.driver.types.Node;
-import org.neo4j.driver.types.Relationship;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.stereotype.Component;
 
-import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.HashSet;
-import java.util.List;
 import java.util.Map;
 import java.util.Optional;
 import java.util.Set;
 import java.util.stream.Collectors;
 
 /**
- * Extracts information from graph nodes, relationships, and nodes.
+ * Extracts information from graphs and nodes.
  */
 @Component
 public class NodeExtractor {
@@ -51,7 +47,9 @@ public class NodeExtractor {
      * If the input node is a valid {@link NodeValue}, it extracts and returns a map containing the graph information.
      *
      * @param node the node value to extract graph information from
+     *
      * @return a map containing the graph information
+     *
      * @throws IllegalArgumentException if the input node is null
      */
     public Map<String, Object> extractGraph(final Value node) {
@@ -76,58 +74,15 @@ public class NodeExtractor {
     }
 
     /**
-     * Extracts relationships from a given relationships value.
-     * If the input relationships value is null, an {@link IllegalArgumentException} is thrown with
-     * a specific error message.
-     * If the input relationships value is valid, it extracts and returns a list of {@link RelationVO} objects.
-     *
-     * @param relationshipsValue the relationships value to extract relationships from
-     * @return a list of {@link RelationVO} objects representing the relationships
-     * @throws IllegalArgumentException if the input relationships value is null
-     */
-    public List<RelationVO> extractRelationships(final Value relationshipsValue) {
-        if (relationshipsValue == null) {
-            final String message = String.format(Message.VALUE_CAN_NOT_BE_NULL, "Relations");
-            LOG.error(message);
-            throw new IllegalArgumentException(message);
-        }
-
-        final List<RelationVO> relations = new ArrayList<>();
-
-        if (relationshipsValue != null) {
-            Optional.ofNullable(relationshipsValue.asList(Value::asRelationship))
-                    .ifPresent(relationships -> {
-                        for (final Relationship relationshipValue : relationships) {
-                            final Map<String, Object> relMap = relationshipValue.asMap();
-                            final Map<String, String> stringRelMap = relMap.entrySet().stream()
-                                    .collect(Collectors.toMap(Map.Entry::getKey,
-                                            entry -> String.valueOf(entry.getValue())));
-
-                            final RelationVO relation = RelationVO.builder()
-                                    .name(stringRelMap.getOrDefault(Constants.NAME, ""))
-                                    .createTime(stringRelMap.getOrDefault(Constants.CREATE_TIME_WITHOUT_HUMP, ""))
-                                    .updateTime(stringRelMap.getOrDefault(Constants.UPDATE_TIME_WITHOUT_HUMP, ""))
-                                    .uuid(stringRelMap.getOrDefault(Constants.UUID, ""))
-                                    .sourceNode(stringRelMap.getOrDefault(Constants.SOURCE_NODE, ""))
-                                    .targetNode(stringRelMap.getOrDefault(Constants.TARGET_NODE, ""))
-                                    .build();
-
-                            relations.add(relation);
-                        }
-                    });
-        }
-
-        return relations;
-    }
-
-    /**
      * Extracts node information from a given node value.
      * If the input node is null, an {@link IllegalArgumentException} is thrown with a specific error message.
      * If the input node is a valid {@link NodeValue}, it extracts and returns a {@link NodeVO} object
      * containing the node information.
      *
      * @param node the node value to extract node information from
+     *
      * @return a {@link NodeVO} object containing the node information
+     *
      * @throws IllegalArgumentException if the input node is null
      */
     public NodeVO extractNode(final Value node) {
@@ -156,7 +111,9 @@ public class NodeExtractor {
      * If the input nodes value is valid, it extracts and returns a set of {@link NodeVO} objects representing the node.
      *
      * @param nodesValue the nodes value to extract nodes from
+     *
      * @return a set of {@link NodeVO} objects representing the nodes
+     *
      * @throws IllegalArgumentException if the input nodes value is null
      */
     public Set<NodeVO> extractNodes(final Value nodesValue) {
@@ -168,22 +125,20 @@ public class NodeExtractor {
 
         final Set<NodeVO> nodes = new HashSet<>();
 
-        if (nodesValue != null) {
-            Optional.ofNullable(nodesValue.asList(Value::asNode))
-                    .ifPresent(nodeList -> {
-                        for (final Node n : nodeList) {
-                            final Map<String, Object> nodeMap = n.asMap();
-                            final Map<String, String> stringNodeMap = nodeMap.entrySet().stream()
-                                    .collect(Collectors.toMap(Map.Entry::getKey,
-                                            entry -> String.valueOf(entry.getValue())));
+        Optional.ofNullable(nodesValue.asList(Value::asNode))
+                .ifPresent(nodeList -> {
+                    for (final Node n : nodeList) {
+                        final Map<String, Object> nodeMap = n.asMap();
+                        final Map<String, String> stringNodeMap = nodeMap.entrySet().stream()
+                                .collect(Collectors.toMap(Map.Entry::getKey,
+                                        entry -> String.valueOf(entry.getValue())));
 
-                            final NodeVO nodeInfo = new NodeVO();
-                            setNodeInfo(stringNodeMap, nodeInfo);
+                        final NodeVO nodeInfo = new NodeVO();
+                        setNodeInfo(stringNodeMap, nodeInfo);
 
-                            nodes.add(nodeInfo);
-                        }
-                    });
-        }
+                        nodes.add(nodeInfo);
+                    }
+                });
 
         return nodes;
     }

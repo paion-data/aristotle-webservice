@@ -80,6 +80,7 @@ public class NodeServiceImpl implements NodeService {
      * Retrieves a graph node by its UUID.
      *
      * @param uuid the UUID of the graph node
+     *
      * @return an {@code Optional} containing the graph node if found, or an empty {@code Optional} if not found
      */
     @Override
@@ -101,7 +102,9 @@ public class NodeServiceImpl implements NodeService {
      * @param nodeCreateDTO The DTO containing information for creating the nodes and their relations. <br>
      *                      It includes the graph UUID and the node and relation details.
      * @param tx The Neo4j transaction object used for the database operation.
+     *
      * @return The list of created nodes, each represented by a {@link NodeVO} object.
+     *
      * @throws IllegalArgumentException If the provided transaction is null.
      * @throws NoSuchElementException If the graph with the specified UUID is not found.
      */
@@ -143,7 +146,9 @@ public class NodeServiceImpl implements NodeService {
      * @param graphNodeCreateDTO The DTO containing information for creating the graph and node. <br>
      *                           It includes the graph creation details and optional node and relation details.
      * @param tx The Neo4j transaction object used for the database operation.
+     *
      * @return The created graph node, represented by a {@link GraphVO} object.
+     *
      * @throws IllegalArgumentException If the provided transaction is null.
      */
     @Override
@@ -202,7 +207,9 @@ public class NodeServiceImpl implements NodeService {
      *                             Each DTO contains the {@code fromId} and {@code toId} of the relation.
      * @param graphUuid            the UUID of the graph
      * @param tx                   the Neo4j transaction object used for the database operation
+     *
      * @return the list of created nodes, each represented by a {@link NodeVO} object
+     *
      * @throws IllegalStateException if any node is found to belong to a different graph
      */
     private List<NodeVO> checkInputRelationsAndBindGraphAndNode(final List<NodeDTO> nodeDTOs,
@@ -260,7 +267,9 @@ public class NodeServiceImpl implements NodeService {
      * @param currentTime          the current timestamp
      * @param graphUuid            the UUID of the graph
      * @param tx                   the Neo4j transaction object used for the database operation
+     *
      * @return the list of created nodes, each represented by a {@link NodeVO} object
+     *
      * @throws IllegalArgumentException if the temporary ID is duplicated
      */
     private List<NodeVO> createNodes(final List<NodeDTO> nodeDTOs, final Map<String, String> uuidMap,
@@ -342,6 +351,7 @@ public class NodeServiceImpl implements NodeService {
      * @param id       the ID of the node to retrieve
      * @param uuidMap  the map for storing UUID mappings. The keys are the original IDs, <br>
      * and the values are the mapped node IDs.
+     *
      * @return the node ID if found in the map, otherwise the original ID
      */
     private String getNodeId(final String id, final Map<String, String> uuidMap) {
@@ -363,6 +373,7 @@ public class NodeServiceImpl implements NodeService {
      * @param dtos the list of DTOs for binding nodes. <br>
      * Each DTO contains the start node UUID, end node UUID, and relation name.
      * @param tx   the Neo4j transaction object used for the database operation
+     *
      * @throws NoSuchElementException if either the start node or the end node is not found in the graph
      */
     @Neo4jTransactional
@@ -408,6 +419,7 @@ public class NodeServiceImpl implements NodeService {
      *
      * @param nodeDeleteDTO the DTO containing the list of UUIDs of the graph nodes to be deleted. <br>
      * It includes the graph UUID and the list of node UUIDs.
+     *
      * @throws NoSuchElementException if any node with the specified UUID is not found in the graph
      * @throws IllegalStateException if any node is bound to another user
      */
@@ -445,6 +457,7 @@ public class NodeServiceImpl implements NodeService {
      * @param nodeUpdateDTO the DTO containing information for updating the node. <br>
      * It includes the UUID and other update parameters.
      * @param tx            the transaction object used for the database operation
+     *
      * @throws NoSuchElementException if the node with the specified UUID is not found in the graph
      */
     @Neo4jTransactional
@@ -492,27 +505,29 @@ public class NodeServiceImpl implements NodeService {
     }
 
     /**
-     * Retrieves an unlimited expansion of a node in the graph.
+     * Retrieves the k-degree expansion of a graph from a given node.
      * <p>
-     * This method first checks if the graph with the given UUID exists. If the graph does not exist, it logs an error
-     * and throws a {@link NoSuchElementException}. If the graph exists,
-     * it calls the {@link NodeMapper#expandNodeUnlimited(String, String)}
-     * method to retrieve the k-degree expansion of the specified node.
+     * This method first checks if the graph with the specified UUID exists. If the graph does not exist, it throws
+     * a {@link NoSuchElementException}.
+     * If the graph exists, it delegates the k-degree expansion to the `nodeMapper` to perform the actual expansion.
      *
-     * @param uuid the UUID of the graph.
-     * @param name the name of the node to expand.
-     * @return a GraphVO object containing the expanded nodes and their relationships.
-     * @throws NoSuchElementException if the graph with the given UUID does not exist.
+     * @param graphUuid The UUID of the graph.
+     * @param nodeUuid The UUID of the starting node.
+     * @param k The desired depth of expansion.
+     *
+     * @return A {@link GraphVO} object containing the expanded nodes and relationships.
+     *
+     * @throws NoSuchElementException If the graph with the specified UUID does not exist.
      */
     @Override
-    public GraphVO expandNodeUnlimited(final String uuid, final String name) {
-        if (commonService.getGraphByUuid(uuid).isEmpty()) {
-            final String message = String.format(Message.GRAPH_NULL, uuid);
+    public GraphVO getkDegreeExpansion(final String graphUuid, final String nodeUuid, final Integer k) {
+        if (commonService.getGraphByUuid(graphUuid).isEmpty()) {
+            final String message = String.format(Message.GRAPH_NULL, graphUuid);
             LOG.error(message);
             throw new NoSuchElementException(message);
         }
 
-        return nodeMapper.expandNodeUnlimited(uuid, name);
+        return nodeMapper.kDegreeExpansion(graphUuid, nodeUuid, k);
     }
 
     /**
@@ -526,6 +541,7 @@ public class NodeServiceImpl implements NodeService {
      * @param updateMap  the map containing information for updating the graph node relations. <br>
      * The key is the UUID of the relation, and the value is the new name.
      * @param graphUuid  the UUID of the graph
+     *
      * @throws NoSuchElementException if the relation UUID is not found in the repository
      */
     private void validateAndUpdateRelations(final Map<String, String> updateMap, final String graphUuid) {
@@ -549,6 +565,7 @@ public class NodeServiceImpl implements NodeService {
      *
      * @param deleteList the list of UUIDs of the graph node relations to be deleted
      * @param graphUuid  the UUID of the graph
+     *
      * @throws NoSuchElementException if the relation UUID is not found in the repository
      */
     private void validateAndDeleteRelations(final List<String> deleteList, final String graphUuid) {
@@ -586,6 +603,7 @@ public class NodeServiceImpl implements NodeService {
      * includes all the invalid keys.
      *
      * @param properties the input parameters as a key-value map
+     *
      * @throws IllegalArgumentException if the input parameters contain any invalid keys
      */
     private void checkInputParameters(final Map<String, String> properties) {

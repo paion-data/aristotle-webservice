@@ -552,42 +552,48 @@ public class NodeServiceTest {
     }
 
     /**
-     * Tests that getting a node by KExpend returns the expected node when the graph exists.
+     * Tests the getkDegreeExpansion method when the graph exists.
      */
     @Test
-    void expandNodeUnlimitedGraphExists() {
-        // Given
-        final String uuid = TestConstants.TEST_ID1;
-        final String name = TestConstants.TEST_NAME1;
-        final GraphVO expectedNode = new GraphVO();
+    void testGetkDegreeExpansionGraphExistsReturnsGraphVO() {
+        final String graphUuid = TestConstants.TEST_ID1;
+        final String nodeUuid = TestConstants.TEST_ID2;
+        final Integer k = 2;
 
-        when(commonService.getGraphByUuid(uuid)).thenReturn(Optional.of(new Graph()));
-        when(nodeMapper.expandNodeUnlimited(uuid, name)).thenReturn(expectedNode);
+        // Mocking the behavior of commonService
+        when(commonService.getGraphByUuid(graphUuid)).thenReturn(Optional.of(new Graph()));
 
-        // When
-        final GraphVO result = nodeService.expandNodeUnlimited(uuid, name);
+        // Mocking the behavior of nodeMapper
+        final GraphVO expectedGraphVO = new GraphVO();
+        when(nodeMapper.kDegreeExpansion(eq(graphUuid), eq(nodeUuid), eq(k))).thenReturn(expectedGraphVO);
 
-        // Then
-        assertEquals(expectedNode, result);
-        verify(commonService, times(1)).getGraphByUuid(uuid);
-        verify(nodeMapper, times(1)).expandNodeUnlimited(uuid, name);
+        // Execute the method under test
+        final GraphVO result = nodeService.getkDegreeExpansion(graphUuid, nodeUuid, k);
+
+        // Verify the result
+        assertEquals(expectedGraphVO, result);
+        verify(commonService, times(1)).getGraphByUuid(graphUuid);
+        verify(nodeMapper, times(1)).kDegreeExpansion(eq(graphUuid), eq(nodeUuid), eq(k));
     }
 
     /**
-     * Tests that getting a node by KExpend throws a NoSuchElementException when the graph does not exist.
+     * Tests the getkDegreeExpansion method when the graph does not exist.
      */
     @Test
-    void expandNodeUnlimitedGraphDoesNotExistThrowsNoSuchElementException() {
-        // Arrange
-        final String uuid = TestConstants.TEST_ID1;
-        final String name = TestConstants.TEST_NAME1;
-        when(commonService.getGraphByUuid(uuid)).thenReturn(Optional.empty());
+    void testGetkDegreeExpansionGraphDoesNotExistThrowsNoSuchElementException() {
+        final String graphUuid = TestConstants.TEST_ID1;
+        final String nodeUuid = TestConstants.TEST_ID2;
+        final Integer k = 2;
 
-        // Act & Assert
-        assertThrows(NoSuchElementException.class, () -> nodeService.expandNodeUnlimited(uuid, name));
+        // Mocking the behavior of commonService
+        when(commonService.getGraphByUuid(graphUuid)).thenReturn(Optional.empty());
 
-        verify(commonService, times(1)).getGraphByUuid(uuid);
-        verify(nodeMapper, never()).expandNodeUnlimited(uuid, name);
+        // Execute the method under test and expect an exception
+        assertThrows(NoSuchElementException.class, () -> nodeService.getkDegreeExpansion(graphUuid, nodeUuid, k));
+
+        // Verify the result
+        verify(commonService, times(1)).getGraphByUuid(graphUuid);
+        verify(nodeMapper, never()).kDegreeExpansion(any(), any(), any());
     }
 
     /**

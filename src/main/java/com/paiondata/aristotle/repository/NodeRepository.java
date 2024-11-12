@@ -44,6 +44,7 @@ public interface NodeRepository extends Neo4jRepository<GraphNode, Long> {
      * Retrieves the UUIDs of graphs that contain the given graph nodes.
      *
      * @param uuids the list of UUIDs of the graph nodes
+     *
      * @return the list of UUIDs of the graphs
      */
     @Query("MATCH (g:Graph)-[r:RELATION]->(gn:GraphNode) WHERE gn.uuid in $uuids RETURN g.uuid")
@@ -78,6 +79,7 @@ public interface NodeRepository extends Neo4jRepository<GraphNode, Long> {
      * Retrieves the name of a relationship by its UUID.
      *
      * @param relationUuid the UUID of the relationship
+     *
      * @return the name of the relationship
      */
     @Query("MATCH (g:Graph)-[:RELATION]->(gn1:GraphNode) " +
@@ -89,6 +91,7 @@ public interface NodeRepository extends Neo4jRepository<GraphNode, Long> {
      * Retrieves the UUID of a graph node associated with a specific graph.
      * @param graphUuid the UUID of the graph
      * @param nodeUuid the UUID of the node
+     *
      * @return the UUID of the node
      */
     @Query("MATCH (g:Graph{uuid: $graphUuid})-[:RELATION]->(gn:GraphNode{uuid: $nodeUuid}) RETURN gn.uuid")

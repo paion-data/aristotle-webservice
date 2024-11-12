@@ -65,6 +65,7 @@ public class CommonServiceImpl implements CommonService {
      * Returns an {@code Optional} containing the user if found, or an empty {@code Optional} if not found.
      *
      * @param oidcid the unique identifier of the user
+     *
      * @return an {@code Optional} containing the user if found, or an empty {@code Optional} if not found
      */
     @Override
@@ -80,6 +81,7 @@ public class CommonServiceImpl implements CommonService {
      * Returns an {@code Optional} containing the graph if found, or an empty {@code Optional} if not found.
      *
      * @param uuid the UUID of the graph
+     *
      * @return an {@code Optional} containing the graph if found, or an empty {@code Optional} if not found
      */
     @Override
@@ -98,7 +100,9 @@ public class CommonServiceImpl implements CommonService {
      * the {@link GraphMapper#getGraphsByOidcid(String)} method.
      *
      * @param oidcid The user identifier.
+     *
      * @return A list of maps, where each map represents a graph and contains its details.
+     *
      * @throws NoSuchElementException If the user with the specified oidcid is not found.
      */
     @Override
@@ -126,7 +130,9 @@ public class CommonServiceImpl implements CommonService {
      * @param graphCreateDTO The DTO containing the information for creating the graph. <br>
      *                       It includes the graph title, description, and user identifier.
      * @param tx The Neo4j transaction object used for the database operation.
+     *
      * @return The created {@link Graph} object.
+     *
      * @throws NoSuchElementException If the user with the specified identifier is not found.
      */
     @Override

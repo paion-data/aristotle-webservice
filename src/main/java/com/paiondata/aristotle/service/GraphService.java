@@ -30,6 +30,7 @@ public interface GraphService {
     /**
      * Retrieves a graph by its UUID and filter parameters.
      * @param filterQueryGraphDTO the filter query DTO
+     *
      * @return the graph VO contains the graph details and nodes and relations
      */
     GraphVO getGraphVOByUuid(FilterQueryGraphDTO filterQueryGraphDTO);

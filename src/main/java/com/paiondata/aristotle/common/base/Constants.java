@@ -151,14 +151,58 @@ public interface Constants {
     String NAME = "name";
 
     /**
-     * Represents the graph node in cypher.
+     * Represents the alias for the graph node in Cypher queries.
+     * <p>
+     * In Cypher queries, aliases are used to assign temporary names to nodes or relationships,
+     * which can be referenced in subsequent parts of the query. Using aliases improves the readability
+     * and maintainability of the query, avoids ambiguity, and makes referencing easier.
+     * <p>
+     * Example:
+     * <p>
+     * MATCH (g:Graph { uuid: $graphUuid })-[:RELATION]->(n:GraphNode { uuid: $nodeUuid})
+     * WITH g, n
+     * MATCH (n)-[relation:RELATION]-(m:GraphNode)
+     * RETURN m, relation
+     * In the above query, `g` is the alias for the graph node. The information of the graph node
+     * can be retrieved using `record.get(GRAPH_ALISA_G)`.
      */
-    String GRAPH_IN_CYPHER = "g";
+    String GRAPH_ALISA_G = "g";
 
     /**
-     * Represents the node alias in cypher.
+     * Represents the alias for the starting node in Cypher queries.
+     * <p>
+     * In Cypher queries, aliases are used to assign temporary names to nodes or relationships,
+     * which can be referenced in subsequent parts of the query. Using aliases improves the readability
+     * and maintainability of the query, avoids ambiguity, and makes referencing easier.
+     * <p>
+     * Example:
+     * <p>
+     * MATCH (g:Graph { uuid: $graphUuid })-[:RELATION]->(n:GraphNode { uuid: $nodeUuid})
+     * WITH g, n
+     * MATCH (n)-[relation:RELATION]-(m:GraphNode)
+     * RETURN m, relation
+     * In the above query, `n` is the alias for the starting node. The information of the starting node
+     * can be retrieved using `record.get(NODE_ALIAS_N)`.
      */
     String NODE_ALIAS_N = "n";
+
+    /**
+     * Represents the alias for the neighbor node in Cypher queries.
+     * <p>
+     * In Cypher queries, aliases are used to assign temporary names to nodes or relationships,
+     * which can be referenced in subsequent parts of the query. Using aliases improves the readability
+     * and maintainability of the query, avoids ambiguity, and makes referencing easier.
+     * <p>
+     * Example:
+     * <p>
+     * MATCH (g:Graph { uuid: $graphUuid })-[:RELATION]->(n:GraphNode { uuid: $nodeUuid})
+     * WITH g, n
+     * MATCH (n)-[relation:RELATION]-(m:GraphNode)
+     * RETURN m, relation
+     * In the above query, `m` is the alias for the neighbor node. The information of the neighbor node
+     * can be retrieved using `record.get(NODE_ALIAS_M)`.
+     */
+    String NODE_ALIAS_M = "m";
 
     /**
      * Represents the nodes in cypher.

@@ -59,6 +59,7 @@ public class UserController {
      * The result is wrapped in a {@link Result} object and returned.
      *
      * @param oidcid the OIDC ID of the user to retrieve
+     *
      * @return a {@link Result} object containing the user data as a {@link UserVO}
      */
     @ApiOperation(value = "Retrieves a user and its graphs by OIDC ID")
@@ -94,6 +95,7 @@ public class UserController {
      * The result is wrapped in a {@link Result} object with a success message and the created user data.
      *
      * @param userDTO the {@link UserDTO} containing the user information to create
+     *
      * @return a {@link Result} object containing a success message and the created user data as {@link UserDTO}
      */
     @ApiOperation(value = "Creates a new user")
@@ -111,6 +113,7 @@ public class UserController {
      * The result is wrapped in a {@link Result} object with a success message.
      *
      * @param userDTO the {@link UserDTO} containing the updated user information
+     *
      * @return a {@link Result} object containing a success message
      */
     @ApiOperation(value = "Updates an existing user")
@@ -129,6 +132,7 @@ public class UserController {
      * The result is wrapped in a {@link Result} object with a success message.
      *
      * @param oidcids the list of OIDC IDs of the users to delete
+     *
      * @return a {@link Result} object containing a success message
      */
     @ApiOperation(value = "Deletes users by their OIDC IDs")

@@ -29,6 +29,7 @@ public interface UserService {
      * Retrieves a UserVO by OIDC ID.
      *
      * @param oidcid the OIDC ID of the user
+     *
      * @return the UserVO containing user details and associated graphs
      */
     UserVO getUserVOByOidcid(String oidcid);

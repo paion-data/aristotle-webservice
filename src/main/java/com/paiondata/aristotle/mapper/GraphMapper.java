@@ -36,6 +36,7 @@ public interface GraphMapper {
      * @param relationUuid the UUID of the link between the created node and the graph this node belongs to
      * @param currentTime the current time
      * @param tx the Neo4j transaction
+     *
      * @return the created Graph object
      */
     Graph createGraph(String title, String description, String userOidcid,

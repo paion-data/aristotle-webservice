@@ -54,6 +54,7 @@ public class GlobalExceptionHandler {
      *
      * @param e         the exception
      * @param request   the HTTP request
+     *
      * @return a response entity indicating failure with BAD_METHOD status
      */
     @ExceptionHandler(HttpRequestMethodNotSupportedException.class)
@@ -70,6 +71,7 @@ public class GlobalExceptionHandler {
      *
      * @param e         the exception
      * @param request   the HTTP request
+     *
      * @return a response entity indicating failure with BAD_REQUEST status
      */
     @ExceptionHandler(MissingPathVariableException.class)
@@ -89,6 +91,7 @@ public class GlobalExceptionHandler {
      *
      * @param e         the exception
      * @param request   the HTTP request
+     *
      * @return a response entity indicating failure with BAD_REQUEST status
      */
     @ExceptionHandler(MethodArgumentTypeMismatchException.class)
@@ -108,6 +111,7 @@ public class GlobalExceptionHandler {
      *
      * @param e         the exception
      * @param request   the HTTP request
+     *
      * @return a response entity indicating failure with INTERNAL_SERVER_ERROR status
      */
     @ExceptionHandler(RuntimeException.class)
@@ -124,6 +128,7 @@ public class GlobalExceptionHandler {
      *
      * @param e         the exception
      * @param request   the HTTP request
+     *
      * @return a response entity indicating failure with INTERNAL_SERVER_ERROR status
      */
     @ExceptionHandler(Exception.class)
@@ -139,6 +144,7 @@ public class GlobalExceptionHandler {
      *
      * @param e         the exception
      * @param request   the HTTP request
+     *
      * @return a response entity indicating failure with BAD_REQUEST status
      */
     @ExceptionHandler(ValidationException.class)
@@ -155,6 +161,7 @@ public class GlobalExceptionHandler {
      *
      * @param e         the exception
      * @param request   the HTTP request
+     *
      * @return a response entity indicating failure with BAD_REQUEST status
      */
     @ExceptionHandler(ConstraintViolationException.class)
@@ -171,6 +178,7 @@ public class GlobalExceptionHandler {
      *
      * @param e         the exception
      * @param request   the HTTP request
+     *
      * @return a response entity indicating failure with BAD_REQUEST status
      */
     @ExceptionHandler(DuplicateKeyException.class)
@@ -187,6 +195,7 @@ public class GlobalExceptionHandler {
      *
      * @param e         the exception
      * @param request   the HTTP request
+     *
      * @return a response entity indicating failure with BAD_REQUEST status
      */
     @ExceptionHandler(BindException.class)
@@ -203,6 +212,7 @@ public class GlobalExceptionHandler {
      *
      * @param e         the exception
      * @param request   the HTTP request
+     *
      * @return a response entity indicating failure with appropriate status
      */
     @ExceptionHandler(ServletException.class)
@@ -229,6 +239,7 @@ public class GlobalExceptionHandler {
      * Handles CustomizeReturnException.
      *
      * @param e         the exception
+     *
      * @return a response entity indicating failure with the exception's return code
      */
     @ExceptionHandler(CustomizeReturnException.class)
@@ -244,6 +255,7 @@ public class GlobalExceptionHandler {
      * Handles MethodArgumentNotValidException.
      *
      * @param e         the exception
+     *
      * @return a response entity indicating failure with BAD_REQUEST status
      */
     @ExceptionHandler(MethodArgumentNotValidException.class)

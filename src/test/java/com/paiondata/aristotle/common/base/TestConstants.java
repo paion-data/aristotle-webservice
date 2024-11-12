@@ -181,6 +181,11 @@ public interface TestConstants {
     String DATA_2_UUID = "data[2].uuid";
 
     /**
+     * Test data.
+     */
+    String DATA_NODES_0_UUID = "data.nodes[0].uuid";
+
+    /**
      * Test message.
      */
     String MSG = "msg";

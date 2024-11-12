@@ -1,0 +1,192 @@
+{
+  "graphCreateDTO": {
+    "userOidcid": "%s",
+    "title": "-",
+    "description": "-"
+  },
+  "graphNodeDTO": [
+    {
+      "temporaryId": "1",
+      "properties": {
+        "name": "1"
+      }
+    },
+    {
+      "temporaryId": "2",
+      "properties": {
+        "name": "2"
+      }
+    },
+    {
+      "temporaryId": "3",
+      "properties": {
+        "name": "3"
+      }
+    },
+    {
+      "temporaryId": "4",
+      "properties": {
+        "name": "4"
+      }
+    },
+    {
+      "temporaryId": "5",
+      "properties": {
+        "name": "5"
+      }
+    },
+    {
+      "temporaryId": "6",
+      "properties": {
+        "name": "6"
+      }
+    },
+    {
+      "temporaryId": "7",
+      "properties": {
+        "name": "7"
+      }
+    },
+    {
+      "temporaryId": "8",
+      "properties": {
+        "name": "8"
+      }
+    },
+    {
+      "temporaryId": "9",
+      "properties": {
+        "name": "9"
+      }
+    },
+    {
+      "temporaryId": "10",
+      "properties": {
+        "name": "10"
+      }
+    },
+    {
+      "temporaryId": "11",
+      "properties": {
+        "name": "11"
+      }
+    },
+    {
+      "temporaryId": "12",
+      "properties": {
+        "name": "12"
+      }
+    },
+    {
+      "temporaryId": "13",
+      "properties": {
+        "name": "13"
+      }
+    },
+    {
+      "temporaryId": "14",
+      "properties": {
+        "name": "14"
+      }
+    },
+    {
+      "temporaryId": "15",
+      "properties": {
+        "name": "15"
+      }
+    },
+    {
+      "temporaryId": "16",
+      "properties": {
+        "name": "16"
+      }
+    }
+  ],
+  "graphNodeRelationDTO": [
+    {
+      "fromId": "1",
+      "relationName": "-",
+      "toId": "4"
+    },
+    {
+      "fromId": "1",
+      "relationName": "-",
+      "toId": "5"
+    },
+    {
+      "fromId": "1",
+      "relationName": "-",
+      "toId": "2"
+    },
+    {
+      "fromId": "15",
+      "relationName": "-",
+      "toId": "4"
+    },
+    {
+      "fromId": "16",
+      "relationName": "-",
+      "toId": "4"
+    },
+    {
+      "fromId": "6",
+      "relationName": "-",
+      "toId": "5"
+    },
+    {
+      "fromId": "5",
+      "relationName": "-",
+      "toId": "9"
+    },
+    {
+      "fromId": "3",
+      "relationName": "-",
+      "toId": "9"
+    },
+    {
+      "fromId": "3",
+      "relationName": "-",
+      "toId": "2"
+    },
+    {
+      "fromId": "3",
+      "relationName": "-",
+      "toId": "7"
+    },
+    {
+      "fromId": "11",
+      "relationName": "-",
+      "toId": "7"
+    },
+    {
+      "fromId": "10",
+      "relationName": "-",
+      "toId": "9"
+    },
+    {
+      "fromId": "8",
+      "relationName": "-",
+      "toId": "7"
+    },
+    {
+      "fromId": "10",
+      "relationName": "-",
+      "toId": "12"
+    },
+    {
+      "fromId": "8",
+      "relationName": "-",
+      "toId": "12"
+    },
+    {
+      "fromId": "13",
+      "relationName": "-",
+      "toId": "12"
+    },
+    {
+      "fromId": "13",
+      "relationName": "-",
+      "toId": "14"
+    }
+  ]
+}

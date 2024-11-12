@@ -81,6 +81,11 @@ public class Message {
     public static final String UUID_MUST_NOT_BE_BLANK = "uuid must not be blank!";
 
     /**
+     * Degree must not be null.
+     */
+    public static final String DEGREE_MUST_NOT_BE_NULL = "degree must not be null!";
+
+    /**
      * UUIDs must not be empty.
      */
     public static final String UUIDS_MUST_NOT_EMPTY = "uuids must not be empty!";

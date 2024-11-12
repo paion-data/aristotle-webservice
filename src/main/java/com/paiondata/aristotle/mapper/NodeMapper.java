@@ -33,6 +33,7 @@ public interface NodeMapper {
      * Retrieves a graph node by its UUID.
      *
      * @param uuid the UUID of the graph node
+     *
      * @return the graph node
      */
     NodeVO getNodeByUuid(String uuid);
@@ -45,6 +46,7 @@ public interface NodeMapper {
      * @param currentTime the current time
      * @param nodeDTO the NodeDTO object containing the node properties
      * @param tx the Neo4j transaction
+     *
      * @return the created Node object
      */
     NodeVO createNode(String graphUuid, String nodeUuid, String relationUuid,
@@ -56,18 +58,21 @@ public interface NodeMapper {
      * @param properties the filter properties of the node
      * @param pageNumber the page number
      * @param pageSize the page size
+     *
      * @return Data Transfer Object (DTO) contains relations and nodes
      */
     GetRelationDTO getRelationByGraphUuid(String uuid, Map<String, String> properties,
                                           Integer pageNumber, Integer pageSize);
 
     /**
-     * Retrieves an unlimited expansion of a node in the graph.
-     * @param uuid the UUID of the graph.
-     * @param name the name of the node to expand.
-     * @return a GraphVO object containing the expanded nodes and their relationships.
+     * Retrieves a k-degree expansion of a node in the graph.
+     * @param graphUuid the UUID of the graph
+     * @param nodeUuid the UUID of the node to expand
+     * @param k the degree of expansion
+     *
+     * @return a GraphVO object containing the expanded nodes and their relationships
      */
-    GraphVO expandNodeUnlimited(String uuid, String name);
+    GraphVO kDegreeExpansion(String graphUuid, String nodeUuid, Integer k);
 
     /**
      * Binds two graph nodes with a specified relationship.

@@ -54,7 +54,9 @@ public class Neo4jTransactionAspect {
     /**
      * Handles Neo4j transactions.
      * @param joinPoint Join point
+     *
      * @return The result of the method call
+     *
      * @throws Throwable if an error occurs
      */
     @Around("@annotation(com.paiondata.aristotle.common.annotion.Neo4jTransactional)")

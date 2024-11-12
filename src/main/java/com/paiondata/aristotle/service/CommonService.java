@@ -34,6 +34,7 @@ public interface CommonService {
      * Retrieves an optional user by OIDC ID.
      *
      * @param oidcid the OIDC ID of the user
+     *
      * @return an Optional containing the user if found, or empty otherwise
      */
     Optional<User> getUserByOidcid(String oidcid);

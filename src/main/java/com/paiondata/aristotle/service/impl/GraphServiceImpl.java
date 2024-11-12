@@ -84,6 +84,7 @@ public class GraphServiceImpl implements GraphService {
      * @param filterQueryGraphDTO The DTO containing the graph UUID and optional properties for filtering. <br>
      *                            It includes the graph UUID and an optional map of properties.
      * @return A {@link GraphVO} object representing the graph and its nodes and relations.
+     *
      * @throws NoSuchElementException If the graph with the specified UUID is not found.
      */
     @Override
@@ -125,6 +126,7 @@ public class GraphServiceImpl implements GraphService {
      *
      * @param graphDeleteDTO The DTO containing the user identifier and the list of graph UUIDs to be deleted. <br>
      *                       It includes the user identifier ({@code oidcid}) and the list of graph UUIDs.
+     *
      * @throws NoSuchElementException If any of the specified graphs are not found.
      * @throws IllegalStateException If any of the specified graphs are bound to another user.
      */
@@ -166,6 +168,7 @@ public class GraphServiceImpl implements GraphService {
      * @param graphUpdateDTO The DTO containing the updated information for the graph. <br>
      *                       It includes the graph UUID, title, and description.
      * @param tx The Neo4j transaction object used for the database operation.
+     *
      * @throws IllegalArgumentException If the provided transaction is null.
      * @throws NoSuchElementException If the graph with the specified UUID is not found.
      */
