@@ -158,7 +158,7 @@ public interface TestConstants {
     /**
      * Test data.
      */
-    String DATA_NICKNAME = "data.nickName";
+    String DATA_USERNAME = "data.username";
 
     /**
      * Test data.

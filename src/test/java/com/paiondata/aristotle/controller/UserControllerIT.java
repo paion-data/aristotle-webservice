@@ -46,23 +46,23 @@ public class UserControllerIT extends AbstractIT {
      * Tests that the user controller handles invalid user creation requests.
      *
      * @param oidcid      the oidcid of the user
-     * @param nickName    the nickname of the user
+     * @param username    the username of the user
      * @param expectedError1   the expected error message for the oidcid
-     * @param expectedError2   the expected error message for the nickname
+     * @param expectedError2   the expected error message for the username
      */
     @ParameterizedTest
     @CsvSource({
-            "'', '', nickName must not be blank!, oidcid must not be blank!",
+            "'', '', Username must not be blank!, oidcid must not be blank!",
             "'', name, oidcid must not be blank!, ''",
-            "id, '', nickName must not be blank!, ''"})
+            "id, '', Username must not be blank!, ''"})
     @Order(1)
-    void jsonApiHandlesInvalidUserCreationRequests(final String oidcid, final String nickName,
+    void jsonApiHandlesInvalidUserCreationRequests(final String oidcid, final String username,
                                                           final String expectedError1, final String expectedError2) {
         final Response response = RestAssured
                 .given()
                 .contentType(ContentType.JSON)
                 .accept(ContentType.JSON)
-                .body(String.format(payload(CREATE_UPDATE_USER_JSON), oidcid, nickName))
+                .body(String.format(payload(CREATE_UPDATE_USER_JSON), oidcid, username))
                 .when()
                 .post(USER_ENDPOINT)
                 .then()
@@ -141,7 +141,7 @@ public class UserControllerIT extends AbstractIT {
                 .statusCode(HttpStatus.OK.value());
 
         assertEquals(TestConstants.TEST_ID1, response.jsonPath().get(TestConstants.DATA_OIDCID));
-        assertEquals(TestConstants.TEST_NAME1, response.jsonPath().get(TestConstants.DATA_NICKNAME));
+        assertEquals(TestConstants.TEST_NAME1, response.jsonPath().get(TestConstants.DATA_USERNAME));
     }
 
     /**
@@ -162,7 +162,7 @@ public class UserControllerIT extends AbstractIT {
                 .statusCode(200);
 
         assertEquals(TestConstants.TEST_ID1, response.jsonPath().get(TestConstants.DATA_OIDCID));
-        assertEquals(TestConstants.TEST_NAME1, response.jsonPath().get(TestConstants.DATA_NICKNAME));
+        assertEquals(TestConstants.TEST_NAME1, response.jsonPath().get(TestConstants.DATA_USERNAME));
     }
 
     /**
@@ -186,7 +186,7 @@ public class UserControllerIT extends AbstractIT {
                 .statusCode(HttpStatus.OK.value());
 
         assertEquals(TestConstants.TEST_ID2, response.jsonPath().get(TestConstants.DATA_OIDCID));
-        assertEquals(TestConstants.TEST_NAME2, response.jsonPath().get(TestConstants.DATA_NICKNAME));
+        assertEquals(TestConstants.TEST_NAME2, response.jsonPath().get(TestConstants.DATA_USERNAME));
     }
 
     /**
@@ -248,7 +248,7 @@ public class UserControllerIT extends AbstractIT {
                 .statusCode(HttpStatus.OK.value());
 
         assertEquals(TestConstants.TEST_ID1, response.jsonPath().get(TestConstants.DATA_OIDCID));
-        assertEquals(TestConstants.TEST_NAME2, response.jsonPath().get(TestConstants.DATA_NICKNAME));
+        assertEquals(TestConstants.TEST_NAME2, response.jsonPath().get(TestConstants.DATA_USERNAME));
     }
 
     /**

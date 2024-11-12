@@ -269,7 +269,7 @@ public class NodeControllerIT extends AbstractIT {
                 .statusCode(HttpStatus.OK.value());
 
         assertEquals(TestConstants.TEST_ID1, response.jsonPath().get(TestConstants.DATA_OIDCID));
-        assertEquals(TestConstants.TEST_NAME1, response.jsonPath().get(TestConstants.DATA_NICKNAME));
+        assertEquals(TestConstants.TEST_NAME1, response.jsonPath().get(TestConstants.DATA_USERNAME));
     }
 
     /**

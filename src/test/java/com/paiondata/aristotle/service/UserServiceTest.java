@@ -15,6 +15,7 @@
  */
 package com.paiondata.aristotle.service;
 
+import static org.junit.jupiter.api.Assertions.assertDoesNotThrow;
 import static org.junit.jupiter.api.Assertions.assertThrows;
 import static org.mockito.ArgumentMatchers.any;
 import static org.mockito.ArgumentMatchers.anyString;
@@ -85,10 +86,10 @@ public class UserServiceTest {
     public void getUserVOByOidcidUserExistsReturnsUserVO() {
         // Arrange
         final String oidcid = TestConstants.TEST_ID1;
-        final String nickName = TestConstants.TEST_NAME1;
+        final String username = TestConstants.TEST_NAME1;
         final User user = User.builder()
                 .oidcid(oidcid)
-                .nickName(nickName)
+                .username(username)
                 .build();
 
         final List<Map<String, Object>> graphs = Collections.singletonList(Collections.singletonMap(
@@ -102,7 +103,7 @@ public class UserServiceTest {
 
         // Assert
         Assertions.assertEquals(oidcid, userVO.getOidcid());
-        Assertions.assertEquals(nickName, userVO.getNickName());
+        Assertions.assertEquals(username, userVO.getUsername());
         Assertions.assertEquals(graphs, userVO.getGraphs());
 
         verify(userRepository, times(1)).getUserByOidcid(oidcid);
@@ -132,8 +133,8 @@ public class UserServiceTest {
     public void getAllUsersUsersExistReturnsListOfUserVOs() {
         // Arrange
         final List<User> users = new ArrayList<>();
-        users.add(User.builder().oidcid(TestConstants.TEST_ID1).nickName(TestConstants.TEST_NAME1).build());
-        users.add(User.builder().oidcid(TestConstants.TEST_ID2).nickName(TestConstants.TEST_NAME2).build());
+        users.add(User.builder().oidcid(TestConstants.TEST_ID1).username(TestConstants.TEST_NAME1).build());
+        users.add(User.builder().oidcid(TestConstants.TEST_ID2).username(TestConstants.TEST_NAME2).build());
 
         final List<Map<String, Object>> graphs1 = Collections.singletonList(Collections.singletonMap(
                 TestConstants.TEST_KEY1, TestConstants.TEST_VALUE1));
@@ -150,11 +151,11 @@ public class UserServiceTest {
         // Assert
         Assertions.assertEquals(2, userVOS.size());
         Assertions.assertEquals(TestConstants.TEST_ID1, userVOS.get(0).getOidcid());
-        Assertions.assertEquals(TestConstants.TEST_NAME1, userVOS.get(0).getNickName());
+        Assertions.assertEquals(TestConstants.TEST_NAME1, userVOS.get(0).getUsername());
         Assertions.assertEquals(graphs1, userVOS.get(0).getGraphs());
 
         Assertions.assertEquals(TestConstants.TEST_ID2, userVOS.get(1).getOidcid());
-        Assertions.assertEquals(TestConstants.TEST_NAME2, userVOS.get(1).getNickName());
+        Assertions.assertEquals(TestConstants.TEST_NAME2, userVOS.get(1).getUsername());
         Assertions.assertEquals(graphs2, userVOS.get(1).getGraphs());
     }
 
@@ -182,24 +183,24 @@ public class UserServiceTest {
     public void createUserUserInfoValidCreatesUser() {
         // Arrange
         final String oidcid = TestConstants.TEST_ID1;
-        final String nickName = TestConstants.TEST_NAME1;
+        final String username = TestConstants.TEST_NAME1;
         final UserDTO user = UserDTO.builder()
                 .oidcid(oidcid)
-                .nickName(nickName)
+                .username(username)
                 .build();
 
         // Mock the repository call
-        when(userRepository.createUser(oidcid, nickName)).thenReturn(User.builder()
-                .oidcid(oidcid).nickName(nickName).build());
+        when(userRepository.createUser(oidcid, username)).thenReturn(User.builder()
+                .oidcid(oidcid).username(username).build());
 
         // Act
         final UserDTO createdUser = userService.createUser(user);
 
         // Assert
-        verify(userRepository).createUser(oidcid, nickName);
+        verify(userRepository).createUser(oidcid, username);
         Assertions.assertNotNull(createdUser);
         Assertions.assertEquals(createdUser.getOidcid(), oidcid);
-        Assertions.assertEquals(createdUser.getNickName(), nickName);
+        Assertions.assertEquals(createdUser.getUsername(), username);
     }
 
     /**
@@ -209,21 +210,91 @@ public class UserServiceTest {
     public void createUserUserAlreadyExistsThrowsUserOidcidExistsException() {
         // Arrange
         final String oidcid = TestConstants.TEST_ID1;
-        final String nickName = TestConstants.TEST_NAME1;
+        final String username = TestConstants.TEST_NAME1;
         final UserDTO user = UserDTO.builder()
                 .oidcid(oidcid)
-                .nickName(nickName)
+                .username(username)
                 .build();
 
         doThrow(new DataIntegrityViolationException("Duplicate entry for OIDCID"))
                 .when(userRepository)
-                .createUser(oidcid, nickName);
+                .createUser(oidcid, username);
 
         // Act & Assert
         assertThrows(IllegalArgumentException.class, () -> userService.createUser(user));
 
         // Verify
-        verify(userRepository).createUser(oidcid, nickName);
+        verify(userRepository).createUser(oidcid, username);
+    }
+
+    /**
+     * Tests that updating a user works correctly when the user information is valid.
+     */
+    @Test
+    void testUpdateUserSuccess() {
+        // Arrange
+        final String oidcid = TestConstants.TEST_ID1;
+        final String username = TestConstants.TEST_NAME1;
+        final UserDTO userDTO = UserDTO.builder()
+                .oidcid(oidcid)
+                .username(username)
+                .build();
+
+        when(userRepository.checkOidcidExists(oidcid)).thenReturn(1L);
+
+        // Act & Assert
+        assertDoesNotThrow(() -> userService.updateUser(userDTO));
+
+        // Verify
+        verify(userRepository).checkOidcidExists(oidcid);
+        verify(userRepository).updateUser(oidcid, TestConstants.TEST_NAME1);
+    }
+
+    /**
+     * Tests that updating a user throws an IllegalArgumentException when the username already exists.
+     */
+    @Test
+    void testUpdateUserUsernameExists() {
+        // Arrange
+        final String oidcid = TestConstants.TEST_ID1;
+        final String username = TestConstants.TEST_NAME1;
+        final UserDTO userDTO = UserDTO.builder()
+                .oidcid(oidcid)
+                .username(username)
+                .build();
+
+        when(userRepository.checkOidcidExists(TestConstants.TEST_ID1)).thenReturn(1L);
+        doThrow(new DataIntegrityViolationException(""))
+                .when(userRepository).updateUser(TestConstants.TEST_ID1, TestConstants.TEST_NAME1);
+
+        // Act & Assert
+        assertThrows(IllegalArgumentException.class, () -> userService.updateUser(userDTO));
+
+        // Verify
+        verify(userRepository).checkOidcidExists(TestConstants.TEST_ID1);
+        verify(userRepository).updateUser(TestConstants.TEST_ID1, TestConstants.TEST_NAME1);
+    }
+
+    /**
+     * Tests that updating a user throws a NoSuchElementException when the user does not exist.
+     */
+    @Test
+    void testUpdateUserNotFound() {
+        // Arrange
+        final String oidcid = TestConstants.TEST_ID1;
+        final String username = TestConstants.TEST_NAME1;
+        final UserDTO userDTO = UserDTO.builder()
+                .oidcid(oidcid)
+                .username(username)
+                .build();
+
+        when(userRepository.checkOidcidExists(TestConstants.TEST_ID1)).thenReturn(0L);
+
+        // Act & Assert
+        assertThrows(NoSuchElementException.class, () -> userService.updateUser(userDTO));
+
+        // Verify
+        verify(userRepository).checkOidcidExists(TestConstants.TEST_ID1);
     }
 
     /**

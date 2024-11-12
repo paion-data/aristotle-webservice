@@ -182,7 +182,7 @@ public class GraphControllerIT extends AbstractIT {
                 .statusCode(HttpStatus.OK.value());
 
         assertEquals(response.jsonPath().get("data.oidcid"), TestConstants.TEST_ID1);
-        assertEquals(response.jsonPath().get("data.nickName"), TestConstants.TEST_NAME1);
+        assertEquals(response.jsonPath().get("data.username"), TestConstants.TEST_NAME1);
     }
 
     /**

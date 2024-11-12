@@ -51,9 +51,14 @@ public class Message {
     public static final String BOUND_SUCCESS = "Bound successfully.";
 
     /**
-     * The OIDC ID already exists.
+     * The OIDC ID or username already exists.
      */
-    public static final String OIDCID_EXISTS = "The user with OIDC ID '%s' already exists";
+    public static final String OIDCID_USERNAME_EXISTS = "The user with OIDC ID '%s' or username '%s' already exists";
+
+    /**
+     * The username already exists.
+     */
+    public static final String USERNAME_EXISTS = "The user with username '%s' already exists";
 
     /**
      * The request parameter verification failed.
@@ -96,9 +101,9 @@ public class Message {
     public static final String RELATION_MUST_NOT_BE_BLANK = "relation must not be blank!";
 
     /**
-     * NickName must not be blank.
+     * Username must not be blank.
      */
-    public static final String NICK_NAME_MUST_NOT_BE_BLANK = "nickName must not be blank!";
+    public static final String USERNAME_MUST_NOT_BE_BLANK = "Username must not be blank!";
 
     /**
      * Title must not be blank.

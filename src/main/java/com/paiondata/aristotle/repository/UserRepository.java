@@ -64,25 +64,25 @@ public interface UserRepository extends Neo4jRepository<User, Long> {
      * Creates a new user.
      *
      * @param oidcid the unique identifier of the user
-     * @param nickName the nickname of the user
+     * @param username the username of the user
      *
      * @return the created user
      */
-    @Query("CREATE (u:User { oidcid: $oidcid, nick_name: $nickName }) RETURN u")
+    @Query("CREATE (u:User { oidcid: $oidcid, username: $username }) RETURN u")
     User createUser(@Param("oidcid") String oidcid,
-                    @Param("nickName") String nickName);
+                    @Param("username") String username);
 
     /**
-     * Updates the nickname of a user.
+     * Updates the username of a user.
      *
      * @param oidcid   the unique identifier of the user
-     * @param nickName the new nickname of the user
+     * @param username the new username of the user
      *
      * @return the updated user
      */
-    @Query("MATCH (u:User { oidcid: $oidcid }) SET u.nick_name = $nickName RETURN u")
+    @Query("MATCH (u:User { oidcid: $oidcid }) SET u.username = $username RETURN u")
     User updateUser(@Param("oidcid") String oidcid,
-                    @Param("nickName") String nickName);
+                    @Param("username") String username);
 
     /**
      * Deletes users by their OIDC IDs.

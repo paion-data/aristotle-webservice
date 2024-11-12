@@ -76,7 +76,7 @@ public class CommonServiceTest {
         final String oidcid = TestConstants.TEST_ID1;
         final User expectedUser = User.builder()
                 .oidcid(oidcid)
-                .nickName(TestConstants.TEST_NAME1)
+                .username(TestConstants.TEST_NAME1)
                 .build();
 
         when(userRepository.getUserByOidcid(oidcid)).thenReturn(expectedUser);

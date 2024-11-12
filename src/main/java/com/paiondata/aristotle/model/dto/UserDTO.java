@@ -60,21 +60,21 @@ public class UserDTO extends BaseEntity {
     private String oidcid;
 
     /**
-     * The nickname of the user.
+     * The username of the user.
      *
      * <p>
-     * This field is the nickname of the user. It is a human-readable name that the user chooses to be
+     * This field is the username of the user. It is a human-readable name that the user chooses to be
      * identified by in the system.
      *
      * <p>
      * <strong>Note:</strong> This field is required and must not be blank.
      *
      * @example "JohnDoe"
-     * @see Message#NICK_NAME_MUST_NOT_BE_BLANK
+     * @see Message#USERNAME_MUST_NOT_BE_BLANK
      */
-    @ApiModelProperty(value = "The nickname of the user. This field is the nickname of the user. "
+    @ApiModelProperty(value = "The username of the user. This field is the username of the user. "
             + " It is a human-readable name that the user chooses to be identified by in the system. "
             + " This field is required and must not be blank.", required = true, example = "JohnDoe")
-    @NotBlank(message = Message.NICK_NAME_MUST_NOT_BE_BLANK)
-    private String nickName;
+    @NotBlank(message = Message.USERNAME_MUST_NOT_BE_BLANK)
+    private String username;
 }
