@@ -54,10 +54,10 @@ public class User extends BaseEntity {
     private String oidcid;
 
     /**
-     * The nickname of the user.
+     * The username of the user.
      */
-    @Property("nick_name")
-    private String nickName;
+    @Property("username")
+    private String username;
 
     /**
      * The list of graphs associated with the user.

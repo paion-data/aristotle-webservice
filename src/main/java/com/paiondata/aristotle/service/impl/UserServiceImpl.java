@@ -87,7 +87,7 @@ public class UserServiceImpl implements UserService {
 
         return UserVO.builder()
                 .oidcid(user.getOidcid())
-                .nickName(user.getNickName())
+                .username(user.getUsername())
                 .graphs(commonService.getGraphsByOidcid(user.getOidcid()))
                 .build();
     }
@@ -110,7 +110,7 @@ public class UserServiceImpl implements UserService {
         return users.stream()
                 .map(user -> UserVO.builder()
                         .oidcid(user.getOidcid())
-                        .nickName(user.getNickName())
+                        .username(user.getUsername())
                         .graphs(commonService.getGraphsByOidcid(user.getOidcid()))
                         .build())
                 .collect(Collectors.toList());
@@ -129,18 +129,19 @@ public class UserServiceImpl implements UserService {
      *
      * @return a {@link UserDTO} object representing the newly created user
      *
-     * @throws IllegalArgumentException if a user with the same oidcid already exists
+     * @throws IllegalArgumentException if a user with the same oidcid or username already exists
      */
     @Transactional
     @Override
     public UserDTO createUser(final UserDTO user) {
         final String oidcid = user.getOidcid();
+        final String username = user.getUsername();
 
         try {
-            final User returnUser = userRepository.createUser(oidcid, user.getNickName());
-            return new UserDTO(returnUser.getOidcid(), returnUser.getNickName());
+            final User returnUser = userRepository.createUser(oidcid, username);
+            return new UserDTO(returnUser.getOidcid(), returnUser.getUsername());
         } catch (final DataIntegrityViolationException e) {
-            final String message = String.format(Message.OIDCID_EXISTS, oidcid);
+            final String message = String.format(Message.OIDCID_USERNAME_EXISTS, oidcid, username);
             LOG.error(message);
             throw new IllegalArgumentException(message);
         }
@@ -148,23 +149,32 @@ public class UserServiceImpl implements UserService {
 
     /**
      * Updates an existing user.
-     *
+     * <p>
      * Checks if a user with the given oidcid exists using the {@link UserRepository#checkOidcidExists(String)} method.
-     * If the user exists, updates the user's nickname using
+     * If the user exists, updates the user's username using
      * the {@link UserRepository#updateUser(String, String)} method.
      * If the user does not exist, throws a {@link NoSuchElementException}.
+     * If the username already exists, throws an {@link IllegalArgumentException}.
      *
      * @param userDTO the {@link UserDTO} object containing the updated user details
      *
      * @throws NoSuchElementException if the user with the specified oidcid does not exist
+     * @throws IllegalArgumentException if the username already exists
      */
     @Transactional
     @Override
     public void updateUser(final UserDTO userDTO) {
         final String oidcid = userDTO.getOidcid();
+        final String username = userDTO.getUsername();
 
         if (userRepository.checkOidcidExists(oidcid) != 0) {
-            userRepository.updateUser(oidcid, userDTO.getNickName());
+            try {
+                userRepository.updateUser(oidcid, username);
+            } catch (final DataIntegrityViolationException e) {
+                final String message = String.format(Message.USERNAME_EXISTS, username);
+                LOG.error(message);
+                throw new IllegalArgumentException(message);
+            }
         } else {
             final String message = String.format(Message.USER_NULL, oidcid);
             LOG.error(message);

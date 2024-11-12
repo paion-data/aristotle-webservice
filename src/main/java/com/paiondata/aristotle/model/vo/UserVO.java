@@ -46,10 +46,10 @@ public class UserVO extends BaseEntity {
     private String oidcid;
 
     /**
-     * The nickname of the user.
+     * The username of the user.
      */
-    @ApiModelProperty(value = "The nickname of the user")
-    private String nickName;
+    @ApiModelProperty(value = "The username of the user")
+    private String username;
 
     /**
      * The list of graphs associated with the user.
