@@ -23,7 +23,13 @@ This section discusses deploying [Aristotle] in production.
 Prepare for Production Development
 ----------------------------------
 
-### Installing Java (on Ubuntu)
+:::note
+
+We assume an Ubuntu 22.04+ server is used for deployment.
+
+:::
+
+### Installing JDK 17
 
 ```bash
 sudo apt update
@@ -65,21 +71,26 @@ configuration file (such as.bashrc,.zshrc, or.profile) :
 export JAVA_HOME=/usr/lib/jvm/java-17-openjdk-amd64
 ```
 
-### Packaging Aristotle
+Packaging Up Aristotle
+----------------------
 
 ```bash
-git clone git@github.com:paion-data/aristotle.git
+git clone https://github.com/paion-data/aristotle.git
+cd aristotle
+
 export NEO4J_URI=YOUR_NEO4J_URI
 export NEO4J_USERNAME=YOUR_NEO4J_USERNAME
 export NEO4J_PASSWORD=YOUR_NEO4J_PASSWORD
 export NEO4J_DATABASE=YOUR_NEO4J_DATABASE
+
 mvn clean package
 ```
 
 [Aristotle] is built on [Springboot](https://spring.io/projects/spring-boot) and has a built-in web container, which we
 used maven to package into a jar file.
 
-### Running the JAR Package
+Starting Aristotle
+------------------
 
 ```bash
 java -jar target/Aristotle-1.0-SNAPSHOT.jar
@@ -89,6 +100,33 @@ The web service will run on port **8080**.
 
 ### Getting OpenAPI Documentation
 
-You can access the OpenAPI documentation at **http://localhost:8080/doc.html**. This documentation is built using **Swagger 2** and enhanced with **Knife4J**.
+You can access the OpenAPI documentation at **http://localhost:8080/doc.html**. This documentation is built using
+__Swagger 2__ and enhanced with __Knife4J__.
 
 [Aristotle]: https://aristotle-ws.com
+
+Troubleshooting
+---------------
+
+### Starting Aristotle throws the "Failed to execute CommandLineRunner" Error
+
+For Neo4J database, Aristotle automatically
+[creates couple of database constraints](https://github.com/paion-data/aristotle/blob/master/src/main/java/com/paiondata/aristotle/config/ConstraintInitializer.java)
+at its very first contact to the database. If the [startup](#starting-aristotle) results in
+
+```text
+java.lang.IllegalStateException: Failed to execute CommandLineRunner
+	at org.springframework.boot.SpringApplication.callRunner(SpringApplication.java:774) ~[spring-boot-2.7.3.jar!/:2.7.3]
+	at org.springframework.boot.SpringApplication.callRunners(SpringApplication.java:755) ~[spring-boot-2.7.3.jar!/:2.7.3]
+	at org.springframework.boot.SpringApplication.run(SpringApplication.java:315) ~[spring-boot-2.7.3.jar!/:2.7.3]
+	...
+Caused by: org.neo4j.driver.exceptions.DatabaseException: Unable to create Constraint( name='constraint_1c8dc611', type='UNIQUENESS', schema=(:User {oidcid}) ):
+Both Node(516397) and Node(517024) have the label `User` and property `oidcid` = 'user42fd5D645'. Note that only the first found violation is shown.
+	at org.neo4j.driver.internal.util.Futures.blockingGet(Futures.java:111) ~[neo4j-java-driver-4.4.9.jar!/:4.4.9-e855bcc800deff6ddcf064c822314bb5c8d08c53]
+	at org.neo4j.driver.internal.InternalTransaction.run(InternalTransaction.java:58) ~[neo4j-java-driver-4.4.9.jar!/:4.4.9-e855bcc800deff6ddcf064c822314bb5c8d08c53]
+	at org.neo4j.driver.internal.AbstractQueryRunner.run(AbstractQueryRunner.java:34) ~[neo4j-java-driver-4.4.9.jar!/:4.4.9-e855bcc800deff6ddcf064c822314bb5c8d08c53]
+	...
+```
+
+then it is very likely that the Neo4J database already contains some data that prevents the constraints from being
+created. We recommend empty the database and start Aristotle again.
