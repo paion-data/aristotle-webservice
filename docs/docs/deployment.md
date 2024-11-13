@@ -83,7 +83,7 @@ export NEO4J_USERNAME=YOUR_NEO4J_USERNAME
 export NEO4J_PASSWORD=YOUR_NEO4J_PASSWORD
 export NEO4J_DATABASE=YOUR_NEO4J_DATABASE
 
-mvn clean package
+mvn clean package -Dmaven.test.skip=true
 ```
 
 [Aristotle] is built on [Springboot](https://spring.io/projects/spring-boot) and has a built-in web container, which we
@@ -102,8 +102,6 @@ The web service will run on port **8080**.
 
 You can access the OpenAPI documentation at **http://localhost:8080/doc.html**. This documentation is built using
 __Swagger 2__ and enhanced with __Knife4J__.
-
-[Aristotle]: https://aristotle-ws.com
 
 Troubleshooting
 ---------------
@@ -130,3 +128,5 @@ Both Node(516397) and Node(517024) have the label `User` and property `oidcid` =
 
 then it is very likely that the Neo4J database already contains some data that prevents the constraints from being
 created. We recommend empty the database and start Aristotle again.
+
+[Aristotle]: https://aristotle-ws.com
