@@ -65,7 +65,7 @@ public class GraphControllerIT extends AbstractIT {
                 .accept(ContentType.JSON)
                 .body(String.format(payload(GET_GRAPH_JSON), ""))
                 .when()
-                .post(GRAPH_ENDPOINT)
+                .post(GRAPH_ENDPOINT + FILTER_ENDPOINT)
                 .then()
                 .extract()
                 .response();
@@ -78,11 +78,58 @@ public class GraphControllerIT extends AbstractIT {
     }
 
     /**
+     * Parameterized test to verify if the JSON API correctly handles invalid user creation requests by returning
+     * a 400 Bad Request status code and appropriate error messages.
+     *
+     * @param oidcid The OIDC ID to be used in the request body.
+     * @param title The title to be used in the request body.
+     * @param description The description to be used in the request body.
+     * @param temporaryId1 The first temporary ID to be used in the request body.
+     * @param temporaryId2 The second temporary ID to be used in the request body.
+     * @param fromId The from ID to be used in the request body.
+     * @param relationName The relation name to be used in the request body.
+     * @param toId The to ID to be used in the request body.
+     * @param expectedError The expected error message.
+     */
+    @ParameterizedTest
+    @CsvSource({
+            "'', title, description, id1, id2, id1, relation, id2, oidcid must not be blank!",
+            "oidcid, '', description, id1, id2, id1, relation, id2, title must not be blank!",
+            "oidcid, title, '', id1, id2, id1, relation, id2, description must not be blank!",
+            "oidcid, title, description, '', id2, id1, relation, id2, temporaryId must not null!",
+            "oidcid, title, description, id1, '', id1, relation, id2, temporaryId must not null!",
+            "oidcid, title, description, id1, id2, '', relation, id2, fromId must not be blank!",
+            "oidcid, title, description, id1, id2, id1, '', id2, relation must not be blank!",
+            "oidcid, title, description, id1, id2, id1, relation, '', toId must not be blank!"})
+    @Order(2)
+    void jsonApiHandlesInvalidGraphCreationRequests(final String oidcid, final String title, final String description,
+                                                   final String temporaryId1, final String temporaryId2,
+                                                   final String fromId, final String relationName, final String toId,
+                                                   final String expectedError) {
+        final Response response = RestAssured
+                .given()
+                .contentType(ContentType.JSON)
+                .accept(ContentType.JSON)
+                .body(String.format(payload("create-graph-nodes-to-valid.json"), oidcid, title, description,
+                        temporaryId1, temporaryId2, fromId, relationName, toId))
+                .when()
+                .post(GRAPH_ENDPOINT)
+                .then()
+                .extract()
+                .response();
+
+        response.then()
+                .statusCode(HttpStatus.BAD_REQUEST.value());
+
+        assertEquals(expectedError, response.jsonPath().get(TestConstants.DATA_0));
+    }
+
+    /**
      * Tests if the JSON API correctly handles invalid graph updating requests by returning a 400 Bad Request status
      * code and appropriate error messages.
      */
     @Test
-    @Order(2)
+    @Order(3)
     void jsonApiHandlesInvalidGraphUpdatingRequests() {
         final Response response = RestAssured
                 .given()
@@ -114,7 +161,7 @@ public class GraphControllerIT extends AbstractIT {
     @CsvSource({
             "'' , oidcid must not be blank! , uuids must not be empty!",
             "id1 , uuids must not be empty! , ''"})
-    @Order(3)
+    @Order(4)
     void jsonApiHandlesInvalidGraphDeletingRequests(final String oidcid, final String expectedError1,
                                                     final String expectedError2) {
         final Response response = RestAssured
@@ -147,7 +194,7 @@ public class GraphControllerIT extends AbstractIT {
      * response data is empty.
      */
     @Test
-    @Order(4)
+    @Order(5)
     void databaseIsEmpty() {
         final Response response = RestAssured
                 .given()
@@ -165,7 +212,7 @@ public class GraphControllerIT extends AbstractIT {
      * verifying the response.
      */
     @Test
-    @Order(5)
+    @Order(6)
     void anUserEntityIsPostedViaJsonApi() {
         final Response response = RestAssured
                 .given()
@@ -190,7 +237,7 @@ public class GraphControllerIT extends AbstractIT {
      * to the node/graph endpoint and verifying the response.
      */
     @Test
-    @Order(6)
+    @Order(7)
     void weCanCreateGraphAndNodesAndBindRelationshipsInOneStep() {
         final Response response = RestAssured
                 .given()
@@ -200,7 +247,7 @@ public class GraphControllerIT extends AbstractIT {
                         TestConstants.TEST_TITLE1, TestConstants.BLUE, TestConstants.BLUE, TestConstants.GREEN,
                         TestConstants.BLUE, TestConstants.BLUE, TestConstants.BLUE, TestConstants.BLUE))
                 .when()
-                .post("/node/graph")
+                .post(GRAPH_ENDPOINT)
                 .then()
                 .extract()
                 .response();
@@ -219,7 +266,7 @@ public class GraphControllerIT extends AbstractIT {
      * graph endpoint and verifying the response.
      */
     @Test
-    @Order(7)
+    @Order(8)
     void weCanGetThatGraphEntityNextByFilterAndPageParams() {
         Response response = RestAssured
                 .given()
@@ -229,7 +276,7 @@ public class GraphControllerIT extends AbstractIT {
                         uuid, TestConstants.BLUE,
                         TestConstants.DEFALUT_PAGE_SIZE, TestConstants.DEFALUT_PAGE_NUMBER))
                 .when()
-                .post(GRAPH_ENDPOINT)
+                .post(GRAPH_ENDPOINT + FILTER_ENDPOINT)
                 .then()
                 .extract()
                 .response();
@@ -254,7 +301,7 @@ public class GraphControllerIT extends AbstractIT {
                         uuid, TestConstants.BLUE,
                         TestConstants.TEST_PAGE_SIZE_01, TestConstants.DEFALUT_PAGE_NUMBER))
                 .when()
-                .post(GRAPH_ENDPOINT)
+                .post(GRAPH_ENDPOINT + FILTER_ENDPOINT)
                 .then()
                 .extract()
                 .response();
@@ -274,7 +321,7 @@ public class GraphControllerIT extends AbstractIT {
                         uuid, TestConstants.BLUE,
                         TestConstants.TEST_PAGE_SIZE_01, TestConstants.TEST_PAGE_NUMBER_01))
                 .when()
-                .post(GRAPH_ENDPOINT)
+                .post(GRAPH_ENDPOINT + FILTER_ENDPOINT)
                 .then()
                 .extract()
                 .response();
@@ -291,7 +338,7 @@ public class GraphControllerIT extends AbstractIT {
      * Tests if a graph entity can be updated by making a PUT request to the graph endpoint and verifying the response.
      */
     @Test
-    @Order(8)
+    @Order(9)
     void weCanUpdateThatGraphEntity() {
         RestAssured
                 .given()
@@ -310,7 +357,7 @@ public class GraphControllerIT extends AbstractIT {
      * and verifying the response.
      */
     @Test
-    @Order(9)
+    @Order(10)
     void weCanGetThatGraphEntityWithUpdatedAttribute() {
         final Response response = RestAssured
                 .given()
@@ -331,7 +378,7 @@ public class GraphControllerIT extends AbstractIT {
      * Tests if a graph can be deleted by making a DELETE request to the graph endpoint and verifying the response.
      */
     @Test
-    @Order(10)
+    @Order(11)
     void weCanDeleteGraph() {
         final Response response = RestAssured
                 .given()
@@ -349,7 +396,7 @@ public class GraphControllerIT extends AbstractIT {
      * and verifying the response.
      */
     @Test
-    @Order(11)
+    @Order(12)
     void thatGraphEntityIsNotFoundInDatabaseAnyMore() {
         final Response response = RestAssured
                 .given()
@@ -357,7 +404,7 @@ public class GraphControllerIT extends AbstractIT {
                 .accept(ContentType.JSON)
                 .body(String.format(payload(GET_GRAPH_JSON), uuid))
                 .when()
-                .post(GRAPH_ENDPOINT)
+                .post(GRAPH_ENDPOINT + FILTER_ENDPOINT)
                 .then()
                 .extract()
                 .response();

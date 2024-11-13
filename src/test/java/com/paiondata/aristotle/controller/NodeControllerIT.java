@@ -73,53 +73,6 @@ public class NodeControllerIT extends AbstractIT {
     private static String nodeUuid3;
 
     /**
-     * Parameterized test to verify if the JSON API correctly handles invalid user creation requests by returning
-     * a 400 Bad Request status code and appropriate error messages.
-     *
-     * @param oidcid The OIDC ID to be used in the request body.
-     * @param title The title to be used in the request body.
-     * @param description The description to be used in the request body.
-     * @param temporaryId1 The first temporary ID to be used in the request body.
-     * @param temporaryId2 The second temporary ID to be used in the request body.
-     * @param fromId The from ID to be used in the request body.
-     * @param relationName The relation name to be used in the request body.
-     * @param toId The to ID to be used in the request body.
-     * @param expectedError The expected error message.
-     */
-    @ParameterizedTest
-    @CsvSource({
-            "'', title, description, id1, id2, id1, relation, id2, oidcid must not be blank!",
-            "oidcid, '', description, id1, id2, id1, relation, id2, title must not be blank!",
-            "oidcid, title, '', id1, id2, id1, relation, id2, description must not be blank!",
-            "oidcid, title, description, '', id2, id1, relation, id2, temporaryId must not null!",
-            "oidcid, title, description, id1, '', id1, relation, id2, temporaryId must not null!",
-            "oidcid, title, description, id1, id2, '', relation, id2, fromId must not be blank!",
-            "oidcid, title, description, id1, id2, id1, '', id2, relation must not be blank!",
-            "oidcid, title, description, id1, id2, id1, relation, '', toId must not be blank!"})
-    @Order(1)
-    void jsonApiHandlesInvalidUserCreationRequests(final String oidcid, final String title, final String description,
-                                                   final String temporaryId1, final String temporaryId2,
-                                                   final String fromId, final String relationName, final String toId,
-                                                   final String expectedError) {
-        final Response response = RestAssured
-                .given()
-                .contentType(ContentType.JSON)
-                .accept(ContentType.JSON)
-                .body(String.format(payload("create-graph-nodes-to-valid.json"), oidcid, title, description,
-                        temporaryId1, temporaryId2, fromId, relationName, toId))
-                .when()
-                .post(NODE_ENDPOINT + "/graph")
-                .then()
-                .extract()
-                .response();
-
-        response.then()
-                .statusCode(HttpStatus.BAD_REQUEST.value());
-
-        assertEquals(expectedError, response.jsonPath().get(TestConstants.DATA_0));
-    }
-
-    /**
      * Parameterized test to verify if the JSON API correctly handles invalid node creation requests by returning a
      * 400 Bad Request status code and appropriate error messages.
      *
@@ -139,7 +92,7 @@ public class NodeControllerIT extends AbstractIT {
             "'', id1, id2, id1, relation, id2, uuid must not be blank!, ''",
             "id, id1, id2, id1, '', id2, relation must not be blank!, ''",
             "'', '', id2, id1, relation, id2, uuid must not be blank!, temporaryId must not null!"})
-    @Order(2)
+    @Order(1)
     void jsonApiHandlesInvalidNodeCreationRequests(final String uuid, final String temporaryId1,
                                                    final String temporaryId2, final String fromId,
                                                    final String relationName, final String toId,
@@ -175,7 +128,7 @@ public class NodeControllerIT extends AbstractIT {
      * and appropriate error messages.
      */
     @Test
-    @Order(3)
+    @Order(2)
     void jsonApiHandlesInvalidNodeUpdatingRequests() {
         final Response response = RestAssured
                 .given()
@@ -200,7 +153,7 @@ public class NodeControllerIT extends AbstractIT {
      * response data is empty.
      */
     @Test
-    @Order(4)
+    @Order(3)
     void databaseIsEmpty() {
         final Response response = RestAssured
                 .given()
@@ -218,7 +171,7 @@ public class NodeControllerIT extends AbstractIT {
      * verifying the response.
      */
     @Test
-    @Order(5)
+    @Order(4)
     void anUserEntityIsPostedViaJsonApi() {
         final Response response = RestAssured
                 .given()
@@ -243,7 +196,7 @@ public class NodeControllerIT extends AbstractIT {
      * node/graph endpoint and verifying the response.
      */
     @Test
-    @Order(6)
+    @Order(5)
     void anGraphEntityIsPostedViaJsonApiWithoutAnyNode() {
         final Response response = RestAssured
                 .given()
@@ -251,7 +204,7 @@ public class NodeControllerIT extends AbstractIT {
                 .accept(ContentType.JSON)
                 .body(String.format(payload("create-graph.json"), TestConstants.TEST_ID1, TestConstants.TEST_TITLE1))
                 .when()
-                .post(NODE_ENDPOINT + GRAPH_ENDPOINT)
+                .post(GRAPH_ENDPOINT)
                 .then()
                 .extract()
                 .response();
@@ -270,7 +223,7 @@ public class NodeControllerIT extends AbstractIT {
      * verifying the response.
      */
     @Test
-    @Order(7)
+    @Order(6)
     void nodeEntityIsPostedViaJsonApi() {
         final Response response = RestAssured
                 .given()
@@ -301,7 +254,7 @@ public class NodeControllerIT extends AbstractIT {
      * and verifying the response.
      */
     @Test
-    @Order(8)
+    @Order(7)
     void weCanGetThatNodeEntityNext() {
         final Response response = RestAssured
                 .given()
@@ -309,7 +262,7 @@ public class NodeControllerIT extends AbstractIT {
                 .accept(ContentType.JSON)
                 .body(String.format(payload(GET_GRAPH_JSON), graphUuid1))
                 .when()
-                .post(GRAPH_ENDPOINT)
+                .post(GRAPH_ENDPOINT + FILTER_ENDPOINT)
                 .then()
                 .extract()
                 .response();
@@ -330,7 +283,7 @@ public class NodeControllerIT extends AbstractIT {
      * and verifying the response.
      */
     @Test
-    @Order(9)
+    @Order(8)
     void weCanUpdateThatNodeEntity() {
         RestAssured
                 .given()
@@ -348,7 +301,7 @@ public class NodeControllerIT extends AbstractIT {
      * and verifying the response.
      */
     @Test
-    @Order(10)
+    @Order(9)
     void weCanGetThatNodeEntityWithUpdatedAttribute() {
         final Response response = RestAssured
                 .given()
@@ -369,7 +322,7 @@ public class NodeControllerIT extends AbstractIT {
      * Tests if nodes can be related by making a POST request to the node/bind endpoint and verifying the response.
      */
     @Test
-    @Order(11)
+    @Order(10)
     void theNodesAreRelated() {
         RestAssured
                 .given()
@@ -389,7 +342,7 @@ public class NodeControllerIT extends AbstractIT {
      * graph endpoint and verifying the response.
      */
     @Test
-    @Order(12)
+    @Order(11)
     void weCanGetTheRelationOfNodesViaGraphUuid() {
         final Response response = RestAssured
                 .given()
@@ -397,7 +350,7 @@ public class NodeControllerIT extends AbstractIT {
                 .accept(ContentType.JSON)
                 .body(String.format(payload(GET_GRAPH_JSON), graphUuid1))
                 .when()
-                .post(GRAPH_ENDPOINT)
+                .post(GRAPH_ENDPOINT + FILTER_ENDPOINT)
                 .then()
                 .extract()
                 .response();
@@ -409,7 +362,7 @@ public class NodeControllerIT extends AbstractIT {
      * Tests if a graph can be created and nodes can be bound to it and the relationships can be expanded.
      */
     @Test
-    @Order(13)
+    @Order(12)
     public void weCanCreateGraphAndNodesAndBindRelationshipsToExpand() {
         final Response response = RestAssured
                 .given()
@@ -417,7 +370,7 @@ public class NodeControllerIT extends AbstractIT {
                 .accept(ContentType.JSON)
                 .body(String.format(payload("create-graph-nodes-to-expand.json"), TestConstants.TEST_ID1))
                 .when()
-                .post(NODE_ENDPOINT + GRAPH_ENDPOINT)
+                .post(GRAPH_ENDPOINT)
                 .then()
                 .extract()
                 .response();
@@ -439,7 +392,7 @@ public class NodeControllerIT extends AbstractIT {
      */
     @ParameterizedTest
     @CsvSource({"1, 4", "2, 9", "3, 11", "4, 14", "5, 15", "6, 16", "7, 16", "0, 1", "-1, 16", "1000, 16"})
-    @Order(14)
+    @Order(13)
     public void weCanGetThatExpandNodesNextByGraphUuidAndNodesName(final String degree, final String count) {
         final Response response = RestAssured
                 .given()
@@ -463,7 +416,7 @@ public class NodeControllerIT extends AbstractIT {
      * Tests if a node entity can be deleted by making a DELETE request to the node endpoint and verifying the response.
      */
     @Test
-    @Order(15)
+    @Order(14)
     void weCanDeleteThatNodeEntity() {
         final Response response = RestAssured
                 .given()
@@ -481,7 +434,7 @@ public class NodeControllerIT extends AbstractIT {
      * and verifying the response.
      */
     @Test
-    @Order(16)
+    @Order(15)
     void thatNodeEntityIsNotFoundInDatabaseAnymore() {
         final Response response = RestAssured
                 .given()
