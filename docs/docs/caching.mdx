@@ -50,8 +50,8 @@ read-cache:
 
 ### Configuring LRU Cache
 
-The main tunning point of a LRU is its size in terms of memory allocation or number of items cached. To bound the cache
-based on memory size, use `read-cache.size` [configuration](./configuration):
+Cache size can be adjusted in terms of memory allocation or number of items cached. To bound the cache based on memory
+size, use `read-cache.size` [configuration](./configuration):
 
 ```yaml
 read-cache:
@@ -89,43 +89,17 @@ startup
 Timed-Out Queries
 -----------------
 
-For the second type of issue, we pre-compute expand subgraph in a separate process and load the subgraph as the cache
-into Redis.
+For the second type of issue, we pre-compute expand subgraph in a separate microservice, called
+[mega-mover](https://github.com/paion-data/mega-mover/) and load the subgraph as the cache into Redis.
 
-There will be 2 types of loading mechanisms:
+:::tip
 
-1. Spring Scheduler for medium-sized cache generation
-2. External Process for large cache computations
+Mega Mover is still under development and its documentation will be available once done.
+
+:::
 
 import RedisCache from './img/redis-caching.png';
 
 <div align="center"> 
     <img src={RedisCache} width="80%"/>
 </div>
-
-### Spring Scheduler Loading
-
-#### Enabling the Scheduler
-
-The scheduler is disabled by default. To enable it, set the `spring-scheduler.enabled` to `true` in
-[configuration](./configuration)
-
-```yaml
-spring-scheduler:
-  enabled: true
-```
-
-### Scheduler Configuration
-
-At this moment, only a cron regex is supported that controls how often the scheduler is run. For example, to trigger a
-cache load on 1:01 am every day:
-
-```yaml
-spring-scheduler:
-  enabled: true
-  cron-regex: "0 1 1 * * ?"
-```
-
-### Configuring External Loading
-
-TBA
