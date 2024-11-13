@@ -1,0 +1,131 @@
+---
+sidebar_position: 6
+title: Caching
+---
+
+[//]: # (Copyright 2024 Paion Data)
+
+[//]: # (Licensed under the Apache License, Version 2.0 &#40;the "License"&#41;;)
+[//]: # (you may not use this file except in compliance with the License.)
+[//]: # (You may obtain a copy of the License at)
+
+[//]: # (    http://www.apache.org/licenses/LICENSE-2.0)
+
+[//]: # (Unless required by applicable law or agreed to in writing, software)
+[//]: # (distributed under the License is distributed on an "AS IS" BASIS,)
+[//]: # (WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.)
+[//]: # (See the License for the specific language governing permissions and)
+[//]: # (limitations under the License.)
+
+Aristotle is designed to be serving over hundreds of millions of nodes and links. One challenge for supporting the
+CRUD of the data in such a scale is the efficient _expand_ operation common in knowledge graph, because such operation
+over sufficiently large dataset often results in
+
+1. Long-running query
+2. Timed-out query (due to out-of-memory error)
+
+This section discusses how Aristotle handles the two cases above.
+
+Handling Long-Running Queries
+-----------------------------
+
+Under a high load when data is massive, even small subgraph expansion could post high pressure on the database,
+resulting slower queries for such cases. Aristotle offers LRU cache mechanism that offers the optimal query time for
+most frequently queries subgraph. Although we are aware that great tools such as
+[Guava](https://github.com/google/guava) or [Caffeine](https://github.com/ben-manes/caffeine) cache are there for us, 
+since Aristotle is Spring-based, for this type of caching we use
+[Spring Cache](https://docs.spring.io/spring-boot/reference/io/caching.html) as the transparent caching mechanism on all
+read operations. 
+
+### Enabling LRU Cache
+
+The cache is enabled by default. To disable it, simply set `read-cache.enabled` [configuration](./configuration) to
+`false`. Here is the example for disabling the cache in
+[application.yaml](https://github.com/paion-data/aristotle/blob/master/src/main/resources/application.yaml)
+
+```yaml
+read-cache:
+  enabled: false
+```
+
+### Configuring LRU Cache
+
+The main tunning point of a LRU is its size in terms of memory allocation or number of items cached. To bound the cache
+based on memory size, use `read-cache.size` [configuration](./configuration):
+
+```yaml
+read-cache:
+  enabled: true
+  size: 500MB
+```
+
+:::info[Size Unit]
+
+The acceptable memory size units are:
+
+- KB
+- MB
+- GB
+
+Specifying all others will result in a configuration error
+
+:::
+
+To restrict the number of cache entries instead, use `read-cache.num-subgraphs`:
+
+```yaml
+read-cache:
+  enabled: true
+  num-subgraphs: 5000
+```
+
+:::warning
+
+Specifying both `read-cache.size` and `read-cache.num-subgraphs` is a configuration error and fails the Aristotle
+startup
+
+:::
+
+Timed-Out Queries
+-----------------
+
+For the second type of issue, we pre-compute expand subgraph in a separate process and load the subgraph as the cache
+into Redis.
+
+There will be 2 types of loading mechanisms:
+
+1. Spring Scheduler for medium-sized cache generation
+2. External Process for large cache computations
+
+import RedisCache from './img/redis-caching.png';
+
+<div align="center"> 
+    <img src={RedisCache} width="80%"/>
+</div>
+
+### Spring Scheduler Loading
+
+#### Enabling the Scheduler
+
+The scheduler is disabled by default. To enable it, set the `spring-scheduler.enabled` to `true` in
+[configuration](./configuration)
+
+```yaml
+spring-scheduler:
+  enabled: true
+```
+
+### Scheduler Configuration
+
+At this moment, only a cron regex is supported that controls how often the scheduler is run. For example, to trigger a
+cache load on 1:01 am every day:
+
+```yaml
+spring-scheduler:
+  enabled: true
+  cron-regex: "0 1 1 * * ?"
+```
+
+### Configuring External Loading
+
+TBA
