@@ -61,6 +61,11 @@ abstract class AbstractIT {
     static final String GRAPH_ENDPOINT = "/graph";
 
     /**
+     * The endpoint for filter-related operations.
+     */
+    static final String FILTER_ENDPOINT = "/filter";
+
+    /**
      * The endpoint for update-related operations.
      */
     static final String UPDATE_ENDPOINT = "/update";

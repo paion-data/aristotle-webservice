@@ -18,10 +18,12 @@ package com.paiondata.aristotle.controller;
 import com.paiondata.aristotle.common.base.Message;
 import com.paiondata.aristotle.common.base.Result;
 import com.paiondata.aristotle.model.dto.FilterQueryGraphDTO;
+import com.paiondata.aristotle.model.dto.GraphAndNodeCreateDTO;
 import com.paiondata.aristotle.model.dto.GraphDeleteDTO;
 import com.paiondata.aristotle.model.dto.GraphUpdateDTO;
 import com.paiondata.aristotle.model.vo.GraphVO;
 import com.paiondata.aristotle.service.GraphService;
+import com.paiondata.aristotle.service.NodeService;
 import io.swagger.annotations.Api;
 import io.swagger.annotations.ApiOperation;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -45,6 +47,9 @@ public class GraphController {
     @Autowired
     private GraphService graphService;
 
+    @Autowired
+    private NodeService nodeService;
+
     /**
      * Retrieves a graph by its UUID and filter parameters.
      * <p>
@@ -57,9 +62,31 @@ public class GraphController {
      * @return a {@link Result} object containing the graph data as a {@link GraphVO}
      */
     @ApiOperation(value = "Retrieve the graph by uuid and filter parameters")
-    @PostMapping
+    @PostMapping("/filter")
     public Result<GraphVO> getGraphByUuidAndFilterParams(@RequestBody @Valid final FilterQueryGraphDTO dto) {
         return Result.ok(graphService.getGraphVOByUuid(dto));
+    }
+
+    /**
+     * Creates a graph and binds it with nodes.
+     * <p>
+     * This method handles a POST request to create a graph and optionally bind it with nodes.
+     * It validates the input DTO and calls the node service to create the graph and nodes.
+     * If specified, it also binds the nodes with relationships.
+     * The result is wrapped in a {@link Result} object with a success message and the created graph data.
+     *
+     * @param graphNodeCreateDTO the {@link GraphAndNodeCreateDTO} containing the graph and node creation information
+     *
+     * @return a {@link Result} object containing a success message and the created graph data as {@link GraphVO}
+     *
+     * @notes You can create just graphs, or just graphs and nodes without binding any relations between nodes
+     */
+    @ApiOperation(value = "Creates a graph and binds it with nodes",
+            notes = "You can create just graphs, or just graphs and nodes without binding any relations between nodes")
+    @PostMapping
+    public Result<GraphVO> createGraphAndBindGraphAndNode(
+            @RequestBody @Valid final GraphAndNodeCreateDTO graphNodeCreateDTO) {
+        return Result.ok(nodeService.createGraphAndBindGraphAndNode(graphNodeCreateDTO, null));
     }
 
     /**

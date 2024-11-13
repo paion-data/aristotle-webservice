@@ -20,7 +20,6 @@ import com.paiondata.aristotle.common.base.Result;
 import com.paiondata.aristotle.model.vo.GraphVO;
 import com.paiondata.aristotle.model.vo.NodeVO;
 import com.paiondata.aristotle.model.dto.NodeCreateDTO;
-import com.paiondata.aristotle.model.dto.GraphAndNodeCreateDTO;
 import com.paiondata.aristotle.model.dto.NodeDeleteDTO;
 import com.paiondata.aristotle.model.dto.NodeUpdateDTO;
 import com.paiondata.aristotle.model.dto.RelationUpdateDTO;
@@ -143,28 +142,6 @@ public class NodeController {
     @PostMapping
     public Result<List<NodeVO>> createAndBindNode(@RequestBody @Valid final NodeCreateDTO graphNodeCreateDTO) {
         return Result.ok(Message.CREATE_SUCCESS, nodeService.createAndBindGraphAndNode(graphNodeCreateDTO, null));
-    }
-
-    /**
-     * Creates a graph and binds it with nodes.
-     * <p>
-     * This method handles a POST request to create a graph and optionally bind it with nodes.
-     * It validates the input DTO and calls the node service to create the graph and nodes.
-     * If specified, it also binds the nodes with relationships.
-     * The result is wrapped in a {@link Result} object with a success message and the created graph data.
-     *
-     * @param graphNodeCreateDTO the {@link GraphAndNodeCreateDTO} containing the graph and node creation information
-     *
-     * @return a {@link Result} object containing a success message and the created graph data as {@link GraphVO}
-     *
-     * @notes You can create just graphs, or just graphs and nodes without binding any relations between nodes
-     */
-    @ApiOperation(value = "Creates a graph and binds it with nodes",
-            notes = "You can create just graphs, or just graphs and nodes without binding any relations between nodes")
-    @PostMapping("/graph")
-    public Result<GraphVO> createGraphAndBindGraphAndNode(
-            @RequestBody @Valid final GraphAndNodeCreateDTO graphNodeCreateDTO) {
-        return Result.ok(nodeService.createGraphAndBindGraphAndNode(graphNodeCreateDTO, null));
     }
 
     /**
