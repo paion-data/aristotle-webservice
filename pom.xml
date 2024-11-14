@@ -36,8 +36,6 @@
         <java.version>17</java.version>
         <lombok.version>1.18.34</lombok.version>
         <hutool.version>5.8.29</hutool.version>
-        <spring-boot.version>3.3.2</spring-boot.version>
-
         <version.maven.javadoc.plugin>3.5.0</version.maven.javadoc.plugin>
         <version.knife4j>3.0.3</version.knife4j>
         <version.springfox>3.0.0</version.springfox>
@@ -72,6 +70,16 @@
         <dependency>
             <groupId>org.springframework.boot</groupId>
             <artifactId>spring-boot-starter-aop</artifactId>
+        </dependency>
+
+        <!--caffeine-->
+        <dependency>
+            <groupId>org.springframework.boot</groupId>
+            <artifactId>spring-boot-starter-cache</artifactId>
+        </dependency>
+        <dependency>
+            <groupId>com.github.ben-manes.caffeine</groupId>
+            <artifactId>caffeine</artifactId>
         </dependency>
 
         <dependency>

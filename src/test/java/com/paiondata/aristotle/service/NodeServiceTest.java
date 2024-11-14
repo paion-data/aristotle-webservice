@@ -17,7 +17,10 @@ package com.paiondata.aristotle.service;
 
 import static org.junit.jupiter.api.Assertions.assertDoesNotThrow;
 import static org.junit.jupiter.api.Assertions.assertEquals;
+import static org.junit.jupiter.api.Assertions.assertFalse;
+import static org.junit.jupiter.api.Assertions.assertNotNull;
 import static org.junit.jupiter.api.Assertions.assertThrows;
+import static org.junit.jupiter.api.Assertions.assertTrue;
 import static org.mockito.ArgumentMatchers.any;
 import static org.mockito.ArgumentMatchers.anyString;
 import static org.mockito.ArgumentMatchers.eq;
@@ -30,6 +33,7 @@ import static org.mockito.Mockito.when;
 
 import com.paiondata.aristotle.common.base.TestConstants;
 import com.paiondata.aristotle.common.base.Constants;
+import com.paiondata.aristotle.common.util.CaffeineCacheUtil;
 import com.paiondata.aristotle.mapper.NodeMapper;
 import com.paiondata.aristotle.model.dto.GraphAndNodeCreateDTO;
 import com.paiondata.aristotle.model.vo.NodeVO;
@@ -45,7 +49,6 @@ import com.paiondata.aristotle.model.entity.Graph;
 import com.paiondata.aristotle.repository.NodeRepository;
 import com.paiondata.aristotle.service.impl.NodeServiceImpl;
 
-import org.junit.jupiter.api.Assertions;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
 import org.junit.jupiter.api.extension.ExtendWith;
@@ -56,11 +59,7 @@ import cn.hutool.core.lang.UUID;
 import org.mockito.junit.jupiter.MockitoExtension;
 import org.neo4j.driver.Transaction;
 
-import java.text.SimpleDateFormat;
-import java.time.LocalDateTime;
-import java.time.ZoneId;
 import java.util.Collections;
-import java.util.Date;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
@@ -75,6 +74,24 @@ import java.util.Set;
 @ExtendWith(MockitoExtension.class)
 public class NodeServiceTest {
 
+    private static final String ID_1 = TestConstants.TEST_ID1;
+
+    private static final String ID_2 = TestConstants.TEST_ID2;
+
+    private static final String TITLE_1 = TestConstants.TEST_TITLE1;
+
+    private static final String DESCRIPTION_1 = TestConstants.TEST_DESCRIPTION1;
+
+    private static final String TITLE_2 = TestConstants.TEST_TITLE2;
+
+    private static final String DESCRIPTION_2 = TestConstants.TEST_DESCRIPTION2;
+
+    private static final String RELATION_1 = TestConstants.TEST_RELATION1;
+
+    private static final String RELATION_2 = TestConstants.TEST_RELATION2;
+
+    private static final String NAME = TestConstants.TEST_NAME1;
+
     @InjectMocks
     private NodeServiceImpl nodeService;
 
@@ -86,6 +103,9 @@ public class NodeServiceTest {
 
     @Mock
     private CommonService commonService;
+
+    @Mock
+    private CaffeineCacheUtil caffeineCache;
 
     /**
      * Setup method to initialize mocks and test data.
@@ -108,7 +128,7 @@ public class NodeServiceTest {
         final Optional<NodeVO> result = nodeService.getNodeByUuid(uuid);
 
         // Then
-        Assertions.assertTrue(result.isPresent());
+        assertTrue(result.isPresent());
         assertEquals(node, result.get());
         verify(nodeMapper).getNodeByUuid(uuid);
     }
@@ -119,14 +139,14 @@ public class NodeServiceTest {
     @Test
     void getNodeByUuidNodeDoesNotExistShouldReturnEmpty() {
         // Given
-        final String uuid = TestConstants.TEST_ID1;
+        final String uuid = ID_1;
         when(nodeMapper.getNodeByUuid(uuid)).thenReturn(null);
 
         // When
         final Optional<NodeVO> result = nodeService.getNodeByUuid(uuid);
 
         // Then
-        Assertions.assertFalse(result.isPresent());
+        assertFalse(result.isPresent());
         verify(nodeMapper).getNodeByUuid(uuid);
     }
 
@@ -140,6 +160,7 @@ public class NodeServiceTest {
 
         // Then
         assertThrows(IllegalArgumentException.class, () -> nodeService.createAndBindGraphAndNode(nodeCreateDTO, null));
+        verify(caffeineCache, never()).deleteCache(anyString());
     }
 
     /**
@@ -148,15 +169,17 @@ public class NodeServiceTest {
     @Test
     public void createAndBindGraphAndNodeGraphUuidNotFoundThrowsNoSuchElementException() {
         // Given
+        final String uuid = ID_1;
         final Transaction tx = mock(Transaction.class);
         final NodeCreateDTO nodeCreateDTO = new NodeCreateDTO();
-        nodeCreateDTO.setGraphUuid(TestConstants.TEST_ID1);
+        nodeCreateDTO.setGraphUuid(uuid);
 
         // When
         when(commonService.getGraphByUuid(anyString())).thenReturn(Optional.empty());
 
         // Then
         assertThrows(NoSuchElementException.class, () -> nodeService.createAndBindGraphAndNode(nodeCreateDTO, tx));
+        verify(caffeineCache, never()).deleteCache(anyString());
     }
 
     /**
@@ -165,29 +188,36 @@ public class NodeServiceTest {
     @Test
     void createAndBindGraphAndNodeGraphExistsShouldCreateAndBindNodes() {
         // Given
+        final String id1 = ID_1;
+        final String id2 = ID_2;
+        final String title1 = TITLE_1;
+        final String title2 = TITLE_2;
+        final String description1 = DESCRIPTION_1;
+        final String description2 = DESCRIPTION_2;
+        final String relation1 = RELATION_1;
+        final String relation2 = RELATION_2;
         final Transaction tx = mock(Transaction.class);
         final NodeCreateDTO nodeCreateDTO = new NodeCreateDTO();
-        nodeCreateDTO.setGraphUuid(TestConstants.TEST_ID1);
+
+        nodeCreateDTO.setGraphUuid(id1);
         nodeCreateDTO.setNodeDTO(List.of(
-                new NodeDTO(TestConstants.TEST_ID1, Map.of(Constants.TITLE, TestConstants.TEST_TITLE1,
-                        Constants.DESCRIPTION, TestConstants.TEST_DESCRIPTION1)),
-                new NodeDTO(TestConstants.TEST_ID2, Map.of(Constants.TITLE, TestConstants.TEST_TITLE2,
-                        Constants.DESCRIPTION, TestConstants.TEST_DESCRIPTION2))));
+                new NodeDTO(id1, Map.of(Constants.TITLE, title1, Constants.DESCRIPTION, description1)),
+                new NodeDTO(id2, Map.of(Constants.TITLE, title2, Constants.DESCRIPTION, description2))));
         nodeCreateDTO.setNodeRelationDTO(List.of(
-                new NodeRelationDTO(TestConstants.TEST_ID1, TestConstants.TEST_ID2, TestConstants.TEST_RELATION1),
-                new NodeRelationDTO(TestConstants.TEST_ID2, TestConstants.TEST_ID1, TestConstants.TEST_RELATION2)
+                new NodeRelationDTO(id1, id2, relation1),
+                new NodeRelationDTO(id2, id1, relation2)
         ));
 
-        when(commonService.getGraphByUuid(TestConstants.TEST_ID1)).thenReturn(Optional.of(new Graph()));
+        when(commonService.getGraphByUuid(id1)).thenReturn(Optional.of(new Graph()));
 
         // Mock createGraphAndBindGraphAndNode to return a non-null GraphNode
         final String graphNodeUuid = UUID.fastUUID().toString(true);
-        final String currentTime = getCurrentTime();
+        final String currentTime = TestConstants.TEST_TIME_01;
 
         when(nodeMapper.createNode(anyString(), anyString(), anyString(), anyString(), any(NodeDTO.class),
                 any(Transaction.class)))
-                .thenReturn((new NodeVO(graphNodeUuid, Map.of(Constants.TITLE, TestConstants.TEST_TITLE1,
-                        Constants.DESCRIPTION, TestConstants.TEST_DESCRIPTION1), currentTime, currentTime)));
+                .thenReturn((new NodeVO(graphNodeUuid, Map.of(Constants.TITLE, title1,
+                        Constants.DESCRIPTION, description1), currentTime, currentTime)));
         doNothing().when(nodeMapper).bindGraphNodeToGraphNode(anyString(), anyString(), anyString(), anyString(),
                 anyString(), any(Transaction.class));
 
@@ -195,11 +225,11 @@ public class NodeServiceTest {
         final List<NodeVO> dtos = nodeService.createAndBindGraphAndNode(nodeCreateDTO, tx);
 
         // Then
-        verify(commonService, times(1)).getGraphByUuid(TestConstants.TEST_ID1);
-        verify(nodeRepository, times(1)).getGraphUuidByGraphNodeUuid(Set.of(TestConstants.TEST_ID1,
-                TestConstants.TEST_ID2));
-        Assertions.assertNotNull(dtos);
-        Assertions.assertFalse(dtos.isEmpty());
+        verify(commonService, times(1)).getGraphByUuid(id1);
+        verify(nodeRepository, times(1)).getGraphUuidByGraphNodeUuid(Set.of(id1, id2));
+        verify(caffeineCache, times(2)).deleteCache(id1);
+        assertNotNull(dtos);
+        assertFalse(dtos.isEmpty());
     }
 
     /**
@@ -208,15 +238,17 @@ public class NodeServiceTest {
     @Test
     void createAndBindGraphAndNodeNodesNullShouldOnlyBindRelations() {
         // Given
+        final String id1 = ID_1;
+        final String id2 = ID_2;
+
         final Transaction tx = mock(Transaction.class);
         final NodeCreateDTO nodeCreateDTO = new NodeCreateDTO();
-        nodeCreateDTO.setGraphUuid(TestConstants.TEST_ID1);
+        nodeCreateDTO.setGraphUuid(id1);
         nodeCreateDTO.setNodeRelationDTO(List.of(
-                new NodeRelationDTO(TestConstants.TEST_ID1, TestConstants.TEST_ID2, TestConstants.TEST_RELATION1),
-                new NodeRelationDTO(TestConstants.TEST_ID2, TestConstants.TEST_ID1, TestConstants.TEST_RELATION2)
+                new NodeRelationDTO(id1, id2, RELATION_1), new NodeRelationDTO(id2, id1, RELATION_2)
         ));
 
-        when(commonService.getGraphByUuid(TestConstants.TEST_ID1)).thenReturn(Optional.of(new Graph()));
+        when(commonService.getGraphByUuid(id1)).thenReturn(Optional.of(new Graph()));
 
         // Mock createGraphAndBindGraphAndNode to return a non-null GraphNode
         doNothing().when(nodeMapper).bindGraphNodeToGraphNode(anyString(), anyString(), anyString(), anyString(),
@@ -226,10 +258,9 @@ public class NodeServiceTest {
         final List<NodeVO> dtos = nodeService.createAndBindGraphAndNode(nodeCreateDTO, tx);
 
         // Then
-        verify(commonService, times(1)).getGraphByUuid(TestConstants.TEST_ID1);
-        verify(nodeRepository, times(1)).getGraphUuidByGraphNodeUuid(Set.of(TestConstants.TEST_ID1,
-                TestConstants.TEST_ID2));
-        Assertions.assertTrue(dtos.isEmpty());
+        verify(commonService, times(1)).getGraphByUuid(id1);
+        verify(nodeRepository, times(1)).getGraphUuidByGraphNodeUuid(Set.of(id1, id2));
+        assertTrue(dtos.isEmpty());
     }
 
     /**
@@ -238,35 +269,41 @@ public class NodeServiceTest {
     @Test
     void createGraphAndBindGraphAndNodeGraphCreatedShouldCreateGraphAndBindGraphAndNode() {
         // Given
+        final String id1 = ID_1;
+        final String id2 = ID_2;
+        final String title1 = TITLE_1;
+        final String title2 = TITLE_2;
+        final String description1 = DESCRIPTION_1;
+        final String description2 = DESCRIPTION_2;
+        final String relation1 = RELATION_1;
+        final String relation2 = RELATION_2;
+
         final Transaction tx = mock(Transaction.class);
         final GraphAndNodeCreateDTO graphNodeCreateDTO = new GraphAndNodeCreateDTO();
-        graphNodeCreateDTO.setGraphCreateDTO(new GraphCreateDTO(TestConstants.TEST_TITLE1,
-                TestConstants.TEST_DESCRIPTION1, TestConstants.TEST_ID1));
-        graphNodeCreateDTO.setNodeDTO(List.of(
-                new NodeDTO(TestConstants.TEST_ID1, Map.of(Constants.TITLE, TestConstants.TEST_TITLE1,
-                        Constants.DESCRIPTION, TestConstants.TEST_DESCRIPTION1)),
-                new NodeDTO(TestConstants.TEST_ID2, Map.of(Constants.TITLE, TestConstants.TEST_TITLE2,
-                        Constants.DESCRIPTION, TestConstants.TEST_DESCRIPTION2))));
+        graphNodeCreateDTO.setGraphCreateDTO(new GraphCreateDTO(title1, description1, id1));
+        graphNodeCreateDTO.setNodeDTO(List.of(new NodeDTO(id1, Map.of(Constants.TITLE, title1,
+                        Constants.DESCRIPTION, description1)), new NodeDTO(id2, Map.of(Constants.TITLE, title2,
+                        Constants.DESCRIPTION, description2))));
         graphNodeCreateDTO.setNodeRelationDTO(List.of(
-                new NodeRelationDTO(TestConstants.TEST_ID1, TestConstants.TEST_ID2, TestConstants.TEST_RELATION1),
-                new NodeRelationDTO(TestConstants.TEST_ID2, TestConstants.TEST_ID1, TestConstants.TEST_RELATION2)
+                new NodeRelationDTO(id1, id2, relation1),
+                new NodeRelationDTO(id2, id1, relation2)
         ));
 
         when(commonService.createAndBindGraph(graphNodeCreateDTO.getGraphCreateDTO(), tx))
                 .thenReturn(Graph.builder()
-                        .uuid(TestConstants.TEST_ID1)
-                        .title(TestConstants.TEST_TITLE1)
-                        .description(TestConstants.TEST_DESCRIPTION1)
+                        .uuid(id1)
+                        .title(title1)
+                        .description(description1)
                         .build());
 
         // Mock createGraphAndBindGraphAndNode to return a non-null GraphNode
         final String graphNodeUuid = UUID.fastUUID().toString(true);
-        final String currentTime = getCurrentTime();
+        final String currentTime = TestConstants.TEST_TIME_01;
 
         when(nodeMapper.createNode(anyString(), anyString(), anyString(), anyString(), any(NodeDTO.class),
                 any(Transaction.class)))
-                .thenReturn((new NodeVO(graphNodeUuid, Map.of(Constants.TITLE, TestConstants.TEST_TITLE1,
-                        Constants.DESCRIPTION, TestConstants.TEST_DESCRIPTION1), currentTime, currentTime)));
+                .thenReturn((new NodeVO(graphNodeUuid, Map.of(Constants.TITLE, title1,
+                        Constants.DESCRIPTION, description1), currentTime, currentTime)));
         doNothing().when(nodeMapper).bindGraphNodeToGraphNode(anyString(), anyString(), anyString(), anyString(),
                 anyString(), any(Transaction.class));
 
@@ -275,13 +312,12 @@ public class NodeServiceTest {
 
         // Then
         verify(commonService, times(1)).createAndBindGraph(graphNodeCreateDTO.getGraphCreateDTO(), tx);
-        verify(nodeRepository, times(1)).getGraphUuidByGraphNodeUuid(Set.of(TestConstants.TEST_ID1,
-                TestConstants.TEST_ID2));
-        Assertions.assertNotNull(dto);
-        Assertions.assertNotNull(dto.getUuid());
-        Assertions.assertEquals(dto.getTitle(), TestConstants.TEST_TITLE1);
-        Assertions.assertEquals(dto.getDescription(), TestConstants.TEST_DESCRIPTION1);
-        Assertions.assertNotNull(dto.getNodes());
+        verify(nodeRepository, times(1)).getGraphUuidByGraphNodeUuid(Set.of(id1, id2));
+        assertNotNull(dto);
+        assertNotNull(dto.getUuid());
+        assertEquals(dto.getTitle(), title1);
+        assertEquals(dto.getDescription(), description1);
+        assertNotNull(dto.getNodes());
     }
 
     /**
@@ -290,8 +326,8 @@ public class NodeServiceTest {
     @Test
     public void deleteByUuidsNodeExistsAndBelongsToGraphSuccess() {
         // Arrange
-        final String graphUuid = TestConstants.TEST_ID1;
-        final String nodeUuid = TestConstants.TEST_ID2;
+        final String graphUuid = ID_1;
+        final String nodeUuid = ID_2;
         final NodeDeleteDTO dto = NodeDeleteDTO.builder()
                 .uuid(graphUuid)
                 .uuids(Collections.singletonList(nodeUuid))
@@ -309,6 +345,7 @@ public class NodeServiceTest {
 
         // Assert
         verify(nodeRepository, times(1)).deleteByUuids(Collections.singletonList(nodeUuid));
+        verify(caffeineCache, times(1)).deleteCache(graphUuid);
     }
 
     /**
@@ -317,8 +354,8 @@ public class NodeServiceTest {
     @Test
     public void deleteByUuidsNodeDoesNotExistThrowsException() {
         // Arrange
-        final String graphUuid = TestConstants.TEST_ID1;
-        final String nodeUuid = TestConstants.TEST_ID2;
+        final String graphUuid = ID_1;
+        final String nodeUuid = ID_2;
         final NodeDeleteDTO dto = NodeDeleteDTO.builder()
                 .uuid(graphUuid)
                 .uuids(Collections.singletonList(nodeUuid))
@@ -328,6 +365,7 @@ public class NodeServiceTest {
 
         // Assert handled by expected exception
         assertThrows(NoSuchElementException.class, () -> nodeService.deleteByUuids(dto));
+        verify(caffeineCache, never()).deleteCache(graphUuid);
     }
 
     /**
@@ -336,8 +374,8 @@ public class NodeServiceTest {
     @Test
     public void deleteByUuidsNodeBelongsToAnotherGraphThrowsException() {
         // Arrange
-        final String graphUuid = TestConstants.TEST_ID1;
-        final String nodeUuid = TestConstants.TEST_ID2;
+        final String graphUuid = ID_1;
+        final String nodeUuid = ID_2;
         final NodeDeleteDTO dto = NodeDeleteDTO.builder()
                 .uuid(graphUuid)
                 .uuids(Collections.singletonList(nodeUuid))
@@ -352,22 +390,26 @@ public class NodeServiceTest {
 
         // Assert handled by expected exception
         assertThrows(IllegalStateException.class, () -> nodeService.deleteByUuids(dto));
+        verify(caffeineCache, never()).deleteCache(graphUuid);
     }
 
     /**
-     * Tests that updating a graph node succeeds when the node exists.
+     * Tests that updating a node succeeds when the node exists.
      */
     @Test
-    void updateGraphNodeGraphNodeExistsShouldUpdateNode() {
+    void updateNodeGraphNodeExistsShouldUpdateNode() {
         // Given
         final Transaction tx = mock(Transaction.class);
-        final String uuid = TestConstants.TEST_ID1;
+        final String graphUuid = ID_1;
+        final String uuid = ID_2;
         final NodeUpdateDTO nodeUpdateDTO = NodeUpdateDTO.builder()
+                .graphUuid(graphUuid)
                 .uuid(uuid)
-                .properties(Map.of(Constants.TITLE, TestConstants.TEST_TITLE2,
-                        Constants.DESCRIPTION, TestConstants.TEST_DESCRIPTION2))
+                .properties(Map.of(Constants.TITLE, TITLE_1,
+                        Constants.DESCRIPTION, TITLE_2))
                 .build();
 
+        when(commonService.getGraphByUuid(anyString())).thenReturn(Optional.of(new Graph()));
         when(nodeMapper.getNodeByUuid(uuid)).thenReturn(new NodeVO());
 
         // When
@@ -375,29 +417,58 @@ public class NodeServiceTest {
 
         // Then
         verify(nodeMapper, times(1)).updateNodeByUuid(eq(nodeUpdateDTO), anyString(), eq(tx));
+        verify(caffeineCache, times(1)).deleteCache(graphUuid);
     }
 
     /**
-     * Tests that updating a non-existent graph node throws an exception.
+     * Tests that updating a non-existent graph throws an exception.
      */
     @Test
-    void updateGraphNodeNodeDoesNotExistShouldThrowException() {
+    void updateNodeGraphDoesNotExistShouldThrowException() {
         // Given
         final Transaction tx = mock(Transaction.class);
-        final String uuid = TestConstants.TEST_ID1;
+        final String graphUuid = ID_1;
+        final String uuid = ID_2;
         final NodeUpdateDTO nodeUpdateDTO = NodeUpdateDTO.builder()
+                .graphUuid(graphUuid)
                 .uuid(uuid)
-                .properties(Map.of(Constants.TITLE, TestConstants.TEST_TITLE2,
-                        Constants.DESCRIPTION, TestConstants.TEST_DESCRIPTION2))
+                .properties(Map.of(Constants.TITLE, TITLE_1,
+                        Constants.DESCRIPTION, DESCRIPTION_2))
                 .build();
 
-        when(nodeMapper.getNodeByUuid(TestConstants.TEST_ID1)).thenReturn(null);
+        // When
+        when(commonService.getGraphByUuid(anyString())).thenReturn(Optional.empty());
+
+        // Then
+        assertThrows(NoSuchElementException.class, () -> nodeService.updateNode(nodeUpdateDTO, tx));
+        verify(caffeineCache, never()).deleteCache(graphUuid);
+    }
+
+    /**
+     * Tests that updating a non-existent node throws an exception.
+     */
+    @Test
+    void updateNodeNodeDoesNotExistShouldThrowException() {
+        // Given
+        final Transaction tx = mock(Transaction.class);
+        final String graphUuid = ID_1;
+        final String uuid = ID_2;
+        final NodeUpdateDTO nodeUpdateDTO = NodeUpdateDTO.builder()
+                .graphUuid(graphUuid)
+                .uuid(uuid)
+                .properties(Map.of(Constants.TITLE, TITLE_1,
+                        Constants.DESCRIPTION, DESCRIPTION_1))
+                .build();
+
+        when(commonService.getGraphByUuid(anyString())).thenReturn(Optional.of(new Graph()));
+        when(nodeMapper.getNodeByUuid(uuid)).thenReturn(null);
 
         // When & Then
         assertThrows(NoSuchElementException.class, () -> nodeService.updateNode(nodeUpdateDTO, tx));
 
         // Then
-        verify(nodeMapper).getNodeByUuid(TestConstants.TEST_ID1);
+        verify(nodeMapper).getNodeByUuid(uuid);
+        verify(caffeineCache, never()).deleteCache(graphUuid);
     }
 
     /**
@@ -406,13 +477,16 @@ public class NodeServiceTest {
     @Test
     void updateRelationWithUpdateMap() {
         // Given
-        final String graphUuid = TestConstants.TEST_ID1;
+        final String graphUuid = ID_1;
+        final String id1 = ID_1;
+        final String id2 = ID_2;
+        final String name = NAME;
         final Map<String, String> updateMap = new HashMap<>();
-        updateMap.put(TestConstants.TEST_ID1, TestConstants.TEST_NAME1);
-        updateMap.put(TestConstants.TEST_ID2, TestConstants.TEST_NAME1);
+        updateMap.put(id1, name);
+        updateMap.put(id2, name);
 
-        when(nodeRepository.getRelationByUuid(TestConstants.TEST_ID1)).thenReturn(TestConstants.TEST_ID1);
-        when(nodeRepository.getRelationByUuid(TestConstants.TEST_ID2)).thenReturn(TestConstants.TEST_ID2);
+        when(nodeRepository.getRelationByUuid(id1)).thenReturn(id1);
+        when(nodeRepository.getRelationByUuid(id2)).thenReturn(id2);
 
         final RelationUpdateDTO relationUpdateDTO = new RelationUpdateDTO(graphUuid, updateMap,
                 Collections.emptyList());
@@ -421,10 +495,9 @@ public class NodeServiceTest {
         nodeService.updateRelation(relationUpdateDTO);
 
         // Then
-        verify(nodeRepository, times(1)).updateRelationByUuid(TestConstants.TEST_ID1,
-                TestConstants.TEST_NAME1, graphUuid);
-        verify(nodeRepository, times(1)).updateRelationByUuid(TestConstants.TEST_ID2,
-                TestConstants.TEST_NAME1, graphUuid);
+        verify(nodeRepository, times(1)).updateRelationByUuid(id1, name, graphUuid);
+        verify(nodeRepository, times(1)).updateRelationByUuid(id2, name, graphUuid);
+        verify(caffeineCache, times(1)).deleteCache(graphUuid);
     }
 
     /**
@@ -433,11 +506,13 @@ public class NodeServiceTest {
     @Test
     void testUpdateRelationWithDeleteList() {
         // Given
-        final String graphUuid = TestConstants.TEST_ID1;
-        final List<String> deleteList = List.of(TestConstants.TEST_ID1, TestConstants.TEST_ID2);
+        final String graphUuid = ID_1;
+        final String id1 = ID_1;
+        final String id2 = ID_2;
+        final List<String> deleteList = List.of(id1, id2);
 
-        when(nodeRepository.getRelationByUuid(TestConstants.TEST_ID1)).thenReturn(TestConstants.TEST_ID1);
-        when(nodeRepository.getRelationByUuid(TestConstants.TEST_ID2)).thenReturn(TestConstants.TEST_ID2);
+        when(nodeRepository.getRelationByUuid(id1)).thenReturn(id1);
+        when(nodeRepository.getRelationByUuid(id2)).thenReturn(id2);
 
         final RelationUpdateDTO relationUpdateDTO = new RelationUpdateDTO(graphUuid,
                 Collections.emptyMap(), deleteList);
@@ -446,8 +521,9 @@ public class NodeServiceTest {
         nodeService.updateRelation(relationUpdateDTO);
 
         // Then
-        verify(nodeRepository, times(1)).deleteRelationByUuid(TestConstants.TEST_ID1, graphUuid);
-        verify(nodeRepository, times(1)).deleteRelationByUuid(TestConstants.TEST_ID2, graphUuid);
+        verify(nodeRepository, times(1)).deleteRelationByUuid(id1, graphUuid);
+        verify(nodeRepository, times(1)).deleteRelationByUuid(id2, graphUuid);
+        verify(caffeineCache, times(1)).deleteCache(graphUuid);
     }
 
     /**
@@ -456,17 +532,22 @@ public class NodeServiceTest {
     @Test
     void testUpdateRelationWithBothUpdateMapAndDeleteList() {
         // Given
-        final String graphUuid = TestConstants.TEST_ID1;
+        final String graphUuid = ID_1;
+        final String id1 = ID_1;
+        final String id2 = ID_2;
+        final String id3 = TestConstants.TEST_ID3;
+        final String id4 = TestConstants.TEST_ID4;
+        final String name = NAME;
         final Map<String, String> updateMap = new HashMap<>();
-        updateMap.put(TestConstants.TEST_ID1, TestConstants.TEST_NAME1);
-        updateMap.put(TestConstants.TEST_ID2, TestConstants.TEST_NAME1);
+        updateMap.put(id1, name);
+        updateMap.put(id2, name);
 
-        final List<String> deleteList = List.of(TestConstants.TEST_ID3, TestConstants.TEST_ID4);
+        final List<String> deleteList = List.of(id3, id4);
 
-        when(nodeRepository.getRelationByUuid(TestConstants.TEST_ID1)).thenReturn(TestConstants.TEST_ID1);
-        when(nodeRepository.getRelationByUuid(TestConstants.TEST_ID2)).thenReturn(TestConstants.TEST_ID2);
-        when(nodeRepository.getRelationByUuid(TestConstants.TEST_ID3)).thenReturn(TestConstants.TEST_ID3);
-        when(nodeRepository.getRelationByUuid(TestConstants.TEST_ID4)).thenReturn(TestConstants.TEST_ID4);
+        when(nodeRepository.getRelationByUuid(id1)).thenReturn(id1);
+        when(nodeRepository.getRelationByUuid(id2)).thenReturn(id2);
+        when(nodeRepository.getRelationByUuid(id3)).thenReturn(id3);
+        when(nodeRepository.getRelationByUuid(id4)).thenReturn(id4);
 
         final RelationUpdateDTO relationUpdateDTO = new RelationUpdateDTO(graphUuid, updateMap, deleteList);
 
@@ -474,10 +555,11 @@ public class NodeServiceTest {
         nodeService.updateRelation(relationUpdateDTO);
 
         // Then
-        verify(nodeRepository).updateRelationByUuid(TestConstants.TEST_ID1, TestConstants.TEST_NAME1, graphUuid);
-        verify(nodeRepository).updateRelationByUuid(TestConstants.TEST_ID2, TestConstants.TEST_NAME1, graphUuid);
-        verify(nodeRepository).deleteRelationByUuid(TestConstants.TEST_ID3, graphUuid);
-        verify(nodeRepository).deleteRelationByUuid(TestConstants.TEST_ID4, graphUuid);
+        verify(nodeRepository).updateRelationByUuid(id1, name, graphUuid);
+        verify(nodeRepository).updateRelationByUuid(id2, name, graphUuid);
+        verify(nodeRepository).deleteRelationByUuid(id3, graphUuid);
+        verify(nodeRepository).deleteRelationByUuid(id4, graphUuid);
+        verify(caffeineCache, times(1)).deleteCache(graphUuid);
     }
 
     /**
@@ -486,11 +568,12 @@ public class NodeServiceTest {
     @Test
     void testUpdateRelationWithNonExistentRelationInUpdateMap() {
         // Given
-        final String graphUuid = TestConstants.TEST_ID1;
+        final String graphUuid = ID_1;
+        final String relationUuid = ID_2;
         final Map<String, String> updateMap = new HashMap<>();
-        updateMap.put(TestConstants.TEST_ID1, TestConstants.TEST_NAME1);
+        updateMap.put(relationUuid, NAME);
 
-        when(nodeRepository.getRelationByUuid(TestConstants.TEST_ID1)).thenReturn(null);
+        when(nodeRepository.getRelationByUuid(relationUuid)).thenReturn(null);
 
         final RelationUpdateDTO relationUpdateDTO = new RelationUpdateDTO(graphUuid,
                 updateMap, Collections.emptyList());
@@ -498,6 +581,8 @@ public class NodeServiceTest {
         // When & Then
         assertThrows(NoSuchElementException.class,
                 () -> nodeService.updateRelation(relationUpdateDTO));
+
+        verify(caffeineCache, never()).deleteCache(graphUuid);
     }
 
     /**
@@ -506,10 +591,11 @@ public class NodeServiceTest {
     @Test
     void testUpdateRelationWithNonExistentRelationInDeleteList() {
         // Given
-        final String graphUuid = TestConstants.TEST_ID1;
-        final List<String> deleteList = List.of(TestConstants.TEST_ID1);
+        final String graphUuid = ID_1;
+        final String id1 = ID_1;
+        final List<String> deleteList = List.of(id1);
 
-        when(nodeRepository.getRelationByUuid(TestConstants.TEST_ID1)).thenReturn(null);
+        when(nodeRepository.getRelationByUuid(id1)).thenReturn(null);
 
         final RelationUpdateDTO relationUpdateDTO = new RelationUpdateDTO(graphUuid,
                 Collections.emptyMap(), deleteList);
@@ -517,16 +603,45 @@ public class NodeServiceTest {
         // When & Then
         assertThrows(NoSuchElementException.class,
                 () -> nodeService.updateRelation(relationUpdateDTO));
+
+        verify(caffeineCache, never()).deleteCache(graphUuid);
+    }
+
+    /**
+     * Tests the getkDegreeExpansion method when the graph exists in the caffeine cache.
+     */
+    @Test
+    void testGetkDegreeExpansionCaffeineCacheHit() {
+        // Arrange
+        final String graphUuid = ID_1;
+        final String nodeUuid = ID_2;
+        final Integer k = 2;
+
+        when(commonService.getGraphByUuid(graphUuid)).thenReturn(Optional.of(new Graph()));
+        final GraphVO expectedGraphVO = new GraphVO();
+        when(caffeineCache.getCache(anyString())).thenReturn(Optional.of(expectedGraphVO));
+
+        // Execute the method under test
+        final GraphVO result = nodeService.getkDegreeExpansion(graphUuid, nodeUuid, k);
+
+        // Verify the result
+        assertEquals(expectedGraphVO, result);
+        verify(commonService, times(1)).getGraphByUuid(graphUuid);
+        verify(caffeineCache, times(1)).getCache(anyString());
+        verify(nodeMapper, never()).kDegreeExpansion(eq(graphUuid), eq(nodeUuid), eq(k));
     }
 
     /**
      * Tests the getkDegreeExpansion method when the graph exists.
      */
     @Test
-    void testGetkDegreeExpansionGraphExistsReturnsGraphVO() {
-        final String graphUuid = TestConstants.TEST_ID1;
-        final String nodeUuid = TestConstants.TEST_ID2;
+    void testGetkDegreeExpansionCaffeineCacheMiss() {
+        // Arrange
+        final String graphUuid = ID_1;
+        final String nodeUuid = ID_2;
         final Integer k = 2;
+
+        when(caffeineCache.getCache(anyString())).thenReturn(Optional.empty());
 
         // Mocking the behavior of commonService
         when(commonService.getGraphByUuid(graphUuid)).thenReturn(Optional.of(new Graph()));
@@ -542,6 +657,7 @@ public class NodeServiceTest {
         assertEquals(expectedGraphVO, result);
         verify(commonService, times(1)).getGraphByUuid(graphUuid);
         verify(nodeMapper, times(1)).kDegreeExpansion(eq(graphUuid), eq(nodeUuid), eq(k));
+        verify(caffeineCache, times(1)).setCache(anyString(), any(GraphVO.class));
     }
 
     /**
@@ -549,8 +665,9 @@ public class NodeServiceTest {
      */
     @Test
     void testGetkDegreeExpansionGraphDoesNotExistThrowsNoSuchElementException() {
-        final String graphUuid = TestConstants.TEST_ID1;
-        final String nodeUuid = TestConstants.TEST_ID2;
+        // Arrange
+        final String graphUuid = ID_1;
+        final String nodeUuid = ID_2;
         final Integer k = 2;
 
         // Mocking the behavior of commonService
@@ -562,14 +679,5 @@ public class NodeServiceTest {
         // Verify the result
         verify(commonService, times(1)).getGraphByUuid(graphUuid);
         verify(nodeMapper, never()).kDegreeExpansion(any(), any(), any());
-    }
-
-    /**
-     * Get current time.
-     * @return current time
-     */
-    private String getCurrentTime() {
-        return new SimpleDateFormat("yyyy-MM-dd HH:mm:ss")
-                .format(Date.from(LocalDateTime.now().atZone(ZoneId.systemDefault()).toInstant()));
     }
 }

@@ -64,7 +64,7 @@ public class GraphController {
     @ApiOperation(value = "Retrieve the graph by uuid and filter parameters")
     @PostMapping("/filter")
     public Result<GraphVO> getGraphByUuidAndFilterParams(@RequestBody @Valid final FilterQueryGraphDTO dto) {
-        return Result.ok(graphService.getGraphVOByUuid(dto));
+        return Result.ok(graphService.getGraphVOByFilterParams(dto));
     }
 
     /**

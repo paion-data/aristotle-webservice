@@ -26,6 +26,7 @@ import static org.mockito.Mockito.verify;
 import static org.mockito.Mockito.when;
 
 import com.paiondata.aristotle.common.base.TestConstants;
+import com.paiondata.aristotle.common.util.CaffeineCacheUtil;
 import com.paiondata.aristotle.model.dto.UserDTO;
 import com.paiondata.aristotle.model.entity.User;
 import com.paiondata.aristotle.model.vo.UserVO;
@@ -71,6 +72,9 @@ public class UserServiceTest {
 
     @Mock
     private CommonService commonService;
+
+    @Mock
+    private CaffeineCacheUtil caffeineCache;
 
     /**
      * Sets up the test environment before each test.
@@ -303,12 +307,14 @@ public class UserServiceTest {
     @Test
     public void deleteUserUsersExistDeletesUsersAndRelatedData() {
         // Arrange
+        final String uuid1 = TestConstants.TEST_ID1;
+        final String uuid2 = TestConstants.TEST_ID2;
         final List<String> oidcids = Arrays.asList(TestConstants.TEST_ID1, TestConstants.TEST_ID2);
         final List<User> users = Arrays.asList(User.builder().oidcid(TestConstants.TEST_ID1).build(),
                 User.builder().oidcid(TestConstants.TEST_ID2).build());
 
-        final List<String> graphUuids = Arrays.asList("graph1", "graph2");
-        final List<String> graphNodeUuids = Arrays.asList("node1", "node2");
+        final List<String> graphUuids = Arrays.asList(uuid1, uuid2);
+        final List<String> graphNodeUuids = Arrays.asList(uuid1, uuid2);
 
         when(commonService.getUserByOidcid(TestConstants.TEST_ID1)).thenReturn(Optional.ofNullable(users.get(0)));
         when(commonService.getUserByOidcid(TestConstants.TEST_ID2)).thenReturn(Optional.ofNullable(users.get(1)));
@@ -323,6 +329,8 @@ public class UserServiceTest {
         verify(userRepository).deleteByOidcids(oidcids);
         verify(graphRepository).deleteByUuids(graphUuids);
         verify(nodeRepository).deleteByUuids(graphNodeUuids);
+        verify(caffeineCache, times(1)).deleteCache(uuid1);
+        verify(caffeineCache, times(1)).deleteCache(uuid2);
     }
 
     /**

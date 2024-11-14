@@ -42,6 +42,15 @@ import javax.validation.constraints.NotBlank;
 public class NodeUpdateDTO extends BaseEntity {
 
     /**
+     * The unique identifier (UUID) of the graph.
+     */
+    @ApiModelProperty(value = "The unique identifier (UUID) of the graph. This field is the unique identifier for the "
+            + "graph. It is typically a UUID and is used to reference the graph in other parts of the system. This "
+            + "field is required and must not be blank.", required = true, example = "123e4567e89b12d3a456426614174001")
+    @NotBlank(message = Message.UUID_MUST_NOT_BE_BLANK)
+    private String graphUuid;
+
+    /**
      * The unique identifier (UUID) of the node.
      *
      * <p>

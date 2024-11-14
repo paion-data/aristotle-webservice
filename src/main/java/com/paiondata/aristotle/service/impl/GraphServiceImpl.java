@@ -17,6 +17,7 @@ package com.paiondata.aristotle.service.impl;
 
 import com.paiondata.aristotle.common.annotion.Neo4jTransactional;
 import com.paiondata.aristotle.common.base.Message;
+import com.paiondata.aristotle.common.util.CaffeineCacheUtil;
 import com.paiondata.aristotle.mapper.GraphMapper;
 import com.paiondata.aristotle.mapper.NodeMapper;
 import com.paiondata.aristotle.model.dto.FilterQueryGraphDTO;
@@ -29,7 +30,6 @@ import com.paiondata.aristotle.repository.NodeRepository;
 import com.paiondata.aristotle.repository.GraphRepository;
 import com.paiondata.aristotle.service.CommonService;
 import com.paiondata.aristotle.service.GraphService;
-import lombok.AllArgsConstructor;
 
 import org.neo4j.driver.Transaction;
 import org.slf4j.Logger;
@@ -52,7 +52,6 @@ import java.util.Optional;
  * This class provides methods for CRUD operations on graphs and their relationships.
  */
 @Service
-@AllArgsConstructor
 public class GraphServiceImpl implements GraphService {
 
     private static final Logger LOG = LoggerFactory.getLogger(GraphServiceImpl.class);
@@ -72,8 +71,11 @@ public class GraphServiceImpl implements GraphService {
     @Autowired
     private CommonService commonService;
 
+    @Autowired
+    private CaffeineCacheUtil caffeineCache;
+
     /**
-     * Retrieves a graph view object (VO) by its UUID.
+     * Retrieves a graph view object (VO) by its UUID and filter params.
      * <p>
      * Retrieves the graph by its UUID using the {@link GraphRepository#getGraphByUuid(String)} method.
      * Throws a {@link NoSuchElementException} if the graph is not found.
@@ -88,11 +90,21 @@ public class GraphServiceImpl implements GraphService {
      * @throws NoSuchElementException If the graph with the specified UUID is not found.
      */
     @Override
-    public GraphVO getGraphVOByUuid(final FilterQueryGraphDTO filterQueryGraphDTO) {
+    public GraphVO getGraphVOByFilterParams(final FilterQueryGraphDTO filterQueryGraphDTO) {
         final String uuid = filterQueryGraphDTO.getUuid();
         final int pageNumber = filterQueryGraphDTO.getPageNumber();
         final int pageSize = filterQueryGraphDTO.getPageSize();
 
+        // generate cache key
+        final String cacheKey = generateCacheKey(uuid, pageNumber, pageSize);
+
+        // if cache enabled, check if the graph is cached
+        final Optional<GraphVO> optionalCachedGraphVO = caffeineCache.getCache(cacheKey);
+        if (optionalCachedGraphVO.isPresent()) {
+            return optionalCachedGraphVO.get();
+        }
+
+        // if cache disabled or no cache found, retrieve the graph from the database
         final Graph graphByUuid = graphRepository.getGraphByUuid(uuid);
 
         if (graphByUuid == null) {
@@ -107,9 +119,29 @@ public class GraphServiceImpl implements GraphService {
 
         final GetRelationDTO dto = nodeMapper.getRelationByGraphUuid(uuid, properties, pageNumber, pageSize);
 
-        return new GraphVO(graphByUuid.getUuid(), graphByUuid.getTitle(), graphByUuid.getDescription(),
+        final GraphVO graphVO = new GraphVO(graphByUuid.getUuid(), graphByUuid.getTitle(), graphByUuid.getDescription(),
                 graphByUuid.getCreateTime(), graphByUuid.getUpdateTime(), dto.getNodes(), dto.getRelations(),
                 pageNumber, pageSize, dto.getTotalCount());
+
+        // if cache enabled, cache the graphVO
+        caffeineCache.setCache(cacheKey, graphVO);
+
+        return graphVO;
+    }
+
+    /**
+     * Generates a cache key for the k-degree expansion of a graph.
+     * <p>
+     * This method generates a cache key for the pageNumber and pageSize of a graph by concatenating the graph UUID.
+     *
+     * @param uuid The UUID of the graph.
+     * @param pageNumber The page number for pagination.
+     * @param pageSize The page size for pagination.
+     *
+     * @return A string representing the cache key.
+     */
+    private String generateCacheKey(final String uuid, final int pageNumber, final int pageSize) {
+        return String.format("%s_%d_%d", uuid, pageNumber, pageSize);
     }
 
     /**
@@ -153,6 +185,8 @@ public class GraphServiceImpl implements GraphService {
 
         nodeRepository.deleteByUuids(relatedGraphNodeUuids);
         graphRepository.deleteByUuids(uuids);
+
+        uuids.forEach(uuid -> caffeineCache.deleteCache(uuid));
     }
 
     /**
@@ -188,6 +222,8 @@ public class GraphServiceImpl implements GraphService {
 
         if (graphByUuid.isPresent()) {
             graphMapper.updateGraphByUuid(uuid, graphUpdateDTO.getTitle(), graphUpdateDTO.getDescription(), now, tx);
+
+            caffeineCache.deleteCache(uuid);
         } else {
             final String message = String.format(Message.GRAPH_NULL, uuid);
             LOG.error(message);

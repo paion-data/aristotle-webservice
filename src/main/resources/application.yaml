@@ -26,5 +26,8 @@ spring:
       database: ${NEO4J_DATABASE:neo4j}
       username: ${NEO4J_USERNAME:neo4j}
       password: ${NEO4J_PASSWORD:12345678}
+  read-cache:
+    enabled: true
+    num-subgraphs: 500
 server:
   port: 8080

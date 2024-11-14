@@ -40,7 +40,7 @@ import java.util.stream.Collectors;
  * Integration tests for the UserController.
  */
 @TestMethodOrder(MethodOrderer.OrderAnnotation.class)
-public class UserControllerIT extends AbstractIT {
+public class EnableCaffeineCacheUserControllerIT extends AbstractEnableCaffeineCacheIT {
 
     /**
      * Tests that the user controller handles invalid user creation requests.

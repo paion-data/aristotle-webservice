@@ -194,4 +194,19 @@ public class Message {
      * value can not be null.
      */
     public static final String VALUE_CAN_NOT_BE_NULL = "'%s' value can not be null";
+
+    /**
+     * Returning cached graphVO for UUID.
+     */
+    public static final String RETURNING_CACHED_GRAPHVO_FOR_UUID = "Returning cached graphVO for UUID: {}";
+
+    /**
+     * Caching graphVO for UUID.
+     */
+    public static final String CACHING_GRAPHVO_FOR_UUID = "Caching graphVO for UUID: {}";
+
+    /**
+     * Deleting cached graphVO for UUID.
+     */
+    public static final String DELETING_CACHED_GRAPHVO_FOR_UUID = "Deleting cached graphVO for UUID: {}";
 }
