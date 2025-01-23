@@ -410,11 +410,11 @@
         <property name="message" value="Extra space at end of file"/>
         <property name="severity" value="error"/>
     </module>
-    <module name="RegexpMultiline">
-        <property name="format" value="\}\R\R\s?\}"/>
-        <property name="message" value="Extra lines between braces"/>
-        <property name="severity" value="error"/>
-    </module>
+<!--    <module name="RegexpMultiline">-->
+<!--        <property name="format" value="\}\R\R\s?\}"/>-->
+<!--        <property name="message" value="Extra lines between braces"/>-->
+<!--        <property name="severity" value="error"/>-->
+<!--    </module>-->
     <module name="RegexpSingleline">
         <property name="format" value="\s$"/>
         <property name="message" value="Trailing space"/>

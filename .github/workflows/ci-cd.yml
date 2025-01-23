@@ -90,6 +90,6 @@ jobs:
         uses: peter-evans/repository-dispatch@v2
         with:
           token: ${{ secrets.ARISTOTLE_DOWNSTREAM_CICD_TRIGGER_TOKEN }}
-          repository: paion-data/aristotle-acceptance-tests
+          repository: /Doom9527/aristotle-acceptance-tests
           event-type: aristotle-changes
           client-payload: '{"ref": "${{ github.ref }}"}'
