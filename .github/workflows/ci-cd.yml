@@ -42,7 +42,7 @@ jobs:
       - name: Checkout Repository
         uses: actions/checkout@v3
 
-      - name: Set up JDK
+      - name: Set up JDK 17
         uses: paion-data/immutable-infrastructure-as-a-service/.github/actions/jdk-setup@master
 
       - name: Install Dependencies
