@@ -28,12 +28,12 @@ import org.neo4j.driver.Transaction;
 public interface GraphService {
 
     /**
-     * Retrieves a graph by its UUID and filter parameters.
+     * Retrieves a graph by filter parameters.
      * @param filterQueryGraphDTO the filter query DTO
      *
      * @return the graph VO contains the graph details and nodes and relations
      */
-    GraphVO getGraphVOByUuid(FilterQueryGraphDTO filterQueryGraphDTO);
+    GraphVO getGraphVOByFilterParams(FilterQueryGraphDTO filterQueryGraphDTO);
 
     /**
      * Deletes graphs by their UUIDs.

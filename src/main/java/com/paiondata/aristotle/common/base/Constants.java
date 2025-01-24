@@ -218,4 +218,19 @@ public interface Constants {
      * Represents the quote in cypher.
      */
     String QUOTE = "'";
+
+    /**
+     * Represents the storage unit in caffeine cache config.
+     */
+    String STORAGE_UNIT_KB = "KB";
+
+    /**
+     * Represents the storage unit in caffeine cache config.
+     */
+    String STORAGE_UNIT_MB = "MB";
+
+    /**
+     * Represents the storage unit in caffeine cache config.
+     */
+    String STORAGE_UNIT_GB = "GB";
 }

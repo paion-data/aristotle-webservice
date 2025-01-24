@@ -80,7 +80,6 @@ public class BeanPostProcessorConfig {
              *
              * @throws IllegalStateException if an error occurs while retrieving the handler mappings.
              */
-            @SuppressWarnings("unchecked")
             private List<RequestMappingInfoHandlerMapping> getHandlerMappings(final Object bean) {
                 try {
                     final Field field = ReflectionUtils.findField(bean.getClass(), "handlerMappings");

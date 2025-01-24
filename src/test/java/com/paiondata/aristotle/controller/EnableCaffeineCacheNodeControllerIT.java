@@ -20,6 +20,7 @@ import static org.junit.jupiter.api.Assertions.assertNotNull;
 import static org.junit.jupiter.api.Assertions.assertNull;
 import static org.junit.jupiter.api.Assertions.assertTrue;
 
+import com.paiondata.aristotle.common.base.Message;
 import com.paiondata.aristotle.common.base.TestConstants;
 
 import org.junit.jupiter.api.MethodOrderer;
@@ -40,12 +41,12 @@ import java.util.List;
 import java.util.stream.Collectors;
 
 /**
- * NodeControllerIT is a test class that extends AbstractIT and contains integration tests for the
+ * EnableCaffeineCacheNodeControllerIT is a test class that extends AbstractIT and contains integration tests for the
  * NodeController. These tests validate various operations such as creating, updating, deleting, and retrieving
  * nodes and their relationships.
  */
 @TestMethodOrder(MethodOrderer.OrderAnnotation.class)
-public class NodeControllerIT extends AbstractIT {
+public class EnableCaffeineCacheNodeControllerIT extends AbstractEnableCaffeineCacheIT {
 
     /**
      * A static string variable to store the UUID of a first created graph.
@@ -134,7 +135,7 @@ public class NodeControllerIT extends AbstractIT {
                 .given()
                 .contentType(ContentType.JSON)
                 .accept(ContentType.JSON)
-                .body(String.format(payload(UPDATE_NODE_JSON), "", ""))
+                .body(String.format(payload(UPDATE_NODE_JSON), "", "", ""))
                 .when()
                 .post(NODE_ENDPOINT + UPDATE_ENDPOINT)
                 .then()
@@ -144,8 +145,16 @@ public class NodeControllerIT extends AbstractIT {
         response.then()
                 .statusCode(HttpStatus.BAD_REQUEST.value());
 
-        assertEquals("Request parameter verification error: ", response.jsonPath().get(TestConstants.MSG));
-        assertEquals("uuid must not be blank!", response.jsonPath().get(TestConstants.DATA_0));
+        final List<String> actualData = response.jsonPath().getList(TestConstants.DATA);
+        final List<String> expectedData = Arrays.stream(new String[]{Message.UUID_MUST_NOT_BE_BLANK,
+                Message.UUID_MUST_NOT_BE_BLANK})
+                .filter(s -> !s.isEmpty())
+                .collect(Collectors.toList());
+
+        Collections.sort(actualData);
+        Collections.sort(expectedData);
+
+        assertEquals(expectedData, actualData);
     }
 
     /**
@@ -289,7 +298,7 @@ public class NodeControllerIT extends AbstractIT {
                 .given()
                 .contentType(ContentType.JSON)
                 .accept(ContentType.JSON)
-                .body(String.format(payload(UPDATE_NODE_JSON), nodeUuid1, TestConstants.TEST_TITLE4))
+                .body(String.format(payload(UPDATE_NODE_JSON), graphUuid1, nodeUuid1, TestConstants.TEST_TITLE4))
                 .when()
                 .post(NODE_ENDPOINT + UPDATE_ENDPOINT)
                 .then()

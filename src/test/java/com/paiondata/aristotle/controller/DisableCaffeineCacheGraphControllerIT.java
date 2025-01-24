@@ -40,12 +40,12 @@ import java.util.List;
 import java.util.stream.Collectors;
 
 /**
- * GraphControllerIT is a test class that extends AbstractIT and contains integration tests for
+ * EnableCaffeineCacheGraphControllerIT is a test class that extends AbstractIT and contains integration tests for
  * the GraphController. These tests validate various operations such as retrieving, updating, deleting,
  * and creating graphs and nodes.
  */
 @TestMethodOrder(MethodOrderer.OrderAnnotation.class)
-public class GraphControllerIT extends AbstractIT {
+public class DisableCaffeineCacheGraphControllerIT extends AbstractDisableCaffeineCacheIT {
 
     /**
      * A static string variable to store the UUID of a created graph.

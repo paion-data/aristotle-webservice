@@ -26,5 +26,18 @@ spring:
       database: ${NEO4J_DATABASE:neo4j}
       username: ${NEO4J_USERNAME:neo4j}
       password: ${NEO4J_PASSWORD:12345678}
+  read-cache:
+    enabled: true
+    num-subgraphs: 500
+  redis:
+    host: ${REDIS_HOST:127.0.0.1}
+    port: ${REDIS_PORT:6379}
+    password: ${REDIS_PASSWORD:123321}
+    lettuce:
+      pool:
+        max-active: 8
+        max-idle: 8
+        min-idle: 0
+        max-wait: 100ms
 server:
   port: 8080

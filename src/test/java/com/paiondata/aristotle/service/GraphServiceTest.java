@@ -17,6 +17,7 @@ package com.paiondata.aristotle.service;
 
 import static org.junit.jupiter.api.Assertions.assertEquals;
 import static org.junit.jupiter.api.Assertions.assertThrows;
+import static org.mockito.ArgumentMatchers.any;
 import static org.mockito.ArgumentMatchers.anyList;
 import static org.mockito.ArgumentMatchers.anyString;
 import static org.mockito.ArgumentMatchers.eq;
@@ -29,6 +30,7 @@ import static org.mockito.Mockito.when;
 
 import com.paiondata.aristotle.common.base.TestConstants;
 import com.paiondata.aristotle.common.base.Message;
+import com.paiondata.aristotle.common.util.CaffeineCacheUtil;
 import com.paiondata.aristotle.mapper.GraphMapper;
 import com.paiondata.aristotle.mapper.NodeMapper;
 import com.paiondata.aristotle.model.dto.FilterQueryGraphDTO;
@@ -51,11 +53,8 @@ import org.mockito.Mock;
 import org.mockito.junit.jupiter.MockitoExtension;
 import org.neo4j.driver.Transaction;
 
-import java.text.SimpleDateFormat;
-import java.time.LocalDateTime;
-import java.time.ZoneId;
+import java.util.Arrays;
 import java.util.Collections;
-import java.util.Date;
 import java.util.Map;
 import java.util.NoSuchElementException;
 import java.util.Optional;
@@ -66,6 +65,17 @@ import java.util.Optional;
  */
 @ExtendWith(MockitoExtension.class)
 public class GraphServiceTest {
+
+    private static final String ID_1 = TestConstants.TEST_ID1;
+
+    private static final String ID_2 = TestConstants.TEST_ID2;
+
+    private static final String TITLE = TestConstants.TEST_TITLE1;
+
+    private static final String DESCRIPTION = TestConstants.TEST_DESCRIPTION1;
+
+    private static final Map<String, String> PROPERTIES = Collections.singletonMap(TestConstants.TEST_KEY1,
+            TestConstants.TEST_VALUE1);
 
     @InjectMocks
     private GraphServiceImpl graphService;
@@ -85,6 +95,9 @@ public class GraphServiceTest {
     @Mock
     private CommonService commonService;
 
+    @Mock
+    private CaffeineCacheUtil caffeineCache;
+
     /**
      * Setup method to initialize mocks and test data.
      */
@@ -93,157 +106,170 @@ public class GraphServiceTest {
     }
 
     /**
-     * Tests that getting a GraphVO by UUID returns the correct GraphVO when the graph exists.
+     * Tests that getting a GraphVO by UUID returns the correct GraphVO when the graph exists in the caffeine cache.
      */
     @Test
-    void getGraphVOByUuidGraphExistReturnGraphVO() {
+    public void testGetGraphVOByFilterParamsCaffeineCacheHit() {
         // Arrange
-        final String uuid1 = TestConstants.TEST_ID1;
-        final String uuid2 = TestConstants.TEST_ID2;
-        final String title = TestConstants.TEST_TITLE1;
-        final String description = TestConstants.TEST_DESCRIPTION1;
-        final String name = TestConstants.TEST_NAME1;
-        final String currentTime = getCurrentTime();
-        final Map<String, String> properties = Collections.singletonMap("key", "value");
+        final String id1 = ID_1;
 
-        when(graphRepository.getGraphByUuid(uuid1)).thenReturn(Graph.builder()
-                .uuid(uuid1)
-                .title(title)
-                .description(description)
+        final GraphVO cachedGraphVO = new GraphVO(id1, TestConstants.TEST_TITLE2, TestConstants.TEST_DESCRIPTION1,
+                TestConstants.TEST_TIME_01, TestConstants.TEST_TIME_02,
+                Collections.emptyList(), Collections.emptyList(), TestConstants.DEFALUT_PAGE_NUMBER,
+                TestConstants.DEFALUT_PAGE_SIZE, TestConstants.EXPECT_TOTAL_COUNT_01);
+        when(caffeineCache.getCache(anyString())).thenReturn(Optional.of(cachedGraphVO));
+
+        // Act
+        final GraphVO result = graphService.getGraphVOByFilterParams(new FilterQueryGraphDTO(id1, PROPERTIES,
+                TestConstants.DEFALUT_PAGE_NUMBER, TestConstants.DEFALUT_PAGE_SIZE));
+
+        // Assert
+        assertEquals(cachedGraphVO, result);
+        verify(caffeineCache, times(1)).getCache(anyString());
+        verify(graphRepository, never()).getGraphByUuid(anyString());
+    }
+
+    /**
+     * Tests that getting a GraphVO by UUID returns the correct GraphVO when the graph exists in the database.
+     */
+    @Test
+    void testGetGraphVOByFilterParamsCaffeineCacheMiss() {
+        // Arrange
+        final String id1 = ID_1;
+        final String id2 = ID_2;
+        final String name = TestConstants.TEST_NAME1;
+        final String currentTime = TestConstants.TEST_TIME_01;
+
+        when(caffeineCache.getCache(anyString())).thenReturn(Optional.empty());
+
+        when(graphRepository.getGraphByUuid(id1)).thenReturn(Graph.builder()
+                .uuid(id1)
+                .title(TITLE)
+                .description(DESCRIPTION)
                 .createTime(currentTime)
                 .updateTime(currentTime)
                 .build());
 
-        when(nodeMapper.getRelationByGraphUuid(uuid1, properties,
+        when(nodeMapper.getRelationByGraphUuid(ID_1, PROPERTIES,
                 TestConstants.DEFALUT_PAGE_NUMBER, TestConstants.DEFALUT_PAGE_SIZE))
                 .thenReturn(new GetRelationDTO(
                         Collections.singletonList(RelationVO.builder()
-                        .uuid(uuid1)
+                        .uuid(id1)
                         .name(name)
                         .createTime(currentTime)
                         .updateTime(currentTime)
-                        .sourceNode(uuid1)
-                        .targetNode(uuid2)
+                        .sourceNode(id1)
+                        .targetNode(id2)
                         .build()),
                         Collections.singletonList(NodeVO.builder()
-                                .uuid(uuid2)
-                                .properties(properties)
+                                .uuid(id2)
+                                .properties(PROPERTIES)
                                 .createTime(currentTime)
                                 .updateTime(currentTime)
                                 .build()),
                         TestConstants.EXPECT_TOTAL_COUNT_01));
 
         // Act
-        final GraphVO graphVO = graphService.getGraphVOByUuid(new FilterQueryGraphDTO(uuid1, properties,
+        final GraphVO graphVO = graphService.getGraphVOByFilterParams(new FilterQueryGraphDTO(ID_1, PROPERTIES,
                 TestConstants.DEFALUT_PAGE_NUMBER, TestConstants.DEFALUT_PAGE_SIZE));
 
         // Assert
-        assertEquals(uuid1, graphVO.getUuid());
-        assertEquals(title, graphVO.getTitle());
-        assertEquals(description, graphVO.getDescription());
+        assertEquals(ID_1, graphVO.getUuid());
+        assertEquals(TITLE, graphVO.getTitle());
+        assertEquals(DESCRIPTION, graphVO.getDescription());
         assertEquals(currentTime, graphVO.getCreateTime());
         assertEquals(currentTime, graphVO.getUpdateTime());
-        assertEquals(uuid1, graphVO.getRelations().get(0).getUuid());
-        assertEquals(uuid2, graphVO.getNodes().get(0).getUuid());
+        assertEquals(ID_1, graphVO.getRelations().get(0).getUuid());
+        assertEquals(ID_2, graphVO.getNodes().get(0).getUuid());
 
-        verify(graphRepository, times(1)).getGraphByUuid(uuid1);
-        verify(nodeMapper, times(1)).getRelationByGraphUuid(uuid1, properties,
+        verify(graphRepository, times(1)).getGraphByUuid(ID_1);
+        verify(nodeMapper, times(1)).getRelationByGraphUuid(ID_1, PROPERTIES,
                 TestConstants.DEFALUT_PAGE_NUMBER, TestConstants.DEFALUT_PAGE_SIZE);
+        verify(caffeineCache, times(1)).setCache(anyString(), any(GraphVO.class));
     }
 
     /**
-     * Tests that getting a GraphVO By Uuid throws a NoSuchElementException when the graph does not exist.
+     * Tests that getting a GraphVO by UUID returns the correct GraphVO when the graph does not exist.
      */
     @Test
-    void getGraphVOByUuidGraphDoesNotExistThrowsNoSuchElementException() {
+    void testGetGraphVOByFilterParamsGraphNotFound() {
         // Arrange
-        final String uuid = TestConstants.TEST_ID1;
-        final Map<String, String> properties = Collections.singletonMap("key1", "value1");
-        when(graphRepository.getGraphByUuid(uuid)).thenReturn(null);
+        final String id1 = ID_1;
+        when(caffeineCache.getCache(anyString())).thenReturn(Optional.empty());
+        when(graphRepository.getGraphByUuid(id1)).thenReturn(null);
 
         // Act & Assert
-        assertThrows(NoSuchElementException.class, () -> graphService.getGraphVOByUuid(
-                new FilterQueryGraphDTO(uuid, properties,
+        assertThrows(NoSuchElementException.class, () -> graphService.getGraphVOByFilterParams(
+                new FilterQueryGraphDTO(id1, PROPERTIES,
                         TestConstants.DEFALUT_PAGE_NUMBER, TestConstants.DEFALUT_PAGE_SIZE)));
 
-        verify(graphRepository, times(1)).getGraphByUuid(uuid);
-        verify(nodeMapper, never()).getRelationByGraphUuid(uuid, properties,
+        verify(graphRepository, times(1)).getGraphByUuid(id1);
+        verify(nodeMapper, never()).getRelationByGraphUuid(id1, PROPERTIES,
                 TestConstants.DEFALUT_PAGE_NUMBER, TestConstants.DEFALUT_PAGE_SIZE);
+        verify(caffeineCache, never()).setCache(anyString(), any(GraphVO.class));
     }
 
     /**
      * Tests that deleting a graph throws a NoSuchElementException when the graph does not exist.
      */
     @Test
-    public void deleteByUuidsGraphNotExistThrowsNoSuchElementException() {
+    public void testDeleteByUuidsGraphNotFound() {
+        final String id1 = ID_1;
+        final String id2 = ID_2;
         // Arrange
-        final String oidcid = TestConstants.TEST_ID1;
-        final String uuid = TestConstants.TEST_ID2;
-
-        final GraphDeleteDTO graphDeleteDTO = GraphDeleteDTO.builder()
-                .oidcid(oidcid)
-                .uuids(Collections.singletonList(uuid))
-                .build();
-
-        when(commonService.getGraphByUuid(uuid)).thenReturn(Optional.empty());
+        final GraphDeleteDTO graphDeleteDTO = new GraphDeleteDTO(id1, Arrays.asList(id2));
+        when(commonService.getGraphByUuid(id2)).thenReturn(Optional.empty());
 
         // Act & Assert
         assertThrows(NoSuchElementException.class, () -> graphService.deleteByUuids(graphDeleteDTO));
-        verify(commonService, times(1)).getGraphByUuid(uuid);
+        verify(commonService, times(1)).getGraphByUuid(id2);
         verify(graphRepository, never()).deleteByUuids(anyList());
         verify(nodeRepository, never()).deleteByUuids(anyList());
+        verify(caffeineCache, never()).deleteCache(anyString());
     }
 
     /**
      * Tests that deleting a graph throws a IllegalStateException when the graph is bound to another user.
      */
     @Test
-    public void deleteByUuidsGraphBoundToAnotherUserThrowsIllegalStateException() {
+    public void testDeleteByUuidsGraphBoundToAnotherUser() {
         // Arrange
-        final String oidcid = TestConstants.TEST_ID1;
-        final String uuid = TestConstants.TEST_ID2;
-
+        final String id1 = ID_1;
+        final String id2 = ID_2;
         final Graph graph = Graph.builder()
-                .uuid(uuid)
+                .uuid(id2)
                 .build();
 
-        final GraphDeleteDTO graphDeleteDTO = GraphDeleteDTO.builder()
-                .oidcid(oidcid)
-                .uuids(Collections.singletonList(uuid))
-                .build();
+        final GraphDeleteDTO graphDeleteDTO = new GraphDeleteDTO(id1, Arrays.asList(id2));
 
-        when(commonService.getGraphByUuid(uuid)).thenReturn(Optional.ofNullable(graph));
-        when(graphRepository.getGraphByGraphUuidAndOidcid(uuid, oidcid)).thenReturn(null);
+        when(commonService.getGraphByUuid(id2)).thenReturn(Optional.ofNullable(graph));
+        when(graphRepository.getGraphByGraphUuidAndOidcid(id2, id1)).thenReturn(null);
 
         // Act & Assert
         assertThrows(IllegalStateException.class, () -> graphService.deleteByUuids(graphDeleteDTO));
-        verify(commonService, times(1)).getGraphByUuid(uuid);
-        verify(graphRepository, times(1)).getGraphByGraphUuidAndOidcid(uuid, oidcid);
+        verify(commonService, times(1)).getGraphByUuid(id2);
+        verify(graphRepository, times(1)).getGraphByGraphUuidAndOidcid(id2, id1);
         verify(graphRepository, never()).deleteByUuids(anyList());
         verify(nodeRepository, never()).deleteByUuids(anyList());
+        verify(caffeineCache, never()).deleteCache(anyString());
     }
 
     /**
      * Tests that deleting a graph successfully deletes the graph and related graph nodes.
      */
     @Test
-    public void deleteByUuidsValidRequestDeletesGraphsAndRelatedGraphNodes() {
+    public void testDeleteByUuidsSuccess() {
         // Arrange
-        final String oidcid = TestConstants.TEST_ID1;
-        final String graphUuid = TestConstants.TEST_ID2;
+        final String id1 = ID_1;
+        final String id2 = ID_2;
         final String nodeUuid = TestConstants.TEST_ID3;
-
         final Graph graph = Graph.builder()
-                .uuid(oidcid)
+                .uuid(id1)
                 .build();
+        final GraphDeleteDTO graphDeleteDTO = new GraphDeleteDTO(id1, Arrays.asList(id2));
 
-        final GraphDeleteDTO graphDeleteDTO = GraphDeleteDTO.builder()
-                .oidcid(oidcid)
-                .uuids(Collections.singletonList(graphUuid))
-                .build();
-
-        when(commonService.getGraphByUuid(graphUuid)).thenReturn(Optional.ofNullable(graph));
-        when(graphRepository.getGraphByGraphUuidAndOidcid(graphUuid, oidcid)).thenReturn(graphUuid);
+        when(commonService.getGraphByUuid(id2)).thenReturn(Optional.ofNullable(graph));
+        when(graphRepository.getGraphByGraphUuidAndOidcid(id2, id1)).thenReturn(id2);
         when(graphRepository.getGraphNodeUuidsByGraphUuids(anyList())).thenReturn(Collections.singletonList(nodeUuid));
 
         doNothing().when(nodeRepository).deleteByUuids(anyList());
@@ -253,34 +279,38 @@ public class GraphServiceTest {
 
         // Act & Assert
         verify(nodeRepository, times(1)).deleteByUuids(Collections.singletonList(nodeUuid));
-        verify(graphRepository, times(1)).deleteByUuids(Collections.singletonList(graphUuid));
+        verify(graphRepository, times(1)).deleteByUuids(Collections.singletonList(id2));
+        verify(caffeineCache, times(1)).deleteCache(id2);
     }
 
     /**
      * Tests that updating a graph throws a IllegalArgumentException when the transaction is null.
      */
     @Test
-    public void updateGraphTransactionIsNullShouldThrowTransactionException() {
+    public void testUpdateGraphTransactionNull() {
         // Arrange
-        final GraphUpdateDTO graphUpdateDTO = new GraphUpdateDTO(TestConstants.TEST_ID1, TestConstants.TEST_TITLE1,
-                TestConstants.TEST_DESCRIPTION1);
+        final String id = ID_1;
+        final GraphUpdateDTO graphUpdateDTO = new GraphUpdateDTO(id, TITLE, DESCRIPTION);
 
         final IllegalArgumentException exception = assertThrows(IllegalArgumentException.class,
                 () -> graphService.updateGraph(graphUpdateDTO, null));
 
         // Act & Assert
         assertEquals(Message.TRANSACTION_NULL, exception.getMessage());
+        verify(graphMapper, never()).updateGraphByUuid(anyString(), anyString(), anyString(), anyString(),
+                any(Transaction.class));
+        verify(caffeineCache, never()).deleteCache(anyString());
     }
 
     /**
      * Tests that updating a graph updates the graph when it exists.
      */
     @Test
-    void updateGraphWhenGraphExistsShouldUpdateGraph() {
+    void testUpdateGraphSuccess() {
         // Arrange
+        final String id = ID_1;
         final Transaction tx = mock(Transaction.class);
-        final GraphUpdateDTO graphUpdateDTO = new GraphUpdateDTO(TestConstants.TEST_ID1, TestConstants.TEST_TITLE1,
-                TestConstants.TEST_DESCRIPTION1);
+        final GraphUpdateDTO graphUpdateDTO = new GraphUpdateDTO(id, TITLE, DESCRIPTION);
         final Optional<Graph> graph = Optional.of(new Graph());
 
         when(commonService.getGraphByUuid(anyString())).thenReturn(graph);
@@ -290,16 +320,18 @@ public class GraphServiceTest {
         // Act & Assert
         verify(graphMapper, times(1)).updateGraphByUuid(eq(graphUpdateDTO.getUuid()), eq(graphUpdateDTO.getTitle()),
                 eq(graphUpdateDTO.getDescription()), anyString(), eq(tx));
+        verify(caffeineCache, times(1)).deleteCache(id);
     }
 
     /**
      * Tests that updating a graph throws a NoSuchElementException when the graph does not exist.
      */
     @Test
-    void updateGraphGraphNotExistsThrowsNoSuchElementException() {
+    void testUpdateGraphGraphNotFoun() {
         // Arrange
+        final String id = ID_1;
         final Transaction tx = mock(Transaction.class);
-        final GraphUpdateDTO graphUpdateDTO = new GraphUpdateDTO(TestConstants.TEST_ID1, TestConstants.TEST_TITLE1,
+        final GraphUpdateDTO graphUpdateDTO = new GraphUpdateDTO(id, TestConstants.TEST_TITLE1,
                 TestConstants.TEST_DESCRIPTION1);
 
         when(commonService.getGraphByUuid(anyString())).thenReturn(Optional.empty());
@@ -309,14 +341,8 @@ public class GraphServiceTest {
 
         // Act & Assert
         assertEquals(String.format(Message.GRAPH_NULL, graphUpdateDTO.getUuid()), exception.getMessage());
-    }
-
-    /**
-     * Get current time.
-     * @return current time
-     */
-    private String getCurrentTime() {
-        return new SimpleDateFormat("yyyy-MM-dd HH:mm:ss")
-                .format(Date.from(LocalDateTime.now().atZone(ZoneId.systemDefault()).toInstant()));
+        verify(graphMapper, never()).updateGraphByUuid(anyString(), anyString(), anyString(), anyString(),
+                any(Transaction.class));
+        verify(caffeineCache, never()).deleteCache(anyString());
     }
 }
